@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-label="SirR">
+  <title>SirR</title>
+  <rect width="512" height="512" rx="112" fill="#EAB308"/>
+  <text
+    x="256"
+    y="256"
+    text-anchor="middle"
+    font-family="Inter, system-ui, -apple-system, sans-serif"
+    font-size="136"
+    font-weight="700"
+    letter-spacing="-3.6"
+  >
+    <tspan fill="#0A0A0A">Sir</tspan><tspan fill="#CA8A04">R</tspan>
+  </text>
+  <line x1="144" y1="400" x2="224" y2="400" stroke="#0A0A0A" stroke-width="14" stroke-linecap="round" opacity="0.35"/>
+  <line x1="256" y1="400" x2="368" y2="400" stroke="#0A0A0A" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="144" cy="400" r="28" fill="#FFFFFF" stroke="#A3A3A3" stroke-width="14"/>
+  <circle cx="256" cy="400" r="32" fill="#0A0A0A"/>
+  <circle cx="368" cy="400" r="28" fill="#404040"/>
+  <path d="M354 400l14 14 32-32" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

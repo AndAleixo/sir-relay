@@ -1,0 +1,90 @@
+{
+  "common": {
+    "appName": "SirRelay",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "logout": "Log out",
+    "settings": "Settings",
+    "tasks": "Tasks",
+    "teammates": "Teammates",
+    "board": "Board",
+    "list": "List",
+    "newTask": "New task",
+    "edit": "Edit",
+    "archive": "Archive",
+    "notifyAgain": "Notify again",
+    "addComment": "Add comment",
+    "viewAll": "View all",
+    "showInactive": "Show inactive",
+    "mockBanner": "UI preview — mock data only",
+    "dragHint": "Use the ⠿ handle to move tasks between teammates or between To do, In progress, and Done",
+    "dragHandle": "Drag task"
+  },
+  "auth": {
+    "login": "Log in",
+    "email": "Email",
+    "password": "Password",
+    "joinTitle": "Activate your account",
+    "joinSubtitle": "Set a password to join your team on SirRelay.",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password"
+  },
+  "roles": {
+    "operator": "Operator",
+    "teammate": "Teammate"
+  },
+  "status": {
+    "todo": "To do",
+    "doing": "In progress",
+    "done": "Done"
+  },
+  "teammate": {
+    "linked": "Telegram linked",
+    "pending": "Telegram pending",
+    "invited": "Invited",
+    "active": "Active",
+    "inviteLink": "Invite link",
+    "telegramLink": "Telegram link",
+    "copy": "Copy",
+    "regenerate": "Regenerate",
+    "addTeammate": "Add teammate",
+    "emptyBoard": "Add teammates to start relaying work."
+  },
+  "tasks": {
+    "myTasks": "My tasks",
+    "allTasks": "All tasks",
+    "assignee": "Assignee",
+    "dueDate": "Due",
+    "updated": "Updated",
+    "overdue": "Overdue",
+    "emptyMine": "No tasks assigned to you yet.",
+    "description": "Description",
+    "comments": "Comments",
+    "telegramFailed": "Telegram delivery failed",
+    "telegramPending": "Telegram not linked — notification not sent",
+    "noComments": "No comments yet.",
+    "sectionTodo": "To do",
+    "sectionDoing": "In progress",
+    "sectionDone": "Done"
+  },
+  "settings": {
+    "title": "Settings",
+    "locale": "Language",
+    "password": "Password",
+    "mockRole": "Preview role (mock only)",
+    "switchOperator": "View as Operator",
+    "switchTeammate": "View as Teammate"
+  },
+  "sync": {
+    "pending": "Not synced with server — {count, plural, one {# change waiting} other {# changes waiting}}.",
+    "syncing": "Sending changes…",
+    "failed": "Sync failed — {count, plural, one {# change} other {# changes}} not saved to the server.",
+    "conflict": "A change conflicts with the server version.",
+    "syncNow": "Sync now",
+    "keepLocal": "Keep my version",
+    "useServer": "Use server version"
+  }
+}

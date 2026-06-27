@@ -1,0 +1,65 @@
+"use client";
+
+import Link from "next/link";
+import type { Task, TaskStatus } from "@/domain/types";
+import { formatDueDate, formatRelativeTime, isOverdue } from "@/lib/dates";
+import { StatusBadge } from "@/components/ui/badge";
+import { taskListStyles } from "./task-list.styles";
+
+interface TaskListProps {
+  tasks: Task[];
+  locale: string;
+  showAssignee: boolean;
+  labels: {
+    assignee: string;
+    dueDate: string;
+    updated: string;
+    overdue: string;
+    status: Record<TaskStatus, string>;
+  };
+}
+
+export function TaskList({ tasks, locale, showAssignee, labels }: TaskListProps) {
+  return (
+    <div className={taskListStyles.wrapper}>
+      <table className={taskListStyles.table}>
+        <thead>
+          <tr className={taskListStyles.headRow}>
+            <th className={taskListStyles.th}>Title</th>
+            {showAssignee && <th className={taskListStyles.th}>{labels.assignee}</th>}
+            <th className={taskListStyles.th}>Status</th>
+            <th className={taskListStyles.th}>{labels.dueDate}</th>
+            <th className={taskListStyles.th}>{labels.updated}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tasks.map((task) => {
+            const overdue = isOverdue(task.dueDate);
+            return (
+              <tr key={task.id} className={taskListStyles.row}>
+                <td className={taskListStyles.td}>
+                  <Link href={`/${locale}/tasks/${task.id}`} className={taskListStyles.link}>
+                    {task.title}
+                  </Link>
+                </td>
+                {showAssignee && (
+                  <td className={taskListStyles.tdMuted}>{task.assigneeName}</td>
+                )}
+                <td className={taskListStyles.td}>
+                  <StatusBadge status={task.status} label={labels.status[task.status]} />
+                </td>
+                <td className={overdue ? taskListStyles.tdDanger : taskListStyles.tdMuted}>
+                  {formatDueDate(task.dueDate, locale)}
+                  {overdue && ` (${labels.overdue})`}
+                </td>
+                <td className={taskListStyles.tdMuted}>
+                  {formatRelativeTime(task.updatedAt, locale)}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}

@@ -1,0 +1,33 @@
+import type { Services } from "@/services/contracts";
+import { mockAuthService } from "@/services/mock/auth.mock";
+import { mockTaskService } from "@/services/mock/task.mock";
+import {
+  mockTeammateService,
+  mockUserService,
+} from "@/services/mock/teammate.mock";
+
+export type ServiceMode = "mock" | "api";
+
+const mode: ServiceMode =
+  (process.env.NEXT_PUBLIC_SERVICE_MODE as ServiceMode) ?? "mock";
+
+/**
+ * Single entry point for data access.
+ * UI and pages import `getServices()` — swap mock → API by changing mode / env.
+ */
+export function getServices(): Services {
+  if (mode === "mock") {
+    return {
+      auth: mockAuthService,
+      tasks: mockTaskService,
+      teammates: mockTeammateService,
+      users: mockUserService,
+    };
+  }
+
+  throw new Error(
+    "API services not implemented. Set NEXT_PUBLIC_SERVICE_MODE=mock",
+  );
+}
+
+export { mode as serviceMode };

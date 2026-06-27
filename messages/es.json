@@ -1,0 +1,90 @@
+{
+  "common": {
+    "appName": "SirRelay",
+    "loading": "Cargando…",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "back": "Volver",
+    "logout": "Cerrar sesión",
+    "settings": "Ajustes",
+    "tasks": "Tareas",
+    "teammates": "Compañeros",
+    "board": "Tablero",
+    "list": "Lista",
+    "newTask": "Nueva tarea",
+    "edit": "Editar",
+    "archive": "Archivar",
+    "notifyAgain": "Notificar de nuevo",
+    "addComment": "Añadir comentario",
+    "viewAll": "Ver todo",
+    "showInactive": "Mostrar inactivos",
+    "mockBanner": "Vista previa UI — solo datos mock",
+    "dragHint": "Usa el icono ⠿ para mover tareas entre compañeros o entre Por hacer, En progreso y Hecho",
+    "dragHandle": "Arrastrar tarea"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "email": "Correo",
+    "password": "Contraseña",
+    "joinTitle": "Activa tu cuenta",
+    "joinSubtitle": "Define una contraseña para unirte al equipo en SirRelay.",
+    "changePassword": "Cambiar contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña"
+  },
+  "roles": {
+    "operator": "Operador",
+    "teammate": "Compañero"
+  },
+  "status": {
+    "todo": "Por hacer",
+    "doing": "En progreso",
+    "done": "Hecho"
+  },
+  "teammate": {
+    "linked": "Telegram vinculado",
+    "pending": "Telegram pendiente",
+    "invited": "Invitado",
+    "active": "Activo",
+    "inviteLink": "Enlace de invitación",
+    "telegramLink": "Enlace de Telegram",
+    "copy": "Copiar",
+    "regenerate": "Regenerar",
+    "addTeammate": "Añadir compañero",
+    "emptyBoard": "Añade compañeros para empezar a repartir trabajo."
+  },
+  "tasks": {
+    "myTasks": "Mis tareas",
+    "allTasks": "Todas las tareas",
+    "assignee": "Asignado",
+    "dueDate": "Vence",
+    "updated": "Actualizado",
+    "overdue": "Atrasada",
+    "emptyMine": "Aún no tienes tareas asignadas.",
+    "description": "Descripción",
+    "comments": "Comentarios",
+    "telegramFailed": "Error al enviar por Telegram",
+    "telegramPending": "Telegram sin vincular — no se envió notificación",
+    "noComments": "Sin comentarios aún.",
+    "sectionTodo": "Por hacer",
+    "sectionDoing": "En progreso",
+    "sectionDone": "Hecho"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "locale": "Idioma",
+    "password": "Contraseña",
+    "mockRole": "Rol de vista previa (solo mock)",
+    "switchOperator": "Ver como Operador",
+    "switchTeammate": "Ver como Compañero"
+  },
+  "sync": {
+    "pending": "Sin sincronizar con el servidor — {count, plural, one {# cambio pendiente} other {# cambios pendientes}}.",
+    "syncing": "Enviando cambios…",
+    "failed": "Error de sincronización — {count, plural, one {# cambio} other {# cambios}} no guardado(s) en el servidor.",
+    "conflict": "Un cambio entra en conflicto con la versión del servidor.",
+    "syncNow": "Sincronizar ahora",
+    "keepLocal": "Mantener mi versión",
+    "useServer": "Usar versión del servidor"
+  }
+}

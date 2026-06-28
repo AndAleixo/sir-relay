@@ -103,8 +103,8 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-04 | Bootstrap Operator | On empty DB, seed one `operator` from `ADMIN_EMAIL` + `ADMIN_PASSWORD` |
 | P1-AUTH-05 | First-login password change | Seeded Operator must change password before using the app |
 | P1-AUTH-06 | Password storage | bcrypt; minimum 8 characters |
-| P1-AUTH-07 | Change password | Available in settings (both roles) |
-| P1-AUTH-08 | Update profile | `PATCH /me` — update `locale` (`en` \| `es` \| `pt`) |
+| P1-AUTH-07 | Change password | Available on **Profile** (both roles); forced first login via `/change-password` |
+| P1-AUTH-08 | Update profile | `PATCH /me` — update `locale` (`en` \| `es` \| `pt`); optional avatar in later phase |
 | P1-AUTH-09 | Teammate signup | Operator creates teammate → invite link (72h) → `/join/<token>` → set password |
 | P1-AUTH-10 | Post-login routing | `operator` → all tasks · `teammate` → my tasks |
 
@@ -155,13 +155,13 @@ Operator-only management.
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-UI-01 | Branding | Login/header logos per [BRAND.md](./BRAND.md); favicon `icon.svg`; tokens `brand/brand.css` |
-| P1-UI-02 | Role-based nav | Operator: Teammates + all tasks · Teammate: My tasks + settings |
+| P1-UI-02 | Role-based nav | Operator: Teammates + all tasks · Teammate: My tasks + settings; **Profile** via avatar / sidebar footer (not primary nav) |
 | P1-VIEW-01 | List sort | By due date, status, updated_at |
 | P1-VIEW-02 | Task boards | Teammate: 3-column Kanban (To do · In progress · Done). Operator: one column per teammate — To do + In progress expanded, Done collapsed — [UIUX.md §3](./UIUX.md#3-task-boards--two-layouts) |
 | P1-VIEW-03 | List view | Both roles; sort/filter; mobile fallback for Operator board |
 | P1-VIEW-04 | Responsive | Usable at 375px; Operator board → list on mobile per UIUX.md |
 | P1-I18N-01 | Locales | Full UI in `en`, `es`, `pt` via next-intl |
-| P1-I18N-02 | User locale | Persisted; selector on login + settings (`PATCH /me`) |
+| P1-I18N-02 | User locale | Persisted; selector on login, header, and settings (`PATCH /me`) |
 | P1-I18N-03 | Telegram copy | Per-teammate locale; fallback `en` |
 
 ### 5.6 Telegram bot
@@ -249,10 +249,11 @@ comments
 | Route | Operator | Teammate |
 |-------|----------|----------|
 | `login`, `join/[token]`, `change-password` | ✓ | ✓ |
+| `profile` | ✓ | ✓ |
 | `tasks` | All tasks | My tasks |
 | `tasks/new`, `tasks/[id]/edit` | ✓ | — |
 | `tasks/[id]` | ✓ | Own tasks only |
-| `teammates` | ✓ | — |
+| `teammates`, `teammates/new`, `teammates/[id]` | ✓ | — |
 | `settings` | ✓ | ✓ |
 
 **API:** see §9.

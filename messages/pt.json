@@ -57,6 +57,11 @@
     "copy": "Copiar",
     "regenerate": "Regenerar",
     "addTeammate": "Adicionar colega",
+    "createTeammate": "Criar colega",
+    "name": "Nome",
+    "namePlaceholder": "Nome completo",
+    "newSubtitle": "Receberão um link de convite para ativar a conta e vincular o Telegram.",
+    "localeHint": "Usado nas mensagens do Telegram e na interface web.",
     "emptyBoard": "Adicione colegas para começar a repassar tarefas."
   },
   "tasks": {

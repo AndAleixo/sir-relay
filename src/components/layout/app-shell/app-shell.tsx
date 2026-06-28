@@ -108,22 +108,25 @@ export function AppShell({ locale, user, children }: AppShellProps) {
               collapsed && shellStyles.sidebarFooterCollapsed,
             )}
           >
-            {collapsed ? (
-              <Link
-                href={`/${locale}/profile`}
-                className={cn(shellStyles.sidebarProfileLink, shellStyles.sidebarProfileLinkCollapsed)}
-                title={user.name}
+            <Link
+              href={`/${locale}/profile`}
+              className={cn(
+                shellStyles.sidebarProfileLink,
+                collapsed && shellStyles.sidebarProfileLinkCollapsed,
+              )}
+              title={user.name}
+            >
+              <UserAvatar userId={user.id} userName={user.name} />
+              <div
+                className={cn(
+                  shellStyles.userBlock,
+                  collapsed && shellStyles.userBlockCollapsed,
+                )}
               >
-                <UserAvatar userId={user.id} userName={user.name} />
-              </Link>
-            ) : (
-              <Link href={`/${locale}/profile`} className={shellStyles.sidebarProfileLink}>
-                <div className={shellStyles.userBlock}>
-                  <p className={shellStyles.userName}>{user.name}</p>
-                  <p className={shellStyles.userRole}>{t(`roles.${user.role}`)}</p>
-                </div>
-              </Link>
-            )}
+                <p className={shellStyles.userName}>{user.name}</p>
+                <p className={shellStyles.userRole}>{t(`roles.${user.role}`)}</p>
+              </div>
+            </Link>
           </div>
         </aside>
 

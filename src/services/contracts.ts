@@ -8,6 +8,12 @@ import type {
   User,
 } from "@/domain/types";
 
+export interface CreateTeammateInput {
+  name: string;
+  email: string;
+  locale: Locale;
+}
+
 export interface AuthService {
   getSession(): Promise<Session | null>;
   login(email: string, password: string): Promise<Session>;
@@ -34,6 +40,7 @@ export interface TaskService {
 export interface TeammateService {
   listTeammates(): Promise<Teammate[]>;
   getTeammate(id: string): Promise<Teammate | null>;
+  createTeammate(input: CreateTeammateInput): Promise<Teammate>;
 }
 
 export interface UserService {

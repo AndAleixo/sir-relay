@@ -57,6 +57,11 @@
     "copy": "Copy",
     "regenerate": "Regenerate",
     "addTeammate": "Add teammate",
+    "createTeammate": "Create teammate",
+    "name": "Name",
+    "namePlaceholder": "Full name",
+    "newSubtitle": "They will receive an invite link to activate their account and link Telegram.",
+    "localeHint": "Used for Telegram messages and the web UI.",
     "emptyBoard": "Add teammates to start relaying work."
   },
   "tasks": {

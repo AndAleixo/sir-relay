@@ -25,7 +25,11 @@ export default async function TeammatesPage({
     <>
       <PageHeader
         title={t("common.teammates")}
-        action={<Button>{t("teammate.addTeammate")}</Button>}
+        action={
+          <Link href={`/${locale}/teammates/new`}>
+            <Button>{t("teammate.addTeammate")}</Button>
+          </Link>
+        }
       />
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {list.map((tm) => (

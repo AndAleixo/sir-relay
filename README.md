@@ -70,7 +70,9 @@ Detalhes em [REQUIREMENTS.md §10](./REQUIREMENTS.md#10-tech-stack--repo-layout)
 
 ## Status do projeto
 
-**Fase UI mock** — interface implementada com dados mock. Sem backend ainda.
+**Fase UI mock** — interface implementada com dados mock. Sem backend, Prisma, Docker ou Telegram ainda.
+
+Rotas mock principais: tasks (boards + sync), teammates (+ criar), profile, settings, join. Ver [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ```bash
 npm install

@@ -1,5 +1,9 @@
-import type { Locale, User } from "@/domain/types";
-import type { TeammateService, UserService } from "@/services/contracts";
+import type { Locale, Teammate, User } from "@/domain/types";
+import type {
+  CreateTeammateInput,
+  TeammateService,
+  UserService,
+} from "@/services/contracts";
 import { MOCK_OPERATOR, MOCK_TEAMMATES } from "@/services/mock/data";
 
 export class MockTeammateService implements TeammateService {
@@ -9,6 +13,22 @@ export class MockTeammateService implements TeammateService {
 
   async getTeammate(id: string) {
     return MOCK_TEAMMATES.find((t) => t.id === id) ?? null;
+  }
+
+  async createTeammate(input: CreateTeammateInput): Promise<Teammate> {
+    const id = `user-${Date.now()}`;
+    const teammate: Teammate = {
+      id,
+      name: input.name,
+      email: input.email.toLowerCase(),
+      role: "teammate",
+      locale: input.locale,
+      active: true,
+      accountStatus: "invited",
+      telegramStatus: "pending",
+    };
+    MOCK_TEAMMATES.push(teammate);
+    return teammate;
   }
 }
 

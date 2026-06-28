@@ -6,17 +6,35 @@ This repo separates **presentation**, **domain types**, and **data access** so m
 src/
 ├── domain/types.ts          # Shared types (no React, no fetch)
 ├── services/
-│   ├── contracts.ts         # Service interfaces
+│   ├── contracts.ts         # Service interfaces (incl. createTeammate)
 │   ├── index.ts             # getServices() — swap point
 │   └── mock/                # Mock implementations + seed data
 ├── components/
 │   ├── ui/<name>/           # Primitives: *.tsx + *.styles.ts
-│   ├── layout/              # App shell, headers
+│   ├── layout/              # App shell, header, locale switcher, user menu
+│   ├── profile/             # Avatar, profile editor, change password
 │   ├── sync/                # Session sync bar + SyncProvider
 │   └── tasks/               # Feature UI (boards, cards, lists)
+├── hooks/                   # e.g. use-profile-avatar (localStorage mock)
 ├── lib/sync/                # Retry config + mutation executor
 └── app/                     # Routes — fetch via getServices(), pass props down
 ```
+
+## Mock routes (implemented)
+
+| Route | Notes |
+|-------|--------|
+| `/[locale]/tasks` | Boards, list toggle, drag-and-drop, session sync |
+| `/[locale]/tasks/new` | Form UI only (save mock) |
+| `/[locale]/teammates` | Card list + link to create |
+| `/[locale]/teammates/new` | Create teammate → redirects to detail |
+| `/[locale]/teammates/[id]` | Invite + Telegram links (static mock URLs) |
+| `/[locale]/profile` | Photo (localStorage), password form, logout |
+| `/[locale]/settings` | Locale switch, notification placeholders, mock role |
+| `/[locale]/join/[token]` | Join UI (save disabled mock) |
+| `/[locale]/login` | Mock login buttons |
+
+**Not implemented:** `/change-password`, `/audit`, `/api/v1/*`, Prisma, Telegram webhook.
 
 ## Swap mock → real API
 

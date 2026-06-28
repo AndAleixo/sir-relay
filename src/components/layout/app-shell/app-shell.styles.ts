@@ -33,12 +33,14 @@ export const shellStyles = {
     "truncate whitespace-nowrap transition-[opacity,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
   navLabelCollapsed: "w-0 opacity-0",
   sidebarFooter:
-    "border-t border-[var(--border)] p-3 transition-[padding] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+    "mt-auto shrink-0 border-t border-[var(--border)] p-3 transition-[padding] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
   sidebarFooterCollapsed: "px-2 py-3",
   sidebarProfileLink:
-    "block rounded-button transition-colors hover:bg-[var(--surface-bg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
-  sidebarProfileLinkCollapsed: "flex justify-center py-0.5",
-  userBlock: "min-w-0 px-1 py-0.5",
+    "flex min-w-0 items-center gap-3 rounded-button px-2 py-2 transition-colors hover:bg-[var(--surface-bg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
+  sidebarProfileLinkCollapsed: "justify-center gap-0 px-0 py-0.5",
+  userBlock:
+    "min-w-0 flex-1 overflow-hidden transition-[opacity,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+  userBlockCollapsed: "w-0 flex-none opacity-0",
   userName: "truncate text-sm font-medium text-[var(--text-primary)]",
   userRole: "text-xs text-[var(--text-muted)]",
   main: "flex min-w-0 flex-1 flex-col",

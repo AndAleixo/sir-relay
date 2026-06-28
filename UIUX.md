@@ -122,7 +122,8 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 **Interactions:**
 
 - Click card → task detail
-- Status change → dropdown on card (Phase 1); drag between columns (mock implemented)
+- Click card → task detail
+- Status change → drag between columns (mock implemented; §P3-03); optional status dropdown on card in Phase 1 API
 - Setting status to `done` triggers relay (P1-TASK-12) same as Telegram
 
 **Mobile (375px):** columns stack vertically: To do → In progress → Done.
@@ -268,6 +269,7 @@ Route: `/[locale]/tasks/[id]`
 | Edit task | `/tasks/[id]/edit` | ✓ | — |
 | Task detail | `/tasks/[id]` | ✓ | Own only |
 | Teammates | `/teammates` | ✓ | — |
+| New teammate | `/teammates/new` | ✓ | — |
 | Teammate detail | `/teammates/[id]` | ✓ | — |
 | **Profile** | `/profile` | ✓ | ✓ |
 | Settings | `/settings` | ✓ | ✓ |
@@ -282,6 +284,8 @@ Route: `/[locale]/tasks/[id]`
 ### List `/teammates`
 
 Table or card list: name, email, account status, Telegram status, active toggle, actions (edit, invite, Telegram link).
+
+**Add teammate** — header button → `/teammates/new` (name, email, locale); on save → detail page with invite + Telegram links.
 
 ### Detail `/teammates/[id]`
 
@@ -431,3 +435,4 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-06-27 | Status labels: UI “In progress” ↔ code `doing` |
 | 2026-06-28 | Profile page (photo, password, account); Settings = app prefs only |
 | 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |
+| 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |

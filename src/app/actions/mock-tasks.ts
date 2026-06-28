@@ -177,7 +177,7 @@ export async function quickCreateTaskAction(
 
 export async function updateTaskFieldsAction(
   taskId: string,
-  fields: { title?: string; dueDate?: string | null },
+  fields: { title?: string; dueDate?: string | null; description?: string },
   options?: SyncActionOptions,
 ): Promise<TaskActionResult> {
   if (options?.clientMutationId) {
@@ -209,4 +209,60 @@ export async function updateTaskFieldsAction(
 
   maybeRevalidate();
   return { ok: true, task: updated };
+}
+
+export async function saveTaskDetailAction(
+  locale: string,
+  taskId: string,
+  formData: FormData,
+): Promise<void> {
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const dueRaw = String(formData.get("dueDate") ?? "").trim();
+  const status = String(formData.get("status") ?? "") as TaskStatus;
+  const assigneeId = String(formData.get("assigneeId") ?? "").trim();
+
+  if (!title) return;
+  if (!["todo", "doing", "done"].includes(status)) return;
+
+  const { auth, tasks, teammates, alerts } = getServices();
+  const session = await auth.getSession();
+  if (!session) return;
+
+  const existing = await tasks.getTask(taskId, { session });
+  if (!existing) return;
+
+  await tasks.updateTaskFields(
+    taskId,
+    {
+      title,
+      description,
+      dueDate: dueRaw || null,
+    },
+    { session },
+  );
+
+  if (existing.status !== status) {
+    const updated = await tasks.updateTaskStatus(taskId, status, { session });
+    if (existing.status !== "done" && status === "done") {
+      await alerts.notifyTaskDone(updated);
+    }
+  }
+
+  if (
+    session.user.role === "operator" &&
+    assigneeId &&
+    assigneeId !== existing.assigneeId
+  ) {
+    let assigneeName = session.user.name;
+    if (assigneeId !== session.user.id) {
+      const teammate = await teammates.getTeammate(assigneeId);
+      if (!teammate) return;
+      assigneeName = teammate.name;
+    }
+    await tasks.reassignTask(taskId, assigneeId, assigneeName, { session });
+  }
+
+  revalidatePath(`/${locale}/tasks`);
+  revalidatePath(`/${locale}/tasks/${taskId}`);
 }

@@ -129,7 +129,7 @@ export class MockTaskService implements TaskService {
 
   async updateTaskFields(
     id: string,
-    fields: { title?: string; dueDate?: string | null },
+    fields: { title?: string; dueDate?: string | null; description?: string },
     ctx: { session: Session },
   ): Promise<Task> {
     const task = await this.getTask(id, ctx);
@@ -142,9 +142,15 @@ export class MockTaskService implements TaskService {
     const dueDate =
       fields.dueDate !== undefined ? fields.dueDate || null : task.dueDate;
 
+    const description =
+      fields.description !== undefined
+        ? fields.description.trim().slice(0, 10_000)
+        : task.description;
+
     const updated = {
       ...task,
       title,
+      description,
       dueDate,
       updatedAt: new Date().toISOString(),
     };

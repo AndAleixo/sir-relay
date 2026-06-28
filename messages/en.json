@@ -80,6 +80,7 @@
     "overdue": "Overdue",
     "emptyMine": "No tasks assigned to you yet.",
     "description": "Description",
+    "status": "Status",
     "comments": "Comments",
     "telegramFailed": "Telegram delivery failed",
     "noComments": "No comments yet.",

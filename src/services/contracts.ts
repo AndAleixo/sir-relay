@@ -50,7 +50,7 @@ export interface TaskService {
   ): Promise<Task>;
   updateTaskFields(
     id: string,
-    fields: { title?: string; dueDate?: string | null },
+    fields: { title?: string; dueDate?: string | null; description?: string },
     ctx: { session: Session },
   ): Promise<Task>;
 }

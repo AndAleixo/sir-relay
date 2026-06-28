@@ -80,6 +80,7 @@
     "overdue": "Atrasada",
     "emptyMine": "Nenhuma tarefa atribuída a você ainda.",
     "description": "Descrição",
+    "status": "Estado",
     "comments": "Comentários",
     "telegramFailed": "Falha no envio pelo Telegram",
     "noComments": "Nenhum comentário ainda.",

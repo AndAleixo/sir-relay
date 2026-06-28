@@ -40,7 +40,11 @@ export async function executePendingMutation(
       }
       case "update_fields": {
         const payload = mutation.payload;
-        if (!("title" in payload) && !("dueDate" in payload)) {
+        if (
+          !("title" in payload) &&
+          !("dueDate" in payload) &&
+          !("description" in payload)
+        ) {
           return { ok: false, error: "network" };
         }
         return await updateTaskFieldsAction(mutation.taskId, payload, options);

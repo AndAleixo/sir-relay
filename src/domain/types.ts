@@ -8,8 +8,6 @@ export type AccountStatus = "invited" | "active";
 
 export type TelegramLinkStatus = "linked" | "pending";
 
-export type CommentSource = "web" | "telegram";
-
 export interface User {
   id: string;
   name: string;
@@ -48,18 +46,8 @@ export interface Task {
   assigneeName: string;
   status: TaskStatus;
   dueDate: string | null;
-  archived: boolean;
   telegramNotifyFailed: boolean;
   updatedAt: string;
-  createdAt: string;
-}
-
-export interface Comment {
-  id: string;
-  taskId: string;
-  body: string;
-  source: CommentSource;
-  authorName: string;
   createdAt: string;
 }
 

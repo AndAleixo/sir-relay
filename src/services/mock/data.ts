@@ -1,4 +1,4 @@
-import type { Comment, Task, Teammate, User } from "@/domain/types";
+import type { Task, Teammate, User } from "@/domain/types";
 
 export const MOCK_OPERATOR: User = {
   id: "user-operator",
@@ -73,7 +73,6 @@ export const MOCK_TASKS: Task[] = [
     assigneeName: "Ana Silva",
     status: "todo",
     dueDate: "2026-06-28",
-    archived: false,
     telegramNotifyFailed: false,
     updatedAt: "2026-06-27T10:00:00Z",
     createdAt: "2026-06-26T09:00:00Z",
@@ -86,7 +85,6 @@ export const MOCK_TASKS: Task[] = [
     assigneeName: "Ana Silva",
     status: "doing",
     dueDate: "2026-06-27",
-    archived: false,
     telegramNotifyFailed: false,
     updatedAt: "2026-06-27T08:30:00Z",
     createdAt: "2026-06-25T14:00:00Z",
@@ -99,7 +97,6 @@ export const MOCK_TASKS: Task[] = [
     assigneeName: "Ana Silva",
     status: "done",
     dueDate: "2026-06-20",
-    archived: false,
     telegramNotifyFailed: false,
     updatedAt: "2026-06-24T16:00:00Z",
     createdAt: "2026-06-18T11:00:00Z",
@@ -112,7 +109,6 @@ export const MOCK_TASKS: Task[] = [
     assigneeName: "Bruno Costa",
     status: "todo",
     dueDate: "2026-06-29",
-    archived: false,
     telegramNotifyFailed: true,
     updatedAt: "2026-06-27T07:00:00Z",
     createdAt: "2026-06-27T07:00:00Z",
@@ -125,7 +121,6 @@ export const MOCK_TASKS: Task[] = [
     assigneeName: "Bruno Costa",
     status: "done",
     dueDate: "2026-06-22",
-    archived: false,
     telegramNotifyFailed: false,
     updatedAt: "2026-06-22T17:00:00Z",
     createdAt: "2026-06-21T10:00:00Z",
@@ -138,7 +133,6 @@ export const MOCK_TASKS: Task[] = [
     assigneeName: "Carla Mendes",
     status: "doing",
     dueDate: "2026-06-27",
-    archived: false,
     telegramNotifyFailed: false,
     updatedAt: "2026-06-27T09:15:00Z",
     createdAt: "2026-06-26T08:00:00Z",
@@ -151,7 +145,6 @@ export const MOCK_TASKS: Task[] = [
     assigneeName: "Carla Mendes",
     status: "done",
     dueDate: "2026-06-19",
-    archived: false,
     telegramNotifyFailed: false,
     updatedAt: "2026-06-19T18:00:00Z",
     createdAt: "2026-06-17T09:00:00Z",
@@ -164,7 +157,6 @@ export const MOCK_TASKS: Task[] = [
     assigneeName: "Alex Operator",
     status: "todo",
     dueDate: "2026-06-30",
-    archived: false,
     telegramNotifyFailed: false,
     updatedAt: "2026-06-27T11:00:00Z",
     createdAt: "2026-06-27T11:00:00Z",
@@ -177,36 +169,8 @@ export const MOCK_TASKS: Task[] = [
     assigneeName: "Alex Operator",
     status: "doing",
     dueDate: "2026-06-28",
-    archived: false,
     telegramNotifyFailed: false,
     updatedAt: "2026-06-28T08:00:00Z",
     createdAt: "2026-06-26T15:00:00Z",
-  },
-];
-
-export const MOCK_COMMENTS: Comment[] = [
-  {
-    id: "cmt-1",
-    taskId: "task-2",
-    body: "Started packing — 3 of 5 boxes done.",
-    source: "telegram",
-    authorName: "Ana Silva",
-    createdAt: "2026-06-27T08:00:00Z",
-  },
-  {
-    id: "cmt-2",
-    taskId: "task-2",
-    body: "Use the fragile stickers on box 2.",
-    source: "web",
-    authorName: "Alex Operator",
-    createdAt: "2026-06-27T08:15:00Z",
-  },
-  {
-    id: "cmt-3",
-    taskId: "task-6",
-    body: "em progresso",
-    source: "telegram",
-    authorName: "Carla Mendes",
-    createdAt: "2026-06-27T09:15:00Z",
   },
 ];

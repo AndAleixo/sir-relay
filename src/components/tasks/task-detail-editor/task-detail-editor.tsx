@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useTransition } from "react";
 import { useFormStatus } from "react-dom";
-import { saveTaskDetailAction } from "@/app/actions/mock-tasks";
+import { deleteTaskAction, saveTaskDetailAction } from "@/app/actions/mock-tasks";
 import type { Task, TaskStatus } from "@/domain/types";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
@@ -32,6 +33,8 @@ type TaskDetailEditorProps = {
     save: string;
     cancel: string;
     overdue: string;
+    delete: string;
+    deleteConfirm: string;
   };
 };
 
@@ -54,6 +57,14 @@ export function TaskDetailEditor({
   labels,
 }: TaskDetailEditorProps) {
   const saveAction = saveTaskDetailAction.bind(null, locale, task.id);
+  const [isDeleting, startDelete] = useTransition();
+
+  function handleDelete() {
+    if (!window.confirm(labels.deleteConfirm)) return;
+    startDelete(async () => {
+      await deleteTaskAction(locale, task.id);
+    });
+  }
 
   return (
     <form action={saveAction} className="space-y-4">
@@ -125,13 +136,22 @@ export function TaskDetailEditor({
         />
       </div>
 
-      <div className="flex gap-2 pt-2">
+      <div className="flex flex-wrap items-center gap-2 pt-2">
         <SubmitButton label={labels.save} />
         <Link href={`/${locale}/tasks`}>
           <Button variant="secondary" type="button">
             {labels.cancel}
           </Button>
         </Link>
+        <Button
+          type="button"
+          variant="danger"
+          className="ml-auto"
+          disabled={isDeleting}
+          onClick={handleDelete}
+        >
+          {labels.delete}
+        </Button>
       </div>
     </form>
   );

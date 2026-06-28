@@ -75,7 +75,7 @@ export class MockOperatorAlertService implements OperatorAlertService {
     const day = todayKey();
 
     for (const task of tasks) {
-      if (task.archived || task.status === "done") continue;
+      if (task.status === "done") continue;
       if (!teammateIds.has(task.assigneeId)) continue;
       if (!task.dueDate || !isDueOrOverdue(task.dueDate)) continue;
 

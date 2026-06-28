@@ -1,5 +1,4 @@
 import type {
-  Comment,
   Locale,
   Session,
   Task,
@@ -35,7 +34,6 @@ export interface AuthService {
 export interface TaskService {
   listTasks(ctx: { session: Session }): Promise<Task[]>;
   getTask(id: string, ctx: { session: Session }): Promise<Task | null>;
-  listComments(taskId: string): Promise<Comment[]>;
   createTask(input: CreateTaskInput, ctx: { session: Session }): Promise<Task>;
   updateTaskStatus(
     id: string,
@@ -53,6 +51,7 @@ export interface TaskService {
     fields: { title?: string; dueDate?: string | null; description?: string },
     ctx: { session: Session },
   ): Promise<Task>;
+  deleteTask(id: string, ctx: { session: Session }): Promise<void>;
 }
 
 export interface TeammateService {

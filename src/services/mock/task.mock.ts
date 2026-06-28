@@ -5,13 +5,11 @@ import {
   MOCK_OPERATORS,
   MOCK_TASKS,
   MOCK_TEAMMATES,
-  MOCK_COMMENTS,
 } from "@/services/mock/data";
 
 function filterTasksForSession(tasks: Task[], session: Session): Task[] {
-  const visible = tasks.filter((t) => !t.archived);
-  if (session.user.role === "operator") return visible;
-  return visible.filter((t) => t.assigneeId === session.user.id);
+  if (session.user.role === "operator") return tasks;
+  return tasks.filter((t) => t.assigneeId === session.user.id);
 }
 
 function resolveAssignee(
@@ -43,7 +41,7 @@ export class MockTaskService implements TaskService {
   }
 
   async getTask(id: string, ctx: { session: Session }): Promise<Task | null> {
-    const task = this.tasks.find((t) => t.id === id && !t.archived);
+    const task = this.tasks.find((t) => t.id === id);
     if (!task) return null;
     if (
       ctx.session.user.role === "teammate" &&
@@ -52,13 +50,6 @@ export class MockTaskService implements TaskService {
       return null;
     }
     return task;
-  }
-
-  async listComments(taskId: string) {
-    return MOCK_COMMENTS.filter((c) => c.taskId === taskId).sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    );
   }
 
   async createTask(input: CreateTaskInput, ctx: { session: Session }): Promise<Task> {
@@ -80,7 +71,6 @@ export class MockTaskService implements TaskService {
       assigneeName,
       status: "todo",
       dueDate: input.dueDate ?? null,
-      archived: false,
       telegramNotifyFailed: false,
       updatedAt: now,
       createdAt: now,
@@ -156,6 +146,12 @@ export class MockTaskService implements TaskService {
     };
     this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
     return updated;
+  }
+
+  async deleteTask(id: string, ctx: { session: Session }): Promise<void> {
+    const task = await this.getTask(id, ctx);
+    if (!task) throw new Error("Task not found");
+    this.tasks = this.tasks.filter((t) => t.id !== id);
   }
 }
 

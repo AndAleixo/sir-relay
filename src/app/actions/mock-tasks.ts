@@ -266,3 +266,16 @@ export async function saveTaskDetailAction(
   revalidatePath(`/${locale}/tasks`);
   revalidatePath(`/${locale}/tasks/${taskId}`);
 }
+
+export async function deleteTaskAction(locale: string, taskId: string): Promise<void> {
+  const { auth, tasks } = getServices();
+  const session = await auth.getSession();
+  if (!session) return;
+
+  const existing = await tasks.getTask(taskId, { session });
+  if (!existing) return;
+
+  await tasks.deleteTask(taskId, { session });
+  revalidatePath(`/${locale}/tasks`);
+  redirect(`/${locale}/tasks`);
+}

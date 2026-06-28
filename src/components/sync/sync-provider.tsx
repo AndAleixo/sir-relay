@@ -298,7 +298,6 @@ export function SyncProvider({ children }: SyncProviderProps) {
         assigneeName: input.assigneeName,
         status: "todo",
         dueDate: null,
-        archived: false,
         telegramNotifyFailed: false,
         updatedAt: now,
         createdAt: now,

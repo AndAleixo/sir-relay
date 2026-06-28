@@ -9,11 +9,44 @@ Relay de tarefas self-hosted para times de **2–5 pessoas**. **Uma web**, dois 
 | **Marca** | Sir |
 | **App** | SirRelay |
 | **Repositório** | `sir-relay` |
-| **Cores** | Amarelo `#EAB308` + cinza + preto + branco — [BRAND.md](./BRAND.md) |
+| **Cores** | Amarelo `#EAB308` + cinza + preto + branco — [docs/BRAND.md](./docs/BRAND.md) |
 | **Ícone** | `brand/icon.svg` — quadrado amarelo + **SirR** |
 | **Logo compacta** | `brand/logo-compact.svg` — **SirR** + linha |
 | **Logo estendida** | `brand/logo.svg` — **SirRelay** + linha |
 | **Bot Telegram** | SirRelay (ex.: `@SirRelayBot`) |
+
+---
+
+## ⚠️ Antes de modificar o código
+
+**Qualquer developer ou LLM que vá alterar este repositório deve ler a documentação em [`docs/`](./docs/) antes de escrever código.**
+
+Estes ficheiros definem o produto, a UI, a arquitectura e a marca. Ignorá-los leva a implementações inconsistentes, features fora de scope ou regressões visuais. Ordem recomendada:
+
+1. [**docs/REQUIREMENTS.md**](./docs/REQUIREMENTS.md) — o que o produto faz, regras de negócio, fases, API e permissões (**fonte da verdade**)
+2. [**docs/UIUX.md**](./docs/UIUX.md) — layouts, boards, ecrãs, interacções e componentes
+3. [**docs/ARCHITECTURE.md**](./docs/ARCHITECTURE.md) — estrutura do código, rotas mock, mock → API
+4. [**docs/BRAND.md**](./docs/BRAND.md) — cores, logos, tokens visuais
+
+Só depois disso, se fores fazer deploy: [**docs/DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md).
+
+---
+
+## Documentação (`docs/`)
+
+| Ficheiro | O que contém | Quando ler |
+|----------|--------------|------------|
+| [**REQUIREMENTS.md**](./docs/REQUIREMENTS.md) | Especificação completa: roles, relay queue, tasks, Telegram, fases 1–3, schema, API, permissões | **Sempre** — antes de qualquer feature ou bugfix de produto |
+| [**UIUX.md**](./docs/UIUX.md) | Shell, boards (Operator vs Teammate), cards, formulários, empty states, componentes | Ao mudar páginas, layout ou fluxos de UI |
+| [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) | Pastas `src/`, rotas mock, `getServices()`, sync, task forms | Ao mudar estrutura, services ou integração mock/API |
+| [**BRAND.md**](./docs/BRAND.md) | Identidade Sir, ícones vs logos, paleta, CSS tokens | Ao mudar cores, tipografia, logos ou componentes visuais |
+| [**DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | Deploy em Droplet DO: Docker Compose, PostgreSQL, Caddy, HTTPS | Ao preparar ou actualizar produção |
+
+Desenvolvimento em **3 fases** — ver [REQUIREMENTS.md §3](./docs/REQUIREMENTS.md#3-development-phases):
+
+- **Fase 1** — Workflow relay + deploy (produto utilizável)
+- **Fase 2** — Segurança, audit log, hardening da VPS
+- **Fase 3** — Novas features (backlog)
 
 ---
 
@@ -23,7 +56,7 @@ Distribui tarefas operacionais e acompanha o andamento num único lugar — web 
 
 | Papel | Como usa |
 |-------|----------|
-| **Operator** | Web: gere teammates, cria tarefas (para teammates **ou para si**), vê Kanban/lista de tudo, lê respostas · Telegram opcional para **alertas** (tarefa concluída, vencida) |
+| **Operator** | Web: gere teammates, cria tarefas (para teammates **ou para si**), vê Kanban/lista de tudo · Telegram opcional para **alertas** (tarefa concluída, vencida) |
 | **Teammate** | **Telegram** (principal): recebe uma tarefa, responde, marca progresso com palavras-chave · **Web** (opcional): vê e atualiza **só as suas** tarefas |
 
 ### Fluxo relay
@@ -40,24 +73,6 @@ Idiomas: **inglês, espanhol e português** (`en`, `es`, `pt`).
 
 ---
 
-## Documentação
-
-| Documento | Conteúdo |
-|-----------|----------|
-| [**REQUIREMENTS.md**](./REQUIREMENTS.md) | Especificação completa — **fonte da verdade** para implementação |
-| [**UIUX.md**](./UIUX.md) | Layouts, boards, telas, componentes |
-| [**ARCHITECTURE.md**](./ARCHITECTURE.md) | Estrutura do código · mock → API |
-| [**docs/DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | Deploy em Droplet DO · Docker · Caddy |
-| [**BRAND.md**](./BRAND.md) | Marca Sir, ícone vs logos, cores, assets SVG |
-
-Desenvolvimento em **3 fases** — ver [REQUIREMENTS.md §3](./REQUIREMENTS.md#3-development-phases):
-
-- **Fase 1** — Workflow relay + deploy (produto utilizável)
-- **Fase 2** — Segurança, audit log, hardening da VPS
-- **Fase 3** — Novas features (backlog)
-
----
-
 ## Stack (resumo)
 
 - **Next.js** (App Router) + TypeScript + React
@@ -65,7 +80,7 @@ Desenvolvimento em **3 fases** — ver [REQUIREMENTS.md §3](./REQUIREMENTS.md#3
 - **Telegram** (grammy, webhook)
 - **Docker Compose** + Caddy
 
-Detalhes em [REQUIREMENTS.md §10](./REQUIREMENTS.md#10-tech-stack--repo-layout).
+Detalhes em [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-layout).
 
 ---
 
@@ -73,7 +88,7 @@ Detalhes em [REQUIREMENTS.md §10](./REQUIREMENTS.md#10-tech-stack--repo-layout)
 
 **Fase UI mock** — interface implementada com dados mock. Sem backend, Prisma, Docker ou Telegram ainda.
 
-Rotas mock principais: `/admin`, tasks, teammates, alerts, profile, settings. Ver [ARCHITECTURE.md](./ARCHITECTURE.md).
+Rotas mock principais: `/admin`, tasks (board, criar, editar, eliminar), teammates, alerts, profile, settings. Ver [ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
 ```bash
 npm install

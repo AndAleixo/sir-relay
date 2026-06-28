@@ -1,7 +1,9 @@
 # Deploy no DigitalOcean
 
 Guia para correr o SirRelay num **Droplet** com Docker Compose + Caddy.  
-Stack alinhada com [REQUIREMENTS.md §5.8](../REQUIREMENTS.md#58-deploy).
+Stack alinhada com [REQUIREMENTS.md §5.8](./REQUIREMENTS.md#58-deploy).
+
+**Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [README.md](../README.md)
 
 **Estado:** infra preparada; app ainda em fase mock — usar este guia quando a Fase 1 (API + Prisma) estiver pronta.
 

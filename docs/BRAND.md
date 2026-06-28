@@ -3,6 +3,8 @@
 **SirRelay** visual and voice guidelines.  
 **Palette:** white, black, yellow (gold/amber), gray.
 
+**Companion docs:** [UIUX.md](./UIUX.md) (UI usage) · [REQUIREMENTS.md](./REQUIREMENTS.md) (P1-UI-01) · [README.md](../README.md)
+
 ---
 
 ## 1. Brand architecture

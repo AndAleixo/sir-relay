@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
 import { isOverdue } from "@/lib/dates";
 import { PageHeader } from "@/components/layout/app-shell";
-import { TaskDetailEditor } from "@/components/tasks/task-detail-editor";
+import { EditTaskForm } from "@/components/tasks/task-form";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -65,7 +65,7 @@ export default async function TaskDetailPage({
 
       <Card className="max-w-xl">
         <CardBody className="space-y-4">
-          <TaskDetailEditor
+          <EditTaskForm
             task={task}
             locale={locale}
             isOperator={isOperator}

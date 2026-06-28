@@ -9,7 +9,7 @@ import {
 } from "@/components/tasks/task-form";
 import type { Task, TaskStatus } from "@/domain/types";
 
-type TaskDetailEditorProps = {
+type EditTaskFormProps = {
   task: Task;
   locale: string;
   isOperator: boolean;
@@ -24,7 +24,7 @@ type TaskDetailEditorProps = {
   };
 };
 
-export function TaskDetailEditor({
+export function EditTaskForm({
   task,
   locale,
   isOperator,
@@ -32,7 +32,7 @@ export function TaskDetailEditor({
   overdue,
   statusLabels,
   labels,
-}: TaskDetailEditorProps) {
+}: EditTaskFormProps) {
   const saveAction = saveTaskDetailAction.bind(null, locale, task.id);
   const { save, cancel, delete: deleteLabel, deleteConfirm, ...fieldLabels } = labels;
 

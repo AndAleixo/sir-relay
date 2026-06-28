@@ -5,7 +5,7 @@
 **Audience:** Developer / AI implementer  
 **Last updated:** 2026-06-28
 
-Related docs: [BRAND.md](./BRAND.md) (visual identity) · [UIUX.md](./UIUX.md) (layouts & interaction) · [README.md](./README.md) (overview)
+Related docs: [BRAND.md](./BRAND.md) (visual identity) · [UIUX.md](./UIUX.md) (layouts & interaction) · [README.md](../README.md) (overview)
 
 ---
 
@@ -21,7 +21,7 @@ Related docs: [BRAND.md](./BRAND.md) (visual identity) · [UIUX.md](./UIUX.md) (
 
 **Operator** creates teammates and tasks (including tasks for themselves), monitors all activity on the web.
 
-**Teammate** works via Telegram (primary) or web (optional): sees assigned tasks, updates status, adds comments.
+**Teammate** works via Telegram (primary) or web (optional): sees assigned tasks and updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
 
 **Languages:** English, Spanish, Portuguese (`en`, `es`, `pt`).
 
@@ -42,7 +42,7 @@ sequenceDiagram
   APP->>TG: Notify task A only (queue)
   TG->>TM: Task A
   TM->>TG: Reply "done"
-  APP->>APP: A → done, save comment
+  APP->>APP: A → done, persist reply
   APP->>TG: Notify task B
   TM->>TG: Reply "feito"
   APP->>APP: B → done
@@ -147,25 +147,25 @@ Operator-only management.
 | P1-TASK-01 | Create | Operator only; title + assignee (active teammate **or self**); optional description, due_date |
 | P1-TASK-02 | Notify on create | Send Telegram if assignee is a **linked teammate** **and** queue is empty (§2); **no Telegram** for Operator self-tasks |
 | P1-TASK-03 | Re-notify | Operator only; resend Telegram; update `telegram_message_id` (replies bind to latest message) |
-| P1-TASK-04 | List / Kanban | Operator: all non-archived · Teammate: assigned to me; 3 status columns |
-| P1-TASK-05 | Update / archive | Operator: any field · Teammate: status + comment on own tasks only |
-| P1-TASK-06 | Detail | Task + comments + Telegram delivery status; Teammate only if assignee |
+| P1-TASK-04 | List / Kanban | Operator: all tasks · Teammate: assigned to me; 3 status columns |
+| P1-TASK-05 | Update / delete | Operator: any field on any task · Teammate: edit + delete own tasks (title, status, due, description) |
+| P1-TASK-06 | Detail | Editable form (shared with create layout) + Telegram delivery banner; Teammate only if assignee; **no web comment UI** |
 | P1-TASK-07 | Due date | Optional `DATE`; overdue when `due_date` < today UTC |
 | P1-TASK-08 | Limits | Title ≤ 200 · description ≤ 10 000 |
 | P1-TASK-09 | Reply threading | Store `telegram_message_id` + `telegram_chat_id` on each notify; replies must reference latest message |
 | P1-TASK-10 | Status sync | Telegram keyword or web update persists immediately for both roles |
-| P1-TASK-11 | Queue order | Next task: `todo`, non-archived, `due_date ASC NULLS LAST`, `created_at ASC` |
+| P1-TASK-11 | Queue order | Next task: `todo`, `due_date ASC NULLS LAST`, `created_at ASC` |
 | P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or Teammate web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). **Skip relay** when assignee is Operator. |
 | P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves; visible on web board in **Me** column and in list view; status updates on web only (no Telegram relay) |
 
-### 5.4 Comments
+### 5.4 Telegram activity (no web comment UI)
+
+Web app has **no comment thread**. Telegram replies are persisted for relay/audit only.
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-CMT-01 | Web | Operator: any task · Teammate: own tasks |
-| P1-CMT-02 | Telegram | Reply → comment (`source: telegram`); may update status (P1-TG-04) |
-| P1-CMT-03 | Display | Chronological; badge for Web / Telegram + author |
-| P1-CMT-04 | Limits | Body ≤ 2 000 characters |
+| P1-CMT-01 | Telegram reply log | Reply to latest notification creates a server record (`source: telegram`); may update status (P1-TG-04) |
+| P1-CMT-02 | Limits | Body ≤ 2 000 characters |
 
 ### 5.5 UI & i18n
 
@@ -194,7 +194,7 @@ Operator-only management.
 | P1-TG-07 | Delivery warnings | Task always saves; web warns if Telegram pending or API failed |
 | P1-TG-08 | Queue empty | Localized short message when no next `todo` (e.g. “All caught up — no more tasks.”) |
 | P1-TG-09 | Operator alert — task done | When a teammate marks a task `done` (Telegram keyword or web), send a Telegram message to **each Operator** with linked Telegram: task title, teammate name, timestamp |
-| P1-TG-10 | Operator alert — due / overdue | Daily job (UTC): for each non-archived teammate task with `due_date` ≤ today and status ≠ `done`, notify linked Operators once per task per due day (dedupe); message includes title, assignee, due date, overdue flag |
+| P1-TG-10 | Operator alert — due / overdue | Daily job (UTC): for each teammate task with `due_date` ≤ today and status ≠ `done`, notify linked Operators once per task per due day (dedupe); message includes title, assignee, due date, overdue flag |
 | P1-TG-11 | Operator Telegram link | Optional on **Profile** (same `/start <code>` flow as teammates); used for P1-TG-09/10 only — Operators do not receive task relay queue |
 
 ### 5.7 Security (minimum to ship)
@@ -251,12 +251,12 @@ telegram_link_tokens
 
 tasks
   id, title, description, assignee_id, created_by_id,
-  status (todo|doing|done), due_date, archived,
+  status (todo|doing|done), due_date,
   telegram_message_id, telegram_chat_id, telegram_notified_at,
   created_at, updated_at
 
-comments
-  id, task_id, body, source (web|telegram), author_user_id, created_at
+telegram_activity   -- optional audit log for Telegram replies (not shown on web)
+  id, task_id, body, author_user_id, created_at
 ```
 
 - `assignee_id` → `users.id` (teammate **or** operator)
@@ -273,7 +273,7 @@ comments
 | `profile` | ✓ | ✓ |
 | `tasks` | All tasks | My tasks |
 | `tasks/new` | ✓ | — |
-| `tasks/[id]` | ✓ | Own tasks only |
+| `tasks/[id]` | ✓ | Own tasks only | Edit form + delete (mock) |
 | `teammates`, `teammates/new`, `teammates/[id]` | ✓ (list includes operators) | — |
 | `alerts` | ✓ | — |
 | `settings` | ✓ | ✓ |
@@ -375,7 +375,7 @@ audit_logs
 | P3-01 | ~~Operator Telegram alerts on teammate reply~~ → **Phase 1** (P1-TG-09, P1-TG-10) |
 | P3-02 | Multiple Operator accounts |
 | P3-03 | Drag-and-drop Kanban |
-| P3-04 | Comment edit/delete (Operator) |
+| P3-04 | Web comment thread (view/add on task detail) |
 | P3-05 | Due date reminders **to teammate** (Telegram, 24h before) — Operator overdue alerts → P1-TG-10 |
 | P3-06 | Daily digest to Operator Telegram |
 | P3-07 | Offline web sync |
@@ -411,10 +411,10 @@ Both roles. Requires Phase 1 API + DB. Out of scope: PWA install, Service Worker
 |--------|----------|----------------|---------------------|
 | Log in | ✓ | ✓ (invite) | — |
 | Manage teammates | ✓ | — | — |
-| Create / edit / archive tasks | ✓ | — | — |
+| Create / edit / delete tasks | ✓ | Own tasks only | — |
 | View tasks | All | Assigned to me | Current notification |
 | Change status | ✓ | Own tasks (`done` → relay) | Keywords (`done` → relay) |
-| Comment | Any task | Own tasks | Reply |
+| Telegram reply log | — | — | Reply (stored server-side) |
 | Re-notify | ✓ | — | — |
 | Link Telegram | Self-link on Profile (optional, alerts) · generate code for teammates | Via `/start` code | `/start <code>` |
 | Audit log | ✓ (Phase 2) | — | — |
@@ -441,10 +441,9 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | GET | `/tasks` | 1 | Operator (all) · Teammate (mine) |
 | POST | `/tasks` | 1 | Operator |
 | GET | `/tasks/:id` | 1 | Operator · Teammate (if assignee) |
-| PATCH | `/tasks/:id` | 1 | Operator (full) · Teammate (status, if assignee) |
+| PATCH | `/tasks/:id` | 1 | Operator (full) · Teammate (own tasks) |
+| DELETE | `/tasks/:id` | 1 | Operator (any) · Teammate (if assignee) |
 | POST | `/tasks/:id/notify` | 1 | Operator |
-| POST | `/tasks/:id/comments` | 1 | Operator · Teammate (if assignee) |
-| GET | `/tasks/:id/comments` | 1 | Operator · Teammate (if assignee) |
 | POST | `/telegram/webhook` | 1 | Webhook secret |
 | GET | `/health` | 1 | Public |
 | GET | `/audit` | 2 | Operator |
@@ -467,9 +466,14 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 ```
 /
+```
 ├── README.md
-├── REQUIREMENTS.md
-├── BRAND.md
+├── docs/
+│   ├── REQUIREMENTS.md
+│   ├── UIUX.md
+│   ├── ARCHITECTURE.md
+│   ├── BRAND.md
+│   └── DEPLOY-DIGITALOCEAN.md
 ├── brand/
 ├── public/
 ├── docker-compose.yml
@@ -483,7 +487,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
     └── middleware.ts
 ```
 
-**Repo status:** UI mock phase + deploy skeleton (Dockerfile, Compose, Caddy). Phase 1 API/Prisma pending.
+**Repo status:** UI mock phase (boards, create/edit/delete tasks, teammates, alerts, profile, settings) + deploy skeleton (Dockerfile, Compose, Caddy). Phase 1 API/Prisma pending.
 
 ---
 
@@ -508,7 +512,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 3. Phase 2 extends Phase 1 (migrations for `audit_logs`, `token_version`).
 4. Phase 3: one backlog item at a time unless told otherwise.
 
-**Example prompt:** *Implement Phase 1 per REQUIREMENTS.md. Do not implement Phase 2 or 3.*
+**Example prompt:** *Implement Phase 1 per [docs/REQUIREMENTS.md](./REQUIREMENTS.md). Do not implement Phase 2 or 3.*
 
 ---
 

@@ -1,7 +1,7 @@
 # SirRelay — UI/UX
 
 **Purpose:** Layout, interaction, and visual behavior for the web app and Telegram experience.  
-**Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) (what must work) · [BRAND.md](./BRAND.md) (colors, logos, tokens)
+**Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) (what must work) · [BRAND.md](./BRAND.md) (colors, logos, tokens) · [ARCHITECTURE.md](./ARCHITECTURE.md) (code layout)
 
 **Last updated:** 2026-06-28
 
@@ -122,9 +122,8 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 **Interactions:**
 
-- Click card → task detail
-- Click card → task detail
-- Status change → drag between columns (mock implemented; §P3-03); optional status dropdown on card in Phase 1 API
+- ↗ on card → task detail (edit form)
+- Drag between columns to change status (mock implemented; §P3-03)
 - Setting status to `done` triggers relay (P1-TASK-12) same as Telegram
 
 **Mobile (375px):** columns stack vertically: To do → In progress → Done.
@@ -224,29 +223,34 @@ Operator cards show **assignee** only in list view (column implies assignee on b
 
 Route: `/[locale]/tasks/[id]`
 
+Same card width and field order as **New task** (`/tasks/new`), plus status and delete.
+
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  ← Back                                                 │
-│  Task title                                             │
-│  Status · Assignee · Due date                           │
-│  ─────────────────────────────────────────────────────  │
-│  Description (full)                                     │
+│  Edit task                              [← Back]        │
 │  ─────────────────────────────────────────────────────  │
 │  ⚠ Banner: delivery failed (if applicable)              │
 │  ─────────────────────────────────────────────────────  │
-│  Comments (read-only in mock)                           │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │ [Telegram] Ana · 2h ago                          │  │
-│  │ feito — marked done                              │  │
-│  └──────────────────────────────────────────────────┘  │
+│  Title                                                  │
+│  Assignee* (Operator only)                              │
+│  Status (edit only)                                     │
+│  Due date                                               │
+│  Description                                            │
+│  ─────────────────────────────────────────────────────  │
+│  [Save]  [Cancel]                    [Delete task]      │
 └─────────────────────────────────────────────────────────┘
+
+* Create form: Title → Assignee → Due → Description (no status, no delete)
 ```
 
 | Element | Operator | Teammate |
 |---------|----------|----------|
 | Back | ✓ | ✓ |
-| Edit / Archive / Notify again / Add comment | Phase 1 API | Phase 1 API |
-| Status change | Board / Kanban only in mock | Board / Kanban only in mock |
+| Edit fields | ✓ all fields | ✓ own tasks (no assignee) |
+| Delete | ✓ any task | ✓ own tasks only |
+| Re-notify | Phase 1 API | — |
+
+Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditTaskForm` — see [ARCHITECTURE.md](./ARCHITECTURE.md#task-forms).
 
 ---
 
@@ -339,7 +343,7 @@ Operator-only system settings (audit, org config) remain Phase 2+.
 | Empty todo column | Light placeholder in column | — |
 | Login failed | “Invalid email or password.” | — |
 | Session expired | Redirect to login + toast | Log in again |
-| Telegram delivery failed | Banner on task detail | Notify again |
+| Telegram delivery failed | Banner on task detail | — |
 
 ---
 
@@ -388,6 +392,7 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 | `LocaleSwitcher` | Same-path locale change via URL prefix |
 | `UserMenu` | Account dropdown (Profile, Settings, Log out) |
 | `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |
+| `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared create + edit forms (§5) |
 | `OperatorBoardTaskCard` | Operator board: inline edit, open detail, drag handle |
 | `DraggableTaskCard` | Teammate Kanban card |
 | `BoardQuickAddTask` | Per-column quick add in To do section |
@@ -397,11 +402,11 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 | `TaskList` | Table list view |
 | `ViewToggle` | Board / List switch |
 | `StatusBadge` | Maps `todo` / `doing` / `done` to UI labels (§ Status naming) |
-| `ToneBadge` | Web / Telegram on comments; status chips |
+| `ToneBadge` | Role, account, Telegram, alert delivery chips |
 | `Banner` | Warning (delivery error on task detail) |
 | `SyncBar` | Session sync status (mock) |
 
-**Styling:** Tailwind + CSS variables from `brand/brand.css`. Card radius 8px, button 6px per BRAND.md.
+**Styling:** Tailwind + CSS variables from `brand/brand.css`. Card radius 8px, button 6px per [BRAND.md](./BRAND.md).
 
 ---
 
@@ -421,6 +426,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | UX item | Phase | Mock status |
 |---------|-------|-------------|
 | Team board + inline edit + quick add | 1 | ✓ mock |
+| Task create + edit + delete forms | 1 | ✓ mock |
 | Status Kanban + list toggle | 1 | ✓ |
 | Profile vs Settings split | 1 | ✓ |
 | Sidebar collapse + logo cross-fade | 3 (P3-13) | ✓ in mock |
@@ -442,3 +448,4 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |
 | 2026-06-28 | Legacy cleanup: removed stub routes, mock banner, non-functional task/teammate actions; Alerts page |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
+| 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

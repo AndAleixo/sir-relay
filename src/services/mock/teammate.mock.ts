@@ -1,14 +1,21 @@
 import type { Locale, Teammate, User } from "@/domain/types";
 import type {
   CreateTeammateInput,
+  OrganizationUser,
   TeammateService,
   UserService,
 } from "@/services/contracts";
-import { MOCK_OPERATOR, MOCK_TEAMMATES } from "@/services/mock/data";
+import { MOCK_OPERATOR, MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
 
 export class MockTeammateService implements TeammateService {
   async listTeammates() {
     return MOCK_TEAMMATES.filter((t) => t.active);
+  }
+
+  async listOrganizationUsers(): Promise<OrganizationUser[]> {
+    const operators = MOCK_OPERATORS.filter((user) => user.active) as OrganizationUser[];
+    const teammates = MOCK_TEAMMATES.filter((user) => user.active);
+    return [...operators, ...teammates];
   }
 
   async getTeammate(id: string) {

@@ -261,19 +261,22 @@ Route: `/[locale]/tasks/[id]`
 
 | Screen | Route | Operator | Teammate |
 |--------|-------|----------|----------|
-| Login | `/login` | ✓ | ✓ |
+| **Admin portal (sign-in)** | `/admin` | ✓ | ✓ |
+| Login (alias) | `/login` | → `/admin` | → `/admin` |
 | Join (invite) | `/join/[token]` | — | ✓ |
 | Change password | `/change-password` | ✓ (forced first login) | ✓ |
 | Tasks board | `/tasks` | Team board (§3.2) | Status Kanban (§3.1) |
 | New task | `/tasks/new` | ✓ | — |
 | Edit task | `/tasks/[id]/edit` | ✓ | — |
 | Task detail | `/tasks/[id]` | ✓ | Own only |
-| Teammates | `/teammates` | ✓ | — |
+| Teammates | `/teammates` | ✓ (operators + teammates) | — |
 | New teammate | `/teammates/new` | ✓ | — |
 | Teammate detail | `/teammates/[id]` | ✓ | — |
 | **Profile** | `/profile` | ✓ | ✓ |
 | Settings | `/settings` | ✓ | ✓ |
 | Audit | `/audit` | ✓ (Phase 2) | — |
+
+**Default URL:** `/[locale]/admin` — instance sign-in (model A). After login, operators go to `/teammates`; teammates go to `/tasks`.
 
 **Profile** is reached from the avatar and sidebar footer — not in primary nav. **Settings** stays in sidebar / mobile tabs.
 

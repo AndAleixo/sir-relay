@@ -26,13 +26,14 @@ src/
 |-------|--------|
 | `/[locale]/tasks` | Boards, list toggle, drag-and-drop, session sync |
 | `/[locale]/tasks/new` | Form UI only (save mock) |
-| `/[locale]/teammates` | Card list + link to create |
+| `/[locale]/teammates` | Team list (operators + teammates) |
 | `/[locale]/teammates/new` | Create teammate → redirects to detail |
 | `/[locale]/teammates/[id]` | Invite + Telegram links (static mock URLs) |
 | `/[locale]/profile` | Photo (localStorage), password form, logout |
 | `/[locale]/settings` | Locale switch, notification placeholders, mock role |
 | `/[locale]/join/[token]` | Join UI (save disabled mock) |
-| `/[locale]/login` | Mock login buttons |
+| `/[locale]/admin` | Sign-in portal (Model A) |
+| `/[locale]/login` | Redirect → `/admin` |
 
 **Not implemented:** `/change-password`, `/audit`, `/api/v1/*`, Prisma, Telegram webhook.
 

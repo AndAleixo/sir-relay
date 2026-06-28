@@ -28,6 +28,12 @@
     "expandSidebar": "Expandir barra lateral",
     "accountMenu": "Menú de cuenta"
   },
+  "admin": {
+    "signInTitle": "Iniciar sesión en SirRelay",
+    "signInSubtitle": "Instancia self-hosted — entra para gestionar usuarios o abrir la app.",
+    "signInMockHint": "Mock: Operador alex o alex@example.com · Compañero ana@example.com — cualquier contraseña no vacía.",
+    "signInError": "Correo o contraseña no válidos."
+  },
   "auth": {
     "login": "Iniciar sesión",
     "email": "Correo",
@@ -62,6 +68,12 @@
     "namePlaceholder": "Nombre completo",
     "newSubtitle": "Recibirán un enlace de invitación para activar la cuenta y vincular Telegram.",
     "localeHint": "Se usa en los mensajes de Telegram y en la interfaz web.",
+    "listSubtitle": "Operadores y compañeros en esta instancia.",
+    "userCount": "{count, plural, one {# persona} other {# personas}}",
+    "roleColumn": "Rol",
+    "accountColumn": "Cuenta",
+    "telegramColumn": "Telegram",
+    "viewUser": "Ver",
     "emptyBoard": "Añade compañeros para empezar a repartir trabajo."
   },
   "tasks": {

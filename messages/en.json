@@ -28,6 +28,12 @@
     "expandSidebar": "Expand sidebar",
     "accountMenu": "Account menu"
   },
+  "admin": {
+    "signInTitle": "Sign in to SirRelay",
+    "signInSubtitle": "Self-hosted instance — sign in to manage users or open the app.",
+    "signInMockHint": "Mock: Operator alex or alex@example.com · Teammate ana@example.com — any non-empty password.",
+    "signInError": "Invalid email or password."
+  },
   "auth": {
     "login": "Log in",
     "email": "Email",
@@ -62,6 +68,12 @@
     "namePlaceholder": "Full name",
     "newSubtitle": "They will receive an invite link to activate their account and link Telegram.",
     "localeHint": "Used for Telegram messages and the web UI.",
+    "listSubtitle": "Operators and teammates on this instance.",
+    "userCount": "{count, plural, one {# person} other {# people}}",
+    "roleColumn": "Role",
+    "accountColumn": "Account",
+    "telegramColumn": "Telegram",
+    "viewUser": "View",
     "emptyBoard": "Add teammates to start relaying work."
   },
   "tasks": {

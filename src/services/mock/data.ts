@@ -9,6 +9,18 @@ export const MOCK_OPERATOR: User = {
   active: true,
 };
 
+export const MOCK_OPERATORS: User[] = [
+  MOCK_OPERATOR,
+  {
+    id: "user-operator-2",
+    name: "Sam Rivera",
+    email: "sam@example.com",
+    role: "operator",
+    locale: "en",
+    active: true,
+  },
+];
+
 export const MOCK_TEAMMATE_USER: User = {
   id: "user-ana",
   name: "Ana Silva",

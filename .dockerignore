@@ -1,0 +1,23 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Next.js
+.next
+out
+
+# Git / IDE
+.git
+.gitignore
+.cursor
+*.md
+!README.md
+
+# Env (never bake secrets into image)
+.env
+.env.*
+!.env.example
+
+# Tests / misc
+coverage
+.DS_Store

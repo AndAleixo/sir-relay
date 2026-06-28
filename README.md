@@ -34,7 +34,7 @@ Distribui tarefas operacionais e acompanha o andamento num único lugar — web 
 4. Teammate **responde** à mensagem (ex.: `feito`, `done`) → tarefa vira `done` → **próxima tarefa chega no Telegram**  
 5. Operator e Teammate veem o mesmo estado na web  
 
-Hospedagem: **VPS própria** (Docker Compose, PostgreSQL, HTTPS).
+Hospedagem: **DigitalOcean Droplet** (EU) — Docker Compose, PostgreSQL, Caddy (HTTPS). Ver [docs/DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md).
 
 Idiomas: **inglês, espanhol e português** (`en`, `es`, `pt`).
 
@@ -47,6 +47,7 @@ Idiomas: **inglês, espanhol e português** (`en`, `es`, `pt`).
 | [**REQUIREMENTS.md**](./REQUIREMENTS.md) | Especificação completa — **fonte da verdade** para implementação |
 | [**UIUX.md**](./UIUX.md) | Layouts, boards, telas, componentes |
 | [**ARCHITECTURE.md**](./ARCHITECTURE.md) | Estrutura do código · mock → API |
+| [**docs/DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | Deploy em Droplet DO · Docker · Caddy |
 | [**BRAND.md**](./BRAND.md) | Marca Sir, ícone vs logos, cores, assets SVG |
 
 Desenvolvimento em **3 fases** — ver [REQUIREMENTS.md §3](./REQUIREMENTS.md#3-development-phases):

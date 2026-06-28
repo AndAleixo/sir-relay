@@ -14,7 +14,7 @@ export default async function AppLayout({
   const session = await auth.getSession();
 
   if (!session) {
-    redirect(`/${locale}/login`);
+    redirect(`/${locale}/admin`);
   }
 
   return (

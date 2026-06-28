@@ -85,9 +85,21 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | Task assignee | One teammate per task |
 | Task statuses | `todo` · `doing` · `done` |
 | Relay | One Telegram notification per teammate at a time (§2) |
-| Hosting | VPS · Docker Compose · PostgreSQL · Caddy (HTTPS) |
+| Hosting | **DigitalOcean Droplet** (EU region) · Docker Compose · PostgreSQL · Caddy (HTTPS) |
 | Stack | Next.js App Router · TypeScript · Prisma · grammy · next-intl · Tailwind · Zod |
 | Visual identity | [BRAND.md](./BRAND.md) |
+| **Product model** | **A — Single-tenant self-host** (§4.1). One install = one organization. No public signup. Umbrel/VPS/Docker. Multi-tenant SaaS out of scope unless explicitly requested. |
+
+### 4.1 Product model A (single-tenant self-host)
+
+| Aspect | Decision |
+|--------|----------|
+| Deployment | One instance per organization (Docker on DO, Umbrel, private VPS) |
+| Entry URL | `/[locale]/admin` — sign-in + administration (GitLab-style instance portal) |
+| Users | Invite-only; Operator manages users in **Admin → Users** |
+| Public registration | **No** — no “create account” on a shared cloud |
+| Scaling | Vertical (bigger VPS) or **multiple Operators** (P3-02) within same instance; many customers = many instances, not one multi-tenant DB |
+| Future SaaS (model B) | Not Phase 1–3 unless product direction changes |
 
 ---
 
@@ -246,14 +258,16 @@ comments
 
 **Web** (`/[locale]/`):
 
-| Route | Operator | Teammate |
-|-------|----------|----------|
-| `login`, `join/[token]`, `change-password` | ✓ | ✓ |
+| Route | Operator | Teammate | Notes |
+|-------|----------|----------|-------|
+| `admin` | Sign-in / redirect | Sign-in / redirect | **Default landing** when not in app |
+| `login` | Redirect → `admin` | Redirect → `admin` | Legacy alias |
+| `join/[token]`, `change-password` | ✓ | ✓ | |
 | `profile` | ✓ | ✓ |
 | `tasks` | All tasks | My tasks |
 | `tasks/new`, `tasks/[id]/edit` | ✓ | — |
 | `tasks/[id]` | ✓ | Own tasks only |
-| `teammates`, `teammates/new`, `teammates/[id]` | ✓ | — |
+| `teammates`, `teammates/new`, `teammates/[id]` | ✓ (list includes operators) | — |
 | `settings` | ✓ | ✓ |
 
 **API:** see §9.
@@ -311,6 +325,38 @@ audit_logs
 | P2-OPS-07 | `.env` file mode `600` |
 | P2-OPS-08 | `SESSION_SECRET` ≥ 32 random bytes |
 | P2-OPS-09 | Monthly OS and image updates |
+
+### 6.4 Monitoring & analytics
+
+**Two layers** — do not conflate them:
+
+| Layer | Answers | Tooling | Cookie consent |
+|-------|---------|---------|----------------|
+| **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` table + `/audit` UI | No — server-side, essential for security |
+| **Access / ops** | Is the app up? Who hit the server? | Caddy access logs, `GET /health`, JSON app logs | No — infrastructure |
+| **Web analytics** (optional) | Which screens are used? Mobile vs desktop? | Self-hosted **Umami** or **Plausible** (recommended) | **Yes** — unless provider is cookieless and legal review confirms exemption |
+
+**Locked decision:** No Google Analytics or third-party SaaS that sends data outside the VPS. Analytics, if enabled, runs **self-hosted** on the same deployment (subdomain e.g. `analytics.<APP_URL>` or path proxy).
+
+| ID | Requirement | Acceptance criteria |
+|----|-------------|---------------------|
+| P2-MON-01 | Structured app logs | JSON logs: request id, user id (if session), route, status; never log passwords or tokens |
+| P2-MON-02 | Failed login visibility | Audit event + optional Operator alert threshold (Phase 3) |
+| P2-ANA-01 | Self-hosted analytics (optional) | Umami or Plausible in Docker Compose; disabled by default |
+| P2-ANA-02 | Env toggle | `ANALYTICS_ENABLED=false` default; `ANALYTICS_SCRIPT_URL` when true |
+| P2-ANA-03 | Cookie consent | If analytics uses non-essential cookies: banner on first visit — **Necessary** (session) always on · **Analytics** opt-in; store preference in `localStorage` or cookie `sirrelay_consent` |
+| P2-ANA-04 | Privacy policy | `/privacy` links cookies used, analytics (if on), retention, self-hosted controller |
+| P2-ANA-05 | Load script only after consent | No analytics network calls until user accepts (or cookieless mode documented) |
+
+**Phase 1 minimum (before analytics):** session cookie + login notice + privacy page stub. **Phase 2:** audit log covers operational monitoring; enable analytics when product usage insights are needed.
+
+**Environment variables (when analytics enabled):**
+
+| Variable | Required | Notes |
+|----------|----------|-------|
+| `ANALYTICS_ENABLED` | No | Default `false` |
+| `ANALYTICS_SCRIPT_URL` | If enabled | e.g. `https://analytics.example.com/script.js` |
+| `ANALYTICS_SITE_ID` | If enabled | Provider site id |
 
 ---
 
@@ -429,7 +475,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
     └── middleware.ts
 ```
 
-**Repo status:** specification + brand assets only (no application code yet).
+**Repo status:** UI mock phase + deploy skeleton (Dockerfile, Compose, Caddy). Phase 1 API/Prisma pending.
 
 ---
 

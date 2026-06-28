@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServices } from "@/services";
+import { resolveEntryPath } from "@/lib/entry-route";
 
 export default async function LocaleHomePage({
   params,
@@ -10,5 +11,5 @@ export default async function LocaleHomePage({
   const { auth } = getServices();
   const session = await auth.getSession();
 
-  redirect(session ? `/${locale}/tasks` : `/${locale}/login`);
+  redirect(resolveEntryPath(locale, session));
 }

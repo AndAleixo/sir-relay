@@ -8,6 +8,10 @@ import type {
   User,
 } from "@/domain/types";
 
+export type OrganizationUser =
+  | (User & { role: "operator" })
+  | Teammate;
+
 export interface CreateTeammateInput {
   name: string;
   email: string;
@@ -39,6 +43,7 @@ export interface TaskService {
 
 export interface TeammateService {
   listTeammates(): Promise<Teammate[]>;
+  listOrganizationUsers(): Promise<OrganizationUser[]>;
   getTeammate(id: string): Promise<Teammate | null>;
   createTeammate(input: CreateTeammateInput): Promise<Teammate>;
 }

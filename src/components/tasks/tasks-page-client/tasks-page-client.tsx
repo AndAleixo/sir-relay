@@ -34,7 +34,6 @@ interface TasksPageClientProps {
     invited: string;
     active: string;
     viewAll: string;
-    dragHint: string;
     dragHandle: string;
     meColumn: string;
     webOnly: string;
@@ -69,7 +68,6 @@ export function TasksPageClient({
         onChange={setView}
         boardLabel={labels.board}
         listLabel={labels.list}
-        hint={view === "board" ? labels.dragHint : undefined}
       />
 
       {view === "board" ? (

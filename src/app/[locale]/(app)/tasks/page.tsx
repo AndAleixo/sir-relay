@@ -58,7 +58,6 @@ export default async function TasksPage({
           invited: t("teammate.invited"),
           active: t("teammate.active"),
           viewAll: t("common.viewAll"),
-          dragHint: t("common.dragHint"),
           dragHandle: t("common.dragHandle"),
           meColumn: t("tasks.meColumn"),
           webOnly: t("tasks.webOnly"),

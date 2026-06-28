@@ -15,7 +15,6 @@
     "list": "List",
     "newTask": "New task",
     "viewAll": "View all",
-    "dragHint": "Use the ⠿ handle to move tasks between columns or statuses. Drag left or right anywhere on the board to scroll between teammates.",
     "dragHandle": "Drag task"
   },
   "shell": {

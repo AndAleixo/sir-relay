@@ -13,6 +13,8 @@ export const teamBoardStyles = {
   sectionTitleAccent:
     "mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-primary)]",
   cardList: "flex flex-col gap-1.5",
+  cardListScrollable:
+    "overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] [scrollbar-width:thin]",
   doneSection: "p-2",
   doneToggle:
     "flex w-full items-center gap-2 rounded-button px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--surface-bg)]",

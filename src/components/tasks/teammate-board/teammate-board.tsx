@@ -19,6 +19,10 @@ import {
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
 import { BoardQuickAddTask } from "./board-quick-add-task";
+import {
+  DEFAULT_BOARD_SECTION_SCROLL_AFTER,
+  sectionListMaxHeight,
+} from "./board-section-scroll";
 import { teamBoardStyles } from "./teammate-board.styles";
 
 interface BoardOperator {
@@ -49,6 +53,33 @@ interface TeammateBoardProps {
     addDueDate: string;
     titlePlaceholder: string;
   };
+  /** Scroll inside To do / In progress / Done when count exceeds this (default 4). */
+  sectionScrollAfter?: number;
+}
+
+function SectionCardList({
+  itemCount,
+  scrollAfter,
+  children,
+}: {
+  itemCount: number;
+  scrollAfter: number;
+  children: React.ReactNode;
+}) {
+  const maxHeight = sectionListMaxHeight(itemCount, scrollAfter);
+
+  return (
+    <div
+      data-no-drag-scroll
+      className={cn(
+        teamBoardStyles.cardList,
+        maxHeight !== undefined && teamBoardStyles.cardListScrollable,
+      )}
+      style={maxHeight !== undefined ? { maxHeight } : undefined}
+    >
+      {children}
+    </div>
+  );
 }
 
 function BoardTaskItem({
@@ -107,6 +138,8 @@ function DroppableSection({
   onSectionDragOver,
   onDrop,
   footer,
+  itemCount,
+  scrollAfter,
   children,
 }: {
   title: string;
@@ -121,6 +154,8 @@ function DroppableSection({
     event: DragEvent<HTMLElement>,
   ) => void;
   footer?: React.ReactNode;
+  itemCount: number;
+  scrollAfter: number;
   children: React.ReactNode;
 }) {
   const key = dropTargetKey(assigneeId, status);
@@ -146,10 +181,10 @@ function DroppableSection({
       <h3 className={accent ? teamBoardStyles.sectionTitleAccent : teamBoardStyles.sectionTitle}>
         {title}
       </h3>
-      <div className={teamBoardStyles.cardList}>
+      <SectionCardList itemCount={itemCount} scrollAfter={scrollAfter}>
         {children}
-        {footer}
-      </div>
+      </SectionCardList>
+      {footer}
     </section>
   );
 }
@@ -169,6 +204,7 @@ function TaskColumn({
   onDrop,
   onUpdateFields,
   onQuickCreate,
+  sectionScrollAfter,
 }: {
   assigneeId: string;
   assigneeName: string;
@@ -195,6 +231,7 @@ function TaskColumn({
     assigneeId: string;
     assigneeName: string;
   }) => Promise<boolean>;
+  sectionScrollAfter: number;
 }) {
   const [doneOpen, setDoneOpen] = useState(false);
   const grouped = groupTasksByStatus(tasks);
@@ -212,6 +249,8 @@ function TaskColumn({
         activeDropTarget={activeDropTarget}
         onSectionDragOver={onSectionDragOver}
         onDrop={onDrop}
+        itemCount={grouped.todo.length}
+        scrollAfter={sectionScrollAfter}
         footer={
           <BoardQuickAddTask
             assigneeId={assigneeId}
@@ -244,6 +283,8 @@ function TaskColumn({
         activeDropTarget={activeDropTarget}
         onSectionDragOver={onSectionDragOver}
         onDrop={onDrop}
+        itemCount={grouped.doing.length}
+        scrollAfter={sectionScrollAfter}
       >
         {grouped.doing.map((task) => (
           <BoardTaskItem
@@ -285,7 +326,10 @@ function TaskColumn({
           {labels.sectionDone} ({grouped.done.length})
         </button>
         {doneOpen && (
-          <div className={teamBoardStyles.cardList}>
+          <SectionCardList
+            itemCount={donePreview.length}
+            scrollAfter={sectionScrollAfter}
+          >
             {donePreview.map((task) => (
               <BoardTaskItem
                 key={task.id}
@@ -301,7 +345,7 @@ function TaskColumn({
             {grouped.done.length > 5 && (
               <p className={teamBoardStyles.viewAll}>{labels.viewAll}</p>
             )}
-          </div>
+          </SectionCardList>
         )}
       </div>
     </article>
@@ -371,6 +415,7 @@ export function TeammateBoard({
   tasks,
   locale,
   labels,
+  sectionScrollAfter = DEFAULT_BOARD_SECTION_SCROLL_AFTER,
 }: TeammateBoardProps) {
   const { applyTaskUpdate, createTaskQuick } = useSync();
   const { scrollRef, scrollHandlers } = useHorizontalDragScroll();
@@ -509,6 +554,7 @@ export function TeammateBoard({
           onDrop={handleSectionDrop}
           onUpdateFields={handleUpdateFields}
           onQuickCreate={handleQuickCreate}
+          sectionScrollAfter={sectionScrollAfter}
         />
         {teammates.map((teammate) => {
           const columnTasks = tasks.filter((t) => t.assigneeId === teammate.id);
@@ -539,6 +585,7 @@ export function TeammateBoard({
               onDrop={handleSectionDrop}
               onUpdateFields={handleUpdateFields}
               onQuickCreate={handleQuickCreate}
+              sectionScrollAfter={sectionScrollAfter}
             />
           );
         })}

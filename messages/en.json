@@ -6,6 +6,7 @@
     "cancel": "Cancel",
     "back": "Back",
     "logout": "Log out",
+    "profile": "Profile",
     "settings": "Settings",
     "tasks": "Tasks",
     "teammates": "Teammates",
@@ -21,6 +22,11 @@
     "mockBanner": "UI preview — mock data only",
     "dragHint": "Use the ⠿ handle to move tasks between teammates or between To do, In progress, and Done",
     "dragHandle": "Drag task"
+  },
+  "shell": {
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "accountMenu": "Account menu"
   },
   "auth": {
     "login": "Log in",
@@ -73,10 +79,31 @@
   "settings": {
     "title": "Settings",
     "locale": "Language",
-    "password": "Password",
+    "localeHint": "Applies to the whole app. Saved to your account in production.",
+    "notifications": "Notifications",
+    "taskUpdates": "Task updates",
+    "telegramAlerts": "Telegram alerts",
+    "notificationsHint": "Notification preferences will be available in Phase 1.",
     "mockRole": "Preview role (mock only)",
     "switchOperator": "View as Operator",
-    "switchTeammate": "View as Teammate"
+    "switchTeammate": "View as Teammate",
+    "accountSection": "Your account",
+    "accountSectionHint": "Photo, password, and personal details are managed on your profile."
+  },
+  "profile": {
+    "title": "Profile",
+    "photo": "Profile photo",
+    "uploadPhoto": "Upload photo",
+    "changePhoto": "Change photo",
+    "removePhoto": "Remove photo",
+    "photoHint": "JPG or PNG, up to 2 MB. Stored locally in this browser preview.",
+    "accountInfo": "Account",
+    "displayName": "Display name",
+    "role": "Role",
+    "security": "Security",
+    "passwordMockHint": "Password changes will be enabled when the API is connected.",
+    "appPreferences": "App preferences",
+    "appPreferencesHint": "Language, notifications, and other app settings live in Settings."
   },
   "sync": {
     "pending": "Not synced with server — {count, plural, one {# change waiting} other {# changes waiting}}.",

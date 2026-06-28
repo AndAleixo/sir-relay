@@ -3,7 +3,7 @@
 **Purpose:** Layout, interaction, and visual behavior for the web app and Telegram experience.  
 **Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) (what must work) · [BRAND.md](./BRAND.md) (colors, logos, tokens)
 
-**Last updated:** 2026-06-27
+**Last updated:** 2026-06-28
 
 ### Status naming
 
@@ -29,6 +29,7 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 | **To do + In progress first** | Active work is always visible; Done is secondary on the Operator board |
 | **Calm UI** | Gray/white surfaces; yellow accent for CTAs and In progress column |
 | **Small team scale** | 2–5 teammates; no enterprise density — readable cards, generous spacing |
+| **Account vs app config** | **Profile** = personal account (photo, password, identity) · **Settings** = app preferences (language, notifications) |
 
 ---
 
@@ -36,29 +37,59 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 
 Same layout for both roles; navigation and default view differ.
 
+### 2.1 Desktop (≥768px)
+
 ```
-┌──────────────────────────────────────────────────────────────┐
-│  [logo.svg]     Tasks                    [locale ▾] [user ▾] │
-├────────────┬─────────────────────────────────────────────────┤
-│            │  Page title                    [+ New task]*    │
+┌────────────┬──────────────────────────────────────────────────┐
+│ logo.svg   │                         [locale ▾] [avatar] [▾] │
+│ ────────── │  Page title                    [+ New task]*      │
 │  Tasks     │  ─────────────────────────────────────────────  │
-│  Teammates*│                                                 │
-│  Settings  │              Main content                       │
-│            │                                                 │
-└────────────┴─────────────────────────────────────────────────┘
+│  Teammates*│                                                   │
+│  Settings  │              Main content                         │
+│            │                                                   │
+│ ────────── │                                                   │
+│ Ana        │  ← footer links to Profile                        │
+│ Operator   │                                                   │
+│      [◀]   │  ← collapse toggle (logo → logo-compact.svg)    │
+└────────────┴──────────────────────────────────────────────────┘
 
 * Operator only          Teammate nav: Tasks · Settings
 ```
 
 | Element | Spec |
 |---------|------|
-| Sidebar | Fixed left on ≥768px; drawer + hamburger on mobile |
-| Header | `logo.svg` (expanded); `logo-compact.svg` when sidebar collapsed (Phase 3 animation) |
+| Sidebar | Fixed left; collapsible (`w-56` ↔ `w-20`); preference stored in `localStorage` |
+| Sidebar logo | `logo.svg` expanded · `logo-compact.svg` collapsed; cross-fade animation |
+| Sidebar nav | Tasks · Teammates* · Settings — icons + labels (icons only when collapsed) |
+| Sidebar footer | User name + role → **Profile** |
+| Top header | Right-aligned utilities only: locale switcher, avatar link, account menu chevron |
+| Avatar | Links to **Profile**; shows uploaded photo or initial |
+| Account menu (`▾`) | Name + role header · Profile · Settings · Log out |
+| Locale | `<select>` in header (same route, new locale prefix); also on login screen |
 | Primary CTA | “New task” — Operator only, yellow button per [BRAND.md](./BRAND.md) |
-| User menu | Name, role badge, settings link, logout |
-| Locale | Dropdown in header + on login screen |
 
 **Post-login landing:** Operator → team board · Teammate → my Kanban
+
+### 2.2 Mobile (<768px)
+
+Sidebar hidden. Sticky top bar + tab navigation.
+
+```
+┌────────────────────────────────────────┐
+│ [logo-compact]          [EN▾] [avatar] │  ← avatar → Profile
+├────────────────────────────────────────┤
+│   Tasks    Teammates*    Settings      │  ← icon tabs
+├────────────────────────────────────────┤
+│              Main content              │
+└────────────────────────────────────────┘
+```
+
+| Element | Spec |
+|---------|------|
+| Top bar | Compact logo (home → tasks), locale switcher (short code), avatar → Profile |
+| Tab nav | Same items as sidebar; active tab highlighted |
+| Account menu | Desktop only (chevron); mobile uses Profile page for log out |
+| Log out | Profile page + desktop account menu |
 
 ---
 
@@ -91,7 +122,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 **Interactions:**
 
 - Click card → task detail
-- Status change → dropdown on card (Phase 1); drag between columns (Phase 3)
+- Status change → dropdown on card (Phase 1); drag between columns (mock implemented)
 - Setting status to `done` triggers relay (P1-TASK-12) same as Telegram
 
 **Mobile (375px):** columns stack vertically: To do → In progress → Done.
@@ -238,8 +269,11 @@ Route: `/[locale]/tasks/[id]`
 | Task detail | `/tasks/[id]` | ✓ | Own only |
 | Teammates | `/teammates` | ✓ | — |
 | Teammate detail | `/teammates/[id]` | ✓ | — |
+| **Profile** | `/profile` | ✓ | ✓ |
 | Settings | `/settings` | ✓ | ✓ |
 | Audit | `/audit` | ✓ (Phase 2) | — |
+
+**Profile** is reached from the avatar and sidebar footer — not in primary nav. **Settings** stays in sidebar / mobile tabs.
 
 ---
 
@@ -258,15 +292,36 @@ Table or card list: name, email, account status, Telegram status, active toggle,
 
 ---
 
-## 8. Settings
+## 8. Profile & Settings
 
-Both roles:
+Two distinct pages — personal account vs app configuration.
 
-- Change password
-- Locale selector
-- (Teammate) Linked Telegram status + link instructions if `pending`
+### 8.1 Profile (`/profile`)
 
-Operator only: no extra system settings in Phase 1.
+Both roles. Access: avatar (header / mobile), sidebar footer, account menu.
+
+| Section | Content | Phase 1 |
+|---------|---------|---------|
+| **Photo** | Upload / change / remove profile photo | Mock: `localStorage` per user id |
+| **Account** | Display name, email, role badge | Read-only in mock |
+| **Security** | Change password form | Disabled until API (`PATCH /me/password`) |
+| **App preferences** | Link to Settings | ✓ |
+| **Log out** | Sign out action | ✓ |
+
+Production: photo via `PATCH /me` or upload endpoint; password via dedicated flow.
+
+### 8.2 Settings (`/settings`)
+
+Both roles. Access: sidebar / mobile tabs, account menu, link from Profile.
+
+| Section | Content | Phase 1 |
+|---------|---------|---------|
+| **Language** | Locale selector (`en` · `es` · `pt`) | URL prefix switch; persist via `PATCH /me` in production |
+| **Notifications** | Task updates, Telegram alerts toggles | Placeholder (disabled) |
+| **Preview role** | Switch Operator / Teammate | Mock only |
+| **Your account** | Link to Profile | ✓ |
+
+Operator-only system settings (audit, org config) remain Phase 2+.
 
 ---
 
@@ -322,15 +377,22 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 
 | Component | Notes |
 |-----------|-------|
-| `AppShell` | Sidebar + header + role-based nav |
+| `AppShell` | Sidebar + collapse + role-based nav + profile footer |
+| `AppHeader` | Desktop locale switcher + avatar + account menu |
+| `MobileTopBar` | Compact logo, locale, avatar, tab nav |
+| `LocaleSwitcher` | Same-path locale change via URL prefix |
+| `UserMenu` | Account dropdown (Profile, Settings, Log out) |
+| `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |
 | `TaskCard` | Shared; props: task, showAssignee?, compact? |
 | `TeammateBoard` | Operator team board (§3.2) |
 | `StatusKanban` | Teammate 3-column board (§3.1) |
 | `TaskList` | Sortable table/list |
+| `ViewToggle` | Board / List switch |
 | `StatusBadge` | Maps `todo` / `doing` / `done` to UI labels (§ Status naming) |
 | `SourceBadge` | Web / Telegram on comments |
 | `DoneAccordion` | Collapsed done section on Operator board |
 | `Banner` | Warning (Telegram pending, delivery error) |
+| `SyncBar` | Offline sync status (session queue, mock) |
 
 **Styling:** Tailwind + CSS variables from `brand/brand.css`. Card radius 8px, button 6px per BRAND.md.
 
@@ -338,23 +400,26 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 
 ## 12. Responsive summary
 
-| Breakpoint | Operator tasks | Teammate tasks |
-|------------|----------------|----------------|
-| ≥768px | Team board (horizontal scroll) | Status Kanban (3 columns) |
-| <768px | **List view** default | Kanban stacks vertically **or** list (prefer vertical Kanban if ≤3 tasks) |
+| Breakpoint | Shell | Operator tasks | Teammate tasks |
+|------------|-------|----------------|----------------|
+| ≥768px | Sidebar + top header utilities | Team board (horizontal scroll) | Status Kanban (3 columns) |
+| <768px | Top bar + tab nav (no sidebar) | Board or list (toggle) | Kanban stacks vertically |
 
-Toolbar always offers Board / List toggle when both are implemented for that role.
+Toolbar offers Board / List toggle when both are implemented for that role.
 
 ---
 
 ## 13. Phase mapping
 
-| UX item | Phase |
-|---------|-------|
-| Team board + Status Kanban + list toggle | 1 |
-| Drag-and-drop on Kanban | 3 (P3-03) |
-| Logo collapse animation | 3 (P3-13) |
-| Audit screen | 2 |
+| UX item | Phase | Mock status |
+|---------|-------|-------------|
+| Team board + Status Kanban + list toggle | 1 | ✓ |
+| Profile vs Settings split | 1 | ✓ |
+| Sidebar collapse + logo cross-fade | 3 (P3-13) | ✓ in mock |
+| Drag-and-drop on Kanban | 3 (P3-03) | ✓ in mock |
+| Locale persist via API | 1 | URL switch only |
+| Notification preferences | 1 | Placeholder |
+| Audit screen | 2 | — |
 
 ---
 
@@ -364,3 +429,5 @@ Toolbar always offers Board / List toggle when both are implemented for that rol
 |------|--------|
 | 2026-06-27 | Operator teammate-columns board; Teammate status Kanban |
 | 2026-06-27 | Status labels: UI “In progress” ↔ code `doing` |
+| 2026-06-28 | Profile page (photo, password, account); Settings = app prefs only |
+| 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |

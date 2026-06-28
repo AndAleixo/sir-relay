@@ -6,6 +6,7 @@
     "cancel": "Cancelar",
     "back": "Voltar",
     "logout": "Sair",
+    "profile": "Perfil",
     "settings": "Configurações",
     "tasks": "Tarefas",
     "teammates": "Colegas",
@@ -21,6 +22,11 @@
     "mockBanner": "Prévia da UI — apenas dados mock",
     "dragHint": "Use o ícone ⠿ para arrastar entre colegas ou entre To do, Em progresso e Concluído",
     "dragHandle": "Arrastar tarefa"
+  },
+  "shell": {
+    "collapseSidebar": "Recolher barra lateral",
+    "expandSidebar": "Expandir barra lateral",
+    "accountMenu": "Menu da conta"
   },
   "auth": {
     "login": "Entrar",
@@ -73,10 +79,31 @@
   "settings": {
     "title": "Configurações",
     "locale": "Idioma",
-    "password": "Senha",
+    "localeHint": "Aplica-se a toda a app. Será guardado na conta em produção.",
+    "notifications": "Notificações",
+    "taskUpdates": "Atualizações de tarefas",
+    "telegramAlerts": "Alertas do Telegram",
+    "notificationsHint": "Preferências de notificação estarão disponíveis na Fase 1.",
     "mockRole": "Papel de prévia (somente mock)",
     "switchOperator": "Ver como Operador",
-    "switchTeammate": "Ver como Colega"
+    "switchTeammate": "Ver como Colega",
+    "accountSection": "Sua conta",
+    "accountSectionHint": "Foto, senha e dados pessoais são geridos no perfil."
+  },
+  "profile": {
+    "title": "Perfil",
+    "photo": "Foto de perfil",
+    "uploadPhoto": "Enviar foto",
+    "changePhoto": "Alterar foto",
+    "removePhoto": "Remover foto",
+    "photoHint": "JPG ou PNG, até 2 MB. Guardado localmente nesta prévia do browser.",
+    "accountInfo": "Conta",
+    "displayName": "Nome de exibição",
+    "role": "Papel",
+    "security": "Segurança",
+    "passwordMockHint": "Alteração de senha será ativada quando a API estiver conectada.",
+    "appPreferences": "Preferências da app",
+    "appPreferencesHint": "Idioma, notificações e outras configurações ficam em Configurações."
   },
   "sync": {
     "pending": "Não sincronizado com o servidor — {count, plural, one {# alteração pendente} other {# alterações pendentes}}.",

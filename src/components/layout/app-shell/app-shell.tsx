@@ -3,12 +3,22 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { Role, User } from "@/domain/types";
+import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
+import { AppHeader } from "./app-header";
+import { MobileTopBar } from "./mobile-top-bar";
+import { SidebarLogo } from "./sidebar-logo";
+import {
+  SidebarNavIcon,
+  type SidebarNavIconName,
+} from "./sidebar-nav-icon";
+import { useSidebarCollapsed } from "./use-sidebar-collapsed";
 import { shellStyles } from "./app-shell.styles";
 
 interface NavItem {
   href: string;
   label: string;
+  icon: SidebarNavIconName;
   roles: Role[];
 }
 
@@ -20,54 +30,133 @@ interface AppShellProps {
 
 export function AppShell({ locale, user, children }: AppShellProps) {
   const t = useTranslations();
+  const { collapsed, toggle } = useSidebarCollapsed();
   const isOperator = user.role === "operator";
 
   const nav: NavItem[] = [
     {
       href: `/${locale}/tasks`,
       label: t("common.tasks"),
+      icon: "tasks",
       roles: ["operator", "teammate"],
     },
     {
       href: `/${locale}/teammates`,
       label: t("common.teammates"),
+      icon: "teammates",
       roles: ["operator"],
     },
     {
       href: `/${locale}/settings`,
       label: t("common.settings"),
+      icon: "settings",
       roles: ["operator", "teammate"],
     },
   ];
 
+  const visibleNav = nav.filter((item) => item.roles.includes(user.role));
+
   return (
     <div className={shellStyles.root}>
-      <aside className={shellStyles.sidebar}>
-        <Link href={`/${locale}/tasks`} className={shellStyles.logoLink}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo.svg" alt={t("common.appName")} className="h-8" />
-        </Link>
-        <nav className={shellStyles.nav}>
-          {nav
-            .filter((item) => item.roles.includes(user.role))
-            .map((item) => (
-              <Link key={item.href} href={item.href} className={shellStyles.navLink}>
-                {item.label}
+      <div
+        className={cn(
+          shellStyles.sidebarShell,
+          collapsed ? shellStyles.sidebarCollapsed : shellStyles.sidebarExpanded,
+        )}
+      >
+        <aside className={shellStyles.sidebar}>
+          <Link
+            href={`/${locale}/tasks`}
+            className={cn(
+              shellStyles.logoLink,
+              collapsed && shellStyles.logoLinkCollapsed,
+            )}
+            title={t("common.appName")}
+          >
+            <SidebarLogo appName={t("common.appName")} collapsed={collapsed} />
+          </Link>
+
+          <nav
+            className={cn(shellStyles.nav, collapsed && shellStyles.navCollapsed)}
+          >
+            {visibleNav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  shellStyles.navLink,
+                  collapsed && shellStyles.navLinkCollapsed,
+                )}
+                title={collapsed ? item.label : undefined}
+              >
+                <SidebarNavIcon name={item.icon} />
+                <span
+                  className={cn(
+                    shellStyles.navLabel,
+                    collapsed && shellStyles.navLabelCollapsed,
+                  )}
+                >
+                  {item.label}
+                </span>
               </Link>
             ))}
-        </nav>
-        <div className={shellStyles.sidebarFooter}>
-          <p className={shellStyles.userName}>{user.name}</p>
-          <p className={shellStyles.userRole}>{t(`roles.${user.role}`)}</p>
-        </div>
-      </aside>
+          </nav>
+
+          <div
+            className={cn(
+              shellStyles.sidebarFooter,
+              collapsed && shellStyles.sidebarFooterCollapsed,
+            )}
+          >
+            {collapsed ? (
+              <Link
+                href={`/${locale}/profile`}
+                className={cn(shellStyles.sidebarProfileLink, shellStyles.sidebarProfileLinkCollapsed)}
+                title={user.name}
+              >
+                <UserAvatar userId={user.id} userName={user.name} />
+              </Link>
+            ) : (
+              <Link href={`/${locale}/profile`} className={shellStyles.sidebarProfileLink}>
+                <div className={shellStyles.userBlock}>
+                  <p className={shellStyles.userName}>{user.name}</p>
+                  <p className={shellStyles.userRole}>{t(`roles.${user.role}`)}</p>
+                </div>
+              </Link>
+            )}
+          </div>
+        </aside>
+
+        <button
+          type="button"
+          className={shellStyles.collapseToggle}
+          onClick={toggle}
+          aria-expanded={!collapsed}
+          aria-label={
+            collapsed ? t("shell.expandSidebar") : t("shell.collapseSidebar")
+          }
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={cn(
+              shellStyles.collapseChevron,
+              collapsed && shellStyles.collapseChevronRotated,
+            )}
+            aria-hidden
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+      </div>
+
       <div className={shellStyles.main}>
-        <header className={shellStyles.header}>
-          <div className={shellStyles.headerSpacer} />
-          <Link href={`/${locale}/settings`} className={shellStyles.headerUser}>
-            {user.name}
-          </Link>
-        </header>
+        <MobileTopBar locale={locale} appName={t("common.appName")} user={user} items={visibleNav} />
+        <AppHeader locale={locale} user={user} />
         <main className={cn(shellStyles.content, isOperator && shellStyles.contentWide)}>
           {children}
         </main>

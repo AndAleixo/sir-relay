@@ -31,27 +31,27 @@ export function TaskCardContent({
 
   return (
     <>
-      <div className="flex items-start justify-between gap-2">
-        <h3 className={taskCardStyles.title}>{task.title}</h3>
-        {task.telegramNotifyFailed && (
-          <span
-            className={taskCardStyles.notifyDot}
-            title="Telegram delivery failed"
-          />
-        )}
+      <div className={taskCardStyles.titleRow}>
+        <h3 className={cn(taskCardStyles.title, "min-w-0 flex-1")}>{task.title}</h3>
       </div>
       {showAssignee && (
-        <p className={taskCardStyles.meta}>{task.assigneeName}</p>
+        <p className={cn(taskCardStyles.meta, "truncate")}>{task.assigneeName}</p>
       )}
       <div className={taskCardStyles.footer}>
-        <span className={cn(taskCardStyles.meta, overdue && taskCardStyles.overdue)}>
+        <span className={cn(taskCardStyles.dueButton, overdue && taskCardStyles.overdue)}>
           {labels.dueDate}: {formatDueDate(task.dueDate, locale)}
           {overdue && ` · ${labels.overdue}`}
         </span>
         <span className={taskCardStyles.meta}>
-          {labels.updated} {formatRelativeTime(task.updatedAt, locale)}
+          {formatRelativeTime(task.updatedAt, locale)}
         </span>
       </div>
+      {task.telegramNotifyFailed && (
+        <span
+          className={taskCardStyles.notifyDotCorner}
+          title="Telegram delivery failed"
+        />
+      )}
     </>
   );
 }

@@ -12,5 +12,5 @@ export const kanbanStyles = {
   } satisfies Record<TaskStatus, string>,
   columnTitle: "text-sm font-semibold text-[var(--text-primary)]",
   count: "text-xs font-medium text-[var(--text-muted)]",
-  cardList: "flex flex-col gap-2 p-2",
+  cardList: "flex flex-col gap-1.5 p-1.5",
 } as const;

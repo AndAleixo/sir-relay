@@ -172,19 +172,17 @@ export function OperatorBoardTaskCard({
           </Link>
         </div>
 
-        {task.telegramNotifyFailed && (
-          <span
-            className={cn(taskCardStyles.notifyDot, "mb-1 inline-block")}
-            title="Telegram delivery failed"
-          />
-        )}
-
-        <div className={taskCardStyles.footer}>
+        <div
+          className={cn(
+            taskCardStyles.footer,
+            task.telegramNotifyFailed && "pr-3",
+          )}
+        >
           {editingDue ? (
             <Input
               autoFocus
               type="date"
-              className={taskCardStyles.inlineDateInput}
+              className={cn(taskCardStyles.inlineDateInput, "flex-1")}
               value={dueDraft}
               disabled={saving}
               onChange={(event) => setDueDraft(event.target.value)}
@@ -207,6 +205,7 @@ export function OperatorBoardTaskCard({
               type="button"
               className={cn(
                 taskCardStyles.dueButton,
+                "min-w-0 flex-1",
                 overdue && taskCardStyles.overdue,
               )}
               onClick={() => setEditingDue(true)}
@@ -218,10 +217,17 @@ export function OperatorBoardTaskCard({
             </button>
           )}
           <span className={taskCardStyles.meta}>
-            {labels.updated} {formatRelativeTime(task.updatedAt, locale)}
+            {formatRelativeTime(task.updatedAt, locale)}
           </span>
         </div>
       </div>
+
+      {task.telegramNotifyFailed && (
+        <span
+          className={taskCardStyles.notifyDotCorner}
+          title="Telegram delivery failed"
+        />
+      )}
     </div>
   );
 }

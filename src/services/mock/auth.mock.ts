@@ -81,12 +81,7 @@ export class MockAuthService implements AuthService {
     writeSession(null);
   }
 
-  /** Dev helper — switch role without login flow (Settings mock only). */
-  async setMockRole(role: "operator" | "teammate"): Promise<void> {
-    const user =
-      role === "operator"
-        ? MOCK_OPERATORS[0]
-        : MOCK_TEAMMATES.find((t) => t.id === "user-ana")!;
+  async updateSessionUser(user: User): Promise<void> {
     writeSession({ user });
   }
 }

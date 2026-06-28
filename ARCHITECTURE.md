@@ -30,7 +30,7 @@ src/
 | `/[locale]/teammates/new` | Create teammate → redirects to detail |
 | `/[locale]/teammates/[id]` | Invite + Telegram links (static mock URLs) |
 | `/[locale]/profile` | Photo (localStorage), password form, logout |
-| `/[locale]/settings` | Locale switch, notification placeholders, mock role |
+| `/[locale]/settings` | Language + notification preferences only |
 | `/[locale]/join/[token]` | Join UI (save disabled mock) |
 | `/[locale]/admin` | Sign-in portal (Model A) |
 | `/[locale]/login` | Redirect → `/admin` |

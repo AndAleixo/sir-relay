@@ -1,10 +1,8 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
-import { mockLogout } from "@/app/actions/mock-auth";
 import { ProfileAvatarEditor } from "@/components/profile/profile-avatar-editor";
 import { ChangePasswordSection } from "@/components/profile/change-password-section";
-import { Button } from "@/components/ui/button";
+import { ToneBadge } from "@/components/ui/badge";
 import { Card, CardBody } from "@/components/ui/card";
 import { getServices } from "@/services";
 
@@ -13,13 +11,15 @@ export default async function ProfilePage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+  await params;
   const t = await getTranslations();
-  const { auth } = getServices();
+  const { auth, teammates } = getServices();
   const session = await auth.getSession();
   if (!session) return null;
 
   const { user } = session;
+  const teammate =
+    user.role === "teammate" ? await teammates.getTeammate(user.id) : null;
 
   return (
     <>
@@ -64,6 +64,26 @@ export default async function ProfilePage({
           </CardBody>
         </Card>
 
+        {teammate ? (
+          <Card>
+            <CardBody className="space-y-4">
+              <p className="text-sm font-medium text-[var(--text-primary)]">
+                {t("profile.telegramSection")}
+              </p>
+              <ToneBadge tone={teammate.telegramStatus === "linked" ? "success" : "warning"}>
+                {teammate.telegramStatus === "linked"
+                  ? t("teammate.linked")
+                  : t("teammate.pending")}
+              </ToneBadge>
+              <p className="text-sm text-[var(--text-muted)]">
+                {teammate.telegramStatus === "linked"
+                  ? t("profile.telegramLinkedHint")
+                  : t("profile.telegramPendingHint")}
+              </p>
+            </CardBody>
+          </Card>
+        ) : null}
+
         <Card>
           <CardBody className="space-y-4">
             <p className="text-sm font-medium text-[var(--text-primary)]">
@@ -72,24 +92,6 @@ export default async function ProfilePage({
             <ChangePasswordSection />
           </CardBody>
         </Card>
-
-        <Card>
-          <CardBody className="space-y-3">
-            <p className="text-sm font-medium text-[var(--text-primary)]">
-              {t("profile.appPreferences")}
-            </p>
-            <p className="text-sm text-[var(--text-muted)]">{t("profile.appPreferencesHint")}</p>
-            <Link href={`/${locale}/settings`}>
-              <Button variant="secondary">{t("common.settings")}</Button>
-            </Link>
-          </CardBody>
-        </Card>
-
-        <form action={mockLogout.bind(null, locale)}>
-          <Button type="submit" variant="ghost">
-            {t("common.logout")}
-          </Button>
-        </form>
       </div>
     </>
   );

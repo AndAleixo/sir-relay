@@ -1,9 +1,6 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
-import { switchMockRole } from "@/app/actions/mock-auth";
-import { LocaleSwitcher } from "@/components/layout/app-shell/locale-switcher";
-import { Button } from "@/components/ui/button";
+import { SettingsLocaleField } from "@/components/settings/settings-locale-field";
 import { Card, CardBody } from "@/components/ui/card";
 import { Label } from "@/components/ui/input";
 import { getServices } from "@/services";
@@ -28,7 +25,7 @@ export default async function SettingsPage({
             <div>
               <Label htmlFor="locale">{t("settings.locale")}</Label>
               <div className="mt-1.5">
-                <LocaleSwitcher locale={locale} />
+                <SettingsLocaleField locale={locale} />
               </div>
               <p className="mt-2 text-xs text-[var(--text-muted)]">{t("settings.localeHint")}</p>
             </div>
@@ -49,36 +46,6 @@ export default async function SettingsPage({
               <input type="checkbox" defaultChecked disabled className="h-4 w-4 rounded" />
             </label>
             <p className="text-xs text-[var(--text-muted)]">{t("settings.notificationsHint")}</p>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody className="space-y-3">
-            <p className="text-sm font-medium">{t("settings.mockRole")}</p>
-            <div className="flex flex-wrap gap-2">
-              <form action={switchMockRole.bind(null, locale, "operator")}>
-                <Button type="submit" variant="secondary">
-                  {t("settings.switchOperator")}
-                </Button>
-              </form>
-              <form action={switchMockRole.bind(null, locale, "teammate")}>
-                <Button type="submit" variant="secondary">
-                  {t("settings.switchTeammate")}
-                </Button>
-              </form>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody className="space-y-3">
-            <p className="text-sm font-medium text-[var(--text-primary)]">
-              {t("settings.accountSection")}
-            </p>
-            <p className="text-sm text-[var(--text-muted)]">{t("settings.accountSectionHint")}</p>
-            <Link href={`/${locale}/profile`}>
-              <Button variant="secondary">{t("common.profile")}</Button>
-            </Link>
           </CardBody>
         </Card>
       </div>

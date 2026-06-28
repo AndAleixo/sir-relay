@@ -301,7 +301,7 @@ Table or card list: name, email, account status, Telegram status, active toggle,
 
 ## 8. Profile & Settings
 
-Two distinct pages — personal account vs app configuration.
+Two distinct pages — **Profile** is who you are; **Settings** is how the app behaves. No cross-links between them; use the account menu or sidebar to switch.
 
 ### 8.1 Profile (`/profile`)
 
@@ -311,22 +311,19 @@ Both roles. Access: avatar (header / mobile), sidebar footer, account menu.
 |---------|---------|---------|
 | **Photo** | Upload / change / remove profile photo | Mock: `localStorage` per user id |
 | **Account** | Display name, email, role badge | Read-only in mock |
+| **Telegram** | Link status (Teammate only) | ✓ mock |
 | **Security** | Change password form | Disabled until API (`PATCH /me/password`) |
-| **App preferences** | Link to Settings | ✓ |
-| **Log out** | Sign out action | ✓ |
 
 Production: photo via `PATCH /me` or upload endpoint; password via dedicated flow.
 
 ### 8.2 Settings (`/settings`)
 
-Both roles. Access: sidebar / mobile tabs, account menu, link from Profile.
+Both roles. Access: sidebar / mobile tabs, account menu.
 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
-| **Language** | Locale selector (`en` · `es` · `pt`) | URL prefix switch; persist via `PATCH /me` in production |
+| **Language** | Locale selector (`en` · `es` · `pt`) | Persisted in mock session; `PATCH /me` in production |
 | **Notifications** | Task updates, Telegram alerts toggles | Placeholder (disabled) |
-| **Preview role** | Switch Operator / Teammate | Mock only |
-| **Your account** | Link to Profile | ✓ |
 
 Operator-only system settings (audit, org config) remain Phase 2+.
 

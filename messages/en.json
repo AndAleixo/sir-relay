@@ -96,16 +96,11 @@
   "settings": {
     "title": "Settings",
     "locale": "Language",
-    "localeHint": "Applies to the whole app. Saved to your account in production.",
+    "localeHint": "Applies to the whole app. Saved to your account in this preview.",
     "notifications": "Notifications",
     "taskUpdates": "Task updates",
     "telegramAlerts": "Telegram alerts",
-    "notificationsHint": "Notification preferences will be available in Phase 1.",
-    "mockRole": "Preview role (mock only)",
-    "switchOperator": "View as Operator",
-    "switchTeammate": "View as Teammate",
-    "accountSection": "Your account",
-    "accountSectionHint": "Photo, password, and personal details are managed on your profile."
+    "notificationsHint": "Notification preferences will be available in Phase 1."
   },
   "profile": {
     "title": "Profile",
@@ -117,10 +112,11 @@
     "accountInfo": "Account",
     "displayName": "Display name",
     "role": "Role",
+    "telegramSection": "Telegram",
+    "telegramLinkedHint": "Task notifications are sent to your linked Telegram chat.",
+    "telegramPendingHint": "Open the invite link from your operator to connect Telegram and receive task alerts.",
     "security": "Security",
-    "passwordMockHint": "Password changes will be enabled when the API is connected.",
-    "appPreferences": "App preferences",
-    "appPreferencesHint": "Language, notifications, and other app settings live in Settings."
+    "passwordMockHint": "Password changes will be enabled when the API is connected."
   },
   "sync": {
     "pending": "Not synced with server — {count, plural, one {# change waiting} other {# changes waiting}}.",

@@ -96,16 +96,11 @@
   "settings": {
     "title": "Configurações",
     "locale": "Idioma",
-    "localeHint": "Aplica-se a toda a app. Será guardado na conta em produção.",
+    "localeHint": "Aplica-se a toda a app. Guardado na sua conta nesta pré-visualização.",
     "notifications": "Notificações",
     "taskUpdates": "Atualizações de tarefas",
     "telegramAlerts": "Alertas do Telegram",
-    "notificationsHint": "Preferências de notificação estarão disponíveis na Fase 1.",
-    "mockRole": "Papel de prévia (somente mock)",
-    "switchOperator": "Ver como Operador",
-    "switchTeammate": "Ver como Colega",
-    "accountSection": "Sua conta",
-    "accountSectionHint": "Foto, senha e dados pessoais são geridos no perfil."
+    "notificationsHint": "Preferências de notificação estarão disponíveis na Fase 1."
   },
   "profile": {
     "title": "Perfil",
@@ -117,10 +112,11 @@
     "accountInfo": "Conta",
     "displayName": "Nome de exibição",
     "role": "Papel",
+    "telegramSection": "Telegram",
+    "telegramLinkedHint": "Notificações de tarefas são enviadas para o seu chat do Telegram.",
+    "telegramPendingHint": "Abra o link de convite do operador para ligar o Telegram e receber alertas.",
     "security": "Segurança",
-    "passwordMockHint": "Alteração de senha será ativada quando a API estiver conectada.",
-    "appPreferences": "Preferências da app",
-    "appPreferencesHint": "Idioma, notificações e outras configurações ficam em Configurações."
+    "passwordMockHint": "Alteração de senha será ativada quando a API estiver conectada."
   },
   "sync": {
     "pending": "Não sincronizado com o servidor — {count, plural, one {# alteração pendente} other {# alterações pendentes}}.",

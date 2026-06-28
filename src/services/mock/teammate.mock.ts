@@ -5,7 +5,7 @@ import type {
   TeammateService,
   UserService,
 } from "@/services/contracts";
-import { MOCK_OPERATOR, MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
+import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
 
 export class MockTeammateService implements TeammateService {
   async listTeammates() {
@@ -41,11 +41,18 @@ export class MockTeammateService implements TeammateService {
 
 export class MockUserService implements UserService {
   async updateLocale(userId: string, locale: Locale): Promise<User> {
-    if (userId === MOCK_OPERATOR.id) {
-      return { ...MOCK_OPERATOR, locale };
+    const operator = MOCK_OPERATORS.find((user) => user.id === userId);
+    if (operator) {
+      operator.locale = locale;
+      return { ...operator };
     }
+
     const teammate = MOCK_TEAMMATES.find((t) => t.id === userId);
-    if (teammate) return { ...teammate, locale };
+    if (teammate) {
+      teammate.locale = locale;
+      return { ...teammate };
+    }
+
     throw new Error("User not found");
   }
 }

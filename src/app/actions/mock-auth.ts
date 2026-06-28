@@ -5,15 +5,6 @@ import { redirect } from "next/navigation";
 import type { Session } from "@/domain/types";
 import { mockAuthService } from "@/services/mock/auth.mock";
 
-export async function switchMockRole(
-  locale: string,
-  role: "operator" | "teammate",
-) {
-  await mockAuthService.setMockRole(role);
-  revalidatePath("/", "layout");
-  redirect(`/${locale}/tasks`);
-}
-
 export async function mockLogin(locale: string, formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");

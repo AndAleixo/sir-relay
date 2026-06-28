@@ -27,7 +27,9 @@ export const shellStyles = {
   nav: "flex flex-1 flex-col gap-1 p-2 transition-[padding] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
   navCollapsed: "px-1.5",
   navLink:
-    "flex items-center gap-3 rounded-button px-3 py-2.5 text-sm font-medium text-[var(--text-primary)] transition-[background-color,padding,gap] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-[var(--surface-bg)]",
+    "flex items-center gap-3 rounded-button px-3 py-2.5 text-sm font-medium text-[var(--text-primary)] transition-[background-color,padding,gap,color] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-[var(--surface-bg)]",
+  navLinkActive:
+    "bg-brand-accent-soft text-brand-accent hover:bg-brand-accent-soft hover:text-brand-accent",
   navLinkCollapsed: "justify-center gap-0 px-0 py-2.5",
   navLabel:
     "truncate whitespace-nowrap transition-[opacity,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
@@ -81,5 +83,6 @@ export const shellStyles = {
   content: "flex-1 p-4 md:p-6",
   contentWide: "max-w-[100vw] overflow-x-hidden",
   pageHeader: "mb-6 flex flex-wrap items-center justify-between gap-4",
+  pageHeaderActionOnly: "mb-4 flex justify-end",
   pageTitle: "text-2xl font-semibold tracking-tight text-[var(--text-primary)]",
 } as const;

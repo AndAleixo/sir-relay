@@ -4,7 +4,7 @@ import type { OrganizationUser } from "@/services/contracts";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/auth-guards";
 import { teamListStyles } from "@/components/teammates/team-list.styles";
-import { PageHeader } from "@/components/layout/app-shell";
+import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { Button } from "@/components/ui/button";
 import { ToneBadge } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
@@ -29,15 +29,12 @@ export default async function TeammatesPage({
 
   return (
     <>
-      <PageHeader
-        title={t("common.teammates")}
-        action={
-          <Link href={`/${locale}/teammates/new`}>
-            <Button>{t("teammate.addTeammate")}</Button>
-          </Link>
-        }
-      />
-      <p className="mb-4 text-sm text-[var(--text-muted)]">{t("teammate.listSubtitle")}</p>
+      <div className={viewToggleStyles.toolbar}>
+        <p className={viewToggleStyles.toolbarText}>{t("teammate.listSubtitle")}</p>
+        <Link href={`/${locale}/teammates/new`}>
+          <Button>{t("teammate.addTeammate")}</Button>
+        </Link>
+      </div>
       <p className="mb-4 text-sm text-[var(--text-muted)]">
         {t("teammate.userCount", { count: users.length })}
       </p>

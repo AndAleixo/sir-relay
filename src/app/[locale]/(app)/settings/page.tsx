@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/layout/app-shell";
 import { OperatorAlertSettings } from "@/components/settings/operator-alert-settings";
 import { SettingsLocaleField } from "@/components/settings/settings-locale-field";
 import { Card, CardBody } from "@/components/ui/card";
@@ -21,9 +20,7 @@ export default async function SettingsPage({
   const alertPrefs = isOperator ? await alerts.getPrefs() : null;
 
   return (
-    <>
-      <PageHeader title={t("settings.title")} />
-      <div className="grid max-w-lg gap-4">
+    <div className="grid max-w-lg gap-4">
         <Card>
           <CardBody className="space-y-4">
             <div>
@@ -54,7 +51,6 @@ export default async function SettingsPage({
             </CardBody>
           </Card>
         ) : null}
-      </div>
-    </>
+    </div>
   );
 }

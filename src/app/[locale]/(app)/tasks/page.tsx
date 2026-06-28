@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
-import { TasksPageHeader } from "@/components/layout/page-headers/tasks-page-header";
 import { TasksPageClient } from "@/components/tasks/tasks-page-client";
 
 export default async function TasksPage({
@@ -23,16 +22,11 @@ export default async function TasksPage({
   }
 
   return (
-    <>
-      <TasksPageHeader
-        locale={locale}
-        title={isOperator ? t("tasks.allTasks") : t("tasks.myTasks")}
-        showNewTask={isOperator}
-      />
-      <TasksPageClient
-        locale={locale}
-        role={session.user.role}
-        operator={
+    <TasksPageClient
+      locale={locale}
+      role={session.user.role}
+      showNewTask={isOperator}
+      operator={
           isOperator
             ? { id: session.user.id, name: session.user.name }
             : undefined
@@ -42,6 +36,7 @@ export default async function TasksPage({
         labels={{
           board: t("common.board"),
           list: t("common.list"),
+          newTask: t("common.newTask"),
           assignee: t("tasks.assignee"),
           dueDate: t("tasks.dueDate"),
           updated: t("tasks.updated"),
@@ -70,6 +65,5 @@ export default async function TasksPage({
           },
         }}
       />
-    </>
   );
 }

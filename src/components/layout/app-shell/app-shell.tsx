@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { Role, User } from "@/domain/types";
+import { isPrimaryNavActive } from "@/lib/navigation";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
 import { AppHeader } from "./app-header";
@@ -30,6 +32,7 @@ interface AppShellProps {
 
 export function AppShell({ locale, user, children }: AppShellProps) {
   const t = useTranslations();
+  const pathname = usePathname();
   const { collapsed, toggle } = useSidebarCollapsed();
   const isOperator = user.role === "operator";
 
@@ -85,15 +88,20 @@ export function AppShell({ locale, user, children }: AppShellProps) {
           <nav
             className={cn(shellStyles.nav, collapsed && shellStyles.navCollapsed)}
           >
-            {visibleNav.map((item) => (
+            {visibleNav.map((item) => {
+              const active = isPrimaryNavActive(pathname, item.href);
+
+              return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
                   shellStyles.navLink,
+                  active && shellStyles.navLinkActive,
                   collapsed && shellStyles.navLinkCollapsed,
                 )}
                 title={collapsed ? item.label : undefined}
+                aria-current={active ? "page" : undefined}
               >
                 <SidebarNavIcon name={item.icon} />
                 <span
@@ -105,7 +113,8 @@ export function AppShell({ locale, user, children }: AppShellProps) {
                   {item.label}
                 </span>
               </Link>
-            ))}
+              );
+            })}
           </nav>
 
           <div
@@ -178,12 +187,19 @@ export function PageHeader({
   title,
   action,
 }: {
-  title: string;
+  title?: string;
   action?: React.ReactNode;
 }) {
+  if (!title && !action) return null;
+
   return (
-    <div className={shellStyles.pageHeader}>
-      <h1 className={shellStyles.pageTitle}>{title}</h1>
+    <div
+      className={cn(
+        shellStyles.pageHeader,
+        !title && shellStyles.pageHeaderActionOnly,
+      )}
+    >
+      {title ? <h1 className={shellStyles.pageTitle}>{title}</h1> : null}
       {action}
     </div>
   );

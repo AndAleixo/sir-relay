@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/layout/app-shell";
 import { ProfileAvatarEditor } from "@/components/profile/profile-avatar-editor";
 import { ToneBadge } from "@/components/ui/badge";
 import { Card, CardBody } from "@/components/ui/card";
@@ -21,9 +20,7 @@ export default async function ProfilePage({
     user.role === "teammate" ? await teammates.getTeammate(user.id) : null;
 
   return (
-    <>
-      <PageHeader title={t("profile.title")} />
-      <div className="grid max-w-lg gap-4">
+    <div className="grid max-w-lg gap-4">
         <Card>
           <CardBody className="space-y-4">
             <div>
@@ -92,7 +89,6 @@ export default async function ProfilePage({
             </CardBody>
           </Card>
         ) : null}
-      </div>
-    </>
+    </div>
   );
 }

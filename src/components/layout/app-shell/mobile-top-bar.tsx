@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { User } from "@/domain/types";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
+import { isPrimaryNavActive } from "@/lib/navigation";
 import { LocaleSwitcher } from "./locale-switcher";
 import {
   SidebarNavIcon,
@@ -26,7 +27,7 @@ interface MobileTopBarProps {
 }
 
 function isNavActive(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return isPrimaryNavActive(pathname, href);
 }
 
 export function MobileTopBar({

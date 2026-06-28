@@ -2,7 +2,6 @@ import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/auth-guards";
 import { OperatorAlertsList } from "@/components/alerts/operator-alerts-list";
-import { PageHeader } from "@/components/layout/app-shell";
 
 export default async function AlertsPage({
   params,
@@ -22,7 +21,6 @@ export default async function AlertsPage({
 
   return (
     <>
-      <PageHeader title={t("common.alerts")} />
       <p className="mb-4 text-sm text-[var(--text-muted)]">{t("alerts.subtitle")}</p>
       <OperatorAlertsList
         alerts={alertList}

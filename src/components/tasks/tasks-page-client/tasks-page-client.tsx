@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import type { Task, Teammate } from "@/domain/types";
 import { useSync } from "@/components/sync";
+import { Button } from "@/components/ui/button";
 import { StatusKanban } from "@/components/tasks/status-kanban";
 import { TaskList } from "@/components/tasks/task-list";
 import { TeammateBoard } from "@/components/tasks/teammate-board";
 import { ViewToggle, type TasksView } from "@/components/tasks/view-toggle";
-import { useState } from "react";
+import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 
 interface TasksPageClientProps {
   locale: string;
@@ -15,9 +17,11 @@ interface TasksPageClientProps {
   operator?: { id: string; name: string };
   tasks: Task[];
   teammates: Teammate[];
+  showNewTask?: boolean;
   labels: {
     board: string;
     list: string;
+    newTask: string;
     assignee: string;
     dueDate: string;
     updated: string;
@@ -49,6 +53,7 @@ export function TasksPageClient({
   operator,
   tasks: serverTasks,
   teammates,
+  showNewTask = false,
   labels,
 }: TasksPageClientProps) {
   const { tasks, loadServerTasksIfEmpty } = useSync();
@@ -61,12 +66,19 @@ export function TasksPageClient({
 
   return (
     <div className="space-y-4">
-      <ViewToggle
-        value={view}
-        onChange={setView}
-        boardLabel={labels.board}
-        listLabel={labels.list}
-      />
+      <div className={viewToggleStyles.toolbar}>
+        <ViewToggle
+          value={view}
+          onChange={setView}
+          boardLabel={labels.board}
+          listLabel={labels.list}
+        />
+        {showNewTask ? (
+          <Link href={`/${locale}/tasks/new`}>
+            <Button>{labels.newTask}</Button>
+          </Link>
+        ) : null}
+      </div>
 
       {view === "board" ? (
         isOperator && operator ? (

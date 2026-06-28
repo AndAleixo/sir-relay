@@ -1,6 +1,5 @@
 export const taskCardStyles = {
   root: "relative block rounded-card border border-[var(--border)] bg-surface-card p-2 shadow-sm transition-colors",
-  hover: "hover:border-[var(--gray-strong)]/30 hover:shadow-md",
   draggable: "flex gap-1 p-1.5",
   dragging: "opacity-40 ring-2 ring-brand-accent/40",
   dragHandle:
@@ -20,7 +19,6 @@ export const taskCardStyles = {
   meta: "shrink-0 text-[11px] leading-tight text-[var(--text-muted)]",
   footer: "mt-0.5 flex items-center justify-between gap-2",
   overdue: "font-medium text-[var(--danger)]",
-  notifyDot: "h-1.5 w-1.5 shrink-0 rounded-full bg-brand-accent",
   notifyDotCorner:
     "pointer-events-none absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-brand-accent",
 } as const;

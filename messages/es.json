@@ -1,7 +1,6 @@
 {
   "common": {
     "appName": "SirRelay",
-    "loading": "Cargando…",
     "save": "Guardar",
     "cancel": "Cancelar",
     "back": "Volver",
@@ -83,7 +82,6 @@
     "description": "Descripción",
     "comments": "Comentarios",
     "telegramFailed": "Error al enviar por Telegram",
-    "telegramPending": "Telegram sin vincular — no se envió notificación",
     "noComments": "Sin comentarios aún.",
     "openTask": "Abrir detalles de la tarea",
     "addTask": "Añadir tarea",

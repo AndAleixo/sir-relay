@@ -18,8 +18,6 @@ interface TasksPageClientProps {
   labels: {
     board: string;
     list: string;
-    myTasks: string;
-    allTasks: string;
     assignee: string;
     dueDate: string;
     updated: string;

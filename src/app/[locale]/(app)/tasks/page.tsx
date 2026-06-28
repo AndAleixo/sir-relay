@@ -42,8 +42,6 @@ export default async function TasksPage({
         labels={{
           board: t("common.board"),
           list: t("common.list"),
-          myTasks: t("tasks.myTasks"),
-          allTasks: t("tasks.allTasks"),
           assignee: t("tasks.assignee"),
           dueDate: t("tasks.dueDate"),
           updated: t("tasks.updated"),

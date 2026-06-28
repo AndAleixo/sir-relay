@@ -56,18 +56,6 @@ export function TaskCardContent({
   );
 }
 
-interface TaskCardProps extends TaskCardContentProps {
-  href: string;
-}
-
-export function TaskCard({ href, ...contentProps }: TaskCardProps) {
-  return (
-    <Link href={href} className={cn(taskCardStyles.root, taskCardStyles.hover)}>
-      <TaskCardContent {...contentProps} />
-    </Link>
-  );
-}
-
 interface DraggableTaskCardProps extends TaskCardContentProps {
   href: string;
   dragHandleLabel: string;

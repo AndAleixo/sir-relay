@@ -13,7 +13,7 @@ src/
 │   ├── ui/<name>/           # Primitives: *.tsx + *.styles.ts
 │   ├── layout/              # App shell, header, locale switcher, user menu
 │   ├── alerts/              # Operator alert feed list
-│   ├── profile/             # Avatar, profile editor, change password
+│   ├── profile/             # Avatar, profile editor
 │   ├── sync/                # Session sync bar + SyncProvider
 │   └── tasks/               # Feature UI (boards, cards, lists)
 ├── hooks/                   # e.g. use-profile-avatar (localStorage mock)
@@ -31,7 +31,7 @@ src/
 | `/[locale]/teammates/new` | Create teammate → redirects to detail |
 | `/[locale]/teammates/[id]` | Invite + Telegram links (static mock URLs) |
 | `/[locale]/alerts` | Operator alert feed (task done, due/overdue) |
-| `/[locale]/profile` | Photo (localStorage), password form, logout |
+| `/[locale]/profile` | Photo (localStorage), account, Telegram |
 | `/[locale]/settings` | Language + operator alert preferences |
 | `/[locale]/admin` | Sign-in portal (Model A) |
 

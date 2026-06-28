@@ -176,14 +176,11 @@ First column: **Me** (tasks assigned to the logged-in Operator). Then one column
 - To do + In progress: full task cards, section labels in normal weight
 - Done: collapsed accordion; muted label (`--text-muted`); yellow **not** used in Done section
 
-**Unassigned / deactivated teammates:**
+**Unassigned / deactivated teammates:** hidden from board in mock; list view shows all assignees.
 
-- Deactivated teammates: hidden from board by default; toggle “Show inactive” in board toolbar
-- Tasks with deactivated assignee: appear in optional “Unassigned / inactive” column or only in list view — Phase 1: show in **list view** filter only; board shows active teammates
+**Horizontal scroll:** drag left/right on the board; native scrollbar at bottom when columns overflow.
 
-**Horizontal scroll:** board scrolls horizontally when teammates > viewport; first column never clipped; scroll hint shadow on right edge.
-
-**Mobile (375px):** one teammate column per screen width (horizontal snap scroll) **or** switch to **list view** default on mobile — **recommended:** list view on `<768px`, team board on desktop.
+**Mobile (375px):** horizontal snap scroll between columns, or switch to list view.
 
 ---
 
@@ -202,24 +199,24 @@ List is the fallback for narrow screens and power-user scanning.
 
 ## 4. Task card
 
-Shared component across both boards and list view.
+Shared compact card on boards; list view uses a table row.
 
 ```
 ┌────────────────────────────────┐
-│  Task title here               │
-│  Due: Mar 12        ● overdue  │  ← red if overdue
-│  Updated 2h ago                │
+│ ⠿  Task title            [↗] │
+│    Due: Mar 12 · 2h ago      │
+│                         ●    │  ← Telegram fail dot (bottom-right)
 └────────────────────────────────┘
 ```
 
 | State | Treatment |
 |-------|-------------|
-| Default | White card, `--border`, `--radius-card` |
+| Default | Compact white card, `--border`, `--radius-card` |
 | Overdue | Red due date (`--danger`) |
-| Telegram pending | Small amber dot on Operator card if notify failed |
-| Hover | Subtle border darken; pointer cursor |
+| Telegram notify failed | Small accent dot, bottom-right corner |
+| Operator board | Inline edit title/due; **+ Add task** in To do section; ↗ opens detail |
 
-Operator cards also show **assignee** only in list view (not on team board — column implies assignee).
+Operator cards show **assignee** only in list view (column implies assignee on board).
 
 ---
 
@@ -391,17 +388,18 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 | `LocaleSwitcher` | Same-path locale change via URL prefix |
 | `UserMenu` | Account dropdown (Profile, Settings, Log out) |
 | `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |
-| `TaskCard` | Shared; props: task, showAssignee?, compact? |
+| `OperatorBoardTaskCard` | Operator board: inline edit, open detail, drag handle |
+| `DraggableTaskCard` | Teammate Kanban card |
+| `BoardQuickAddTask` | Per-column quick add in To do section |
 | `TeammateBoard` | Operator team board (§3.2) — includes **Me** column |
 | `OperatorAlertsList` | Operator alert feed (§8.3) |
 | `StatusKanban` | Teammate 3-column board (§3.1) |
-| `TaskList` | Sortable table/list |
+| `TaskList` | Table list view |
 | `ViewToggle` | Board / List switch |
 | `StatusBadge` | Maps `todo` / `doing` / `done` to UI labels (§ Status naming) |
-| `SourceBadge` | Web / Telegram on comments |
-| `DoneAccordion` | Collapsed done section on Operator board |
-| `Banner` | Warning (Telegram pending, delivery error) |
-| `SyncBar` | Offline sync status (session queue, mock) |
+| `ToneBadge` | Web / Telegram on comments; status chips |
+| `Banner` | Warning (delivery error on task detail) |
+| `SyncBar` | Session sync status (mock) |
 
 **Styling:** Tailwind + CSS variables from `brand/brand.css`. Card radius 8px, button 6px per BRAND.md.
 
@@ -422,7 +420,8 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 
 | UX item | Phase | Mock status |
 |---------|-------|-------------|
-| Team board + Status Kanban + list toggle | 1 | ✓ |
+| Team board + inline edit + quick add | 1 | ✓ mock |
+| Status Kanban + list toggle | 1 | ✓ |
 | Profile vs Settings split | 1 | ✓ |
 | Sidebar collapse + logo cross-fade | 3 (P3-13) | ✓ in mock |
 | Drag-and-drop on Kanban | 3 (P3-03) | ✓ in mock |
@@ -438,7 +437,8 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 |------|--------|
 | 2026-06-27 | Operator teammate-columns board; Teammate status Kanban |
 | 2026-06-27 | Status labels: UI “In progress” ↔ code `doing` |
-| 2026-06-28 | Profile page (photo, password, account); Settings = app prefs only |
+| 2026-06-28 | Profile page (photo, account, Telegram); Settings = app prefs only |
 | 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |
 | 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |
 | 2026-06-28 | Legacy cleanup: removed stub routes, mock banner, non-functional task/teammate actions; Alerts page |
+| 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |

@@ -41,7 +41,6 @@ interface TeammateBoardProps {
     active: string;
     viewAll: string;
     emptyBoard: string;
-    dragHint: string;
     dragHandle: string;
     meColumn: string;
     webOnly: string;
@@ -483,7 +482,6 @@ export function TeammateBoard({
 
   return (
     <>
-      <p className={teamBoardStyles.dragHint}>{labels.dragHint}</p>
       <div
         ref={scrollRef}
         className={teamBoardStyles.scroll}

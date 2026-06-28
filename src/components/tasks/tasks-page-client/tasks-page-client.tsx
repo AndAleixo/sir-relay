@@ -69,6 +69,7 @@ export function TasksPageClient({
         onChange={setView}
         boardLabel={labels.board}
         listLabel={labels.list}
+        hint={view === "board" ? labels.dragHint : undefined}
       />
 
       {view === "board" ? (
@@ -91,7 +92,6 @@ export function TasksPageClient({
               overdue: labels.overdue,
               viewAll: labels.viewAll,
               emptyBoard: labels.emptyBoard,
-              dragHint: labels.dragHint,
               dragHandle: labels.dragHandle,
               meColumn: labels.meColumn,
               webOnly: labels.webOnly,
@@ -113,7 +113,6 @@ export function TasksPageClient({
               updated: labels.updated,
               overdue: labels.overdue,
               emptyMine: labels.emptyMine,
-              dragHint: labels.dragHint,
               dragHandle: labels.dragHandle,
             }}
           />

@@ -22,7 +22,6 @@ interface StatusKanbanProps {
     doing: string;
     done: string;
     emptyMine: string;
-    dragHint: string;
     dragHandle: string;
   };
 }
@@ -91,48 +90,45 @@ export function StatusKanban({
   };
 
   return (
-    <>
-      <p className={kanbanStyles.dragHint}>{labels.dragHint}</p>
-      <div className={kanbanStyles.grid}>
-        {columns.map((status) => (
-          <section
-            key={status}
-            className={cn(
-              kanbanStyles.column,
-              activeDropTarget === status && kanbanStyles.columnDropTarget,
-            )}
-            onDragOver={(event) => {
-              event.preventDefault();
-              event.dataTransfer.dropEffect = "move";
-              setActiveDropTarget(status);
-            }}
-            onDrop={(event) => {
-              event.preventDefault();
-              handleColumnDrop(status, event);
-            }}
-          >
-            <header className={kanbanStyles.columnHeader[status]}>
-              <h2 className={kanbanStyles.columnTitle}>{labelMap[status]}</h2>
-              <span className={kanbanStyles.count}>{grouped[status].length}</span>
-            </header>
-            <div className={kanbanStyles.cardList}>
-              {grouped[status].map((task) => (
-                <DraggableTaskCard
-                  key={task.id}
-                  task={task}
-                  locale={locale}
-                  href={`/${locale}/tasks/${task.id}`}
-                  labels={cardLabels}
-                  dragHandleLabel={labels.dragHandle}
-                  isDragging={draggingTaskId === task.id}
-                  onDragHandleStart={() => handleDragStart(task.id)}
-                  onDragHandleEnd={handleDragEnd}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
-    </>
+    <div className={kanbanStyles.grid}>
+      {columns.map((status) => (
+        <section
+          key={status}
+          className={cn(
+            kanbanStyles.column,
+            activeDropTarget === status && kanbanStyles.columnDropTarget,
+          )}
+          onDragOver={(event) => {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "move";
+            setActiveDropTarget(status);
+          }}
+          onDrop={(event) => {
+            event.preventDefault();
+            handleColumnDrop(status, event);
+          }}
+        >
+          <header className={kanbanStyles.columnHeader[status]}>
+            <h2 className={kanbanStyles.columnTitle}>{labelMap[status]}</h2>
+            <span className={kanbanStyles.count}>{grouped[status].length}</span>
+          </header>
+          <div className={kanbanStyles.cardList}>
+            {grouped[status].map((task) => (
+              <DraggableTaskCard
+                key={task.id}
+                task={task}
+                locale={locale}
+                href={`/${locale}/tasks/${task.id}`}
+                labels={cardLabels}
+                dragHandleLabel={labels.dragHandle}
+                isDragging={draggingTaskId === task.id}
+                onDragHandleStart={() => handleDragStart(task.id)}
+                onDragHandleEnd={handleDragEnd}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
   );
 }

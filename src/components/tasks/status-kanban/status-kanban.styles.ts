@@ -1,7 +1,6 @@
 import type { TaskStatus } from "@/domain/types";
 
 export const kanbanStyles = {
-  dragHint: "text-xs text-[var(--text-muted)]",
   grid: "grid gap-4 md:grid-cols-3",
   column: "flex min-h-[200px] flex-col rounded-card border border-[var(--border)] bg-[var(--surface-bg)]/50 transition-shadow",
   columnDropTarget: "bg-brand-accent-soft/12 ring-2 ring-inset ring-brand-accent/40",

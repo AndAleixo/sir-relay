@@ -55,7 +55,6 @@ export function BoardQuickAddTask({
     return (
       <button
         type="button"
-        data-no-drag-scroll
         className={teamBoardStyles.quickAdd}
         onClick={() => setOpen(true)}
       >
@@ -65,7 +64,7 @@ export function BoardQuickAddTask({
   }
 
   return (
-    <div data-no-drag-scroll className={teamBoardStyles.quickAddForm}>
+    <div className={teamBoardStyles.quickAddForm}>
       <Input
         autoFocus
         value={title}

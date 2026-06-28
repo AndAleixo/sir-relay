@@ -120,6 +120,7 @@ export function OperatorBoardTaskCard({
       <button
         type="button"
         draggable
+        data-no-drag-scroll
         className={taskCardStyles.dragHandle}
         aria-label={labels.dragHandle}
         onDragStart={handleDragStart}
@@ -133,7 +134,6 @@ export function OperatorBoardTaskCard({
           {editingTitle ? (
             <Input
               autoFocus
-              data-no-drag-scroll
               className={taskCardStyles.inlineInput}
               value={titleDraft}
               disabled={saving}
@@ -155,7 +155,6 @@ export function OperatorBoardTaskCard({
           ) : (
             <button
               type="button"
-              data-no-drag-scroll
               className={taskCardStyles.titleButton}
               onClick={() => setEditingTitle(true)}
             >
@@ -165,7 +164,6 @@ export function OperatorBoardTaskCard({
 
           <Link
             href={href}
-            data-no-drag-scroll
             className={taskCardStyles.openLink}
             aria-label={labels.openTask}
             title={labels.openTask}
@@ -186,7 +184,6 @@ export function OperatorBoardTaskCard({
             <Input
               autoFocus
               type="date"
-              data-no-drag-scroll
               className={taskCardStyles.inlineDateInput}
               value={dueDraft}
               disabled={saving}
@@ -208,7 +205,6 @@ export function OperatorBoardTaskCard({
           ) : (
             <button
               type="button"
-              data-no-drag-scroll
               className={cn(
                 taskCardStyles.dueButton,
                 overdue && taskCardStyles.overdue,

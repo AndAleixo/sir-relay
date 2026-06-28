@@ -1,6 +1,6 @@
 export const teamBoardStyles = {
   scroll:
-    "flex cursor-grab gap-4 overflow-x-auto overscroll-x-contain pb-4 select-none touch-pan-y [scrollbar-gutter:stable] snap-x snap-mandatory md:snap-none",
+    "flex cursor-grab gap-4 overflow-x-auto overscroll-x-contain pb-4 select-none touch-pan-y [scrollbar-gutter:stable] snap-x snap-mandatory data-[panning=true]:snap-none md:snap-none",
   column:
     "flex w-[min(100%,280px)] shrink-0 snap-center flex-col rounded-card border border-[var(--border)] bg-surface-card md:w-72",
   columnHeader: "space-y-2 border-b border-[var(--border)] p-3",
@@ -18,8 +18,6 @@ export const teamBoardStyles = {
     "flex w-full items-center gap-2 rounded-button px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--surface-bg)]",
   viewAll: "px-2 py-1 text-center text-xs text-brand-accent-hover",
   dropTarget: "ring-2 ring-brand-accent/50 ring-offset-2 ring-offset-surface-card",
-  dragHint:
-    "mb-3 rounded-card border border-dashed border-[var(--border)] bg-surface-card px-3 py-2 text-xs text-[var(--text-muted)]",
   quickAdd:
     "mt-1 flex w-full items-center rounded-button px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-brand-accent",
   quickAddForm: "mt-1",

@@ -100,6 +100,7 @@ export function DraggableTaskCard({
       <button
         type="button"
         draggable
+        data-no-drag-scroll
         className={taskCardStyles.dragHandle}
         aria-label={dragHandleLabel}
         onDragStart={handleDragStart}

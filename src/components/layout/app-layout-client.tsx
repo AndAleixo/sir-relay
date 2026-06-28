@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "@/domain/types";
-import { AppShell, MockBanner } from "@/components/layout/app-shell";
+import { AppShell } from "@/components/layout/app-shell";
 import { SyncProvider, SyncBar } from "@/components/sync";
 
 interface AppLayoutClientProps {
@@ -13,7 +13,6 @@ interface AppLayoutClientProps {
 export function AppLayoutClient({ locale, user, children }: AppLayoutClientProps) {
   return (
     <SyncProvider>
-      <MockBanner />
       <SyncBar />
       <AppShell locale={locale} user={user}>
         {children}

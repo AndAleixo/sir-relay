@@ -23,7 +23,7 @@ Distribui tarefas operacionais e acompanha o andamento num único lugar — web 
 
 | Papel | Como usa |
 |-------|----------|
-| **Operator** | Web: gere teammates, cria e edita tarefas, vê Kanban/lista de tudo, lê respostas |
+| **Operator** | Web: gere teammates, cria tarefas (para teammates **ou para si**), vê Kanban/lista de tudo, lê respostas · Telegram opcional para **alertas** (tarefa concluída, vencida) |
 | **Teammate** | **Telegram** (principal): recebe uma tarefa, responde, marca progresso com palavras-chave · **Web** (opcional): vê e atualiza **só as suas** tarefas |
 
 ### Fluxo relay
@@ -73,14 +73,14 @@ Detalhes em [REQUIREMENTS.md §10](./REQUIREMENTS.md#10-tech-stack--repo-layout)
 
 **Fase UI mock** — interface implementada com dados mock. Sem backend, Prisma, Docker ou Telegram ainda.
 
-Rotas mock principais: tasks (boards + sync), teammates (+ criar), profile, settings, join. Ver [ARCHITECTURE.md](./ARCHITECTURE.md).
+Rotas mock principais: `/admin`, tasks, teammates, alerts, profile, settings. Ver [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ```bash
 npm install
 npm run dev
 ```
 
-Abrir `http://localhost:3000` · login mock (Operator / Teammate) · ver [ARCHITECTURE.md](./ARCHITECTURE.md).
+Abrir `http://localhost:3000` · login em `/admin` (`alex@example.com` / `ana@example.com`, qualquer senha).
 
 ---
 

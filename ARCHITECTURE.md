@@ -12,6 +12,7 @@ src/
 ├── components/
 │   ├── ui/<name>/           # Primitives: *.tsx + *.styles.ts
 │   ├── layout/              # App shell, header, locale switcher, user menu
+│   ├── alerts/              # Operator alert feed list
 │   ├── profile/             # Avatar, profile editor, change password
 │   ├── sync/                # Session sync bar + SyncProvider
 │   └── tasks/               # Feature UI (boards, cards, lists)
@@ -25,17 +26,16 @@ src/
 | Route | Notes |
 |-------|--------|
 | `/[locale]/tasks` | Boards, list toggle, drag-and-drop, session sync |
-| `/[locale]/tasks/new` | Form UI only (save mock) |
+| `/[locale]/tasks/new` | Create task — assign to **Me** or teammate |
 | `/[locale]/teammates` | Team list (operators + teammates) |
 | `/[locale]/teammates/new` | Create teammate → redirects to detail |
 | `/[locale]/teammates/[id]` | Invite + Telegram links (static mock URLs) |
+| `/[locale]/alerts` | Operator alert feed (task done, due/overdue) |
 | `/[locale]/profile` | Photo (localStorage), password form, logout |
-| `/[locale]/settings` | Language + notification preferences only |
-| `/[locale]/join/[token]` | Join UI (save disabled mock) |
+| `/[locale]/settings` | Language + operator alert preferences |
 | `/[locale]/admin` | Sign-in portal (Model A) |
-| `/[locale]/login` | Redirect → `/admin` |
 
-**Not implemented:** `/change-password`, `/audit`, `/api/v1/*`, Prisma, Telegram webhook.
+**Planned Phase 1 (not in UI mock yet):** `/join/[token]`, `/change-password`, `/tasks/[id]/edit`, `/audit`, `/api/v1/*`, Prisma, Telegram webhook.
 
 ## Swap mock → real API
 
@@ -57,6 +57,6 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000` — defaults to Operator mock session via login or direct `/en/tasks` after login.
+Open `http://localhost:3000` — redirects to `/admin` when logged out.
 
-Use **Settings → Preview role** to switch Operator / Teammate without reimplementing auth.
+**Mock login:** `alex@example.com` (Operator) · `ana@example.com` (Teammate) · any non-empty password. Switch roles via logout and sign in again.

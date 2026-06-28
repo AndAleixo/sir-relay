@@ -7,10 +7,18 @@ import type {
   Teammate,
   User,
 } from "@/domain/types";
+import type { OperatorAlertService } from "@/services/alert.types";
 
 export type OrganizationUser =
   | (User & { role: "operator" })
   | Teammate;
+
+export interface CreateTaskInput {
+  title: string;
+  description?: string;
+  assigneeId: string;
+  dueDate?: string | null;
+}
 
 export interface CreateTeammateInput {
   name: string;
@@ -28,6 +36,7 @@ export interface TaskService {
   listTasks(ctx: { session: Session }): Promise<Task[]>;
   getTask(id: string, ctx: { session: Session }): Promise<Task | null>;
   listComments(taskId: string): Promise<Comment[]>;
+  createTask(input: CreateTaskInput, ctx: { session: Session }): Promise<Task>;
   updateTaskStatus(
     id: string,
     status: TaskStatus,
@@ -57,4 +66,5 @@ export interface Services {
   tasks: TaskService;
   teammates: TeammateService;
   users: UserService;
+  alerts: OperatorAlertService;
 }

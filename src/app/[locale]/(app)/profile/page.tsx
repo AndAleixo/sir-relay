@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
 import { ProfileAvatarEditor } from "@/components/profile/profile-avatar-editor";
-import { ChangePasswordSection } from "@/components/profile/change-password-section";
 import { ToneBadge } from "@/components/ui/badge";
 import { Card, CardBody } from "@/components/ui/card";
 import { getServices } from "@/services";
@@ -64,34 +63,35 @@ export default async function ProfilePage({
           </CardBody>
         </Card>
 
-        {teammate ? (
+        {teammate || user.role === "operator" ? (
           <Card>
             <CardBody className="space-y-4">
               <p className="text-sm font-medium text-[var(--text-primary)]">
                 {t("profile.telegramSection")}
               </p>
-              <ToneBadge tone={teammate.telegramStatus === "linked" ? "success" : "warning"}>
-                {teammate.telegramStatus === "linked"
+              <ToneBadge
+                tone={
+                  (teammate?.telegramStatus ?? user.telegramStatus) === "linked"
+                    ? "success"
+                    : "warning"
+                }
+              >
+                {(teammate?.telegramStatus ?? user.telegramStatus) === "linked"
                   ? t("teammate.linked")
                   : t("teammate.pending")}
               </ToneBadge>
               <p className="text-sm text-[var(--text-muted)]">
-                {teammate.telegramStatus === "linked"
-                  ? t("profile.telegramLinkedHint")
-                  : t("profile.telegramPendingHint")}
+                {user.role === "operator"
+                  ? user.telegramStatus === "linked"
+                    ? t("profile.telegramOperatorLinkedHint")
+                    : t("profile.telegramOperatorPendingHint")
+                  : teammate?.telegramStatus === "linked"
+                    ? t("profile.telegramLinkedHint")
+                    : t("profile.telegramPendingHint")}
               </p>
             </CardBody>
           </Card>
         ) : null}
-
-        <Card>
-          <CardBody className="space-y-4">
-            <p className="text-sm font-medium text-[var(--text-primary)]">
-              {t("profile.security")}
-            </p>
-            <ChangePasswordSection />
-          </CardBody>
-        </Card>
       </div>
     </>
   );

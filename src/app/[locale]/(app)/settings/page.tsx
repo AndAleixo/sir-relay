@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
+import { OperatorAlertSettings } from "@/components/settings/operator-alert-settings";
 import { SettingsLocaleField } from "@/components/settings/settings-locale-field";
 import { Card, CardBody } from "@/components/ui/card";
 import { Label } from "@/components/ui/input";
@@ -12,9 +13,12 @@ export default async function SettingsPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations();
-  const { auth } = getServices();
+  const { auth, alerts } = getServices();
   const session = await auth.getSession();
   if (!session) return null;
+
+  const isOperator = session.user.role === "operator";
+  const alertPrefs = isOperator ? await alerts.getPrefs() : null;
 
   return (
     <>
@@ -32,22 +36,24 @@ export default async function SettingsPage({
           </CardBody>
         </Card>
 
-        <Card>
-          <CardBody className="space-y-4">
-            <p className="text-sm font-medium text-[var(--text-primary)]">
-              {t("settings.notifications")}
-            </p>
-            <label className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-[var(--text-primary)]">{t("settings.taskUpdates")}</span>
-              <input type="checkbox" defaultChecked disabled className="h-4 w-4 rounded" />
-            </label>
-            <label className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-[var(--text-primary)]">{t("settings.telegramAlerts")}</span>
-              <input type="checkbox" defaultChecked disabled className="h-4 w-4 rounded" />
-            </label>
-            <p className="text-xs text-[var(--text-muted)]">{t("settings.notificationsHint")}</p>
-          </CardBody>
-        </Card>
+        {isOperator && alertPrefs ? (
+          <Card>
+            <CardBody>
+              <OperatorAlertSettings
+                taskDone={alertPrefs.taskDone}
+                taskDue={alertPrefs.taskDue}
+                labels={{
+                  operatorSection: t("settings.operatorAlerts"),
+                  operatorSectionHint: t("settings.operatorAlertsHint"),
+                  taskDone: t("settings.alertTaskDone"),
+                  taskDoneHint: t("settings.alertTaskDoneHint"),
+                  taskDue: t("settings.alertTaskDue"),
+                  taskDueHint: t("settings.alertTaskDueHint"),
+                }}
+              />
+            </CardBody>
+          </Card>
+        ) : null}
       </div>
     </>
   );

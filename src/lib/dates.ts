@@ -1,5 +1,17 @@
 const DAY_MS = 86_400_000;
 
+export function isDueOrOverdue(dueDate: string | null): boolean {
+  if (!dueDate) return false;
+  const due = new Date(`${dueDate}T00:00:00Z`).getTime();
+  const today = new Date();
+  const todayUtc = Date.UTC(
+    today.getUTCFullYear(),
+    today.getUTCMonth(),
+    today.getUTCDate(),
+  );
+  return due <= todayUtc;
+}
+
 export function isOverdue(dueDate: string | null): boolean {
   if (!dueDate) return false;
   const due = new Date(`${dueDate}T00:00:00Z`).getTime();

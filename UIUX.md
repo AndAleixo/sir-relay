@@ -29,7 +29,7 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 | **To do + In progress first** | Active work is always visible; Done is secondary on the Operator board |
 | **Calm UI** | Gray/white surfaces; yellow accent for CTAs and In progress column |
 | **Small team scale** | 2–5 teammates; no enterprise density — readable cards, generous spacing |
-| **Account vs app config** | **Profile** = personal account (photo, password, identity) · **Settings** = app preferences (language, notifications) |
+| **Account vs app config** | **Profile** = personal account (photo, identity, Telegram) · **Settings** = app preferences (language, operator alerts) |
 
 ---
 
@@ -45,7 +45,8 @@ Same layout for both roles; navigation and default view differ.
 │ ────────── │  Page title                    [+ New task]*      │
 │  Tasks     │  ─────────────────────────────────────────────  │
 │  Teammates*│                                                   │
-│  Settings  │              Main content                         │
+│  Alerts*   │              Main content                         │
+│  Settings  │                                                   │
 │            │                                                   │
 │ ────────── │                                                   │
 │ Ana        │  ← footer links to Profile                        │
@@ -60,7 +61,7 @@ Same layout for both roles; navigation and default view differ.
 |---------|------|
 | Sidebar | Fixed left; collapsible (`w-56` ↔ `w-20`); preference stored in `localStorage` |
 | Sidebar logo | `logo.svg` expanded · `logo-compact.svg` collapsed; cross-fade animation |
-| Sidebar nav | Tasks · Teammates* · Settings — icons + labels (icons only when collapsed) |
+| Sidebar nav | Tasks · Teammates* · Alerts* · Settings — icons + labels (icons only when collapsed) |
 | Sidebar footer | User name + role → **Profile** |
 | Top header | Right-aligned utilities only: locale switcher, avatar link, account menu chevron |
 | Avatar | Links to **Profile**; shows uploaded photo or initial |
@@ -68,7 +69,7 @@ Same layout for both roles; navigation and default view differ.
 | Locale | `<select>` in header (same route, new locale prefix); also on login screen |
 | Primary CTA | “New task” — Operator only, yellow button per [BRAND.md](./BRAND.md) |
 
-**Post-login landing:** Operator → team board · Teammate → my Kanban
+**Post-login landing:** Operator → `/teammates` · Teammate → `/tasks` (Kanban)
 
 ### 2.2 Mobile (<768px)
 
@@ -78,7 +79,7 @@ Sidebar hidden. Sticky top bar + tab navigation.
 ┌────────────────────────────────────────┐
 │ [logo-compact]          [EN▾] [avatar] │  ← avatar → Profile
 ├────────────────────────────────────────┤
-│   Tasks    Teammates*    Settings      │  ← icon tabs
+│   Tasks    Teammates*    Alerts*    Settings      │  ← icon tabs
 ├────────────────────────────────────────┤
 │              Main content              │
 └────────────────────────────────────────┘
@@ -130,29 +131,31 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 ---
 
-### 3.2 Operator — teammate columns (team board)
+### 3.2 Operator — team board
 
-One column per **active teammate**. Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
+First column: **Me** (tasks assigned to the logged-in Operator). Then one column per **active teammate**. Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
 
 ```
-┌─────────────────┬─────────────────┬─────────────────┐
-│    Ana          │    Bruno        │    Carla        │
-│  ● linked       │  ○ pending TG   │  ● linked       │
-├─────────────────┼─────────────────┼─────────────────┤
-│ TO DO (2)       │ TO DO (1)       │ TO DO (0)       │
-│ ┌─────────────┐ │ ┌─────────────┐ │                 │
-│ │ task card   │ │ │ task card   │ │  (empty)        │
-│ └─────────────┘ │ └─────────────┘ │                 │
-│                 │                 │                 │
-│ IN PROGRESS (1) │ IN PROGRESS (0) │ IN PROGRESS (1) │
-│ ┌─────────────┐ │                 │ ┌─────────────┐ │
-│ │ task card   │ │                 │ │ task card   │ │
-│ └─────────────┘ │                 │ └─────────────┘ │
-│                 │                 │                 │
-│ ▾ Done (5)      │ ▾ Done (2)      │ ▾ Done (8)      │
-│  (collapsed)    │  (collapsed)    │  (collapsed)    │
-└─────────────────┴─────────────────┴─────────────────┘
+┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
+│    Me           │    Ana          │    Bruno        │    Carla        │
+│  (Alex)         │  ● linked       │  ○ pending TG   │  ● linked       │
+├─────────────────┼─────────────────┼─────────────────┼─────────────────┤
+│ TO DO (1)       │ TO DO (2)       │ TO DO (1)       │ TO DO (0)       │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────┐ │                 │
+│ │ task card   │ │ │ task card   │ │ │ task card   │ │  (empty)        │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────┘ │                 │
+│                 │                 │                 │                 │
+│ IN PROGRESS (0) │ IN PROGRESS (1) │ IN PROGRESS (0) │ IN PROGRESS (1) │
+│                 │ ┌─────────────┐ │                 │ ┌─────────────┐ │
+│                 │ │ task card   │ │                 │ │ task card   │ │
+│                 │ └─────────────┘ │                 │ └─────────────┘ │
+│                 │                 │                 │                 │
+│ ▾ Done (3)      │ ▾ Done (5)      │ ▾ Done (2)      │ ▾ Done (8)      │
+│  (collapsed)    │  (collapsed)    │  (collapsed)    │  (collapsed)    │
+└─────────────────┴─────────────────┴─────────────────┴─────────────────┘
 ```
+
+**Me column:** Operator self-assigned tasks; web-only (no Telegram relay). Label shows Operator display name or “Me” per locale.
 
 #### Column header (teammate)
 
@@ -191,7 +194,7 @@ Toggle in toolbar: **Board** | **List** (icon + label).
 | Role | List content |
 |------|--------------|
 | Teammate | My tasks; sort by due date, status, updated_at |
-| Operator | All tasks; columns: title, assignee, status, due, updated; filter by teammate, status |
+| Operator | All tasks; columns: title, assignee, status, due, updated; filter by assignee (**Me** + teammates), status |
 
 List is the fallback for narrow screens and power-user scanning.
 
@@ -226,34 +229,27 @@ Route: `/[locale]/tasks/[id]`
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  ← Back          [Edit]*  [Notify again]*  [Archive]*   │
+│  ← Back                                                 │
 │  Task title                                             │
-│  Assignee · Status ▾ · Due date                         │
+│  Status · Assignee · Due date                           │
 │  ─────────────────────────────────────────────────────  │
 │  Description (full)                                     │
 │  ─────────────────────────────────────────────────────  │
-│  ⚠ Banner: Telegram not linked / delivery failed        │
+│  ⚠ Banner: delivery failed (if applicable)              │
 │  ─────────────────────────────────────────────────────  │
-│  Comments                          [Add comment]        │
+│  Comments (read-only in mock)                           │
 │  ┌──────────────────────────────────────────────────┐  │
 │  │ [Telegram] Ana · 2h ago                          │  │
 │  │ feito — marked done                              │  │
 │  └──────────────────────────────────────────────────┘  │
-│  ┌──────────────────────────────────────────────────┐  │
-│  │ [Web] Operator · yesterday                       │  │
-│  │ Please confirm when shipped.                     │  │
-│  └──────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
-
-* Operator only
 ```
 
 | Element | Operator | Teammate |
 |---------|----------|----------|
-| Edit / Archive | ✓ | — |
-| Notify again | ✓ | — |
-| Status dropdown | ✓ | ✓ (own task) |
-| Add comment | ✓ | ✓ (own task) |
+| Back | ✓ | ✓ |
+| Edit / Archive / Notify again / Add comment | Phase 1 API | Phase 1 API |
+| Status change | Board / Kanban only in mock | Board / Kanban only in mock |
 
 ---
 
@@ -262,16 +258,13 @@ Route: `/[locale]/tasks/[id]`
 | Screen | Route | Operator | Teammate |
 |--------|-------|----------|----------|
 | **Admin portal (sign-in)** | `/admin` | ✓ | ✓ |
-| Login (alias) | `/login` | → `/admin` | → `/admin` |
-| Join (invite) | `/join/[token]` | — | ✓ |
-| Change password | `/change-password` | ✓ (forced first login) | ✓ |
 | Tasks board | `/tasks` | Team board (§3.2) | Status Kanban (§3.1) |
 | New task | `/tasks/new` | ✓ | — |
-| Edit task | `/tasks/[id]/edit` | ✓ | — |
 | Task detail | `/tasks/[id]` | ✓ | Own only |
 | Teammates | `/teammates` | ✓ (operators + teammates) | — |
 | New teammate | `/teammates/new` | ✓ | — |
 | Teammate detail | `/teammates/[id]` | ✓ | — |
+| **Alerts** | `/alerts` | ✓ | — |
 | **Profile** | `/profile` | ✓ | ✓ |
 | Settings | `/settings` | ✓ | ✓ |
 | Audit | `/audit` | ✓ (Phase 2) | — |
@@ -286,16 +279,15 @@ Route: `/[locale]/tasks/[id]`
 
 ### List `/teammates`
 
-Table or card list: name, email, account status, Telegram status, active toggle, actions (edit, invite, Telegram link).
+Table: name, email, role, account status, Telegram status, view link. Operators link to **Profile**; teammates to detail.
 
-**Add teammate** — header button → `/teammates/new` (name, email, locale); on save → detail page with invite + Telegram links.
+**Add teammate** — header button → `/teammates/new` (name, email, locale); on save → detail page with invite + Telegram links (display only in mock).
 
 ### Detail `/teammates/[id]`
 
-- Profile fields (name, email, locale)
-- **Invite link** — copy button, expiry, regenerate
-- **Telegram link** — copy `t.me/...?start=code`, regenerate
-- Recent tasks assigned to this teammate (mini list, links to detail)
+- Name, email, account + Telegram badges
+- **Invite link** — display URL (sign-in portal in mock; token join in Phase 1)
+- **Telegram link** — display `t.me/...?start=code`
 
 ---
 
@@ -311,10 +303,9 @@ Both roles. Access: avatar (header / mobile), sidebar footer, account menu.
 |---------|---------|---------|
 | **Photo** | Upload / change / remove profile photo | Mock: `localStorage` per user id |
 | **Account** | Display name, email, role badge | Read-only in mock |
-| **Telegram** | Link status (Teammate only) | ✓ mock |
-| **Security** | Change password form | Disabled until API (`PATCH /me/password`) |
+| **Telegram** | Link status + optional self-link | Teammate: task relay · Operator: alert delivery only (P1-TG-09/10) |
 
-Production: photo via `PATCH /me` or upload endpoint; password via dedicated flow.
+Production: photo via `PATCH /me` or upload endpoint; password via dedicated flow (Phase 1 API).
 
 ### 8.2 Settings (`/settings`)
 
@@ -323,7 +314,19 @@ Both roles. Access: sidebar / mobile tabs, account menu.
 | Section | Content | Phase 1 |
 |---------|---------|---------|
 | **Language** | Locale selector (`en` · `es` · `pt`) | Persisted in mock session; `PATCH /me` in production |
-| **Notifications** | Task updates, Telegram alerts toggles | Placeholder (disabled) |
+| **Operator alerts** | Toggles: teammate task done · teammate task due/overdue | ✓ mock (history on **Alerts** page) |
+
+### 8.3 Alerts (`/alerts`)
+
+Operator only. Access: sidebar / mobile tabs.
+
+| Content | Phase 1 |
+|---------|---------|
+| Feed of teammate **task done** and **due/overdue** events | ✓ mock |
+| Delivery badge: Telegram vs web-only (depends on Operator Telegram link) | ✓ mock |
+| Preferences | **Settings** → Operator alerts toggles |
+
+Teammates do not have this route (redirect to `/tasks`).
 
 Operator-only system settings (audit, org config) remain Phase 2+.
 
@@ -335,6 +338,7 @@ Operator-only system settings (audit, org config) remain Phase 2+.
 |---------|----------------------|-----|
 | No tasks (Teammate) | “No tasks assigned to you yet.” | — |
 | No teammates (Operator board) | “Add teammates to start relaying work.” | Add teammate |
+| No alerts (Operator) | “No alerts yet…” | — |
 | Empty todo column | Light placeholder in column | — |
 | Login failed | “Invalid email or password.” | — |
 | Session expired | Redirect to login + toast | Log in again |
@@ -388,7 +392,8 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 | `UserMenu` | Account dropdown (Profile, Settings, Log out) |
 | `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |
 | `TaskCard` | Shared; props: task, showAssignee?, compact? |
-| `TeammateBoard` | Operator team board (§3.2) |
+| `TeammateBoard` | Operator team board (§3.2) — includes **Me** column |
+| `OperatorAlertsList` | Operator alert feed (§8.3) |
 | `StatusKanban` | Teammate 3-column board (§3.1) |
 | `TaskList` | Sortable table/list |
 | `ViewToggle` | Board / List switch |
@@ -422,7 +427,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | Sidebar collapse + logo cross-fade | 3 (P3-13) | ✓ in mock |
 | Drag-and-drop on Kanban | 3 (P3-03) | ✓ in mock |
 | Locale persist via API | 1 | URL switch only |
-| Notification preferences | 1 | Placeholder |
+| Operator alerts + **Alerts** page | 1 | ✓ mock |
 | Audit screen | 2 | — |
 
 ---
@@ -436,3 +441,4 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-06-28 | Profile page (photo, password, account); Settings = app prefs only |
 | 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |
 | 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |
+| 2026-06-28 | Legacy cleanup: removed stub routes, mock banner, non-functional task/teammate actions; Alerts page |

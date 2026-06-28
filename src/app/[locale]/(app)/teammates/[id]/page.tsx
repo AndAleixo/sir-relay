@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/auth-guards";
 import { PageHeader } from "@/components/layout/app-shell";
-import { Button } from "@/components/ui/button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 
@@ -21,6 +20,9 @@ export default async function TeammateDetailPage({
 
   const teammate = await teammates.getTeammate(id);
   if (!teammate) notFound();
+
+  const inviteUrl = `https://app.example.com/${locale}/admin`;
+  const telegramUrl = "t.me/SirRelayBot?start=mock-code";
 
   return (
     <>
@@ -43,7 +45,8 @@ export default async function TeammateDetailPage({
           </CardHeader>
           <CardBody className="space-y-2 text-sm">
             <p>
-              <span className="text-[var(--text-muted)]">Email:</span> {teammate.email}
+              <span className="text-[var(--text-muted)]">{t("auth.email")}:</span>{" "}
+              {teammate.email}
             </p>
           </CardBody>
         </Card>
@@ -52,13 +55,10 @@ export default async function TeammateDetailPage({
             <h2 className="text-sm font-semibold">{t("teammate.inviteLink")}</h2>
           </CardHeader>
           <CardBody className="space-y-3">
-            <code className="block truncate rounded-button bg-[var(--surface-bg)] p-2 text-xs">
-              https://app.example.com/join/mock-invite-token
+            <code className="block break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
+              {inviteUrl}
             </code>
-            <div className="flex gap-2">
-              <Button variant="secondary">{t("teammate.copy")}</Button>
-              <Button variant="ghost">{t("teammate.regenerate")}</Button>
-            </div>
+            <p className="text-xs text-[var(--text-muted)]">{t("teammate.inviteLinkHint")}</p>
           </CardBody>
         </Card>
         <Card>
@@ -66,13 +66,10 @@ export default async function TeammateDetailPage({
             <h2 className="text-sm font-semibold">{t("teammate.telegramLink")}</h2>
           </CardHeader>
           <CardBody className="space-y-3">
-            <code className="block truncate rounded-button bg-[var(--surface-bg)] p-2 text-xs">
-              t.me/SirRelayBot?start=mock-code
+            <code className="block break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
+              {telegramUrl}
             </code>
-            <div className="flex gap-2">
-              <Button variant="secondary">{t("teammate.copy")}</Button>
-              <Button variant="ghost">{t("teammate.regenerate")}</Button>
-            </div>
+            <p className="text-xs text-[var(--text-muted)]">{t("teammate.telegramLinkHint")}</p>
           </CardBody>
         </Card>
       </div>

@@ -17,6 +17,21 @@ export interface User {
   role: Role;
   locale: Locale;
   active: boolean;
+  /** Optional — teammates: task relay · operators: alert delivery */
+  telegramStatus?: TelegramLinkStatus;
+}
+
+export type OperatorAlertType = "task_done" | "task_due";
+
+export interface OperatorAlert {
+  id: string;
+  type: OperatorAlertType;
+  taskId: string;
+  taskTitle: string;
+  assigneeName: string;
+  dueDate: string | null;
+  createdAt: string;
+  sentToTelegram: boolean;
 }
 
 export interface Teammate extends User {

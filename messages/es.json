@@ -10,17 +10,12 @@
     "settings": "Ajustes",
     "tasks": "Tareas",
     "teammates": "Compañeros",
+    "alerts": "Alertas",
     "board": "Tablero",
     "list": "Lista",
     "newTask": "Nueva tarea",
-    "edit": "Editar",
-    "archive": "Archivar",
-    "notifyAgain": "Notificar de nuevo",
-    "addComment": "Añadir comentario",
     "viewAll": "Ver todo",
-    "showInactive": "Mostrar inactivos",
-    "mockBanner": "Vista previa UI — solo datos mock",
-    "dragHint": "Usa el icono ⠿ para mover tareas entre compañeros o entre Por hacer, En progreso y Hecho",
+    "dragHint": "Usa el icono ⠿ para mover tareas entre columnas (Yo, compañeros) o entre Por hacer, En progreso y Hecho",
     "dragHandle": "Arrastrar tarea"
   },
   "shell": {
@@ -37,12 +32,7 @@
   "auth": {
     "login": "Iniciar sesión",
     "email": "Correo",
-    "password": "Contraseña",
-    "joinTitle": "Activa tu cuenta",
-    "joinSubtitle": "Define una contraseña para unirte al equipo en SirRelay.",
-    "changePassword": "Cambiar contraseña",
-    "currentPassword": "Contraseña actual",
-    "newPassword": "Nueva contraseña"
+    "password": "Contraseña"
   },
   "roles": {
     "operator": "Operador",
@@ -59,9 +49,9 @@
     "invited": "Invitado",
     "active": "Activo",
     "inviteLink": "Enlace de invitación",
+    "inviteLinkHint": "Comparte esta URL para que el compañero entre cuando la cuenta esté activa.",
     "telegramLink": "Enlace de Telegram",
-    "copy": "Copiar",
-    "regenerate": "Regenerar",
+    "telegramLinkHint": "Comparte este enlace para que el compañero conecte Telegram al relay de tareas.",
     "addTeammate": "Añadir compañero",
     "createTeammate": "Crear compañero",
     "name": "Nombre",
@@ -80,6 +70,13 @@
     "myTasks": "Mis tareas",
     "allTasks": "Todas las tareas",
     "assignee": "Asignado",
+    "assignToMe": "Yo ({name})",
+    "assigneeHint": "Las tareas asignadas a ti son solo web — sin relay en Telegram.",
+    "meColumn": "Yo",
+    "webOnly": "Solo web",
+    "titleLabel": "Título",
+    "titlePlaceholder": "¿Qué hay que hacer?",
+    "descriptionPlaceholder": "Detalles opcionales",
     "dueDate": "Vence",
     "updated": "Actualizado",
     "overdue": "Atrasada",
@@ -97,10 +94,12 @@
     "title": "Ajustes",
     "locale": "Idioma",
     "localeHint": "Se aplica a toda la app. Guardado en tu cuenta en esta vista previa.",
-    "notifications": "Notificaciones",
-    "taskUpdates": "Actualizaciones de tareas",
-    "telegramAlerts": "Alertas de Telegram",
-    "notificationsHint": "Las preferencias de notificación estarán disponibles en la Fase 1."
+    "operatorAlerts": "Alertas del operador",
+    "operatorAlertsHint": "Se envían a tu Telegram cuando están activas. El historial completo está en la página Alertas.",
+    "alertTaskDone": "Compañero completó una tarea",
+    "alertTaskDoneHint": "Cuando un compañero marca una tarea como hecha (web o Telegram).",
+    "alertTaskDue": "Tarea de compañero vencida o por vencer",
+    "alertTaskDueHint": "Una vez al día por tarea cuando la fecha es hoy o ya pasó."
   },
   "profile": {
     "title": "Perfil",
@@ -115,8 +114,16 @@
     "telegramSection": "Telegram",
     "telegramLinkedHint": "Las notificaciones de tareas se envían a tu chat de Telegram.",
     "telegramPendingHint": "Abre el enlace de invitación del operador para conectar Telegram y recibir alertas.",
-    "security": "Seguridad",
-    "passwordMockHint": "El cambio de contraseña se habilitará cuando la API esté conectada."
+    "telegramOperatorLinkedHint": "Las alertas de finalización y vencimiento se envían a tu Telegram.",
+    "telegramOperatorPendingHint": "Vincula Telegram aquí para recibir alertas cuando los compañeros terminen tareas o venzan plazos."
+  },
+  "alerts": {
+    "subtitle": "Cuando los compañeros terminan tareas o vencen plazos. Configura el envío en Ajustes.",
+    "empty": "Sin alertas aún. Marca una tarea de compañero como hecha o espera una fecha de vencimiento.",
+    "taskDone": "Completada:",
+    "taskDue": "Vence:",
+    "sentToTelegram": "Telegram",
+    "webOnly": "Solo web"
   },
   "sync": {
     "pending": "Sin sincronizar con el servidor — {count, plural, one {# cambio pendiente} other {# cambios pendientes}}.",

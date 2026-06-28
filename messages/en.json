@@ -10,17 +10,12 @@
     "settings": "Settings",
     "tasks": "Tasks",
     "teammates": "Teammates",
+    "alerts": "Alerts",
     "board": "Board",
     "list": "List",
     "newTask": "New task",
-    "edit": "Edit",
-    "archive": "Archive",
-    "notifyAgain": "Notify again",
-    "addComment": "Add comment",
     "viewAll": "View all",
-    "showInactive": "Show inactive",
-    "mockBanner": "UI preview — mock data only",
-    "dragHint": "Use the ⠿ handle to move tasks between teammates or between To do, In progress, and Done",
+    "dragHint": "Use the ⠿ handle to move tasks between columns (Me, teammates) or between To do, In progress, and Done",
     "dragHandle": "Drag task"
   },
   "shell": {
@@ -37,12 +32,7 @@
   "auth": {
     "login": "Log in",
     "email": "Email",
-    "password": "Password",
-    "joinTitle": "Activate your account",
-    "joinSubtitle": "Set a password to join your team on SirRelay.",
-    "changePassword": "Change password",
-    "currentPassword": "Current password",
-    "newPassword": "New password"
+    "password": "Password"
   },
   "roles": {
     "operator": "Operator",
@@ -59,9 +49,9 @@
     "invited": "Invited",
     "active": "Active",
     "inviteLink": "Invite link",
+    "inviteLinkHint": "Share this URL so the teammate can sign in once their account is active.",
     "telegramLink": "Telegram link",
-    "copy": "Copy",
-    "regenerate": "Regenerate",
+    "telegramLinkHint": "Share this link so the teammate can connect Telegram for task relay.",
     "addTeammate": "Add teammate",
     "createTeammate": "Create teammate",
     "name": "Name",
@@ -80,6 +70,13 @@
     "myTasks": "My tasks",
     "allTasks": "All tasks",
     "assignee": "Assignee",
+    "assignToMe": "Me ({name})",
+    "assigneeHint": "Tasks assigned to you stay on the web — no Telegram relay.",
+    "meColumn": "Me",
+    "webOnly": "Web only",
+    "titleLabel": "Title",
+    "titlePlaceholder": "What needs to be done?",
+    "descriptionPlaceholder": "Optional details",
     "dueDate": "Due",
     "updated": "Updated",
     "overdue": "Overdue",
@@ -97,10 +94,12 @@
     "title": "Settings",
     "locale": "Language",
     "localeHint": "Applies to the whole app. Saved to your account in this preview.",
-    "notifications": "Notifications",
-    "taskUpdates": "Task updates",
-    "telegramAlerts": "Telegram alerts",
-    "notificationsHint": "Notification preferences will be available in Phase 1."
+    "operatorAlerts": "Operator alerts",
+    "operatorAlertsHint": "Sent to your linked Telegram when enabled. The full history is on the Alerts page.",
+    "alertTaskDone": "Teammate completed a task",
+    "alertTaskDoneHint": "When a teammate marks a task done (web or Telegram).",
+    "alertTaskDue": "Teammate task due or overdue",
+    "alertTaskDueHint": "Once per day per task when due date is today or past."
   },
   "profile": {
     "title": "Profile",
@@ -115,8 +114,16 @@
     "telegramSection": "Telegram",
     "telegramLinkedHint": "Task notifications are sent to your linked Telegram chat.",
     "telegramPendingHint": "Open the invite link from your operator to connect Telegram and receive task alerts.",
-    "security": "Security",
-    "passwordMockHint": "Password changes will be enabled when the API is connected."
+    "telegramOperatorLinkedHint": "Task completion and due-date alerts are sent to your linked Telegram chat.",
+    "telegramOperatorPendingHint": "Link Telegram here to receive alerts when teammates finish tasks or tasks become due."
+  },
+  "alerts": {
+    "subtitle": "When teammates finish tasks or tasks become due. Configure delivery in Settings.",
+    "empty": "No alerts yet. Mark a teammate task done or wait for a due date to trigger one.",
+    "taskDone": "Completed:",
+    "taskDue": "Due:",
+    "sentToTelegram": "Telegram",
+    "webOnly": "Web only"
   },
   "sync": {
     "pending": "Not synced with server — {count, plural, one {# change waiting} other {# changes waiting}}.",

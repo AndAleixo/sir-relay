@@ -47,6 +47,12 @@ export function AppShell({ locale, user, children }: AppShellProps) {
       roles: ["operator"],
     },
     {
+      href: `/${locale}/alerts`,
+      label: t("common.alerts"),
+      icon: "alerts",
+      roles: ["operator"],
+    },
+    {
       href: `/${locale}/settings`,
       label: t("common.settings"),
       icon: "settings",
@@ -166,11 +172,6 @@ export function AppShell({ locale, user, children }: AppShellProps) {
       </div>
     </div>
   );
-}
-
-export function MockBanner() {
-  const t = useTranslations("common");
-  return <div className={shellStyles.mockBanner}>{t("mockBanner")}</div>;
 }
 
 export function PageHeader({

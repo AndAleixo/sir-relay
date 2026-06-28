@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn";
 
-export type SidebarNavIconName = "tasks" | "teammates" | "settings";
+export type SidebarNavIconName = "tasks" | "teammates" | "alerts" | "settings";
 
 type IconElement =
   | { type: "path"; d: string }
@@ -18,6 +18,10 @@ const icons: Record<SidebarNavIconName, IconElement[]> = {
     { type: "circle", cx: 9, cy: 7, r: 4 },
     { type: "path", d: "M22 21v-2a4 4 0 0 0-3-3.87" },
     { type: "path", d: "M16 3.13a4 4 0 0 1 0 7.75" },
+  ],
+  alerts: [
+    { type: "path", d: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" },
+    { type: "path", d: "M13.73 21a2 2 0 0 1-3.46 0" },
   ],
   settings: [
     {

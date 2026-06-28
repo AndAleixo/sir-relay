@@ -10,13 +10,17 @@ export default async function TasksPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations();
-  const { auth, tasks, teammates } = getServices();
+  const { auth, tasks, teammates, alerts } = getServices();
   const session = await auth.getSession();
   if (!session) return null;
 
   const isOperator = session.user.role === "operator";
   const taskList = await tasks.listTasks({ session });
   const teammateList = isOperator ? await teammates.listTeammates() : [];
+
+  if (isOperator) {
+    await alerts.syncDueAlerts(taskList);
+  }
 
   return (
     <>
@@ -28,6 +32,11 @@ export default async function TasksPage({
       <TasksPageClient
         locale={locale}
         role={session.user.role}
+        operator={
+          isOperator
+            ? { id: session.user.id, name: session.user.name }
+            : undefined
+        }
         tasks={taskList}
         teammates={teammateList}
         labels={{
@@ -51,6 +60,8 @@ export default async function TasksPage({
           viewAll: t("common.viewAll"),
           dragHint: t("common.dragHint"),
           dragHandle: t("common.dragHandle"),
+          meColumn: t("tasks.meColumn"),
+          webOnly: t("tasks.webOnly"),
           status: {
             todo: t("status.todo"),
             doing: t("status.doing"),

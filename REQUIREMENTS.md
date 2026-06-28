@@ -3,7 +3,7 @@
 **Product:** SirRelay · **Brand:** Sir  
 **Status:** Living spec — 3 phases, implement one at a time  
 **Audience:** Developer / AI implementer  
-**Last updated:** 2026-06-27
+**Last updated:** 2026-06-28
 
 Related docs: [BRAND.md](./BRAND.md) (visual identity) · [UIUX.md](./UIUX.md) (layouts & interaction) · [README.md](./README.md) (overview)
 
@@ -19,7 +19,7 @@ Related docs: [BRAND.md](./BRAND.md) (visual identity) · [UIUX.md](./UIUX.md) (
 | **Telegram bot** | Delivers tasks one at a time; teammates reply to report progress |
 | **Relay queue** | When a task is marked `done`, the next `todo` task is sent automatically |
 
-**Operator** creates teammates and tasks, monitors all activity on the web.
+**Operator** creates teammates and tasks (including tasks for themselves), monitors all activity on the web.
 
 **Teammate** works via Telegram (primary) or web (optional): sees assigned tasks, updates status, adds comments.
 
@@ -58,6 +58,8 @@ sequenceDiagram
 3. On task **`done`**: send the next `todo` (order: `due_date ASC`, then `created_at ASC`).
 4. If no tasks remain: send a short “all caught up” message.
 
+**Relay applies to teammates only.** Tasks assigned to an Operator (self) are web-only — no Telegram queue or dispatch.
+
 ---
 
 ## 3. Development phases
@@ -82,7 +84,9 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | Roles | **Operator** — full access · **Teammate** — own tasks only |
 | Operator accounts | One seeded on deploy (Phase 1); multiple → Phase 3 |
 | Teammate signup | Invite-only; no public registration |
-| Task assignee | One teammate per task |
+| Task assignee | One user per task — **active teammate** or **Operator (self)** |
+| Relay scope | Telegram relay queue applies **only** to tasks assigned to linked teammates |
+| Operator alerts | Optional Telegram on Profile; notify on teammate **task done** and **due/overdue** (§5.6) |
 | Task statuses | `todo` · `doing` · `done` |
 | Relay | One Telegram notification per teammate at a time (§2) |
 | Hosting | **DigitalOcean Droplet** (EU region) · Docker Compose · PostgreSQL · Caddy (HTTPS) |
@@ -95,8 +99,8 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | Aspect | Decision |
 |--------|----------|
 | Deployment | One instance per organization (Docker on DO, Umbrel, private VPS) |
-| Entry URL | `/[locale]/admin` — sign-in + administration (GitLab-style instance portal) |
-| Users | Invite-only; Operator manages users in **Admin → Users** |
+| Entry URL | `/[locale]/admin` — instance sign-in portal (Model A) |
+| Users | Invite-only; Operator manages users in **Teammates** (`/teammates`) |
 | Public registration | **No** — no “create account” on a shared cloud |
 | Scaling | Vertical (bigger VPS) or **multiple Operators** (P3-02) within same instance; many customers = many instances, not one multi-tenant DB |
 | Future SaaS (model B) | Not Phase 1–3 unless product direction changes |
@@ -140,8 +144,8 @@ Operator-only management.
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-TASK-01 | Create | Operator only; title + assignee (active teammate); optional description, due_date |
-| P1-TASK-02 | Notify on create | Send Telegram if assignee is linked **and** queue is empty (§2) |
+| P1-TASK-01 | Create | Operator only; title + assignee (active teammate **or self**); optional description, due_date |
+| P1-TASK-02 | Notify on create | Send Telegram if assignee is a **linked teammate** **and** queue is empty (§2); **no Telegram** for Operator self-tasks |
 | P1-TASK-03 | Re-notify | Operator only; resend Telegram; update `telegram_message_id` (replies bind to latest message) |
 | P1-TASK-04 | List / Kanban | Operator: all non-archived · Teammate: assigned to me; 3 status columns |
 | P1-TASK-05 | Update / archive | Operator: any field · Teammate: status + comment on own tasks only |
@@ -151,7 +155,8 @@ Operator-only management.
 | P1-TASK-09 | Reply threading | Store `telegram_message_id` + `telegram_chat_id` on each notify; replies must reference latest message |
 | P1-TASK-10 | Status sync | Telegram keyword or web update persists immediately for both roles |
 | P1-TASK-11 | Queue order | Next task: `todo`, non-archived, `due_date ASC NULLS LAST`, `created_at ASC` |
-| P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or Teammate web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08) |
+| P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or Teammate web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). **Skip relay** when assignee is Operator. |
+| P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves; visible on web board in **Me** column and in list view; status updates on web only (no Telegram relay) |
 
 ### 5.4 Comments
 
@@ -167,9 +172,9 @@ Operator-only management.
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-UI-01 | Branding | Login/header logos per [BRAND.md](./BRAND.md); favicon `icon.svg`; tokens `brand/brand.css` |
-| P1-UI-02 | Role-based nav | Operator: Teammates + all tasks · Teammate: My tasks + settings; **Profile** via avatar / sidebar footer (not primary nav) |
+| P1-UI-02 | Role-based nav | Operator: Tasks · Teammates · Alerts · Settings · Teammate: Tasks · Settings; **Profile** via avatar / sidebar footer (not primary nav) |
 | P1-VIEW-01 | List sort | By due date, status, updated_at |
-| P1-VIEW-02 | Task boards | Teammate: 3-column Kanban (To do · In progress · Done). Operator: one column per teammate — To do + In progress expanded, Done collapsed — [UIUX.md §3](./UIUX.md#3-task-boards--two-layouts) |
+| P1-VIEW-02 | Task boards | Teammate: 3-column Kanban (To do · In progress · Done). Operator: **Me** column (self-assigned tasks) + one column per active teammate — To do + In progress expanded, Done collapsed — [UIUX.md §3](./UIUX.md#3-task-boards--two-layouts) |
 | P1-VIEW-03 | List view | Both roles; sort/filter; mobile fallback for Operator board |
 | P1-VIEW-04 | Responsive | Usable at 375px; Operator board → list on mobile per UIUX.md |
 | P1-I18N-01 | Locales | Full UI in `en`, `es`, `pt` via next-intl |
@@ -188,6 +193,9 @@ Operator-only management.
 | P1-TG-06 | `/start <code>` | Links Telegram chat; send welcome confirmation |
 | P1-TG-07 | Delivery warnings | Task always saves; web warns if Telegram pending or API failed |
 | P1-TG-08 | Queue empty | Localized short message when no next `todo` (e.g. “All caught up — no more tasks.”) |
+| P1-TG-09 | Operator alert — task done | When a teammate marks a task `done` (Telegram keyword or web), send a Telegram message to **each Operator** with linked Telegram: task title, teammate name, timestamp |
+| P1-TG-10 | Operator alert — due / overdue | Daily job (UTC): for each non-archived teammate task with `due_date` ≤ today and status ≠ `done`, notify linked Operators once per task per due day (dedupe); message includes title, assignee, due date, overdue flag |
+| P1-TG-11 | Operator Telegram link | Optional on **Profile** (same `/start <code>` flow as teammates); used for P1-TG-09/10 only — Operators do not receive task relay queue |
 
 ### 5.7 Security (minimum to ship)
 
@@ -251,7 +259,7 @@ comments
   id, task_id, body, source (web|telegram), author_user_id, created_at
 ```
 
-- `assignee_id` → `users.id` where `role = teammate`
+- `assignee_id` → `users.id` (teammate **or** operator)
 - `created_by_id` → `users.id` where `role = operator`
 
 ### 5.10 Routes
@@ -261,13 +269,13 @@ comments
 | Route | Operator | Teammate | Notes |
 |-------|----------|----------|-------|
 | `admin` | Sign-in / redirect | Sign-in / redirect | **Default landing** when not in app |
-| `login` | Redirect → `admin` | Redirect → `admin` | Legacy alias |
-| `join/[token]`, `change-password` | ✓ | ✓ | |
+| `join/[token]`, `change-password` | — | — | Phase 1 API (not in UI mock) |
 | `profile` | ✓ | ✓ |
 | `tasks` | All tasks | My tasks |
-| `tasks/new`, `tasks/[id]/edit` | ✓ | — |
+| `tasks/new` | ✓ | — |
 | `tasks/[id]` | ✓ | Own tasks only |
 | `teammates`, `teammates/new`, `teammates/[id]` | ✓ (list includes operators) | — |
+| `alerts` | ✓ | — |
 | `settings` | ✓ | ✓ |
 
 **API:** see §9.
@@ -364,11 +372,11 @@ audit_logs
 
 | ID | Feature |
 |----|---------|
-| P3-01 | Operator Telegram alerts on teammate reply |
+| P3-01 | ~~Operator Telegram alerts on teammate reply~~ → **Phase 1** (P1-TG-09, P1-TG-10) |
 | P3-02 | Multiple Operator accounts |
 | P3-03 | Drag-and-drop Kanban |
 | P3-04 | Comment edit/delete (Operator) |
-| P3-05 | Due date reminders (Telegram, 24h before) |
+| P3-05 | Due date reminders **to teammate** (Telegram, 24h before) — Operator overdue alerts → P1-TG-10 |
 | P3-06 | Daily digest to Operator Telegram |
 | P3-07 | Offline web sync |
 | P3-08 | Slack integration |
@@ -408,7 +416,7 @@ Both roles. Requires Phase 1 API + DB. Out of scope: PWA install, Service Worker
 | Change status | ✓ | Own tasks (`done` → relay) | Keywords (`done` → relay) |
 | Comment | Any task | Own tasks | Reply |
 | Re-notify | ✓ | — | — |
-| Link Telegram | Generate code | Via `/start` code | `/start <code>` |
+| Link Telegram | Self-link on Profile (optional, alerts) · generate code for teammates | Via `/start` code | `/start <code>` |
 | Audit log | ✓ (Phase 2) | — | — |
 
 ---
@@ -509,4 +517,5 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Date | Change |
 |------|--------|
 | 2026-06-25 | Initial spec; 3-phase structure; Sir brand |
+| 2026-06-28 | Operator self-tasks (P1-TASK-13); Operator Telegram alerts on teammate done + due/overdue (P1-TG-09–11) |
 | 2026-06-27 | Operator + Teammate roles; relay queue; unified `users` model; spec cleanup; [UIUX.md](./UIUX.md); P3-07 offline web sync (§7.1) |

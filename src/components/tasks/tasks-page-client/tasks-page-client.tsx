@@ -12,6 +12,7 @@ import { useState } from "react";
 interface TasksPageClientProps {
   locale: string;
   role: "operator" | "teammate";
+  operator?: { id: string; name: string };
   tasks: Task[];
   teammates: Teammate[];
   labels: {
@@ -35,6 +36,8 @@ interface TasksPageClientProps {
     viewAll: string;
     dragHint: string;
     dragHandle: string;
+    meColumn: string;
+    webOnly: string;
     status: { todo: string; doing: string; done: string };
   };
 }
@@ -42,6 +45,7 @@ interface TasksPageClientProps {
 export function TasksPageClient({
   locale,
   role,
+  operator,
   tasks: serverTasks,
   teammates,
   labels,
@@ -64,8 +68,9 @@ export function TasksPageClient({
       />
 
       {view === "board" ? (
-        isOperator ? (
+        isOperator && operator ? (
           <TeammateBoard
+            operator={operator}
             teammates={teammates}
             tasks={tasks}
             locale={locale}
@@ -84,9 +89,11 @@ export function TasksPageClient({
               emptyBoard: labels.emptyBoard,
               dragHint: labels.dragHint,
               dragHandle: labels.dragHandle,
+              meColumn: labels.meColumn,
+              webOnly: labels.webOnly,
             }}
           />
-        ) : (
+        ) : isOperator ? null : (
           <StatusKanban
             tasks={tasks}
             locale={locale}

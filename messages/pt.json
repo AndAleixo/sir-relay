@@ -10,17 +10,12 @@
     "settings": "Configurações",
     "tasks": "Tarefas",
     "teammates": "Colegas",
+    "alerts": "Alertas",
     "board": "Quadro",
     "list": "Lista",
     "newTask": "Nova tarefa",
-    "edit": "Editar",
-    "archive": "Arquivar",
-    "notifyAgain": "Notificar de novo",
-    "addComment": "Adicionar comentário",
     "viewAll": "Ver tudo",
-    "showInactive": "Mostrar inativos",
-    "mockBanner": "Prévia da UI — apenas dados mock",
-    "dragHint": "Use o ícone ⠿ para arrastar entre colegas ou entre To do, Em progresso e Concluído",
+    "dragHint": "Use o ícone ⠿ para arrastar entre colunas (Eu, colegas) ou entre A fazer, Em progresso e Concluído",
     "dragHandle": "Arrastar tarefa"
   },
   "shell": {
@@ -37,12 +32,7 @@
   "auth": {
     "login": "Entrar",
     "email": "E-mail",
-    "password": "Senha",
-    "joinTitle": "Ative sua conta",
-    "joinSubtitle": "Defina uma senha para entrar no time no SirRelay.",
-    "changePassword": "Alterar senha",
-    "currentPassword": "Senha atual",
-    "newPassword": "Nova senha"
+    "password": "Senha"
   },
   "roles": {
     "operator": "Operador",
@@ -59,9 +49,9 @@
     "invited": "Convidado",
     "active": "Ativo",
     "inviteLink": "Link de convite",
+    "inviteLinkHint": "Partilhe este URL para o colega entrar quando a conta estiver activa.",
     "telegramLink": "Link do Telegram",
-    "copy": "Copiar",
-    "regenerate": "Regenerar",
+    "telegramLinkHint": "Partilhe este link para o colega ligar o Telegram ao relay de tarefas.",
     "addTeammate": "Adicionar colega",
     "createTeammate": "Criar colega",
     "name": "Nome",
@@ -80,6 +70,13 @@
     "myTasks": "Minhas tarefas",
     "allTasks": "Todas as tarefas",
     "assignee": "Responsável",
+    "assignToMe": "Eu ({name})",
+    "assigneeHint": "Tarefas atribuídas a si ficam só na web — sem relay no Telegram.",
+    "meColumn": "Eu",
+    "webOnly": "Só web",
+    "titleLabel": "Título",
+    "titlePlaceholder": "O que precisa ser feito?",
+    "descriptionPlaceholder": "Detalhes opcionais",
     "dueDate": "Prazo",
     "updated": "Atualizado",
     "overdue": "Atrasada",
@@ -97,10 +94,12 @@
     "title": "Configurações",
     "locale": "Idioma",
     "localeHint": "Aplica-se a toda a app. Guardado na sua conta nesta pré-visualização.",
-    "notifications": "Notificações",
-    "taskUpdates": "Atualizações de tarefas",
-    "telegramAlerts": "Alertas do Telegram",
-    "notificationsHint": "Preferências de notificação estarão disponíveis na Fase 1."
+    "operatorAlerts": "Alertas do operador",
+    "operatorAlertsHint": "Enviados para o seu Telegram quando activos. O histórico completo está na página Alertas.",
+    "alertTaskDone": "Colega concluiu uma tarefa",
+    "alertTaskDoneHint": "Quando um colega marca uma tarefa como concluída (web ou Telegram).",
+    "alertTaskDue": "Tarefa de colega vencida ou a vencer",
+    "alertTaskDueHint": "Uma vez por dia por tarefa quando o prazo é hoje ou já passou."
   },
   "profile": {
     "title": "Perfil",
@@ -115,8 +114,16 @@
     "telegramSection": "Telegram",
     "telegramLinkedHint": "Notificações de tarefas são enviadas para o seu chat do Telegram.",
     "telegramPendingHint": "Abra o link de convite do operador para ligar o Telegram e receber alertas.",
-    "security": "Segurança",
-    "passwordMockHint": "Alteração de senha será ativada quando a API estiver conectada."
+    "telegramOperatorLinkedHint": "Alertas de conclusão e prazo são enviados para o seu Telegram.",
+    "telegramOperatorPendingHint": "Ligue o Telegram aqui para receber alertas quando colegas concluem tarefas ou prazos vencem."
+  },
+  "alerts": {
+    "subtitle": "Quando colegas concluem tarefas ou prazos vencem. Configure a entrega em Configurações.",
+    "empty": "Sem alertas ainda. Marque uma tarefa de colega como concluída ou aguarde um prazo.",
+    "taskDone": "Concluída:",
+    "taskDue": "Prazo:",
+    "sentToTelegram": "Telegram",
+    "webOnly": "Só web"
   },
   "sync": {
     "pending": "Não sincronizado com o servidor — {count, plural, one {# alteração pendente} other {# alterações pendentes}}.",

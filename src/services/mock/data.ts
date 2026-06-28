@@ -7,6 +7,7 @@ export const MOCK_OPERATOR: User = {
   role: "operator",
   locale: "en",
   active: true,
+  telegramStatus: "linked",
 };
 
 export const MOCK_OPERATORS: User[] = [
@@ -154,6 +155,32 @@ export const MOCK_TASKS: Task[] = [
     telegramNotifyFailed: false,
     updatedAt: "2026-06-19T18:00:00Z",
     createdAt: "2026-06-17T09:00:00Z",
+  },
+  {
+    id: "task-8",
+    title: "Review supplier contracts",
+    description: "Annual renewal window opens this week.",
+    assigneeId: "user-operator",
+    assigneeName: "Alex Operator",
+    status: "todo",
+    dueDate: "2026-06-30",
+    archived: false,
+    telegramNotifyFailed: false,
+    updatedAt: "2026-06-27T11:00:00Z",
+    createdAt: "2026-06-27T11:00:00Z",
+  },
+  {
+    id: "task-9",
+    title: "Prepare team standup notes",
+    description: "Summarize blockers from each column on the board.",
+    assigneeId: "user-operator",
+    assigneeName: "Alex Operator",
+    status: "doing",
+    dueDate: "2026-06-28",
+    archived: false,
+    telegramNotifyFailed: false,
+    updatedAt: "2026-06-28T08:00:00Z",
+    createdAt: "2026-06-26T15:00:00Z",
   },
 ];
 

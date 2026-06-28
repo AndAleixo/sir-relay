@@ -24,7 +24,6 @@ export default async function TaskDetailPage({
   if (!task) notFound();
 
   const comments = await tasks.listComments(id);
-  const isOperator = session.user.role === "operator";
   const overdue = isOverdue(task.dueDate);
 
   return (
@@ -32,20 +31,9 @@ export default async function TaskDetailPage({
       <PageHeader
         title={task.title}
         action={
-          <div className="flex flex-wrap gap-2">
-            <Link href={`/${locale}/tasks`}>
-              <Button variant="secondary">{t("common.back")}</Button>
-            </Link>
-            {isOperator && (
-              <>
-                <Button variant="secondary">{t("common.notifyAgain")}</Button>
-                <Link href={`/${locale}/tasks/${id}/edit`}>
-                  <Button variant="secondary">{t("common.edit")}</Button>
-                </Link>
-                <Button variant="danger">{t("common.archive")}</Button>
-              </>
-            )}
-          </div>
+          <Link href={`/${locale}/tasks`}>
+            <Button variant="secondary">{t("common.back")}</Button>
+          </Link>
         }
       />
 
@@ -116,9 +104,6 @@ export default async function TaskDetailPage({
                 </div>
               ))
             )}
-            <Button variant="secondary" className="w-full">
-              {t("common.addComment")}
-            </Button>
           </CardBody>
         </Card>
       </div>

@@ -1,1 +1,1 @@
-export { AppShell, MockBanner, PageHeader } from "./app-shell";
+export { AppShell, PageHeader } from "./app-shell";

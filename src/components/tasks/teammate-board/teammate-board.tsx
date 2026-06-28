@@ -19,7 +19,13 @@ import {
 } from "@/components/tasks/task-card";
 import { teamBoardStyles } from "./teammate-board.styles";
 
+interface BoardOperator {
+  id: string;
+  name: string;
+}
+
 interface TeammateBoardProps {
+  operator: BoardOperator;
   teammates: Teammate[];
   tasks: Task[];
   locale: string;
@@ -35,6 +41,8 @@ interface TeammateBoardProps {
     emptyBoard: string;
     dragHint: string;
     dragHandle: string;
+    meColumn: string;
+    webOnly: string;
   };
 }
 
@@ -70,7 +78,7 @@ function BoardTaskItem({
 function DroppableSection({
   title,
   accent,
-  teammateId,
+  assigneeId,
   status,
   activeDropTarget,
   onSectionDragOver,
@@ -79,18 +87,18 @@ function DroppableSection({
 }: {
   title: string;
   accent?: boolean;
-  teammateId: string;
+  assigneeId: string;
   status: TaskStatus;
   activeDropTarget: string | null;
   onSectionDragOver: (key: string) => void;
   onDrop: (
-    teammateId: string,
+    assigneeId: string,
     status: TaskStatus,
     event: DragEvent<HTMLElement>,
   ) => void;
   children: React.ReactNode;
 }) {
-  const key = dropTargetKey(teammateId, status);
+  const key = dropTargetKey(assigneeId, status);
 
   return (
     <section
@@ -107,7 +115,7 @@ function DroppableSection({
       onDrop={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        onDrop(teammateId, status, event);
+        onDrop(assigneeId, status, event);
       }}
     >
       <h3 className={accent ? teamBoardStyles.sectionTitleAccent : teamBoardStyles.sectionTitle}>
@@ -118,8 +126,9 @@ function DroppableSection({
   );
 }
 
-function TeammateColumn({
-  teammate,
+function TaskColumn({
+  assigneeId,
+  header,
   tasks,
   locale,
   labels,
@@ -130,7 +139,8 @@ function TeammateColumn({
   onSectionDragOver,
   onDrop,
 }: {
-  teammate: Teammate;
+  assigneeId: string;
+  header: React.ReactNode;
   tasks: Task[];
   locale: string;
   labels: TeammateBoardProps["labels"];
@@ -140,7 +150,7 @@ function TeammateColumn({
   onDragEnd: () => void;
   onSectionDragOver: (key: string) => void;
   onDrop: (
-    teammateId: string,
+    assigneeId: string,
     status: TaskStatus,
     event: DragEvent<HTMLElement>,
   ) => void;
@@ -148,7 +158,7 @@ function TeammateColumn({
   const [doneOpen, setDoneOpen] = useState(false);
   const grouped = groupTasksByStatus(tasks);
   const donePreview = grouped.done.slice(-5);
-  const doneKey = dropTargetKey(teammate.id, "done");
+  const doneKey = dropTargetKey(assigneeId, "done");
 
   const cardLabels: TaskCardLabels & { dragHandle: string } = {
     dueDate: labels.dueDate,
@@ -159,29 +169,11 @@ function TeammateColumn({
 
   return (
     <article className={teamBoardStyles.column}>
-      <header className={teamBoardStyles.columnHeader}>
-        <Link
-          href={`/${locale}/teammates/${teammate.id}`}
-          className={teamBoardStyles.teammateName}
-        >
-          {teammate.name}
-        </Link>
-        <div className={teamBoardStyles.badges}>
-          <ToneBadge tone={teammate.telegramStatus === "linked" ? "success" : "warning"}>
-            {teammate.telegramStatus === "linked" ? labels.linked : labels.pending}
-          </ToneBadge>
-          <ToneBadge tone="neutral">
-            {teammate.accountStatus === "active" ? labels.active : labels.invited}
-          </ToneBadge>
-        </div>
-        <p className={teamBoardStyles.activeCount}>
-          {grouped.todo.length + grouped.doing.length} active
-        </p>
-      </header>
+      <header className={teamBoardStyles.columnHeader}>{header}</header>
 
       <DroppableSection
         title={`${labels.sectionTodo} (${grouped.todo.length})`}
-        teammateId={teammate.id}
+        assigneeId={assigneeId}
         status="todo"
         activeDropTarget={activeDropTarget}
         onSectionDragOver={onSectionDragOver}
@@ -203,7 +195,7 @@ function TeammateColumn({
       <DroppableSection
         title={`${labels.sectionDoing} (${grouped.doing.length})`}
         accent
-        teammateId={teammate.id}
+        assigneeId={assigneeId}
         status="doing"
         activeDropTarget={activeDropTarget}
         onSectionDragOver={onSectionDragOver}
@@ -236,7 +228,7 @@ function TeammateColumn({
         onDrop={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          onDrop(teammate.id, "done", event);
+          onDrop(assigneeId, "done", event);
         }}
       >
         <button
@@ -270,7 +262,65 @@ function TeammateColumn({
   );
 }
 
+function TeammateColumnHeader({
+  teammate,
+  locale,
+  labels,
+  activeCount,
+}: {
+  teammate: Teammate;
+  locale: string;
+  labels: TeammateBoardProps["labels"];
+  activeCount: number;
+}) {
+  return (
+    <>
+      <Link
+        href={`/${locale}/teammates/${teammate.id}`}
+        className={teamBoardStyles.teammateName}
+      >
+        {teammate.name}
+      </Link>
+      <div className={teamBoardStyles.badges}>
+        <ToneBadge tone={teammate.telegramStatus === "linked" ? "success" : "warning"}>
+          {teammate.telegramStatus === "linked" ? labels.linked : labels.pending}
+        </ToneBadge>
+        <ToneBadge tone="neutral">
+          {teammate.accountStatus === "active" ? labels.active : labels.invited}
+        </ToneBadge>
+      </div>
+      <p className={teamBoardStyles.activeCount}>{activeCount} active</p>
+    </>
+  );
+}
+
+function SelfColumnHeader({
+  operator,
+  locale,
+  labels,
+  activeCount,
+}: {
+  operator: BoardOperator;
+  locale: string;
+  labels: TeammateBoardProps["labels"];
+  activeCount: number;
+}) {
+  return (
+    <>
+      <Link href={`/${locale}/profile`} className={teamBoardStyles.teammateName}>
+        {labels.meColumn}
+      </Link>
+      <p className="text-xs text-[var(--text-muted)]">{operator.name}</p>
+      <div className={teamBoardStyles.badges}>
+        <ToneBadge tone="neutral">{labels.webOnly}</ToneBadge>
+      </div>
+      <p className={teamBoardStyles.activeCount}>{activeCount} active</p>
+    </>
+  );
+}
+
 export function TeammateBoard({
+  operator,
   teammates,
   tasks,
   locale,
@@ -280,7 +330,10 @@ export function TeammateBoard({
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
 
-  const teammateById = Object.fromEntries(teammates.map((t) => [t.id, t]));
+  const assigneeById: Record<string, { id: string; name: string }> = {
+    [operator.id]: operator,
+    ...Object.fromEntries(teammates.map((t) => [t.id, t])),
+  };
 
   function handleDragStart(taskId: string) {
     setDraggingTaskId(taskId);
@@ -292,7 +345,7 @@ export function TeammateBoard({
   }
 
   async function handleSectionDrop(
-    targetTeammateId: string,
+    targetAssigneeId: string,
     targetStatus: TaskStatus,
     event: DragEvent<HTMLElement>,
   ) {
@@ -302,10 +355,10 @@ export function TeammateBoard({
     if (!taskId) return;
 
     const task = tasks.find((t) => t.id === taskId);
-    const target = teammateById[targetTeammateId];
+    const target = assigneeById[targetAssigneeId];
     if (!task || !target) return;
 
-    const needsReassign = task.assigneeId !== targetTeammateId;
+    const needsReassign = task.assigneeId !== targetAssigneeId;
     const needsStatus = task.status !== targetStatus;
     if (!needsReassign && !needsStatus) return;
 
@@ -337,7 +390,11 @@ export function TeammateBoard({
     );
   }
 
-  if (teammates.length === 0) {
+  const selfTasks = tasks.filter((t) => t.assigneeId === operator.id);
+  const selfActive =
+    selfTasks.filter((t) => t.status === "todo" || t.status === "doing").length;
+
+  if (teammates.length === 0 && selfTasks.length === 0) {
     return (
       <p className="rounded-card border border-dashed border-[var(--border)] bg-surface-card p-8 text-center text-sm text-[var(--text-muted)]">
         {labels.emptyBoard}
@@ -349,21 +406,55 @@ export function TeammateBoard({
     <>
       <p className={teamBoardStyles.dragHint}>{labels.dragHint}</p>
       <div className={teamBoardStyles.scroll}>
-        {teammates.map((teammate) => (
-          <TeammateColumn
-            key={teammate.id}
-            teammate={teammate}
-            tasks={tasks.filter((t) => t.assigneeId === teammate.id)}
-            locale={locale}
-            labels={labels}
-            draggingTaskId={draggingTaskId}
-            activeDropTarget={activeDropTarget}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onSectionDragOver={setActiveDropTarget}
-            onDrop={handleSectionDrop}
-          />
-        ))}
+        <TaskColumn
+          assigneeId={operator.id}
+          header={
+            <SelfColumnHeader
+              operator={operator}
+              locale={locale}
+              labels={labels}
+              activeCount={selfActive}
+            />
+          }
+          tasks={selfTasks}
+          locale={locale}
+          labels={labels}
+          draggingTaskId={draggingTaskId}
+          activeDropTarget={activeDropTarget}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onSectionDragOver={setActiveDropTarget}
+          onDrop={handleSectionDrop}
+        />
+        {teammates.map((teammate) => {
+          const columnTasks = tasks.filter((t) => t.assigneeId === teammate.id);
+          const activeCount =
+            columnTasks.filter((t) => t.status === "todo" || t.status === "doing").length;
+
+          return (
+            <TaskColumn
+              key={teammate.id}
+              assigneeId={teammate.id}
+              header={
+                <TeammateColumnHeader
+                  teammate={teammate}
+                  locale={locale}
+                  labels={labels}
+                  activeCount={activeCount}
+                />
+              }
+              tasks={columnTasks}
+              locale={locale}
+              labels={labels}
+              draggingTaskId={draggingTaskId}
+              activeDropTarget={activeDropTarget}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onSectionDragOver={setActiveDropTarget}
+              onDrop={handleSectionDrop}
+            />
+          );
+        })}
       </div>
     </>
   );

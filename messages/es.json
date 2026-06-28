@@ -81,6 +81,7 @@
     "emptyMine": "Aún no tienes tareas asignadas.",
     "description": "Descripción",
     "status": "Estado",
+    "editTask": "Editar tarea",
     "delete": "Eliminar tarea",
     "deleteConfirm": "¿Eliminar esta tarea de forma permanente? No se puede deshacer.",
     "telegramFailed": "Error al enviar por Telegram",

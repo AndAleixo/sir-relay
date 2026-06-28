@@ -31,12 +31,10 @@ export default async function TaskDetailPage({
     ? [
         {
           id: session.user.id,
-          name: session.user.name,
           label: t("tasks.assignToMe", { name: session.user.name }),
         },
         ...(await teammates.listTeammates()).map((teammate) => ({
           id: teammate.id,
-          name: teammate.name,
           label: teammate.name,
         })),
       ]
@@ -51,6 +49,7 @@ export default async function TaskDetailPage({
   return (
     <>
       <PageHeader
+        title={t("tasks.editTask")}
         action={
           <Link href={`/${locale}/tasks`}>
             <Button variant="secondary">{t("common.back")}</Button>
@@ -65,7 +64,7 @@ export default async function TaskDetailPage({
       )}
 
       <Card className="max-w-xl">
-        <CardBody>
+        <CardBody className="space-y-4">
           <TaskDetailEditor
             task={task}
             locale={locale}

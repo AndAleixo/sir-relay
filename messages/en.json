@@ -81,6 +81,7 @@
     "emptyMine": "No tasks assigned to you yet.",
     "description": "Description",
     "status": "Status",
+    "editTask": "Edit task",
     "delete": "Delete task",
     "deleteConfirm": "Delete this task permanently? This cannot be undone.",
     "telegramFailed": "Telegram delivery failed",

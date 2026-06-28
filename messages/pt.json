@@ -81,6 +81,7 @@
     "emptyMine": "Nenhuma tarefa atribuída a você ainda.",
     "description": "Descrição",
     "status": "Estado",
+    "editTask": "Editar tarefa",
     "delete": "Eliminar tarefa",
     "deleteConfirm": "Eliminar esta tarefa permanentemente? Isto não pode ser desfeito.",
     "telegramFailed": "Falha no envio pelo Telegram",

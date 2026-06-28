@@ -15,7 +15,7 @@
     "list": "Lista",
     "newTask": "Nova tarefa",
     "viewAll": "Ver tudo",
-    "dragHint": "Use o ícone ⠿ para arrastar entre colunas (Eu, colegas) ou entre A fazer, Em progresso e Concluído",
+    "dragHint": "Use o ícone ⠿ para arrastar entre colunas ou estados. Arraste para a esquerda ou direita no quadro para ver mais colegas.",
     "dragHandle": "Arrastar tarefa"
   },
   "shell": {

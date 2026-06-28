@@ -12,6 +12,7 @@ import {
 } from "@/lib/task-drag";
 import type { MutationInput } from "@/domain/sync";
 import { useSync } from "@/components/sync";
+import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
 import { ToneBadge } from "@/components/ui/badge";
 import {
   DraggableTaskCard,
@@ -327,6 +328,7 @@ export function TeammateBoard({
   labels,
 }: TeammateBoardProps) {
   const { applyTaskUpdate } = useSync();
+  const { scrollRef, scrollHandlers } = useHorizontalDragScroll();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
 
@@ -405,7 +407,11 @@ export function TeammateBoard({
   return (
     <>
       <p className={teamBoardStyles.dragHint}>{labels.dragHint}</p>
-      <div className={teamBoardStyles.scroll}>
+      <div
+        ref={scrollRef}
+        className={teamBoardStyles.scroll}
+        {...scrollHandlers}
+      >
         <TaskColumn
           assigneeId={operator.id}
           header={

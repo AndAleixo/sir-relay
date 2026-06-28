@@ -15,7 +15,7 @@
     "list": "Lista",
     "newTask": "Nueva tarea",
     "viewAll": "Ver todo",
-    "dragHint": "Usa el icono ⠿ para mover tareas entre columnas (Yo, compañeros) o entre Por hacer, En progreso y Hecho",
+    "dragHint": "Usa el icono ⠿ para mover tareas entre columnas o estados. Arrastra a izquierda o derecha en el tablero para ver más compañeros.",
     "dragHandle": "Arrastrar tarea"
   },
   "shell": {

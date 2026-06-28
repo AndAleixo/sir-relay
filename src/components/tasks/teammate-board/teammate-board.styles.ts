@@ -1,6 +1,6 @@
 export const teamBoardStyles = {
   scroll:
-    "flex gap-4 overflow-x-auto pb-4 [scrollbar-gutter:stable] snap-x snap-mandatory md:snap-none",
+    "flex cursor-grab gap-4 overflow-x-auto overscroll-x-contain pb-4 select-none touch-pan-y [scrollbar-gutter:stable] snap-x snap-mandatory md:snap-none",
   column:
     "flex w-[min(100%,280px)] shrink-0 snap-center flex-col rounded-card border border-[var(--border)] bg-surface-card md:w-72",
   columnHeader: "space-y-2 border-b border-[var(--border)] p-3",

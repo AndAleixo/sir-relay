@@ -20,4 +20,8 @@ export const teamBoardStyles = {
   dropTarget: "ring-2 ring-brand-accent/50 ring-offset-2 ring-offset-surface-card",
   dragHint:
     "mb-3 rounded-card border border-dashed border-[var(--border)] bg-surface-card px-3 py-2 text-xs text-[var(--text-muted)]",
+  quickAdd:
+    "mt-1 flex w-full items-center rounded-button px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-brand-accent",
+  quickAddForm: "mt-1",
+  quickAddInput: "h-8 text-sm",
 } as const;

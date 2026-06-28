@@ -18,6 +18,7 @@ import type {
   SyncState,
 } from "@/domain/sync";
 import { executePendingMutation } from "@/lib/sync/execute-mutation";
+import { quickCreateTaskAction } from "@/app/actions/mock-tasks";
 import {
   syncRetryConfig,
   syncRetryDelayMs,
@@ -37,6 +38,10 @@ interface SyncContextValue {
     patch: Partial<Task>,
     mutations: MutationInput[],
   ) => Promise<void>;
+  createTaskQuick: (
+    locale: string,
+    input: { title: string; assigneeId: string; assigneeName: string },
+  ) => Promise<boolean>;
   syncNow: () => Promise<void>;
   resolveConflict: (keepLocal: boolean) => Promise<void>;
 }
@@ -278,6 +283,47 @@ export function SyncProvider({ children }: SyncProviderProps) {
     [runMutation],
   );
 
+  const createTaskQuick = useCallback(
+    async (
+      locale: string,
+      input: { title: string; assigneeId: string; assigneeName: string },
+    ) => {
+      const tempId = `task-pending-${crypto.randomUUID()}`;
+      const now = new Date().toISOString();
+      const optimistic: Task = {
+        id: tempId,
+        title: input.title.trim(),
+        description: "",
+        assigneeId: input.assigneeId,
+        assigneeName: input.assigneeName,
+        status: "todo",
+        dueDate: null,
+        archived: false,
+        telegramNotifyFailed: false,
+        updatedAt: now,
+        createdAt: now,
+      };
+
+      setTasks((prev) => [...prev, optimistic]);
+
+      const result = await quickCreateTaskAction(locale, {
+        title: input.title,
+        assigneeId: input.assigneeId,
+      });
+
+      if (result.ok) {
+        setTasks((prev) =>
+          prev.map((t) => (t.id === tempId ? result.task : t)),
+        );
+        return true;
+      }
+
+      setTasks((prev) => prev.filter((t) => t.id !== tempId));
+      return false;
+    },
+    [],
+  );
+
   const resolveConflict = useCallback(
     async (keepLocal: boolean) => {
       const conflict = conflicts[0];
@@ -340,6 +386,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
       conflicts,
       loadServerTasksIfEmpty,
       applyTaskUpdate,
+      createTaskQuick,
       syncNow,
       resolveConflict,
     }),
@@ -351,6 +398,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
       conflicts,
       loadServerTasksIfEmpty,
       applyTaskUpdate,
+      createTaskQuick,
       syncNow,
       resolveConflict,
     ],

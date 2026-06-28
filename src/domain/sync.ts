@@ -2,11 +2,12 @@ import type { Task, TaskStatus } from "@/domain/types";
 
 export type SyncState = "synced" | "syncing" | "failed" | "conflict";
 
-export type MutationType = "update_status" | "reassign";
+export type MutationType = "update_status" | "reassign" | "update_fields";
 
 export type MutationPayload =
   | { status: TaskStatus }
-  | { assigneeId: string; assigneeName: string };
+  | { assigneeId: string; assigneeName: string }
+  | { title?: string; dueDate?: string | null };
 
 export interface PendingMutation {
   clientMutationId: string;

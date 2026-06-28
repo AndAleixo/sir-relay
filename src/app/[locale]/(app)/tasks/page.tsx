@@ -62,6 +62,10 @@ export default async function TasksPage({
           dragHandle: t("common.dragHandle"),
           meColumn: t("tasks.meColumn"),
           webOnly: t("tasks.webOnly"),
+          openTask: t("tasks.openTask"),
+          addTask: t("tasks.addTask"),
+          addDueDate: t("tasks.addDueDate"),
+          titlePlaceholder: t("tasks.titlePlaceholder"),
           status: {
             todo: t("status.todo"),
             doing: t("status.doing"),

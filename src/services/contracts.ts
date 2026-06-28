@@ -48,6 +48,11 @@ export interface TaskService {
     assigneeName: string,
     ctx: { session: Session },
   ): Promise<Task>;
+  updateTaskFields(
+    id: string,
+    fields: { title?: string; dueDate?: string | null },
+    ctx: { session: Session },
+  ): Promise<Task>;
 }
 
 export interface TeammateService {

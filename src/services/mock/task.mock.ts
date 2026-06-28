@@ -126,6 +126,31 @@ export class MockTaskService implements TaskService {
     this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
     return updated;
   }
+
+  async updateTaskFields(
+    id: string,
+    fields: { title?: string; dueDate?: string | null },
+    ctx: { session: Session },
+  ): Promise<Task> {
+    const task = await this.getTask(id, ctx);
+    if (!task) throw new Error("Task not found");
+
+    const title =
+      fields.title !== undefined ? fields.title.trim().slice(0, 200) : task.title;
+    if (!title) throw new Error("Title required");
+
+    const dueDate =
+      fields.dueDate !== undefined ? fields.dueDate || null : task.dueDate;
+
+    const updated = {
+      ...task,
+      title,
+      dueDate,
+      updatedAt: new Date().toISOString(),
+    };
+    this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
+    return updated;
+  }
 }
 
 export const mockTaskService = new MockTaskService();

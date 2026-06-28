@@ -5,7 +5,7 @@ import { useCallback, useRef } from "react";
 const PAN_THRESHOLD_PX = 6;
 
 const NO_PAN_SELECTOR =
-  "button, input, textarea, select, label, [contenteditable='true'], [data-no-drag-scroll]";
+  "a, button, input, textarea, select, label, [contenteditable='true'], [data-no-drag-scroll]";
 
 function isNoPanTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false;

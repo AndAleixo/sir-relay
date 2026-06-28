@@ -15,9 +15,10 @@ import { useSync } from "@/components/sync";
 import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
 import { ToneBadge } from "@/components/ui/badge";
 import {
-  DraggableTaskCard,
+  OperatorBoardTaskCard,
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
+import { BoardQuickAddTask } from "./board-quick-add-task";
 import { teamBoardStyles } from "./teammate-board.styles";
 
 interface BoardOperator {
@@ -44,6 +45,10 @@ interface TeammateBoardProps {
     dragHandle: string;
     meColumn: string;
     webOnly: string;
+    openTask: string;
+    addTask: string;
+    addDueDate: string;
+    titlePlaceholder: string;
   };
 }
 
@@ -54,24 +59,42 @@ function BoardTaskItem({
   draggingTaskId,
   onDragStart,
   onDragEnd,
+  onUpdateFields,
 }: {
   task: Task;
   locale: string;
-  labels: TaskCardLabels & { dragHandle: string };
+  labels: TeammateBoardProps["labels"];
   draggingTaskId: string | null;
   onDragStart: (taskId: string) => void;
   onDragEnd: () => void;
+  onUpdateFields: (
+    taskId: string,
+    fields: { title?: string; dueDate?: string | null },
+  ) => Promise<void>;
 }) {
+  const cardLabels: TaskCardLabels & {
+    dragHandle: string;
+    openTask: string;
+    addDueDate: string;
+  } = {
+    dueDate: labels.dueDate,
+    updated: labels.updated,
+    overdue: labels.overdue,
+    dragHandle: labels.dragHandle,
+    openTask: labels.openTask,
+    addDueDate: labels.addDueDate,
+  };
+
   return (
-    <DraggableTaskCard
+    <OperatorBoardTaskCard
       task={task}
       locale={locale}
       href={`/${locale}/tasks/${task.id}`}
-      labels={labels}
-      dragHandleLabel={labels.dragHandle}
+      labels={cardLabels}
       isDragging={draggingTaskId === task.id}
       onDragHandleStart={() => onDragStart(task.id)}
       onDragHandleEnd={onDragEnd}
+      onUpdateFields={(fields) => onUpdateFields(task.id, fields)}
     />
   );
 }
@@ -84,6 +107,7 @@ function DroppableSection({
   activeDropTarget,
   onSectionDragOver,
   onDrop,
+  footer,
   children,
 }: {
   title: string;
@@ -97,6 +121,7 @@ function DroppableSection({
     status: TaskStatus,
     event: DragEvent<HTMLElement>,
   ) => void;
+  footer?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const key = dropTargetKey(assigneeId, status);
@@ -122,13 +147,17 @@ function DroppableSection({
       <h3 className={accent ? teamBoardStyles.sectionTitleAccent : teamBoardStyles.sectionTitle}>
         {title}
       </h3>
-      <div className={teamBoardStyles.cardList}>{children}</div>
+      <div className={teamBoardStyles.cardList}>
+        {children}
+        {footer}
+      </div>
     </section>
   );
 }
 
 function TaskColumn({
   assigneeId,
+  assigneeName,
   header,
   tasks,
   locale,
@@ -139,8 +168,11 @@ function TaskColumn({
   onDragEnd,
   onSectionDragOver,
   onDrop,
+  onUpdateFields,
+  onQuickCreate,
 }: {
   assigneeId: string;
+  assigneeName: string;
   header: React.ReactNode;
   tasks: Task[];
   locale: string;
@@ -155,18 +187,20 @@ function TaskColumn({
     status: TaskStatus,
     event: DragEvent<HTMLElement>,
   ) => void;
+  onUpdateFields: (
+    taskId: string,
+    fields: { title?: string; dueDate?: string | null },
+  ) => Promise<void>;
+  onQuickCreate: (input: {
+    title: string;
+    assigneeId: string;
+    assigneeName: string;
+  }) => Promise<boolean>;
 }) {
   const [doneOpen, setDoneOpen] = useState(false);
   const grouped = groupTasksByStatus(tasks);
   const donePreview = grouped.done.slice(-5);
   const doneKey = dropTargetKey(assigneeId, "done");
-
-  const cardLabels: TaskCardLabels & { dragHandle: string } = {
-    dueDate: labels.dueDate,
-    updated: labels.updated,
-    overdue: labels.overdue,
-    dragHandle: labels.dragHandle,
-  };
 
   return (
     <article className={teamBoardStyles.column}>
@@ -179,16 +213,26 @@ function TaskColumn({
         activeDropTarget={activeDropTarget}
         onSectionDragOver={onSectionDragOver}
         onDrop={onDrop}
+        footer={
+          <BoardQuickAddTask
+            assigneeId={assigneeId}
+            assigneeName={assigneeName}
+            addLabel={labels.addTask}
+            titlePlaceholder={labels.titlePlaceholder}
+            onCreate={onQuickCreate}
+          />
+        }
       >
         {grouped.todo.map((task) => (
           <BoardTaskItem
             key={task.id}
             task={task}
             locale={locale}
-            labels={cardLabels}
+            labels={labels}
             draggingTaskId={draggingTaskId}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
+            onUpdateFields={onUpdateFields}
           />
         ))}
       </DroppableSection>
@@ -207,10 +251,11 @@ function TaskColumn({
             key={task.id}
             task={task}
             locale={locale}
-            labels={cardLabels}
+            labels={labels}
             draggingTaskId={draggingTaskId}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
+            onUpdateFields={onUpdateFields}
           />
         ))}
       </DroppableSection>
@@ -247,10 +292,11 @@ function TaskColumn({
                 key={task.id}
                 task={task}
                 locale={locale}
-                labels={cardLabels}
+                labels={labels}
                 draggingTaskId={draggingTaskId}
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
+                onUpdateFields={onUpdateFields}
               />
             ))}
             {grouped.done.length > 5 && (
@@ -327,7 +373,7 @@ export function TeammateBoard({
   locale,
   labels,
 }: TeammateBoardProps) {
-  const { applyTaskUpdate } = useSync();
+  const { applyTaskUpdate, createTaskQuick } = useSync();
   const { scrollRef, scrollHandlers } = useHorizontalDragScroll();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
@@ -392,6 +438,37 @@ export function TeammateBoard({
     );
   }
 
+  async function handleUpdateFields(
+    taskId: string,
+    fields: { title?: string; dueDate?: string | null },
+  ) {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const patch: Partial<Task> = {
+      ...(fields.title !== undefined ? { title: fields.title } : {}),
+      ...(fields.dueDate !== undefined ? { dueDate: fields.dueDate } : {}),
+    };
+
+    if (Object.keys(patch).length === 0) return;
+
+    await applyTaskUpdate(taskId, patch, [
+      {
+        type: "update_fields",
+        taskId,
+        payload: fields,
+      },
+    ]);
+  }
+
+  function handleQuickCreate(input: {
+    title: string;
+    assigneeId: string;
+    assigneeName: string;
+  }) {
+    return createTaskQuick(locale, input);
+  }
+
   const selfTasks = tasks.filter((t) => t.assigneeId === operator.id);
   const selfActive =
     selfTasks.filter((t) => t.status === "todo" || t.status === "doing").length;
@@ -414,6 +491,7 @@ export function TeammateBoard({
       >
         <TaskColumn
           assigneeId={operator.id}
+          assigneeName={operator.name}
           header={
             <SelfColumnHeader
               operator={operator}
@@ -431,6 +509,8 @@ export function TeammateBoard({
           onDragEnd={handleDragEnd}
           onSectionDragOver={setActiveDropTarget}
           onDrop={handleSectionDrop}
+          onUpdateFields={handleUpdateFields}
+          onQuickCreate={handleQuickCreate}
         />
         {teammates.map((teammate) => {
           const columnTasks = tasks.filter((t) => t.assigneeId === teammate.id);
@@ -441,6 +521,7 @@ export function TeammateBoard({
             <TaskColumn
               key={teammate.id}
               assigneeId={teammate.id}
+              assigneeName={teammate.name}
               header={
                 <TeammateColumnHeader
                   teammate={teammate}
@@ -458,6 +539,8 @@ export function TeammateBoard({
               onDragEnd={handleDragEnd}
               onSectionDragOver={setActiveDropTarget}
               onDrop={handleSectionDrop}
+              onUpdateFields={handleUpdateFields}
+              onQuickCreate={handleQuickCreate}
             />
           );
         })}

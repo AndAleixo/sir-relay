@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { TaskStatus } from "@/domain/types";
+import type { Task, TaskStatus } from "@/domain/types";
 import type { SyncActionOptions, TaskActionResult } from "@/domain/sync";
 import { getServices, serviceMode } from "@/services";
 import {
@@ -131,6 +131,77 @@ export async function updateTaskStatusAction(
   if (existing.status !== "done" && status === "done") {
     await alerts.notifyTaskDone(updated);
   }
+
+  if (options?.clientMutationId) {
+    recordAppliedMutation(options.clientMutationId, updated);
+  }
+
+  maybeRevalidate();
+  return { ok: true, task: updated };
+}
+
+export async function quickCreateTaskAction(
+  locale: string,
+  input: { title: string; assigneeId: string },
+): Promise<
+  | { ok: true; task: Task }
+  | { ok: false; error: "forbidden" | "invalid" }
+> {
+  const title = input.title.trim();
+  const assigneeId = input.assigneeId.trim();
+
+  if (!title || !assigneeId) {
+    return { ok: false, error: "invalid" };
+  }
+
+  const { auth, tasks } = getServices();
+  const session = await auth.getSession();
+  if (!session || session.user.role !== "operator") {
+    return { ok: false, error: "forbidden" };
+  }
+
+  const task = await tasks.createTask(
+    {
+      title,
+      assigneeId,
+      description: "",
+      dueDate: null,
+    },
+    { session },
+  );
+
+  maybeRevalidate();
+  revalidatePath(`/${locale}/tasks`);
+  return { ok: true, task };
+}
+
+export async function updateTaskFieldsAction(
+  taskId: string,
+  fields: { title?: string; dueDate?: string | null },
+  options?: SyncActionOptions,
+): Promise<TaskActionResult> {
+  if (options?.clientMutationId) {
+    const cached = getAppliedMutation(options.clientMutationId);
+    if (cached) return { ok: true, task: cached };
+  }
+
+  const { auth, tasks } = getServices();
+  const session = await auth.getSession();
+  if (!session) {
+    return { ok: false, error: "unauthorized" };
+  }
+
+  const existing = await tasks.getTask(taskId, { session });
+  if (!existing) return { ok: false, error: "not_found" };
+
+  if (
+    options?.baseUpdatedAt &&
+    existing.updatedAt !== options.baseUpdatedAt
+  ) {
+    return { ok: false, error: "conflict", task: existing };
+  }
+
+  const updated = await tasks.updateTaskFields(taskId, fields, { session });
 
   if (options?.clientMutationId) {
     recordAppliedMutation(options.clientMutationId, updated);

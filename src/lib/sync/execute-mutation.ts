@@ -1,6 +1,7 @@
 import type { PendingMutation, TaskActionResult } from "@/domain/sync";
 import {
   reassignTaskAction,
+  updateTaskFieldsAction,
   updateTaskStatusAction,
 } from "@/app/actions/mock-tasks";
 
@@ -36,6 +37,13 @@ export async function executePendingMutation(
           payload.assigneeName,
           options,
         );
+      }
+      case "update_fields": {
+        const payload = mutation.payload;
+        if (!("title" in payload) && !("dueDate" in payload)) {
+          return { ok: false, error: "network" };
+        }
+        return await updateTaskFieldsAction(mutation.taskId, payload, options);
       }
       default:
         return { ok: false, error: "network" };

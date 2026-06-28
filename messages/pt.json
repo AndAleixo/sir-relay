@@ -86,6 +86,9 @@
     "telegramFailed": "Falha no envio pelo Telegram",
     "telegramPending": "Telegram não vinculado — notificação não enviada",
     "noComments": "Nenhum comentário ainda.",
+    "openTask": "Abrir detalhes da tarefa",
+    "addTask": "Adicionar tarefa",
+    "addDueDate": "Adicionar prazo",
     "sectionTodo": "A fazer",
     "sectionDoing": "Em progresso",
     "sectionDone": "Concluído"

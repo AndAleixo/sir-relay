@@ -38,6 +38,10 @@ interface TasksPageClientProps {
     dragHandle: string;
     meColumn: string;
     webOnly: string;
+    openTask: string;
+    addTask: string;
+    addDueDate: string;
+    titlePlaceholder: string;
     status: { todo: string; doing: string; done: string };
   };
 }
@@ -91,6 +95,10 @@ export function TasksPageClient({
               dragHandle: labels.dragHandle,
               meColumn: labels.meColumn,
               webOnly: labels.webOnly,
+              openTask: labels.openTask,
+              addTask: labels.addTask,
+              addDueDate: labels.addDueDate,
+              titlePlaceholder: labels.titlePlaceholder,
             }}
           />
         ) : isOperator ? null : (

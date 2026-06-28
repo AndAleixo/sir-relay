@@ -86,6 +86,9 @@
     "telegramFailed": "Telegram delivery failed",
     "telegramPending": "Telegram not linked — notification not sent",
     "noComments": "No comments yet.",
+    "openTask": "Open task details",
+    "addTask": "Add task",
+    "addDueDate": "Add due date",
     "sectionTodo": "To do",
     "sectionDoing": "In progress",
     "sectionDone": "Done"

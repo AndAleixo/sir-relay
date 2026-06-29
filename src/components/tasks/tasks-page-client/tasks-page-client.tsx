@@ -56,13 +56,13 @@ export function TasksPageClient({
   showNewTask = false,
   labels,
 }: TasksPageClientProps) {
-  const { tasks, loadServerTasksIfEmpty } = useSync();
+  const { tasks, syncFromServer } = useSync();
   const [view, setView] = useState<TasksView>("board");
   const isOperator = role === "operator";
 
   useEffect(() => {
-    loadServerTasksIfEmpty(serverTasks);
-  }, [serverTasks, loadServerTasksIfEmpty]);
+    syncFromServer(serverTasks);
+  }, [serverTasks, syncFromServer]);
 
   return (
     <div className="space-y-4">

@@ -32,7 +32,7 @@ interface SyncContextValue {
   pendingCount: number;
   showBar: boolean;
   conflicts: SyncConflict[];
-  loadServerTasksIfEmpty: (serverTasks: Task[]) => void;
+  syncFromServer: (serverTasks: Task[]) => void;
   applyTaskUpdate: (
     taskId: string,
     patch: Partial<Task>,
@@ -127,9 +127,8 @@ export function SyncProvider({ children }: SyncProviderProps) {
     return () => clearRetryTimer();
   }, [clearRetryTimer]);
 
-  const loadServerTasksIfEmpty = useCallback((serverTasks: Task[]) => {
+  const syncFromServer = useCallback((serverTasks: Task[]) => {
     if (queueRef.current.length > 0) return;
-    if (tasksRef.current.length > 0) return;
     setTasks(serverTasks);
   }, []);
 
@@ -383,7 +382,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
       pendingCount,
       showBar,
       conflicts,
-      loadServerTasksIfEmpty,
+      syncFromServer,
       applyTaskUpdate,
       createTaskQuick,
       syncNow,
@@ -395,7 +394,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
       pendingCount,
       showBar,
       conflicts,
-      loadServerTasksIfEmpty,
+      syncFromServer,
       applyTaskUpdate,
       createTaskQuick,
       syncNow,

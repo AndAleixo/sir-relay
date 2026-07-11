@@ -24,7 +24,7 @@
   "admin": {
     "signInTitle": "Sign in to SirRelay",
     "signInSubtitle": "Self-hosted instance — sign in to manage users or open the app.",
-    "signInMockHint": "Mock: Operator alex or alex@example.com (must change password on first login) · sam@example.com · Teammate ana@example.com — any non-empty password.",
+    "signInMockHint": "Demo video: sam@example.com (operator) · ana@example.com (teammate) — any non-empty password. Alex requires password change on first login.",
     "signInError": "Invalid email or password.",
     "sessionNotice": "This instance uses an essential session cookie for sign-in.",
     "sessionExpired": "Your session expired. Please sign in again.",
@@ -183,5 +183,37 @@
     "syncNow": "Sync now",
     "keepLocal": "Keep my version",
     "useServer": "Use server version"
+  },
+  "landing": {
+    "headerNav": "Site navigation",
+    "footerNav": "Footer links",
+    "eyebrow": "Simple team relay",
+    "heroTitle": "Manage your team without the pressure.",
+    "heroSubtitle": "SirRelay helps small teams stay aligned — one clear task at a time, on the web or Telegram. No dashboards, no performance metrics, no noise.",
+    "ctaPrimary": "Get started",
+    "ctaSecondary": "How we handle data",
+    "demoAria": "SirRelay board preview",
+    "demoUrl": "app.sirrelay.com/{locale}/tasks",
+    "demoTaskA": "Restock front display",
+    "demoTaskB": "Confirm inventory",
+    "demoTaskC": "Reply to supplier",
+    "demoCaption": "One task in focus — the next one arrives when the current one is done.",
+    "featuresTitle": "Built for calm coordination",
+    "featuresLead": "You run the work. Your team sees what matters now — not a wall of KPIs.",
+    "feature": {
+      "simple": {
+        "title": "Simple to run",
+        "body": "Create teammates, assign tasks, and follow progress on a clean board or list. Operators see everything; teammates see only their queue."
+      },
+      "calm": {
+        "title": "No metric pressure",
+        "body": "No leaderboards, velocity charts, or surveillance-style stats. Tasks and due dates — that's it. Your team works, not performs."
+      },
+      "relay": {
+        "title": "One task at a time",
+        "body": "On Telegram, teammates receive a single active task. Mark it done and the next one arrives automatically — focused relay, not overload."
+      }
+    },
+    "footerCopy": "© {year} Sir · SirRelay"
   }
 }

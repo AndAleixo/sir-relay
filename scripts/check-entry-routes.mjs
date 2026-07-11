@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 
 function resolveEntryPath(locale, session) {
-  if (!session) return `/${locale}/admin`;
+  if (!session) return `/${locale}`;
   if (session.user.mustChangePassword) return `/${locale}/change-password`;
   if (session.user.role === "operator") return `/${locale}/teammates`;
   return `/${locale}/tasks`;
@@ -15,7 +15,7 @@ function resolveRoleHomePath(locale, session) {
 }
 
 const locale = "en";
-assert.equal(resolveEntryPath(locale, null), "/en/admin");
+assert.equal(resolveEntryPath(locale, null), "/en");
 assert.equal(
   resolveEntryPath(locale, { user: { role: "operator", mustChangePassword: true } }),
   "/en/change-password",

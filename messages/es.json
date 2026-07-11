@@ -24,7 +24,7 @@
   "admin": {
     "signInTitle": "Iniciar sesión en SirRelay",
     "signInSubtitle": "Instancia self-hosted — entra para gestionar usuarios o abrir la app.",
-    "signInMockHint": "Mock: Operador alex o alex@example.com (contraseña obligatoria en el 1er login) · sam@example.com · Compañero ana@example.com — cualquier contraseña no vacía.",
+    "signInMockHint": "Vídeo demo: sam@example.com (operador) · ana@example.com (compañero) — cualquier contraseña no vacía. Alex debe cambiar la contraseña en el primer login.",
     "signInError": "Correo o contraseña no válidos.",
     "sessionNotice": "Esta instancia usa una cookie de sesión esencial para entrar.",
     "sessionExpired": "Tu sesión expiró. Vuelve a entrar.",
@@ -183,5 +183,37 @@
     "syncNow": "Sincronizar ahora",
     "keepLocal": "Mantener mi versión",
     "useServer": "Usar versión del servidor"
+  },
+  "landing": {
+    "headerNav": "Navegación del sitio",
+    "footerNav": "Enlaces del pie",
+    "eyebrow": "Relay simple para equipos",
+    "heroTitle": "Gestiona tu equipo sin presión.",
+    "heroSubtitle": "SirRelay ayuda a equipos pequeños a mantenerse alineados — una tarea clara a la vez, en la web o Telegram. Sin dashboards, sin métricas de rendimiento, sin ruido.",
+    "ctaPrimary": "Empezar",
+    "ctaSecondary": "Cómo tratamos los datos",
+    "demoAria": "Vista previa del tablero SirRelay",
+    "demoUrl": "app.sirrelay.com/{locale}/tasks",
+    "demoTaskA": "Reponer escaparate",
+    "demoTaskB": "Confirmar inventario",
+    "demoTaskC": "Responder al proveedor",
+    "demoCaption": "Una tarea en foco — la siguiente llega cuando la actual termina.",
+    "featuresTitle": "Hecho para coordinar con calma",
+    "featuresLead": "Tú diriges el trabajo. Tu equipo ve lo que importa ahora — no un muro de KPIs.",
+    "feature": {
+      "simple": {
+        "title": "Fácil de gestionar",
+        "body": "Crea compañeros, asigna tareas y sigue el progreso en un tablero o lista limpios. Los operadores ven todo; los compañeros solo su cola."
+      },
+      "calm": {
+        "title": "Sin presión por métricas",
+        "body": "Sin rankings, gráficos de velocidad ni estadísticas de vigilancia. Tareas y fechas — nada más. Tu equipo trabaja, no actúa."
+      },
+      "relay": {
+        "title": "Una tarea a la vez",
+        "body": "En Telegram, los compañeros reciben una sola tarea activa. Márcala hecha y llega la siguiente — relay enfocado, no sobrecarga."
+      }
+    },
+    "footerCopy": "© {year} Sir · SirRelay"
   }
 }

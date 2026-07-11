@@ -13,3 +13,19 @@
     @apply bg-surface-bg font-sans text-[var(--text-primary)];
   }
 }
+
+@keyframes landing-demo-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.72;
+    transform: translateY(-2px);
+  }
+}
+
+.landing-demo-card-b {
+  animation: landing-demo-pulse 2.4s ease-in-out infinite;
+}

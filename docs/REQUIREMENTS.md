@@ -3,7 +3,7 @@
 **Product:** SirRelay · **Brand:** Sir  
 **Status:** Living spec — 3 phases, implement one at a time  
 **Audience:** Developer / AI implementer  
-**Last updated:** 2026-06-28
+**Last updated:** 2026-07-11
 
 Related docs: [BRAND.md](./BRAND.md) (visual identity) · [UIUX.md](./UIUX.md) (layouts & interaction) · [README.md](../README.md) (overview)
 
@@ -306,7 +306,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-AUD-01 | Events | Login, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch |
+| P2-AUD-01 | Events | Login, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** |
 | P2-AUD-02 | Storage | `audit_logs`: id, action, actor_type, actor_id, metadata, created_at |
 | P2-AUD-03 | UI | `/[locale]/audit` — paginated, read-only (Operator) |
 | P2-AUD-04 | API | `GET /api/v1/audit` |
@@ -327,8 +327,8 @@ audit_logs
 | P2-OPS-01 | Firewall: ports 22 (SSH restricted), 80, 443 |
 | P2-OPS-02 | Postgres not public; Docker internal network |
 | P2-OPS-03 | SSH key-only |
-| P2-OPS-04 | Daily `pg_dump`; store backups off VPS |
-| P2-OPS-05 | Documented restore procedure (test once) |
+| P2-OPS-04 | Daily SQL backup — §6.5.1 |
+| P2-OPS-05 | Restore procedure tested once — §6.5.1 |
 | P2-OPS-06 | Containers run as non-root |
 | P2-OPS-07 | `.env` file mode `600` |
 | P2-OPS-08 | `SESSION_SECRET` ≥ 32 random bytes |
@@ -366,6 +366,52 @@ audit_logs
 | `ANALYTICS_SCRIPT_URL` | If enabled | e.g. `https://analytics.example.com/script.js` |
 | `ANALYTICS_SITE_ID` | If enabled | Provider site id |
 
+### 6.5 Data backup & export
+
+| Layer | Purpose | Who |
+|-------|---------|-----|
+| **SQL backup** | Full disaster recovery | Admin via SSH / cron |
+| **JSON export** | Portable snapshot of business data | Operator via Teammates UI |
+
+#### 6.5.1 SQL backup (ops)
+
+| ID | Requirement | Acceptance criteria |
+|----|-------------|---------------------|
+| P2-BAK-01 | Scripts | `scripts/backup-db.sh` (`pg_dump` → gzip `backups/sirrelay-YYYYMMDD-HHMM.sql.gz`) · `scripts/restore-db.sh` (stop app → restore → restart); documented in README |
+| P2-BAK-02 | Schedule & retention | Daily cron on host; prune local copies older than 7 days (configurable) |
+| P2-BAK-03 | Off-VPS copy | Backups stored outside VPS (e.g. `rclone`, snapshots) |
+| P2-BAK-04 | Restore tested | Run restore once in test environment before production reliance |
+
+**Out of scope:** in-app SQL download · JSON import (Phase 3 P3-12).
+
+#### 6.5.2 JSON export (app)
+
+| ID | Requirement | Acceptance criteria |
+|----|-------------|---------------------|
+| P2-DATA-01 | API | `GET /api/v1/export` — Operator; default full org export · `?userId={id}` per person · `?include=audit` full only; rate limit 5/hour |
+| P2-DATA-02 | Payload | Versioned JSON (below); never include `password_hash`, token hashes, `telegram_chat_id`, `telegram_message_id` |
+| P2-DATA-03 | UI | [UIUX.md §7](./UIUX.md#7-teammates-operator) |
+
+**Export envelope (version 1):**
+
+```json
+{
+  "version": 1,
+  "exportedAt": "2026-07-11T16:00:00.000Z",
+  "app": "sirrelay",
+  "scope": "full",
+  "scopeUserId": null,
+  "users": [],
+  "tasks": [],
+  "telegramActivity": [],
+  "alertPrefs": { "taskDone": true, "taskDue": true }
+}
+```
+
+- **`scope: full`** — all users, tasks, `telegram_activity`, `alertPrefs`.
+- **`scope: user`** (`?userId`) — one user, their assigned tasks and related `telegram_activity`; no `alertPrefs`.
+- **Field rules:** `users` — id, name, email, role, locale, active, timestamps · `tasks` — §5.9 minus Telegram internals.
+
 ---
 
 ## 7. Phase 3 — Backlog
@@ -382,9 +428,8 @@ audit_logs
 | P3-08 | Slack integration |
 | P3-09 | 2FA / TOTP for Operator |
 | P3-10 | Custom branding overrides |
-| P3-11 | Export tasks (CSV/JSON) |
-| P3-12 | Encrypted backups (GPG) |
-| P3-13 | Logo collapse animation ([BRAND.md](./BRAND.md) §3.3) |
+| P3-11 | Logo collapse animation ([BRAND.md](./BRAND.md) §3.3) |
+| P3-12 | JSON import (restore from §6.5.2 export) |
 
 ### 7.1 Offline web sync (P3-07)
 
@@ -418,6 +463,7 @@ Both roles. Requires Phase 1 API + DB. Out of scope: PWA install, Service Worker
 | Re-notify | ✓ | — | — |
 | Link Telegram | Self-link on Profile (optional, alerts) · generate code for teammates | Via `/start` code | `/start <code>` |
 | Audit log | ✓ (Phase 2) | — | — |
+| Export data (JSON) | ✓ (Phase 2) | — | — |
 
 ---
 
@@ -447,6 +493,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/telegram/webhook` | 1 | Webhook secret |
 | GET | `/health` | 1 | Public |
 | GET | `/audit` | 2 | Operator |
+| GET | `/export` | 2 | Operator · §6.5.2 |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
 ---
@@ -479,6 +526,9 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 ├── docker-compose.yml
 ├── Dockerfile
 ├── prisma/
+├── scripts/
+│   ├── backup-db.sh
+│   └── restore-db.sh
 └── src/
     ├── app/[locale]/
     ├── app/api/v1/
@@ -509,7 +559,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 1. Read the target phase — implement **only that phase**.
 2. Phase 1 before Phase 2 or 3.
-3. Phase 2 extends Phase 1 (migrations for `audit_logs`, `token_version`).
+3. Phase 2 extends Phase 1 (migrations for `audit_logs`, `token_version`; backup scripts + JSON export per §6.5).
 4. Phase 3: one backlog item at a time unless told otherwise.
 
 **Example prompt:** *Implement Phase 1 per [docs/REQUIREMENTS.md](./REQUIREMENTS.md). Do not implement Phase 2 or 3.*
@@ -523,3 +573,4 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-06-25 | Initial spec; 3-phase structure; Sir brand |
 | 2026-06-28 | Operator self-tasks (P1-TASK-13); Operator Telegram alerts on teammate done + due/overdue (P1-TG-09–11) |
 | 2026-06-27 | Operator + Teammate roles; relay queue; unified `users` model; spec cleanup; [UIUX.md](./UIUX.md); P3-07 offline web sync (§7.1) |
+| 2026-07-11 | §6.5 backup (SQL scripts) + JSON export on Teammates (full / per person); P3-12 JSON import |

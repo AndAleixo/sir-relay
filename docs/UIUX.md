@@ -262,7 +262,7 @@ Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditT
 | Tasks board | `/tasks` | Team board (§3.2) | Status Kanban (§3.1) |
 | New task | `/tasks/new` | ✓ | — |
 | Task detail | `/tasks/[id]` | ✓ | Own only |
-| Teammates | `/teammates` | ✓ (operators + teammates) | — |
+| Teammates | `/teammates` | ✓ | — |
 | New teammate | `/teammates/new` | ✓ | — |
 | Teammate detail | `/teammates/[id]` | ✓ | — |
 | **Alerts** | `/alerts` | ✓ | — |
@@ -283,6 +283,8 @@ Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditT
 Table: name, email, role, account status, Telegram status, view link. Operators link to **Profile**; teammates to detail.
 
 **Add teammate** — header button → `/teammates/new` (name, email, locale); on save → detail page with invite + Telegram links (display only in mock).
+
+**Export (Phase 2)** — toolbar **Export all** · per-row **Export** · detail page **Export** (scoped). Spec: [REQUIREMENTS.md §6.5.2](./REQUIREMENTS.md#652-json-export-app).
 
 ### Detail `/teammates/[id]`
 

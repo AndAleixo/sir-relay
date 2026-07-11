@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/auth-guards";
 import { PageHeader } from "@/components/layout/app-shell";
+import { ExportDataButton } from "@/components/teammates/export-data-button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 
@@ -26,7 +27,16 @@ export default async function TeammateDetailPage({
 
   return (
     <>
-      <PageHeader title={teammate.name} />
+      <PageHeader
+        title={teammate.name}
+        action={
+          <ExportDataButton
+            userId={teammate.id}
+            label={t("teammate.export")}
+            variant="secondary"
+          />
+        }
+      />
       <div className="grid max-w-2xl gap-4">
         <Card>
           <CardHeader>

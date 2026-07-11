@@ -62,6 +62,9 @@
     "accountColumn": "Account",
     "telegramColumn": "Telegram",
     "viewUser": "View",
+    "exportAll": "Export all",
+    "export": "Export",
+    "exportHint": "Downloads a JSON snapshot from mock data. Full server backup uses SQL scripts in the README.",
     "emptyBoard": "Add teammates to start relaying work."
   },
   "tasks": {

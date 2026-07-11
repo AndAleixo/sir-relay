@@ -167,7 +167,7 @@ curl -s "${APP_URL}/api/v1/health"
 |--------|---------|
 | Actualizar app | `git pull && docker compose up -d --build` |
 | Logs | `docker compose logs -f app caddy` |
-| Backup DB | `docker compose exec postgres pg_dump -U sirrelay sirrelay > backup.sql` |
+| Backup DB | `scripts/backup-db.sh` — [REQUIREMENTS.md §6.5.1](./REQUIREMENTS.md#651-sql-backup-ops) |
 | Reiniciar | `docker compose restart` |
 
 ---
@@ -181,7 +181,7 @@ curl -s "${APP_URL}/api/v1/health"
 - [ ] Relay: 2 tarefas → só 1ª no TG → `done` → 2ª chega
 - [ ] Firewall SSH restrito ao teu IP
 - [ ] `.env` mode `600`
-- [ ] Backups DO ou `pg_dump` agendado
+- [ ] Backups: cron com `scripts/backup-db.sh` + cópia off-VPS (ou snapshots DO)
 
 ---
 

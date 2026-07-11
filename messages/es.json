@@ -62,6 +62,9 @@
     "accountColumn": "Cuenta",
     "telegramColumn": "Telegram",
     "viewUser": "Ver",
+    "exportAll": "Exportar todo",
+    "export": "Exportar",
+    "exportHint": "Descarga una instantánea JSON de datos mock. Backup completo del servidor: scripts SQL en el README.",
     "emptyBoard": "Añade compañeros para empezar a repartir trabajo."
   },
   "tasks": {

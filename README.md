@@ -86,16 +86,17 @@ Details in [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-lay
 
 ## Project status
 
-**UI mock phase** — interface implemented with mock data. No backend, Prisma, Docker, or Telegram yet.
+**UI mock phase — complete.** Full web UI with mock data and in-memory services. Phase 1 backend (Prisma, API, Telegram) not started.
 
-Main mock routes: `/admin`, tasks (board, create, edit, delete), teammates, alerts, profile, settings. See [ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+Main routes: `/admin`, `/join/[token]`, `/change-password`, `/privacy`, tasks, teammates (with export), alerts, profile, settings. See [ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
 ```bash
 npm install
 npm run dev
+npm run check:routes   # verify entry redirects
 ```
 
-Open `http://localhost:3000` · sign in at `/admin` (`alex@example.com` / `ana@example.com`, any password).
+Open `http://localhost:3000` · sign in at `/admin` (`alex@example.com` — change password first · `sam@example.com` · `ana@example.com`, any password).
 
 ---
 

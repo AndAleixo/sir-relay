@@ -27,18 +27,34 @@ src/
 
 | Route | Notes |
 |-------|--------|
+| `/[locale]/admin` | Sign-in portal (Model A) |
+| `/[locale]/join/[token]` | Teammate account activation |
+| `/[locale]/change-password` | Forced first login + optional change |
+| `/[locale]/privacy` | Privacy stub |
 | `/[locale]/tasks` | Boards, list toggle, drag-and-drop, session sync |
 | `/[locale]/tasks/new` | Create task — assign to **Me** or teammate |
-| `/[locale]/tasks/[id]` | Edit task — title, assignee, status, due, description; delete |
-| `/[locale]/teammates` | Team list (operators + teammates) |
+| `/[locale]/tasks/[id]` | Edit task — re-notify, banners, delete |
+| `/[locale]/teammates` | Team list + JSON export |
 | `/[locale]/teammates/new` | Create teammate → redirects to detail |
-| `/[locale]/teammates/[id]` | Invite + Telegram links (static mock URLs) |
-| `/[locale]/alerts` | Operator alert feed (task done, due/overdue) |
-| `/[locale]/profile` | Photo (localStorage), account, Telegram |
+| `/[locale]/teammates/[id]` | Edit, deactivate, invite/Telegram links, export |
+| `/[locale]/alerts` | Operator alert feed |
+| `/[locale]/profile` | Photo, password, Telegram link, logout |
 | `/[locale]/settings` | Language + operator alert preferences |
-| `/[locale]/admin` | Sign-in portal (Model A) |
 
-**Planned Phase 1 (not in UI mock yet):** `/join/[token]`, `/change-password`, `/audit`, `/api/v1/*`, Prisma, Telegram webhook.
+**Phase 1 backend (not mock):** `/api/v1/*`, Prisma, Telegram webhook · **Phase 2:** `/audit`
+
+## Entry redirects
+
+Centralized in `src/lib/entry-route.ts`:
+
+| Session | Destination |
+|---------|-------------|
+| Logged out | `/[locale]/admin` |
+| `mustChangePassword` | `/[locale]/change-password` |
+| Operator | `/[locale]/teammates` |
+| Teammate | `/[locale]/tasks` |
+
+Verify: `npm run check:routes`
 
 ## Task forms
 
@@ -75,4 +91,4 @@ npm run dev
 
 Open `http://localhost:3000` — redirects to `/admin` when logged out.
 
-**Mock login:** `alex@example.com` (Operator) · `ana@example.com` (Teammate) · any non-empty password. Switch roles via logout and sign in again.
+**Mock login:** `alex@example.com` (must change password on first login) · `sam@example.com` · `ana@example.com` · any non-empty password.

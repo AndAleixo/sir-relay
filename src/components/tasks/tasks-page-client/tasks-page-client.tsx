@@ -6,7 +6,7 @@ import type { Task, Teammate } from "@/domain/types";
 import { useSync } from "@/components/sync";
 import { Button } from "@/components/ui/button";
 import { StatusKanban } from "@/components/tasks/status-kanban";
-import { TaskList } from "@/components/tasks/task-list";
+import { TaskListWithFilters } from "@/components/tasks/task-list/task-list-with-filters";
 import { TeammateBoard } from "@/components/tasks/teammate-board";
 import { ViewToggle, type TasksView } from "@/components/tasks/view-toggle";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
@@ -43,6 +43,14 @@ interface TasksPageClientProps {
     addTask: string;
     addDueDate: string;
     titlePlaceholder: string;
+    titleColumn: string;
+    filterAssignee: string;
+    filterStatus: string;
+    filterSort: string;
+    filterAll: string;
+    sortDue: string;
+    sortStatus: string;
+    sortUpdated: string;
     status: { todo: string; doing: string; done: string };
   };
 }
@@ -125,16 +133,50 @@ export function TasksPageClient({
             }}
           />
         )
-      ) : (
-        <TaskList
+      ) : isOperator && operator ? (
+        <TaskListWithFilters
           tasks={tasks}
           locale={locale}
-          showAssignee={isOperator}
+          assigneeOptions={[
+            { id: operator.id, label: labels.meColumn },
+            ...teammates.map((teammate) => ({
+              id: teammate.id,
+              label: teammate.name,
+            })),
+          ]}
           labels={{
+            titleColumn: labels.titleColumn,
             assignee: labels.assignee,
             dueDate: labels.dueDate,
             updated: labels.updated,
             overdue: labels.overdue,
+            filterAssignee: labels.filterAssignee,
+            filterStatus: labels.filterStatus,
+            filterSort: labels.filterSort,
+            filterAll: labels.filterAll,
+            sortDue: labels.sortDue,
+            sortStatus: labels.sortStatus,
+            sortUpdated: labels.sortUpdated,
+            status: labels.status,
+          }}
+        />
+      ) : (
+        <TaskListWithFilters
+          tasks={tasks}
+          locale={locale}
+          labels={{
+            titleColumn: labels.titleColumn,
+            assignee: labels.assignee,
+            dueDate: labels.dueDate,
+            updated: labels.updated,
+            overdue: labels.overdue,
+            filterAssignee: labels.filterAssignee,
+            filterStatus: labels.filterStatus,
+            filterSort: labels.filterSort,
+            filterAll: labels.filterAll,
+            sortDue: labels.sortDue,
+            sortStatus: labels.sortStatus,
+            sortUpdated: labels.sortUpdated,
             status: labels.status,
           }}
         />

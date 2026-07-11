@@ -29,6 +29,12 @@ export interface AuthService {
   getSession(): Promise<Session | null>;
   login(email: string, password: string): Promise<Session>;
   logout(): Promise<void>;
+  changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<User>;
+  joinWithToken(token: string, password: string): Promise<Session>;
 }
 
 export interface TaskService {
@@ -52,6 +58,7 @@ export interface TaskService {
     ctx: { session: Session },
   ): Promise<Task>;
   deleteTask(id: string, ctx: { session: Session }): Promise<void>;
+  renotifyTask(id: string, ctx: { session: Session }): Promise<Task>;
 }
 
 export interface TeammateService {
@@ -59,10 +66,21 @@ export interface TeammateService {
   listOrganizationUsers(): Promise<OrganizationUser[]>;
   getTeammate(id: string): Promise<Teammate | null>;
   createTeammate(input: CreateTeammateInput): Promise<Teammate>;
+  updateTeammate(
+    id: string,
+    input: { name?: string; email?: string },
+  ): Promise<Teammate>;
+  deactivateTeammate(id: string): Promise<Teammate>;
+  regenerateInvite(id: string): Promise<string>;
+  regenerateTelegramLink(id: string): Promise<string>;
+  getInviteToken(id: string): Promise<string | null>;
+  getTelegramLinkToken(id: string): Promise<string | null>;
 }
 
 export interface UserService {
   updateLocale(userId: string, locale: Locale): Promise<User>;
+  regenerateTelegramLink(userId: string): Promise<string>;
+  getTelegramLinkToken(userId: string): Promise<string | null>;
 }
 
 export interface Services {

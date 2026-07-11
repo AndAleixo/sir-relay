@@ -153,6 +153,22 @@ export class MockTaskService implements TaskService {
     if (!task) throw new Error("Task not found");
     this.tasks = this.tasks.filter((t) => t.id !== id);
   }
+
+  async renotifyTask(id: string, ctx: { session: Session }): Promise<Task> {
+    if (ctx.session.user.role !== "operator") {
+      throw new Error("Forbidden");
+    }
+    const task = await this.getTask(id, ctx);
+    if (!task) throw new Error("Task not found");
+
+    const updated = {
+      ...task,
+      telegramNotifyFailed: false,
+      updatedAt: new Date().toISOString(),
+    };
+    this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
+    return updated;
+  }
 }
 
 export const mockTaskService = new MockTaskService();

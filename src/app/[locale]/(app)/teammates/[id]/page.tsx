@@ -1,11 +1,21 @@
-import { notFound } from "next/navigation";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import {
+  mockRegenerateInvite,
+  mockRegenerateTeammateTelegramLink,
+  mockUpdateTeammate,
+} from "@/app/actions/mock-teammates";
+import { ExportDataButton } from "@/components/teammates/export-data-button";
+import { PageHeader } from "@/components/layout/app-shell";
+import { DeactivateTeammateButton } from "@/components/teammates/deactivate-teammate-button";
+import { ToneBadge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardBody, CardHeader } from "@/components/ui/card";
+import { Input, Label } from "@/components/ui/input";
+import { joinInviteUrl, telegramBotUrl } from "@/lib/app-url";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/auth-guards";
-import { PageHeader } from "@/components/layout/app-shell";
-import { ExportDataButton } from "@/components/teammates/export-data-button";
-import { ToneBadge } from "@/components/ui/badge";
-import { Card, CardBody, CardHeader } from "@/components/ui/card";
 
 export default async function TeammateDetailPage({
   params,
@@ -20,10 +30,12 @@ export default async function TeammateDetailPage({
   requireRole(session, "operator", locale);
 
   const teammate = await teammates.getTeammate(id);
-  if (!teammate) notFound();
+  if (!teammate) redirect(`/${locale}/teammates`);
 
-  const inviteUrl = `https://app.example.com/${locale}/admin`;
-  const telegramUrl = "t.me/SirRelayBot?start=mock-code";
+  const inviteToken = await teammates.getInviteToken(id);
+  const telegramToken = await teammates.getTelegramLinkToken(id);
+  const inviteUrl = inviteToken ? joinInviteUrl(locale, inviteToken) : "";
+  const telegramUrl = telegramToken ? telegramBotUrl(telegramToken) : "";
 
   return (
     <>
@@ -51,6 +63,9 @@ export default async function TeammateDetailPage({
                   ? t("teammate.active")
                   : t("teammate.invited")}
               </ToneBadge>
+              {!teammate.active ? (
+                <ToneBadge tone="neutral">{t("teammate.deactivated")}</ToneBadge>
+              ) : null}
             </div>
           </CardHeader>
           <CardBody className="space-y-2 text-sm">
@@ -60,6 +75,34 @@ export default async function TeammateDetailPage({
             </p>
           </CardBody>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <h2 className="text-sm font-semibold">{t("teammate.editSection")}</h2>
+          </CardHeader>
+          <CardBody>
+            <form action={mockUpdateTeammate.bind(null, locale, id)} className="space-y-4">
+              <div>
+                <Label htmlFor="name">{t("teammate.name")}</Label>
+                <Input id="name" name="name" defaultValue={teammate.name} required />
+              </div>
+              {teammate.accountStatus === "invited" ? (
+                <div>
+                  <Label htmlFor="email">{t("auth.email")}</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    defaultValue={teammate.email}
+                    required
+                  />
+                </div>
+              ) : null}
+              <Button type="submit">{t("common.save")}</Button>
+            </form>
+          </CardBody>
+        </Card>
+
         <Card>
           <CardHeader>
             <h2 className="text-sm font-semibold">{t("teammate.inviteLink")}</h2>
@@ -69,8 +112,14 @@ export default async function TeammateDetailPage({
               {inviteUrl}
             </code>
             <p className="text-xs text-[var(--text-muted)]">{t("teammate.inviteLinkHint")}</p>
+            <form action={mockRegenerateInvite.bind(null, locale, id)}>
+              <Button type="submit" variant="secondary">
+                {t("teammate.regenerateInvite")}
+              </Button>
+            </form>
           </CardBody>
         </Card>
+
         <Card>
           <CardHeader>
             <h2 className="text-sm font-semibold">{t("teammate.telegramLink")}</h2>
@@ -80,8 +129,22 @@ export default async function TeammateDetailPage({
               {telegramUrl}
             </code>
             <p className="text-xs text-[var(--text-muted)]">{t("teammate.telegramLinkHint")}</p>
+            <form action={mockRegenerateTeammateTelegramLink.bind(null, locale, id)}>
+              <Button type="submit" variant="secondary">
+                {t("teammate.regenerateTelegram")}
+              </Button>
+            </form>
           </CardBody>
         </Card>
+
+        {teammate.active ? (
+          <DeactivateTeammateButton
+            locale={locale}
+            teammateId={id}
+            label={t("teammate.deactivate")}
+            confirmMessage={t("teammate.deactivateConfirm")}
+          />
+        ) : null}
       </div>
     </>
   );

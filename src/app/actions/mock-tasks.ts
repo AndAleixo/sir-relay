@@ -279,3 +279,15 @@ export async function deleteTaskAction(locale: string, taskId: string): Promise<
   revalidatePath(`/${locale}/tasks`);
   redirect(`/${locale}/tasks`);
 }
+
+export async function renotifyTaskAction(locale: string, taskId: string) {
+  const { auth, tasks } = getServices();
+  const session = await auth.getSession();
+  if (!session || session.user.role !== "operator") {
+    redirect(`/${locale}/tasks/${taskId}`);
+  }
+
+  await tasks.renotifyTask(taskId, { session });
+  revalidatePath(`/${locale}/tasks/${taskId}`);
+  redirect(`/${locale}/tasks/${taskId}?renotify=1`);
+}

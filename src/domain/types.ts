@@ -15,6 +15,8 @@ export interface User {
   role: Role;
   locale: Locale;
   active: boolean;
+  /** Seeded Operator must change password before using the app (Phase 1). */
+  mustChangePassword?: boolean;
   /** Optional — teammates: task relay · operators: alert delivery */
   telegramStatus?: TelegramLinkStatus;
 }

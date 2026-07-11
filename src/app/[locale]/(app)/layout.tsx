@@ -14,7 +14,11 @@ export default async function AppLayout({
   const session = await auth.getSession();
 
   if (!session) {
-    redirect(`/${locale}/admin`);
+    redirect(`/${locale}/admin?session=expired`);
+  }
+
+  if (session.user.mustChangePassword) {
+    redirect(`/${locale}/change-password`);
   }
 
   return (

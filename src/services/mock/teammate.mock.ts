@@ -6,6 +6,12 @@ import type {
   UserService,
 } from "@/services/contracts";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
+import {
+  createInviteToken,
+  createTelegramLinkToken,
+  getInviteTokenForUser,
+  getTelegramLinkTokenForUser,
+} from "@/services/mock/tokens.mock";
 
 export class MockTeammateService implements TeammateService {
   async listTeammates() {
@@ -35,7 +41,58 @@ export class MockTeammateService implements TeammateService {
       telegramStatus: "pending",
     };
     MOCK_TEAMMATES.push(teammate);
+    createInviteToken(id);
+    createTelegramLinkToken(id);
     return teammate;
+  }
+
+  async updateTeammate(
+    id: string,
+    input: { name?: string; email?: string },
+  ): Promise<Teammate> {
+    const teammate = MOCK_TEAMMATES.find((user) => user.id === id);
+    if (!teammate) throw new Error("Teammate not found");
+
+    if (input.name?.trim()) {
+      teammate.name = input.name.trim();
+    }
+
+    if (input.email?.trim()) {
+      if (teammate.accountStatus !== "invited") {
+        throw new Error("Email can only change before first login");
+      }
+      teammate.email = input.email.trim().toLowerCase();
+    }
+
+    return { ...teammate };
+  }
+
+  async deactivateTeammate(id: string): Promise<Teammate> {
+    const teammate = MOCK_TEAMMATES.find((user) => user.id === id);
+    if (!teammate) throw new Error("Teammate not found");
+    teammate.active = false;
+    return { ...teammate };
+  }
+
+  async regenerateInvite(id: string): Promise<string> {
+    const teammate = MOCK_TEAMMATES.find((user) => user.id === id);
+    if (!teammate) throw new Error("Teammate not found");
+    return createInviteToken(id);
+  }
+
+  async regenerateTelegramLink(id: string): Promise<string> {
+    const teammate = MOCK_TEAMMATES.find((user) => user.id === id);
+    if (!teammate) throw new Error("Teammate not found");
+    teammate.telegramStatus = "pending";
+    return createTelegramLinkToken(id);
+  }
+
+  async getInviteToken(id: string): Promise<string | null> {
+    return getInviteTokenForUser(id) ?? createInviteToken(id);
+  }
+
+  async getTelegramLinkToken(id: string): Promise<string | null> {
+    return getTelegramLinkTokenForUser(id) ?? createTelegramLinkToken(id);
   }
 }
 
@@ -54,6 +111,19 @@ export class MockUserService implements UserService {
     }
 
     throw new Error("User not found");
+  }
+
+  async regenerateTelegramLink(userId: string): Promise<string> {
+    const operator = MOCK_OPERATORS.find((user) => user.id === userId);
+    if (operator) {
+      operator.telegramStatus = "pending";
+      return createTelegramLinkToken(userId);
+    }
+    throw new Error("User not found");
+  }
+
+  async getTelegramLinkToken(userId: string): Promise<string | null> {
+    return getTelegramLinkTokenForUser(userId) ?? createTelegramLinkToken(userId);
   }
 }
 

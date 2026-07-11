@@ -15,10 +15,10 @@ export default async function AdminPortalPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; session?: string }>;
 }) {
   const { locale } = await params;
-  const { error } = await searchParams;
+  const { error, session: sessionParam } = await searchParams;
   const t = await getTranslations();
   const { auth } = getServices();
   const session = await auth.getSession();
@@ -40,6 +40,11 @@ export default async function AdminPortalPage({
               </h1>
               <p className="mt-1 text-sm text-[var(--text-muted)]">{t("admin.signInSubtitle")}</p>
             </div>
+            {sessionParam === "expired" ? (
+              <p className="rounded-button border border-amber-200 bg-amber-50 px-3 py-2 text-center text-sm text-amber-900">
+                {t("admin.sessionExpired")}
+              </p>
+            ) : null}
             {error === "invalid" ? (
               <p className="rounded-button border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-700">
                 {t("admin.signInError")}
@@ -72,6 +77,15 @@ export default async function AdminPortalPage({
                 {t("auth.login")}
               </Button>
             </form>
+            <p className="text-center text-xs text-[var(--text-muted)]">
+              {t("admin.sessionNotice")}{" "}
+              <Link
+                href={`/${locale}/privacy`}
+                className="text-brand-accent hover:text-brand-accent-hover"
+              >
+                {t("admin.privacyLink")}
+              </Link>
+            </p>
             <p className="text-center text-xs text-[var(--text-muted)]">{t("admin.signInMockHint")}</p>
           </CardBody>
         </Card>

@@ -8,6 +8,7 @@ export const MOCK_OPERATOR: User = {
   locale: "en",
   active: true,
   telegramStatus: "linked",
+  mustChangePassword: true,
 };
 
 export const MOCK_OPERATORS: User[] = [
@@ -19,6 +20,8 @@ export const MOCK_OPERATORS: User[] = [
     role: "operator",
     locale: "en",
     active: true,
+    mustChangePassword: false,
+    telegramStatus: "pending",
   },
 ];
 

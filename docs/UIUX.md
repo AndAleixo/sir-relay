@@ -268,6 +268,9 @@ Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditT
 | **Alerts** | `/alerts` | ✓ | — |
 | **Profile** | `/profile` | ✓ | ✓ |
 | Settings | `/settings` | ✓ | ✓ |
+| Join (activate) | `/join/[token]` | Public | Public |
+| Change password | `/change-password` | ✓ | ✓ |
+| Privacy | `/privacy` | Public | Public |
 | Audit | `/audit` | ✓ (Phase 2) | — |
 
 **Default URL:** `/[locale]/admin` — instance sign-in (model A). After login, operators go to `/teammates`; teammates go to `/tasks`.
@@ -282,15 +285,16 @@ Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditT
 
 Table: name, email, role, account status, Telegram status, view link. Operators link to **Profile**; teammates to detail.
 
-**Add teammate** — header button → `/teammates/new` (name, email, locale); on save → detail page with invite + Telegram links (display only in mock).
+**Add teammate** — header button → `/teammates/new` (name, email, locale); on save → detail page with invite + Telegram links.
 
 **Export (Phase 2)** — toolbar **Export all** · per-row **Export** · detail page **Export** (scoped). Spec: [REQUIREMENTS.md §6.5.2](./REQUIREMENTS.md#652-json-export-app).
 
 ### Detail `/teammates/[id]`
 
 - Name, email, account + Telegram badges
-- **Invite link** — display URL (sign-in portal in mock; token join in Phase 1)
-- **Telegram link** — display `t.me/...?start=code`
+- Edit name (+ email before first login), deactivate
+- **Invite link** — `/join/{token}` · regenerate
+- **Telegram link** — `t.me/...?start=code` · regenerate
 
 ---
 
@@ -306,9 +310,11 @@ Both roles. Access: avatar (header / mobile), sidebar footer, account menu.
 |---------|---------|---------|
 | **Photo** | Upload / change / remove profile photo | Mock: `localStorage` per user id |
 | **Account** | Display name, email, role badge | Read-only in mock |
-| **Telegram** | Link status + optional self-link | Teammate: task relay · Operator: alert delivery only (P1-TG-09/10) |
+| **Password** | Change password form | ✓ mock |
+| **Telegram** | Link status + generate link (Operator) | ✓ mock |
+| **Log out** | Button (mobile primary exit; desktop also in account menu) | ✓ mock |
 
-Production: photo via `PATCH /me` or upload endpoint; password via dedicated flow (Phase 1 API).
+Production: photo via `PATCH /me` or upload endpoint.
 
 ### 8.2 Settings (`/settings`)
 
@@ -433,8 +439,9 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | Profile vs Settings split | 1 | ✓ |
 | Sidebar collapse + logo cross-fade | 3 (P3-13) | ✓ in mock |
 | Drag-and-drop on Kanban | 3 (P3-03) | ✓ in mock |
-| Locale persist via API | 1 | URL switch only |
+| Locale persist via API | 1 | URL switch only (mock session cookie) |
 | Operator alerts + **Alerts** page | 1 | ✓ mock |
+| Join + change-password + privacy | 1 | ✓ mock |
 | Audit screen | 2 | — |
 
 ---

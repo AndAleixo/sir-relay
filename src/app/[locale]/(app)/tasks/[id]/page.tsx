@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { renotifyTaskAction } from "@/app/actions/mock-tasks";
 import { getServices } from "@/services";
 import { isOverdue } from "@/lib/dates";
 import { PageHeader } from "@/components/layout/app-shell";
@@ -12,10 +13,13 @@ import type { TaskStatus } from "@/domain/types";
 
 export default async function TaskDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; id: string }>;
+  searchParams: Promise<{ renotify?: string }>;
 }) {
   const { locale, id } = await params;
+  const { renotify } = await searchParams;
   const t = await getTranslations();
   const { auth, tasks, teammates } = getServices();
   const session = await auth.getSession();
@@ -26,6 +30,15 @@ export default async function TaskDetailPage({
 
   const overdue = isOverdue(task.dueDate);
   const isOperator = session.user.role === "operator";
+
+  const assigneeTeammate = isOperator
+    ? (await teammates.listTeammates()).find((teammate) => teammate.id === task.assigneeId)
+    : null;
+  const assigneeTelegramPending =
+    isOperator &&
+    assigneeTeammate &&
+    assigneeTeammate.telegramStatus === "pending" &&
+    task.assigneeId !== session.user.id;
 
   const assigneeOptions = isOperator
     ? [
@@ -51,11 +64,26 @@ export default async function TaskDetailPage({
       <PageHeader
         title={t("tasks.editTask")}
         action={
-          <Link href={`/${locale}/tasks`}>
-            <Button variant="secondary">{t("common.back")}</Button>
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            {isOperator && assigneeTeammate ? (
+              <form action={renotifyTaskAction.bind(null, locale, id)}>
+                <Button type="submit" variant="secondary">
+                  {t("tasks.renotify")}
+                </Button>
+              </form>
+            ) : null}
+            <Link href={`/${locale}/tasks`}>
+              <Button variant="secondary">{t("common.back")}</Button>
+            </Link>
+          </div>
         }
       />
+
+      {renotify === "1" ? (
+        <Banner variant="info" className="mb-4">
+          {t("tasks.renotifyDone")}
+        </Banner>
+      ) : null}
 
       {task.telegramNotifyFailed && (
         <Banner variant="danger" className="mb-4">
@@ -63,8 +91,17 @@ export default async function TaskDetailPage({
         </Banner>
       )}
 
+      {assigneeTelegramPending ? (
+        <Banner variant="warning" className="mb-4">
+          {t("tasks.telegramPending")}
+        </Banner>
+      ) : null}
+
       <Card className="max-w-xl">
         <CardBody className="space-y-4">
+          {isOperator && assigneeTeammate ? (
+            <p className="text-xs text-[var(--text-muted)]">{t("tasks.renotifyHint")}</p>
+          ) : null}
           <EditTaskForm
             task={task}
             locale={locale}

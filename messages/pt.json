@@ -24,13 +24,37 @@
   "admin": {
     "signInTitle": "Entrar no SirRelay",
     "signInSubtitle": "Instância self-hosted — entre para gerir utilizadores ou abrir a app.",
-    "signInMockHint": "Mock: Operador alex ou alex@example.com · Colega ana@example.com — qualquer senha não vazia.",
-    "signInError": "E-mail ou senha inválidos."
+    "signInMockHint": "Mock: Operador alex ou alex@example.com (senha obrigatória no 1º login) · sam@example.com · Colega ana@example.com — qualquer senha não vazia.",
+    "signInError": "E-mail ou senha inválidos.",
+    "sessionNotice": "Esta instância usa um cookie de sessão essencial para entrar.",
+    "sessionExpired": "A sua sessão expirou. Entre novamente.",
+    "privacyLink": "Privacidade"
   },
   "auth": {
     "login": "Entrar",
     "email": "E-mail",
-    "password": "Senha"
+    "password": "Senha",
+    "currentPassword": "Senha actual",
+    "newPassword": "Nova senha",
+    "confirmPassword": "Confirmar senha",
+    "changePassword": "Alterar senha",
+    "changePasswordSubtitle": "Escolha uma nova senha para a sua conta.",
+    "changePasswordRequired": "Tem de definir uma nova senha antes de usar a app.",
+    "passwordHint": "Mínimo 8 caracteres.",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
+    "passwordMismatch": "As senhas não coincidem.",
+    "passwordChanged": "Senha actualizada."
+  },
+  "join": {
+    "title": "Activar a sua conta",
+    "subtitle": "Defina uma senha para entrar nesta instância SirRelay.",
+    "submit": "Activar conta",
+    "invalidToken": "Este link de convite é inválido ou expirou."
+  },
+  "privacy": {
+    "title": "Privacidade",
+    "stub": "O SirRelay é self-hosted. Esta instância guarda dados de conta, tarefas e ligação Telegram no seu servidor.",
+    "cookies": "Usamos um cookie essencial para a sessão autenticada. Sem analytics de terceiros nesta instância, salvo se o Operador activar."
   },
   "roles": {
     "operator": "Operador",
@@ -65,6 +89,12 @@
     "exportAll": "Exportar tudo",
     "export": "Exportar",
     "exportHint": "Descarrega um snapshot JSON dos dados mock. Backup completo do servidor: scripts SQL no README.",
+    "editSection": "Editar utilizador",
+    "deactivate": "Desactivar",
+    "deactivateConfirm": "Desactivar este utilizador? Não poderá entrar.",
+    "deactivated": "Desactivado",
+    "regenerateInvite": "Regenerar convite",
+    "regenerateTelegram": "Regenerar link Telegram",
     "emptyBoard": "Adicione colegas para começar a repassar tarefas."
   },
   "tasks": {
@@ -88,6 +118,18 @@
     "delete": "Eliminar tarefa",
     "deleteConfirm": "Eliminar esta tarefa permanentemente? Isto não pode ser desfeito.",
     "telegramFailed": "Falha no envio pelo Telegram",
+    "telegramPending": "O responsável ainda não ligou o Telegram — a tarefa foi guardada mas não entregue.",
+    "renotify": "Re-notificar no Telegram",
+    "renotifyHint": "Reenvia a notificação da tarefa para o Telegram do responsável.",
+    "renotifyDone": "Notificação enviada (mock).",
+    "titleColumn": "Título",
+    "filterAssignee": "Filtrar por responsável",
+    "filterStatus": "Filtrar por estado",
+    "filterAll": "Todos",
+    "filterSort": "Ordenar por",
+    "sortDue": "Prazo",
+    "sortStatus": "Estado",
+    "sortUpdated": "Atualizado recentemente",
     "openTask": "Abrir detalhes da tarefa",
     "addTask": "Adicionar tarefa",
     "addDueDate": "Adicionar prazo",
@@ -120,7 +162,10 @@
     "telegramLinkedHint": "Notificações de tarefas são enviadas para o seu chat do Telegram.",
     "telegramPendingHint": "Abra o link de convite do operador para ligar o Telegram e receber alertas.",
     "telegramOperatorLinkedHint": "Alertas de conclusão e prazo são enviados para o seu Telegram.",
-    "telegramOperatorPendingHint": "Ligue o Telegram aqui para receber alertas quando colegas concluem tarefas ou prazos vencem."
+    "telegramOperatorPendingHint": "Ligue o Telegram aqui para receber alertas quando colegas concluem tarefas ou prazos vencem.",
+    "passwordSection": "Senha",
+    "generateTelegramLink": "Gerar link Telegram",
+    "telegramLinkCode": "Abra este link no Telegram para ligar alertas."
   },
   "alerts": {
     "subtitle": "Quando colegas concluem tarefas ou prazos vencem. Configure a entrega em Configurações.",

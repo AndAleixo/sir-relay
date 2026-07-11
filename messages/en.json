@@ -24,13 +24,37 @@
   "admin": {
     "signInTitle": "Sign in to SirRelay",
     "signInSubtitle": "Self-hosted instance — sign in to manage users or open the app.",
-    "signInMockHint": "Mock: Operator alex or alex@example.com · Teammate ana@example.com — any non-empty password.",
-    "signInError": "Invalid email or password."
+    "signInMockHint": "Mock: Operator alex or alex@example.com (must change password on first login) · sam@example.com · Teammate ana@example.com — any non-empty password.",
+    "signInError": "Invalid email or password.",
+    "sessionNotice": "This instance uses an essential session cookie for sign-in.",
+    "sessionExpired": "Your session expired. Please sign in again.",
+    "privacyLink": "Privacy"
   },
   "auth": {
     "login": "Log in",
     "email": "Email",
-    "password": "Password"
+    "password": "Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "changePassword": "Change password",
+    "changePasswordSubtitle": "Choose a new password for your account.",
+    "changePasswordRequired": "You must set a new password before using the app.",
+    "passwordHint": "Minimum 8 characters.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordChanged": "Password updated."
+  },
+  "join": {
+    "title": "Activate your account",
+    "subtitle": "Set a password to join this SirRelay instance.",
+    "submit": "Activate account",
+    "invalidToken": "This invite link is invalid or has expired."
+  },
+  "privacy": {
+    "title": "Privacy",
+    "stub": "SirRelay is self-hosted. This instance stores account data, tasks, and Telegram link metadata on your server.",
+    "cookies": "We use one essential cookie for your signed-in session. No third-party analytics on this instance unless enabled by the Operator."
   },
   "roles": {
     "operator": "Operator",
@@ -65,6 +89,12 @@
     "exportAll": "Export all",
     "export": "Export",
     "exportHint": "Downloads a JSON snapshot from mock data. Full server backup uses SQL scripts in the README.",
+    "editSection": "Edit user",
+    "deactivate": "Deactivate",
+    "deactivateConfirm": "Deactivate this user? They will not be able to sign in.",
+    "deactivated": "Deactivated",
+    "regenerateInvite": "Regenerate invite",
+    "regenerateTelegram": "Regenerate Telegram link",
     "emptyBoard": "Add teammates to start relaying work."
   },
   "tasks": {
@@ -88,6 +118,18 @@
     "delete": "Delete task",
     "deleteConfirm": "Delete this task permanently? This cannot be undone.",
     "telegramFailed": "Telegram delivery failed",
+    "telegramPending": "Assignee has not linked Telegram yet — task is saved but not delivered.",
+    "renotify": "Re-notify on Telegram",
+    "renotifyHint": "Resend the task notification to the assignee's Telegram.",
+    "renotifyDone": "Notification sent (mock).",
+    "titleColumn": "Title",
+    "filterAssignee": "Filter by assignee",
+    "filterStatus": "Filter by status",
+    "filterAll": "All",
+    "filterSort": "Sort by",
+    "sortDue": "Due date",
+    "sortStatus": "Status",
+    "sortUpdated": "Recently updated",
     "openTask": "Open task details",
     "addTask": "Add task",
     "addDueDate": "Add due date",
@@ -120,7 +162,10 @@
     "telegramLinkedHint": "Task notifications are sent to your linked Telegram chat.",
     "telegramPendingHint": "Open the invite link from your operator to connect Telegram and receive task alerts.",
     "telegramOperatorLinkedHint": "Task completion and due-date alerts are sent to your linked Telegram chat.",
-    "telegramOperatorPendingHint": "Link Telegram here to receive alerts when teammates finish tasks or tasks become due."
+    "telegramOperatorPendingHint": "Link Telegram here to receive alerts when teammates finish tasks or tasks become due.",
+    "passwordSection": "Password",
+    "generateTelegramLink": "Generate Telegram link",
+    "telegramLinkCode": "Open this link in Telegram to connect alerts."
   },
   "alerts": {
     "subtitle": "When teammates finish tasks or tasks become due. Configure delivery in Settings.",

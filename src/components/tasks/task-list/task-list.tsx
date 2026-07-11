@@ -11,6 +11,7 @@ interface TaskListProps {
   locale: string;
   showAssignee: boolean;
   labels: {
+    titleColumn: string;
     assignee: string;
     dueDate: string;
     updated: string;
@@ -25,7 +26,7 @@ export function TaskList({ tasks, locale, showAssignee, labels }: TaskListProps)
       <table className={taskListStyles.table}>
         <thead>
           <tr className={taskListStyles.headRow}>
-            <th className={taskListStyles.th}>Title</th>
+            <th className={taskListStyles.th}>{labels.titleColumn}</th>
             {showAssignee && <th className={taskListStyles.th}>{labels.assignee}</th>}
             <th className={taskListStyles.th}>Status</th>
             <th className={taskListStyles.th}>{labels.dueDate}</th>

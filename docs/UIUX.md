@@ -501,10 +501,10 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 
 | Component | Notes |
 |-----------|-------|
-| `GroupSwitcher` | Sidebar + mobile header — switch group, link to manage hub (§2.2) |
-| `AppShell` | Sidebar + collapse + role-based nav (active group) + profile footer |
-| `AppHeader` | Desktop locale switcher + avatar + account menu |
-| `MobileTopBar` | Compact logo, locale, avatar, tab nav |
+| `GroupSwitcher` | Desktop + mobile header — switch group; footer links to create / manage hub |
+| `AppShell` | Sidebar + collapse + role-based nav (when group active) + profile footer |
+| `AppHeader` | Desktop group switcher + locale switcher + avatar + account menu |
+| `MobileTopBar` | Compact logo, group switcher, locale, avatar, tab nav |
 | `LocaleSwitcher` | Same-path locale change via URL prefix |
 | `UserMenu` | Account dropdown (Profile, Settings, Log out) |
 | `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |

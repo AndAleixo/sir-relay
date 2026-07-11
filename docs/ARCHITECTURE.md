@@ -30,7 +30,8 @@ src/
 | `/[locale]/change-password` | Session | private | Forced / optional password change |
 | `/[locale]/tasks`, `/tasks/new`, `/tasks/[id]` | Session + group | private | Boards, list, CRUD |
 | `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | Operator team management |
-| `/[locale]/alerts`, `/profile`, `/settings` | Session + group | private | Alerts · account · prefs |
+| `/[locale]/alerts`, `/settings` | Session + group | private | Alerts · group alert prefs |
+| `/[locale]/profile` | Session | private | Account (accessible without active group) |
 
 **Backend (Phase 1+):** `/api/v1/*` · Prisma · Telegram webhook · **Phase 2:** `/audit`
 
@@ -74,4 +75,4 @@ Edits live in `SyncProvider` until sync succeeds; sync bar on failure. Refresh d
 npm install && npm run dev && npm run check:routes
 ```
 
-`http://localhost:3000` — landing · `/en/login` — sign in · **demo:** `sam@example.com` / `ana@example.com` (any password) · new signup → `/groups`.
+`http://localhost:3000` — landing · `/en/login` — sign in · **demo:** `sam@example.com` (2 groups → hub) · `ana@example.com` (teammate → tasks) · new signup → `/groups`.

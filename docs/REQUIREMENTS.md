@@ -20,7 +20,7 @@ Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../R
 | **Telegram bot** | Delivers tasks one at a time; teammates reply to report progress |
 | **Relay queue** | When a task is marked `done`, the next `todo` task is sent automatically |
 
-**Account model:** Anyone can **sign up**. After login they **create a group** (becoming **operator** there) or **join a group** via invite (as **teammate**). The **same user** can be operator in one group and teammate in another — switch group in Settings to change context.
+**Account model:** Anyone can **sign up**. After login they **create a group** (becoming **operator** there) or **join a group** via invite (as **teammate**). The **same user** can be operator in one group and teammate in another — switch active group via the **header group switcher** or `/groups` hub.
 
 **Positioning:** Simple team coordination — **no performance dashboards, leaderboards, or surveillance-style metrics.**
 
@@ -113,7 +113,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | **Data** | **PostgreSQL** on the deployment; tasks, users, groups, and settings persisted server-side |
 | **Accounts (Phase 1)** | Self-serve **sign-up** (anyone). User **creates a group** (operator) **or joins** via invite link (teammate). Role is **per group membership**, not stored on the user row. |
 | **Session** | `{ userId, activeGroupId }`; effective `role` derived from `group_memberships` for the active group |
-| **Multi-group** | One account may belong to many groups; **Settings → Switch group** clears active group → `/groups` hub |
+| **Multi-group** | One account may belong to many groups; **group switcher** or `/groups` hub to pick active group (no session clear) |
 | **Mobile** | Responsive web in Phase 1; native iOS/Android → Phase 3 (P3-13), same `/api/v1` |
 | **Metrics / KPIs** | **Out of scope** — no velocity charts, leaderboards, or employee surveillance dashboards |
 | **Multi-tenant SaaS** | Not Phase 1 — one organization per deployment. Many customers = many deployments (or P3-15). |

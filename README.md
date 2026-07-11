@@ -95,7 +95,7 @@ Details in [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-lay
 npm install && npm run dev && npm run check:routes
 ```
 
-Open `http://localhost:3000` · demo: `sam@example.com` (operator in Demo Shop) · new signup → create a group at `/groups`.
+Open `http://localhost:3000` · demo: `sam@example.com` (2 groups → hub) · `ana@example.com` (teammate, 1 group → tasks) · new signup → `/groups`.
 
 ---
 

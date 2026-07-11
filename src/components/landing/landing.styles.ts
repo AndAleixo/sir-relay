@@ -41,6 +41,7 @@ export const demoStyles = {
     "flex items-center gap-2 border-b border-[var(--border)] bg-surface-bg px-4 py-3",
   dot: "h-2.5 w-2.5 rounded-full bg-[var(--border)]",
   url: "ml-2 flex-1 truncate rounded-md bg-surface-card px-3 py-1 text-xs text-[var(--text-muted)]",
+  video: "block w-full bg-surface-bg",
   body: "grid grid-cols-3 gap-3 p-4 md:gap-4 md:p-6",
   column: "rounded-card border border-[var(--border)] bg-surface-bg p-2 md:p-3",
   columnTitle: "mb-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-muted)] md:text-xs",

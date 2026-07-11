@@ -1,37 +1,77 @@
 import { getTranslations } from "next-intl/server";
+import { ProductDemoPlayer } from "./product-demo-player";
 import { demoStyles } from "./landing.styles";
 
-/** ponytail: CSS demo until /public/brand/demo.mp4 exists — swap for <video> then. */
-export async function ProductDemo({ locale }: { locale: string }) {
-  const t = await getTranslations();
-
+function ProductDemoBoard({
+  demoUrl,
+  caption,
+  labels,
+}: {
+  demoUrl: string;
+  caption: string;
+  labels: {
+    ariaLabel: string;
+    todo: string;
+    doing: string;
+    done: string;
+    taskA: string;
+    taskB: string;
+    taskC: string;
+  };
+}) {
   return (
     <div className={demoStyles.wrap}>
-      <div className={demoStyles.frame} aria-label={t("landing.demoAria")}>
+      <div className={demoStyles.frame} aria-label={labels.ariaLabel}>
         <div className={demoStyles.chrome}>
           <span className={demoStyles.dot} />
           <span className={demoStyles.dot} />
           <span className={demoStyles.dot} />
-          <span className={demoStyles.url}>{t("landing.demoUrl", { locale })}</span>
+          <span className={demoStyles.url}>{demoUrl}</span>
         </div>
         <div className={demoStyles.body}>
           <div className={demoStyles.column}>
-            <p className={demoStyles.columnTitle}>{t("status.todo")}</p>
-            <div className={`${demoStyles.card} landing-demo-card-a`}>{t("landing.demoTaskA")}</div>
+            <p className={demoStyles.columnTitle}>{labels.todo}</p>
+            <div className={`${demoStyles.card} landing-demo-card-a`}>{labels.taskA}</div>
           </div>
           <div className={demoStyles.column}>
-            <p className={demoStyles.columnTitle}>{t("status.doing")}</p>
+            <p className={demoStyles.columnTitle}>{labels.doing}</p>
             <div className={`${demoStyles.card} ${demoStyles.cardActive} landing-demo-card-b`}>
-              {t("landing.demoTaskB")}
+              {labels.taskB}
             </div>
           </div>
           <div className={demoStyles.column}>
-            <p className={demoStyles.columnTitle}>{t("status.done")}</p>
-            <div className={`${demoStyles.card} landing-demo-card-c`}>{t("landing.demoTaskC")}</div>
+            <p className={demoStyles.columnTitle}>{labels.done}</p>
+            <div className={`${demoStyles.card} landing-demo-card-c`}>{labels.taskC}</div>
           </div>
         </div>
       </div>
-      <p className={demoStyles.caption}>{t("landing.demoCaption")}</p>
+      <p className={demoStyles.caption}>{caption}</p>
     </div>
+  );
+}
+
+export async function ProductDemo({ locale }: { locale: string }) {
+  const t = await getTranslations();
+  const demoUrl = t("landing.demoUrl", { locale });
+  const caption = t("landing.demoCaption");
+  const boardLabels = {
+    ariaLabel: t("landing.demoAria"),
+    todo: t("status.todo"),
+    doing: t("status.doing"),
+    done: t("status.done"),
+    taskA: t("landing.demoTaskA"),
+    taskB: t("landing.demoTaskB"),
+    taskC: t("landing.demoTaskC"),
+  };
+
+  return (
+    <ProductDemoPlayer
+      ariaLabel={boardLabels.ariaLabel}
+      demoUrl={demoUrl}
+      caption={caption}
+      fallback={
+        <ProductDemoBoard demoUrl={demoUrl} caption={caption} labels={boardLabels} />
+      }
+    />
   );
 }

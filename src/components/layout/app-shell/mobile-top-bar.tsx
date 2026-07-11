@@ -44,7 +44,7 @@ export function MobileTopBar({
   const pathname = usePathname();
 
   return (
-    <header className={shellStyles.mobileHeader}>
+    <header className={shellStyles.mobileHeader} data-mobile-shell-header>
       <div className={shellStyles.mobileHeaderTop}>
         <Link
           href={`/${locale}/tasks`}

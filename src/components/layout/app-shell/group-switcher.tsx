@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Role } from "@/domain/types";
 import { mockSelectGroup } from "@/app/actions/mock-groups";
@@ -72,6 +73,8 @@ export function GroupSwitcher({
 }: GroupSwitcherProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [panelTop, setPanelTop] = useState(72);
   const rootRef = useRef<HTMLDivElement>(null);
   const active =
     activeGroupId != null
@@ -79,8 +82,30 @@ export function GroupSwitcher({
       : null;
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     setOpen(false);
   }, [activeGroupId]);
+
+  useLayoutEffect(() => {
+    if (!open || !compact) return;
+
+    function measure() {
+      const header = document.querySelector("[data-mobile-shell-header]");
+      const bottom = header?.getBoundingClientRect().bottom ?? 56;
+      setPanelTop(bottom + 4);
+    }
+
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("orientationchange", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("orientationchange", measure);
+    };
+  }, [open, compact]);
 
   useEffect(() => {
     if (!open || compact) return;
@@ -114,19 +139,8 @@ export function GroupSwitcher({
 
   if (groups.length === 0) return null;
 
-  const panel = (
-    <div
-      className={cn(
-        shellStyles.groupSwitcherPanel,
-        compact
-          ? shellStyles.groupSwitcherPanelMobile
-          : [
-              placement === "below" && shellStyles.groupSwitcherPanelBelow,
-              collapsed && shellStyles.groupSwitcherPanelCollapsed,
-            ],
-      )}
-      role="menu"
-    >
+  const menu = (
+    <>
       <ul className="py-1">
         {groups.map((group) => (
           <li key={group.id}>
@@ -182,8 +196,44 @@ export function GroupSwitcher({
           {t("shell.manageGroups")}
         </Link>
       </div>
+    </>
+  );
+
+  const desktopPanel = (
+    <div
+      className={cn(
+        shellStyles.groupSwitcherPanel,
+        placement === "below" && shellStyles.groupSwitcherPanelBelow,
+        collapsed && shellStyles.groupSwitcherPanelCollapsed,
+      )}
+      role="menu"
+    >
+      {menu}
     </div>
   );
+
+  const mobileOverlay =
+    open && compact && mounted
+      ? createPortal(
+          <>
+            <button
+              type="button"
+              className={shellStyles.groupSwitcherBackdrop}
+              aria-hidden
+              tabIndex={-1}
+              onClick={() => setOpen(false)}
+            />
+            <div
+              className={shellStyles.groupSwitcherPanelMobile}
+              style={{ top: panelTop }}
+              role="menu"
+            >
+              {menu}
+            </div>
+          </>,
+          document.body,
+        )
+      : null;
 
   return (
     <div
@@ -234,22 +284,8 @@ export function GroupSwitcher({
         )}
       </button>
 
-      {open ? (
-        compact ? (
-          <>
-            <button
-              type="button"
-              className={shellStyles.groupSwitcherBackdrop}
-              aria-hidden
-              tabIndex={-1}
-              onClick={() => setOpen(false)}
-            />
-            {panel}
-          </>
-        ) : (
-          panel
-        )
-      ) : null}
+      {open && !compact ? desktopPanel : null}
+      {mobileOverlay}
     </div>
   );
 }

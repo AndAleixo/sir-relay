@@ -100,14 +100,14 @@ export const shellStyles = {
     "bottom-auto top-full mb-0 mt-1",
   groupSwitcherPanelCollapsed: "bottom-auto top-0 left-full ml-1 mt-0 w-56",
   groupSwitcherPanelMobile:
-    "fixed left-4 right-4 top-14 z-[100] max-h-[min(70vh,24rem)] overflow-y-auto rounded-button border border-[var(--border)] bg-surface-card shadow-lg",
-  groupSwitcherBackdrop: "fixed inset-0 z-[90] bg-black/10",
+    "fixed inset-x-4 z-[200] max-h-[min(60vh,20rem)] overflow-y-auto overscroll-contain rounded-button border border-[var(--border)] bg-surface-card shadow-xl",
+  groupSwitcherBackdrop: "fixed inset-0 z-[199] bg-black/25",
   groupSwitcherFooter:
     "flex flex-col border-t border-[var(--border)] py-1",
   groupSwitcherFooterLink:
-    "px-3 py-2 text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)]",
+    "flex min-h-11 touch-manipulation items-center px-3 py-2.5 text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] active:bg-[var(--surface-bg)]",
   groupSwitcherItem:
-    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)]",
+    "flex min-h-11 w-full touch-manipulation items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)] active:bg-[var(--surface-bg)]",
   groupSwitcherItemActive: "bg-brand-accent-soft text-brand-accent",
   groupSwitcherItemRole: "shrink-0 text-xs text-[var(--text-muted)]",
   content: "flex-1 p-4 md:p-6",

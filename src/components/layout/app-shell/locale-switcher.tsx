@@ -11,7 +11,7 @@ interface LocaleSwitcherProps {
 }
 
 export function LocaleSwitcher({ locale, compact }: LocaleSwitcherProps) {
-  const t = useTranslations("settings");
+  const t = useTranslations("profile");
   const pathname = usePathname();
   const router = useRouter();
 
@@ -26,7 +26,7 @@ export function LocaleSwitcher({ locale, compact }: LocaleSwitcherProps) {
     <select
       value={locale}
       onChange={onChange}
-      aria-label={t("locale")}
+      aria-label={t("language")}
       className={compact ? shellStyles.localeSelectCompact : shellStyles.localeSelect}
     >
       {locales.map((loc) => (

@@ -11,7 +11,7 @@ interface SettingsLocaleFieldProps {
 }
 
 export function SettingsLocaleField({ locale }: SettingsLocaleFieldProps) {
-  const t = useTranslations("settings");
+  const t = useTranslations("profile");
   const pathname = usePathname();
 
   function onChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -24,7 +24,7 @@ export function SettingsLocaleField({ locale }: SettingsLocaleFieldProps) {
     <select
       value={locale}
       onChange={onChange}
-      aria-label={t("locale")}
+      aria-label={t("language")}
       className={shellStyles.localeSelect}
     >
       {locales.map((loc) => (

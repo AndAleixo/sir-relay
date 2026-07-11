@@ -1,4 +1,6 @@
 import { getTranslations } from "next-intl/server";
+import { PageHeader } from "@/components/layout/app-shell";
+import { requireAppSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 import { TasksPageClient } from "@/components/tasks/tasks-page-client";
 
@@ -9,20 +11,21 @@ export default async function TasksPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations();
-  const { auth, tasks, teammates, alerts } = getServices();
-  const session = await auth.getSession();
-  if (!session) return null;
+  const session = await requireAppSession(locale);
+  const { tasks, teammates, alerts } = getServices();
 
   const isOperator = session.user.role === "operator";
   const taskList = await tasks.listTasks({ session });
   const teammateList = isOperator ? await teammates.listTeammates({ session }) : [];
 
   if (isOperator) {
-    await alerts.syncDueAlerts(taskList);
+    await alerts.syncDueAlerts(taskList, { session });
   }
 
   return (
-    <TasksPageClient
+    <>
+      <PageHeader title={t("common.tasks")} />
+      <TasksPageClient
       locale={locale}
       role={session.user.role}
       showNewTask={isOperator}
@@ -73,5 +76,6 @@ export default async function TasksPage({
           },
         }}
       />
+    </>
   );
 }

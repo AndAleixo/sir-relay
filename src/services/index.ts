@@ -1,6 +1,7 @@
 import type { Services } from "@/services/contracts";
 import { mockOperatorAlertService } from "@/services/mock/alerts.mock";
 import { mockAuthService } from "@/services/mock/auth.mock";
+import { mockExportService } from "@/services/mock/export.mock";
 import { mockGroupService } from "@/services/mock/groups.mock";
 import { mockTaskService } from "@/services/mock/task.mock";
 import {
@@ -26,6 +27,7 @@ export function getServices(): Services {
       teammates: mockTeammateService,
       users: mockUserService,
       alerts: mockOperatorAlertService,
+      export: mockExportService,
     };
   }
 

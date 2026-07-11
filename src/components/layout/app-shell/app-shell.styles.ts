@@ -47,11 +47,11 @@ export const shellStyles = {
   userRole: "text-xs text-[var(--text-muted)]",
   main: "flex min-w-0 flex-1 flex-col",
   mobileHeader:
-    "sticky top-0 z-40 shrink-0 border-b border-[var(--border)] bg-surface-card md:hidden",
-  mobileHeaderTop: "flex h-14 items-center justify-between gap-3 px-4",
+    "sticky top-0 z-40 shrink-0 overflow-visible border-b border-[var(--border)] bg-surface-card md:hidden",
+  mobileHeaderTop: "flex h-14 items-center justify-between gap-3 overflow-visible px-4",
   mobileLogoLink: "flex shrink-0 items-center",
   mobileLogo: "h-9 w-auto",
-  mobileHeaderActions: "flex items-center gap-2",
+  mobileHeaderActions: "relative flex items-center gap-2 overflow-visible",
   mobileUserLink: "shrink-0 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   mobileNav: "flex items-stretch justify-around gap-1 border-t border-[var(--border)] px-2 py-1.5",
   mobileNavLink:
@@ -60,7 +60,8 @@ export const shellStyles = {
     "bg-brand-accent-soft text-brand-accent hover:bg-brand-accent-soft hover:text-brand-accent",
   mobileNavLabel: "max-w-full truncate text-[10px] font-medium leading-tight",
   header:
-    "hidden h-14 items-center justify-end gap-4 border-b border-[var(--border)] bg-surface-card px-6 md:flex",
+    "hidden h-14 items-center justify-between gap-4 overflow-visible border-b border-[var(--border)] bg-surface-card px-6 md:flex",
+  headerGroup: "relative min-w-0 flex-1 overflow-visible",
   headerActions: "flex items-center gap-1",
   headerAvatarLink:
     "rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
@@ -80,6 +81,35 @@ export const shellStyles = {
     "block w-full px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)]",
   userMenuForm: "border-t border-[var(--border)]",
   userMenuLogout: "text-[var(--text-muted)] hover:text-[var(--text-primary)]",
+  groupSwitcherRoot: "relative min-w-0",
+  groupSwitcherCompact: "shrink-0",
+  groupSwitcherTrigger:
+    "flex w-full min-w-0 items-center gap-2 rounded-button border border-[var(--border)] bg-[var(--surface-bg)] px-2.5 py-2 text-left transition-colors hover:border-brand-accent/30 hover:bg-surface-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
+  groupSwitcherTriggerProminent:
+    "max-w-md border-transparent bg-transparent px-0 py-0 hover:border-transparent hover:bg-transparent",
+  groupSwitcherTriggerCollapsed: "justify-center px-0 py-2",
+  groupSwitcherTriggerCompact:
+    "max-w-[9rem] gap-1 rounded-button border border-[var(--border)] bg-surface-card px-2 py-1.5 text-sm",
+  groupSwitcherText: "min-w-0 flex-1 overflow-hidden",
+  groupSwitcherName: "block truncate text-base font-semibold text-[var(--text-primary)]",
+  groupSwitcherNameCompact: "truncate text-sm font-medium text-[var(--text-primary)]",
+  groupSwitcherRole: "block truncate text-xs text-[var(--text-muted)]",
+  groupSwitcherPanel:
+    "absolute bottom-full left-0 z-[100] mb-1 w-full min-w-[12rem] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card shadow-lg",
+  groupSwitcherPanelBelow:
+    "bottom-auto top-full mb-0 mt-1",
+  groupSwitcherPanelCollapsed: "bottom-auto top-0 left-full ml-1 mt-0 w-56",
+  groupSwitcherPanelMobile:
+    "fixed left-4 right-4 top-14 z-[100] max-h-[min(70vh,24rem)] overflow-y-auto rounded-button border border-[var(--border)] bg-surface-card shadow-lg",
+  groupSwitcherBackdrop: "fixed inset-0 z-[90] bg-black/10",
+  groupSwitcherFooter:
+    "flex flex-col border-t border-[var(--border)] py-1",
+  groupSwitcherFooterLink:
+    "px-3 py-2 text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)]",
+  groupSwitcherItem:
+    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)]",
+  groupSwitcherItemActive: "bg-brand-accent-soft text-brand-accent",
+  groupSwitcherItemRole: "shrink-0 text-xs text-[var(--text-muted)]",
   content: "flex-1 p-4 md:p-6",
   contentWide: "max-w-[100vw] overflow-x-hidden",
   pageHeader: "mb-6 flex flex-wrap items-center justify-between gap-4",

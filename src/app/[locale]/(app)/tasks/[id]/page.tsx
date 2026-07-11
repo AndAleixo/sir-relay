@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { renotifyTaskAction } from "@/app/actions/mock-tasks";
+import { requireAppSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 import { isOverdue } from "@/lib/dates";
 import { PageHeader } from "@/components/layout/app-shell";
@@ -21,9 +22,8 @@ export default async function TaskDetailPage({
   const { locale, id } = await params;
   const { renotify } = await searchParams;
   const t = await getTranslations();
-  const { auth, tasks, teammates } = getServices();
-  const session = await auth.getSession();
-  if (!session) return null;
+  const session = await requireAppSession(locale);
+  const { tasks, teammates } = getServices();
 
   const task = await tasks.getTask(id, { session });
   if (!task) notFound();

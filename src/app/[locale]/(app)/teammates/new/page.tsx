@@ -43,7 +43,7 @@ export default async function NewTeammatePage({
               />
             </div>
             <div>
-              <Label htmlFor="locale">{t("settings.locale")}</Label>
+              <Label htmlFor="locale">{t("profile.language")}</Label>
               <Select id="locale" name="locale" defaultValue={session.user.locale}>
                 {locales.map((loc) => (
                   <option key={loc} value={loc}>

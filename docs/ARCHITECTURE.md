@@ -48,11 +48,11 @@ src/
 
 Unauthenticated access to app routes → `/login?session=expired`.
 
-**User model:** sign up as a normal user → create or join a **group** → role (`operator` / `teammate`) comes from group membership.
+**User model:** one **account** per person → zero or more **groups** → **role per membership** (`operator` / `teammate`). Session: `{ user, activeGroupId }`; effective role from `hydrateSession()` + `group_memberships`.
 
 ## Landing demo
 
-CSS board animation in hero; optional `public/brand/demo.mp4` ([UIUX §2.0](./UIUX.md#20-marketing-landing)). Demo seed: `src/services/mock/data.ts` · login `sam@example.com` (operator in “Demo Shop”).
+CSS board fallback in hero; primary video `public/brand/demo.webm` ([UIUX §2.0](./UIUX.md#20-marketing-landing)). Demo seed: `src/services/mock/data.ts` · login `sam@example.com` (operator in “Demo Shop”).
 
 ## Task forms
 

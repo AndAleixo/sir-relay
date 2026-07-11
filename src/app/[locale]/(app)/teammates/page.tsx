@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/layout/app-shell";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { OrganizationUser } from "@/services/contracts";
@@ -30,6 +31,7 @@ export default async function TeammatesPage({
 
   return (
     <>
+      <PageHeader title={t("common.teammates")} />
       <div className={viewToggleStyles.toolbar}>
         <p className={viewToggleStyles.toolbarText}>{t("teammate.listSubtitle")}</p>
         <div className="flex flex-wrap items-center gap-2">

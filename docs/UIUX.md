@@ -25,13 +25,31 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 | Principle | Application |
 |-----------|-------------|
 | **Relay-first** | Telegram is the fast path; web shows the same truth without extra steps |
-| **Role clarity** | Operator sees the **team**; Teammate sees **my work** |
+| **Group context** | One **user account**; **role** (`operator` / `teammate`) is shown and enforced **in the active group** — same person may operate one team and work as teammate in another |
 | **To do + In progress first** | Active work is always visible; Done is secondary on the Operator board |
 | **Calm UI** | Gray/white surfaces; yellow accent for CTAs and In progress column |
 | **No metric pressure** | No velocity charts, leaderboards, or surveillance KPIs — tasks and due dates only |
-| **Small team scale** | 2–5 teammates; no enterprise density — readable cards, generous spacing |
-| **Account vs app config** | **Profile** = personal account (photo, identity, Telegram) · **Settings** = app preferences (language, operator alerts) |
+| **Small team scale** | 2–5 people per group; no enterprise density — readable cards, generous spacing |
+| **Account vs app config** | **Profile** = personal account (photo, identity, language, Telegram, password) · **Settings** = group-scoped operator alerts only |
 | **Web first** | Responsive web is the primary client; landing and app share brand tokens; native apps reuse API later |
+
+### 1.1 Users, groups, and roles
+
+```
+User (account)
+  ├── Group A — operator  →  nav: Tasks · Teammates · Alerts · Settings
+  └── Group B — teammate →  nav: Tasks · Settings
+```
+
+| Concept | UX |
+|---------|-----|
+| **User** | Email + password; signs up at `/signup`; not labelled “operator” or “teammate” globally |
+| **Group** | Team workspace; created at `/groups/new` or joined via `/join/[token]` |
+| **Role** | Per group; shown on `/groups` list, group switcher, account menu |
+| **Active group** | Session selection; all app screens (tasks, teammates, alerts) are scoped here |
+| **Switch group** | Header group switcher (desktop + mobile) → pick another group; footer link to `/groups` hub |
+
+**Post-login flow:** sign up / log in → (password change if bootstrap only) → **no group** → `/groups` → create or open → operator → `/teammates` · teammate → `/tasks`.
 
 ---
 
@@ -49,7 +67,7 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 │  [ Get started ]  [ How we handle data ]                     │
 │                                                              │
 │  ┌─ browser chrome ─────────────────────────────────────┐   │
-│  │  Product demo (CSS board · optional demo.mp4)        │   │
+│  │  Product demo (demo.webm · CSS board fallback)       │   │
 │  └──────────────────────────────────────────────────────┘   │
 ├──────────────────────────────────────────────────────────────┤
 │  3 feature cards — simple · no metrics · one task at a time  │
@@ -62,7 +80,7 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 |---------|------|
 | Header | Sticky; logo links home; locale links; **Sign up** (ghost) + **Log in** → `/[locale]/signup` · `/login` |
 | Hero | Value prop: calm team coordination, no KPI pressure; primary CTA **Create account** → `/signup` |
-| Demo | Board preview in browser frame; optional video `public/brand/demo.mp4` (H.264, muted, loop, poster) |
+| Demo | Browser frame with **`/brand/demo.webm`** (autoplay, muted, loop); CSS board fallback if video fails |
 | Features | Three cards — simple to run · no metric pressure · one task at a time (Telegram relay) |
 | FAQ | `#faq` — groups, metrics, Telegram, data/cache (public pages CDN-friendly; signed-in pages `no-store`) |
 | Footer | Copyright, FAQ, Privacy, Terms, Log in, Sign up — shared `SiteFooter` on auth/legal pages |
@@ -74,15 +92,53 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 
 ---
 
-## 2. App shell
+## 2.1 Auth & group entry (pre-shell)
 
-Same layout for both roles; navigation and default view differ.
+Pages outside the main app shell — centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeader`** (logo + “Back to home” → landing).
 
-### 2.1 Desktop (≥768px)
+| Page | Route | Header | Purpose |
+|------|-------|--------|---------|
+| Sign up | `/signup` | ✓ `AuthPageHeader` | New account → `/groups` (no group yet) |
+| Log in | `/login` | ✓ `AuthPageHeader` | Existing account → role home or `/groups` |
+| Join group | `/join/[token]` | ✓ `AuthPageHeader` | Accept invite; set password |
+| Privacy / Terms | `/privacy`, `/terms` | ✓ `AuthPageHeader` | Legal stubs |
+| Groups hub | `/groups` | Logo in page title area | Pick group (shows **role per group**) |
+| Create group | `/groups/new` | — | Name → creator is operator → app |
+
+**Groups hub (`/groups`)** — reachable from the group switcher footer (**Manage groups**); also shown after sign-up when user has no active group, or after login with 2+ groups.
+
+```
+┌─────────────────────────────────────┐
+│  ← Back to app (when in a group)    │
+│  Your groups                        │
+├─────────────────────────────────────┤
+│  Demo Shop    Operator  [Current]   │
+│  Side project Teammate  [Open]      │
+├─────────────────────────────────────┤
+│  [ Create group ]                   │
+├─────────────────────────────────────┤
+│  Join with invite                   │
+│  [ paste link or code    ] [Go]     │
+└─────────────────────────────────────┘
+```
+
+- **Empty state:** create **or** paste invite
+- **Single group, no active:** auto-select (skip hub)
+- **Create:** `/groups/new` — creator is operator
+- **Join:** paste link → `/join/[token]` or one-click accept if signed in with matching email
+- **Existing account added by operator:** new row appears on hub — no invite/password
+
+---
+
+## 2.2 App shell
+
+Same chrome for everyone; **navigation and default view depend on role in the active group**.
+
+### Desktop (≥768px)
 
 ```
 ┌────────────┬──────────────────────────────────────────────────┐
-│ logo.svg   │                         [locale ▾] [avatar] [▾] │
+│ logo.svg   │  [Group ▾]              [locale ▾] [avatar] [▾] │
 │ ────────── │  Page title                    [+ New task]*      │
 │  Tasks     │  ─────────────────────────────────────────────  │
 │  Teammates*│                                                   │
@@ -91,7 +147,6 @@ Same layout for both roles; navigation and default view differ.
 │            │                                                   │
 │ ────────── │                                                   │
 │ Ana        │  ← footer links to Profile                        │
-│ Operator   │                                                   │
 │      [◀]   │  ← collapse toggle (logo → logo-compact.svg)    │
 └────────────┴──────────────────────────────────────────────────┘
 
@@ -103,22 +158,22 @@ Same layout for both roles; navigation and default view differ.
 | Sidebar | Fixed left; collapsible (`w-56` ↔ `w-20`); preference stored in `localStorage` |
 | Sidebar logo | `logo.svg` expanded · `logo-compact.svg` collapsed; cross-fade animation |
 | Sidebar nav | Tasks · Teammates* · Alerts* · Settings — icons + labels (icons only when collapsed) |
-| Sidebar footer | User name + role → **Profile** |
-| Top header | Right-aligned utilities only: locale switcher, avatar link, account menu chevron |
+| Sidebar footer | Profile link (name + avatar) only |
+| Top header | **Group switcher** (name + role, dropdown) · locale switcher · avatar link · account menu chevron |
 | Avatar | Links to **Profile**; shows uploaded photo or initial |
-| Account menu (`▾`) | Name + role header · Profile · Settings · Log out |
+| Account menu (`▾`) | Name · `{group} · {role}` · Profile · Settings · Log out |
 | Locale | `<select>` in header (same route, new locale prefix); also on login screen |
 | Primary CTA | “New task” — Operator only, yellow button per [BRAND.md](./BRAND.md) |
 
-**Post-login landing:** Operator → `/teammates` · Teammate → `/tasks` (Kanban)
+**Post-login landing:** no group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` (Kanban)
 
-### 2.2 Mobile (<768px)
+### Mobile (<768px)
 
 Sidebar hidden. Sticky top bar + tab navigation.
 
 ```
 ┌────────────────────────────────────────┐
-│ [logo-compact]          [EN▾] [avatar] │  ← avatar → Profile
+│ [logo]  [Group ▾]     [EN▾] [avatar]   │
 ├────────────────────────────────────────┤
 │   Tasks    Teammates*    Alerts*    Settings      │  ← icon tabs
 ├────────────────────────────────────────┤
@@ -128,7 +183,7 @@ Sidebar hidden. Sticky top bar + tab navigation.
 
 | Element | Spec |
 |---------|------|
-| Top bar | Compact logo (home → tasks), locale switcher (short code), avatar → Profile |
+| Top bar | Compact logo, **group switcher**, locale switcher (short code), avatar → Profile |
 | Tab nav | Same items as sidebar; active tab highlighted |
 | Account menu | Desktop only (chevron); mobile uses Profile page for log out |
 | Log out | Profile page + desktop account menu |
@@ -178,7 +233,7 @@ First column: **Me** (tasks assigned to the logged-in Operator). Then one column
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
 │    Me           │    Ana          │    Bruno        │    Carla        │
-│  (Alex)         │  ● linked       │  ○ pending TG   │  ● linked       │
+│  (Sam)          │  ● linked       │  ○ pending TG   │  ● linked       │
 ├─────────────────┼─────────────────┼─────────────────┼─────────────────┤
 │ TO DO (1)       │ TO DO (2)       │ TO DO (1)       │ TO DO (0)       │
 │ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────┐ │                 │
@@ -297,13 +352,15 @@ Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditT
 
 ## 6. Screen inventory
 
-| Screen | Route | Operator | Teammate |
-|--------|-------|----------|----------|
+Routes below use **Operator** / **Teammate** to mean **role in the active group**, not a fixed account type.
+
+| Screen | Route | Operator in group | Teammate in group |
+|--------|-------|-------------------|-------------------|
 | **Marketing landing** | `/` (locale home) | Public | Public |
 | **Sign up** | `/signup` | Public | Public |
 | **Log in** | `/login` | Public | Public |
 | **Groups hub** | `/groups` | ✓ (pick/create) | ✓ (pick/create) |
-| **Create group** | `/groups/new` | ✓ | ✓ |
+| **Create group** | `/groups/new` | ✓ (becomes operator) | ✓ (becomes operator) |
 | Tasks board | `/tasks` | Team board (§3.2) | Status Kanban (§3.1) |
 | New task | `/tasks/new` | ✓ | — |
 | Task detail | `/tasks/[id]` | ✓ | Own only |
@@ -319,9 +376,9 @@ Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditT
 | Terms | `/terms` | Public | Public |
 | Audit | `/audit` | ✓ (Phase 2) | — |
 
-**Default URL:** `/[locale]` — public landing when logged out. **Sign up** / **Log in** from header or footer. After login: no group → `/groups`; operator in group → `/teammates`; teammate in group → `/tasks`. Legacy `/admin` redirects to `/login`.
+**Default URL:** `/[locale]` — public landing when logged out. **Sign up** / **Log in** from header or footer. After login: no group → `/groups`; operator in active group → `/teammates`; teammate in active group → `/tasks`. Legacy `/admin` redirects to `/login`.
 
-**Profile** is reached from the avatar and sidebar footer — not in primary nav. **Settings** stays in sidebar / mobile tabs.
+**Profile** is reached from the avatar and sidebar footer — not in primary nav. **Settings** stays in sidebar / mobile tabs (group alert prefs only). **Group switcher** in header is the primary way to change active group.
 
 ---
 
@@ -350,24 +407,29 @@ Two distinct pages — **Profile** is who you are; **Settings** is how the app b
 
 ### 8.1 Profile (`/profile`)
 
-Both roles. Access: avatar (header / mobile), sidebar footer, account menu.
+All users. Access: avatar (header / mobile), sidebar footer, account menu.
 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
 | **Photo** | Upload / change / remove profile photo | Mock: browser storage · production: server upload |
-| **Account** | Display name, email, role badge | Read-only until `PATCH /me` |
+| **Account** | Display name, email, **language** — **no role** | Read-only until `PATCH /me` |
 | **Password** | Change password form | ✓ |
-| **Telegram** | Link status + generate link (Operator) | ✓ |
+| **Telegram** | Account-level link status; operators can generate alert link here | ✓ |
 | **Log out** | Button (mobile primary exit; desktop also in account menu) | ✓ |
+
+Group and role live in the **group switcher** and account menu — not on Profile.
 
 ### 8.2 Settings (`/settings`)
 
-Both roles. Access: sidebar / mobile tabs, account menu.
+All users with an active group. Access: sidebar / mobile tabs, account menu.
 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
-| **Language** | Locale selector (`en` · `es` · `pt`) | Saved to account (`PATCH /me` in production) |
-| **Operator alerts** | Toggles: teammate task done · teammate task due/overdue | History on **Alerts** page |
+| **Operator alerts** | Toggles when operator in active group | History on **Alerts** page |
+
+Teammates see an empty-state hint. Language and group switching live on **Profile** and the header **Group switcher**, not here.
+
+**Profile** has no role — account only. **Settings** is group-scoped alerts. **App shell** header / account menu show `{group} · {role}`.
 
 ### 8.3 Alerts (`/alerts`)
 
@@ -389,6 +451,7 @@ Operator-only system settings (audit, org config) remain Phase 2+.
 
 | Context | Message (EN example) | CTA |
 |---------|----------------------|-----|
+| No groups | “You are not in any group yet.” | Create group |
 | No tasks (Teammate) | “No tasks assigned to you yet.” | — |
 | No teammates (Operator board) | “Add teammates to start relaying work.” | Add teammate |
 | No alerts (Operator) | “No alerts yet…” | — |
@@ -438,7 +501,8 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 
 | Component | Notes |
 |-----------|-------|
-| `AppShell` | Sidebar + collapse + role-based nav + profile footer |
+| `GroupSwitcher` | Sidebar + mobile header — switch group, link to manage hub (§2.2) |
+| `AppShell` | Sidebar + collapse + role-based nav (active group) + profile footer |
 | `AppHeader` | Desktop locale switcher + avatar + account menu |
 | `MobileTopBar` | Compact logo, locale, avatar, tab nav |
 | `LocaleSwitcher` | Same-path locale change via URL prefix |
@@ -502,6 +566,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |
 | 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |
 | 2026-06-28 | Legacy cleanup: removed stub routes, mock banner, non-functional task/teammate actions; Alerts page |
+| 2026-07-11 | User → group → role model (§1.1); groups hub UX (§2.1); AuthPageHeader; membership-scoped nav and Profile badge |
 | 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

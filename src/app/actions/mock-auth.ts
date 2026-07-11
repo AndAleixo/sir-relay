@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import type { Locale } from "@/domain/types";
 import { loginPath, resolveEntryPath } from "@/lib/entry-route";
+import { locales } from "@/i18n/config";
 import { getServices } from "@/services";
 
 export async function mockLogin(locale: string, formData: FormData) {
@@ -21,18 +23,26 @@ export async function mockLogin(locale: string, formData: FormData) {
 export async function mockSignup(locale: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
+  const newPassword = String(formData.get("newPassword") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-  if (password.length < 8) {
+  if (newPassword.length < 8) {
     redirect(`/${locale}/signup?error=short`);
   }
-  if (password !== confirmPassword) {
+  if (newPassword !== confirmPassword) {
     redirect(`/${locale}/signup?error=mismatch`);
   }
 
   try {
-    const session = await getServices().auth.signup(name, email, password);
+    const signupLocale = locales.includes(locale as Locale)
+      ? (locale as Locale)
+      : "en";
+    const session = await getServices().auth.signup(
+      name,
+      email,
+      newPassword,
+      signupLocale,
+    );
     revalidatePath("/", "layout");
     redirect(resolveEntryPath(locale, session));
   } catch {

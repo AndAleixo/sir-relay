@@ -11,20 +11,22 @@ Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../R
 
 ## 1. Product summary
 
-**SirRelay** is a **hosted web task relay** for teams of **2–5 teammates**, built by **Sir**. Deployed on a **public domain** (DigitalOcean + HTTPS); data lives in **PostgreSQL** on the server.
+**SirRelay** is a **hosted web task relay** for small teams (typically **2–5 people per group**), built by **Sir**. Deployed on a **public domain** (DigitalOcean + HTTPS); data lives in **PostgreSQL** on the server.
 
 | Piece | Description |
 |-------|-------------|
-| **Marketing site** | Public landing at `/[locale]` — product story, demo, Log in |
-| **Web app** | Single app, two roles: **Operator** (manages everything) and **Teammate** (own tasks only) |
+| **Marketing site** | Public landing at `/[locale]` — product story, demo, Sign up / Log in |
+| **Web app** | One account per person; work happens inside a **group**. **Role** (`operator` / `teammate`) is **per group**, not a global account type |
 | **Telegram bot** | Delivers tasks one at a time; teammates reply to report progress |
 | **Relay queue** | When a task is marked `done`, the next `todo` task is sent automatically |
 
+**Account model:** Anyone can **sign up**. After login they **create a group** (becoming **operator** there) or **join a group** via invite (as **teammate**). The **same user** can be operator in one group and teammate in another — switch group in Settings to change context.
+
 **Positioning:** Simple team coordination — **no performance dashboards, leaderboards, or surveillance-style metrics.**
 
-**Operator** creates teammates and tasks (including tasks for themselves), monitors all activity on the web.
+**Operator (in a group)** creates teammates and tasks (including self-assigned tasks), monitors activity on the web.
 
-**Teammate** works via Telegram (primary) or web (optional): sees assigned tasks and updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
+**Teammate (in a group)** works via Telegram (primary) or web (optional): sees assigned tasks and updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
 
 **Clients:** Responsive **web first** (Phase 1). Native **iOS/Android** → Phase 3 (P3-13), same `/api/v1`.
 
@@ -85,11 +87,11 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 |-------|----------|
 | Brand / app / repo | **Sir** · **SirRelay** · `sir-relay` |
 | Telegram bot name | **SirRelay** (e.g. `@SirRelayBot`) |
-| Web app | Single Next.js app; UI and API scoped by `role` |
-| Roles | **Operator** — full access · **Teammate** — own tasks only |
-| Operator accounts | One seeded on deploy (Phase 1); multiple → Phase 3 |
-| Teammate signup | Invite-only; no public registration |
-| Task assignee | One user per task — **active teammate** or **Operator (self)** |
+| Web app | Single Next.js app; permissions scoped by **active group** + **membership role** |
+| Roles | **Operator** — full access in that group · **Teammate** — own tasks only in that group |
+| Bootstrap (deploy) | On empty DB, seed one **user** from `ADMIN_EMAIL` + `ADMIN_PASSWORD` (may create first group manually) |
+| Joining a group | **Create group** → creator is operator · **Invite link** → join as teammate (account may already exist from sign-up) |
+| Task assignee | One user per task — **active teammate** or **operator (self)** in the same group |
 | Relay scope | Telegram relay queue applies **only** to tasks assigned to linked teammates |
 | Operator alerts | Optional Telegram on Profile; notify on teammate **task done** and **due/overdue** (§5.6) |
 | Task statuses | `todo` · `doing` · `done` |
@@ -97,7 +99,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | Hosting | **DigitalOcean Droplet** (EU region) · Docker Compose · PostgreSQL · Caddy (HTTPS) |
 | Stack | Next.js App Router · TypeScript · Prisma · grammy · next-intl · Tailwind · Zod |
 | Visual identity | [BRAND.md](./BRAND.md) |
-| **Product model** | **Hosted web app** (§4.1). Public landing + sign-in app on one domain. PostgreSQL persistence. Invite-only teammates in Phase 1. |
+| **Product model** | **Hosted web app** (§4.1). Public landing + sign-in app on one domain. PostgreSQL persistence. |
 
 ### 4.1 Product model — Hosted web app (primary)
 
@@ -109,7 +111,9 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | **Groups hub** | `/[locale]/groups` — pick or create a group after sign-in (no active group) |
 | **Legacy** | `/[locale]/admin` redirects to `/login` |
 | **Data** | **PostgreSQL** on the deployment; tasks, users, groups, and settings persisted server-side |
-| **Accounts (Phase 1)** | Self-serve sign-up; user creates a group **or** joins via invite link. Role (`operator` / `teammate`) is **per group**, not at login. |
+| **Accounts (Phase 1)** | Self-serve **sign-up** (anyone). User **creates a group** (operator) **or joins** via invite link (teammate). Role is **per group membership**, not stored on the user row. |
+| **Session** | `{ userId, activeGroupId }`; effective `role` derived from `group_memberships` for the active group |
+| **Multi-group** | One account may belong to many groups; **Settings → Switch group** clears active group → `/groups` hub |
 | **Mobile** | Responsive web in Phase 1; native iOS/Android → Phase 3 (P3-13), same `/api/v1` |
 | **Metrics / KPIs** | **Out of scope** — no velocity charts, leaderboards, or employee surveillance dashboards |
 | **Multi-tenant SaaS** | Not Phase 1 — one organization per deployment. Many customers = many deployments (or P3-15). |
@@ -123,20 +127,35 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-AUTH-01 | Login | Email + password; invalid credentials → generic 401; JWT includes `role` |
+| P1-AUTH-01 | Login | Email + password; invalid credentials → generic 401; session stores `userId` + `activeGroupId`; **role** resolved from membership |
 | P1-AUTH-02 | Logout | Clears session |
 | P1-AUTH-03 | Session expiry | Default 7 days; override via `SESSION_MAX_AGE_DAYS` |
-| P1-AUTH-04 | Bootstrap Operator | On empty DB, seed one `operator` from `ADMIN_EMAIL` + `ADMIN_PASSWORD` |
-| P1-AUTH-05 | First-login password change | Seeded Operator must change password before using the app |
+| P1-AUTH-04 | Bootstrap user | On empty DB, seed one user from `ADMIN_EMAIL` + `ADMIN_PASSWORD` |
+| P1-AUTH-05 | First-login password change | **Bootstrap user only** (`must_change_password`); normal sign-ups skip forced change |
 | P1-AUTH-06 | Password storage | bcrypt; minimum 8 characters |
-| P1-AUTH-07 | Change password | Available on **Profile** (both roles); forced first login via `/change-password` |
+| P1-AUTH-07 | Change password | Available on **Profile** (all users); optional forced flow via `/change-password` |
 | P1-AUTH-08 | Update profile | `PATCH /me` — update `locale` (`en` \| `es` \| `pt`); optional avatar in later phase |
-| P1-AUTH-09 | Teammate signup | Operator creates teammate → invite link (72h) → `/join/<token>` → set password |
-| P1-AUTH-10 | Post-login routing | No group → `/groups` · operator in group → `/teammates` · teammate in group → `/tasks` |
+| P1-AUTH-09 | Group invite | Operator adds teammate to group → invite link (72h) → `/join/<token>` → set password (new account) or activate (existing) |
+| P1-AUTH-10 | Post-login routing | No group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` |
+| P1-AUTH-11 | Sign up | `/signup` — name, email, password; new user has **no group** until create or join |
+| P1-AUTH-12 | Active group | Session holds `activeGroupId`; all app data (tasks, teammates, alerts) scoped to active group |
+
+### 5.1.1 Groups
+
+| ID | Requirement | Acceptance criteria |
+|----|-------------|---------------------|
+| P1-GRP-01 | List | `/groups` lists groups the user belongs to; each row shows group name + **role in that group** |
+| P1-GRP-02 | Create | `/groups/new` or **Group switcher → Create group** — name ≥ 2 chars; creator is `operator`; group becomes active |
+| P1-GRP-03 | Select | Hub **Open** or header **Group switcher** sets `activeGroupId` → role home |
+| P1-GRP-04 | Auto-select | Single group + no active group → auto-select (skip hub); 2+ groups → `/groups` hub |
+| P1-GRP-05 | Manage hub | **Group switcher → Manage groups** → `/groups` anytime (create, join, switch) — no session clear |
+| P1-GRP-06 | Join via invite | Operator invite link → `/join/<token>` · new account sets password · existing account (same email) accepts in one click |
+| P1-GRP-07 | Join from hub | Paste invite link/code on `/groups` → routes to join or accepts when already signed in |
+| P1-GRP-08 | Existing email | Operator adds teammate email that already has an account → membership added; user sees group on hub (no password invite) |
 
 ### 5.2 Teammates
 
-Operator-only management.
+Operator-only management **within the active group**.
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
@@ -182,10 +201,10 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-UI-01 | Branding | Login/header logos per [BRAND.md](./BRAND.md); favicon `icon.svg`; tokens `brand/brand.css` |
-| P1-UI-02 | Role-based nav | Operator: Tasks · Teammates · Alerts · Settings · Teammate: Tasks · Settings; **Profile** via avatar / sidebar footer (not primary nav) |
+| P1-UI-02 | Role-based nav | Nav reflects **role in active group**: Operator → Tasks · Teammates · Alerts · Settings · Teammate → Tasks · Settings; **Profile** via avatar / sidebar footer |
 | P1-UI-03 | Marketing landing | Public `/[locale]` when logged out — hero, product demo, feature highlights, footer — [UIUX.md §2.0](./UIUX.md#20-marketing-landing) |
 | P1-UI-04 | Landing header | `logo.svg`, locale switcher, **Sign up** + **Log in** → `/signup` · `/login` |
-| P1-UI-05 | Product demo | Animated board preview (mock); optional video at `public/brand/demo.mp4` (H.264, muted, loop) |
+| P1-UI-05 | Product demo | **`public/brand/demo.webm`** in hero (muted, loop); CSS board fallback |
 | P1-UI-06 | No metric UI | No velocity charts, leaderboards, or employee KPI dashboards in Phase 1–2 |
 | P1-UI-07 | App store links | **None** in Phase 1 — web only; native store badges → P3-13 |
 | P1-VIEW-01 | List sort | By due date, status, updated_at |
@@ -193,7 +212,7 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | P1-VIEW-03 | List view | Both roles; sort/filter; mobile fallback for Operator board |
 | P1-VIEW-04 | Responsive | Usable at 375px; Operator board → list on mobile per UIUX.md |
 | P1-I18N-01 | Locales | Full UI in `en`, `es`, `pt` via next-intl |
-| P1-I18N-02 | User locale | Persisted; selector on login, header, and settings (`PATCH /me`) |
+| P1-I18N-02 | User locale | Persisted; selector on login, header, and **Profile** (`PATCH /me`) |
 | P1-I18N-03 | Telegram copy | Per-teammate locale; fallback `en` |
 
 ### 5.6 Telegram bot
@@ -246,8 +265,8 @@ Full hardening → Phase 2.
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `SESSION_SECRET` | Yes | JWT signing key |
 | `SESSION_MAX_AGE_DAYS` | No | Default `7` |
-| `ADMIN_EMAIL` | Yes | Seeds Operator on first deploy |
-| `ADMIN_PASSWORD` | Yes | Seeds Operator on first deploy |
+| `ADMIN_EMAIL` | Yes | Seeds bootstrap **user** on first deploy |
+| `ADMIN_PASSWORD` | Yes | Seeds bootstrap **user** on first deploy |
 | `TELEGRAM_BOT_TOKEN` | Yes | From BotFather |
 | `TELEGRAM_WEBHOOK_SECRET` | Yes | Webhook verification |
 
@@ -255,8 +274,15 @@ Full hardening → Phase 2.
 
 ```
 users
-  id, name, email, password_hash, role (operator|teammate), locale,
+  id, name, email, password_hash, locale,
   telegram_chat_id, active, must_change_password, created_at, updated_at
+
+groups
+  id, name, created_at, updated_at
+
+group_memberships
+  group_id, user_id, role (operator|teammate), created_at
+  UNIQUE (group_id, user_id)
 
 teammate_invite_tokens
   id, user_id, token_hash, expires_at, used_at, created_at
@@ -265,7 +291,7 @@ telegram_link_tokens
   id, user_id, token_hash, expires_at, used_at, created_at
 
 tasks
-  id, title, description, assignee_id, created_by_id,
+  id, group_id, title, description, assignee_id, created_by_id,
   status (todo|doing|done), due_date,
   telegram_message_id, telegram_chat_id, telegram_notified_at,
   created_at, updated_at
@@ -274,30 +300,32 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
   id, task_id, body, author_user_id, created_at
 ```
 
-- `assignee_id` → `users.id` (teammate **or** operator)
-- `created_by_id` → `users.id` where `role = operator`
+- **No `role` on `users`** — role lives on `group_memberships`
+- `assignee_id` → `users.id` (teammate **or** operator in the same group)
+- `created_by_id` → operator membership in that group
+- All task/teammate queries filter by `session.activeGroupId`
 
 ### 5.10 Routes
 
 **Web** (`/[locale]/`):
 
-| Route | Operator | Teammate | Notes |
-|-------|----------|----------|-------|
+| Route | Operator in group | Teammate in group | Notes |
+|-------|-------------------|-------------------|-------|
 | `/` (locale home) | Redirect if session | Redirect if session | **Public landing** when logged out |
-| `admin` | Sign-in / redirect | Sign-in / redirect | Log in from landing header |
-| `privacy` | Public | Public | Footer link from landing |
+| `login`, `signup` | Public | Public | Account entry; **AuthPageHeader** → back to landing |
+| `groups`, `groups/new` | ✓ | ✓ | Pick or create group (no active group) |
+| `privacy`, `terms` | Public | Public | Footer links; **AuthPageHeader** on legal pages |
 | `join/[token]`, `change-password` | — | — | Auth flows |
-| `profile` | ✓ | ✓ |
-| `tasks` | All tasks | My tasks |
+| `admin` | — | — | Legacy redirect → `login` |
+| `profile` | ✓ | ✓ | Account is global; accessible without active group; no role badge |
+| `tasks` | All tasks in group | My tasks in group |
 | `tasks/new` | ✓ | — |
 | `tasks/[id]` | ✓ | Own tasks only | Edit form + delete (mock) |
-| `teammates`, `teammates/new`, `teammates/[id]` | ✓ (list includes operators) | — |
+| `teammates`, `teammates/new`, `teammates/[id]` | ✓ (list includes operators in group) | — |
 | `alerts` | ✓ | — |
-| `settings` | ✓ | ✓ |
+| `settings` | ✓ | ✓ | Group-scoped operator alert prefs only |
 
-**API:** see §9.
-
-**Phase 1 acceptance test:** Landing loads at `https://app.example.com/en` → Log in → Operator creates teammate → invite + Telegram link → creates two tasks → only first notified → teammate replies `done` → second arrives on Telegram → both visible on web → stack runs on VPS with HTTPS.
+**Phase 1 acceptance test:** Landing at `https://app.example.com/en` → Sign up → create group (operator) → add teammate → invite + Telegram link → two tasks → only first notified → teammate replies `done` → second on Telegram → both on web. **Or:** demo login `sam@example.com` → Demo Shop → same relay loop. Stack on VPS with HTTPS.
 
 ---
 
@@ -427,7 +455,7 @@ audit_logs
 
 - **`scope: full`** — all users, tasks, `telegram_activity`, `alertPrefs`.
 - **`scope: user`** (`?userId`) — one user, their assigned tasks and related `telegram_activity`; no `alertPrefs`.
-- **Field rules:** `users` — id, name, email, role, locale, active, timestamps · `tasks` — §5.9 minus Telegram internals.
+- **Field rules:** `users` — id, name, email, locale, active, timestamps (no global role) · `group_memberships` — group_id, user_id, role · `tasks` — §5.9 minus Telegram internals.
 
 ---
 
@@ -435,7 +463,7 @@ audit_logs
 
 | ID | Feature |
 |----|---------|
-| P3-02 | Multiple Operator accounts |
+| P3-02 | Multiple operators per group |
 | P3-03 | Drag-and-drop Kanban |
 | P3-04 | Web comment thread (view/add on task detail) |
 | P3-05 | Due date reminders **to teammate** (Telegram, 24h before) — Operator overdue alerts → P1-TG-10 |
@@ -471,12 +499,16 @@ Both roles. Requires Phase 1 API + DB. PWA install → P3-14. Out of scope here:
 
 ## 8. Permissions
 
-| Action | Operator | Teammate (web) | Teammate (Telegram) |
-|--------|----------|----------------|---------------------|
-| Log in | ✓ | ✓ (invite) | — |
+Permissions apply **within the active group**. The same user may be operator in group A and teammate in group B — switching group changes what they can do.
+
+| Action | Operator (in group) | Teammate (in group) | Teammate (Telegram) |
+|--------|---------------------|---------------------|---------------------|
+| Sign up / log in | ✓ | ✓ | — |
+| Create group | ✓ (becomes operator) | ✓ (becomes operator) | — |
+| Switch active group | ✓ | ✓ | — |
 | Manage teammates | ✓ | — | — |
 | Create / edit / delete tasks | ✓ | Own tasks only | — |
-| View tasks | All | Assigned to me | Current notification |
+| View tasks | All in group | Assigned to me | Current notification |
 | Change status | ✓ | Own tasks (`done` → relay) | Keywords (`done` → relay) |
 | Telegram reply log | — | — | Reply (stored server-side) |
 | Re-notify | ✓ | — | — |
@@ -493,26 +525,32 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Method | Path | Phase | Auth |
 |--------|------|-------|------|
 | POST | `/auth/login` | 1 | Public |
+| POST | `/auth/signup` | 1 | Public |
 | POST | `/auth/join` | 1 | Public `{ token, password }` |
 | POST | `/auth/logout` | 1 | Session |
 | POST | `/auth/change-password` | 1 | Session |
 | GET | `/me` | 1 | Session |
 | PATCH | `/me` | 1 | Session `{ locale }` |
-| GET | `/teammates` | 1 | Operator |
+| POST | `/me/active-group` | 1 | Session `{ groupId \| null }` |
+| GET | `/groups` | 1 | Session — groups for current user + role per group |
+| POST | `/groups` | 1 | Session `{ name }` — creator becomes operator |
+| POST | `/groups/join` | 1 | Session `{ token }` — accept invite for signed-in user |
+| GET | `/groups/invites/:token` | 1 | Public preview — group name, email, needsPassword |
+| GET | `/teammates` | 1 | Operator in active group |
 | POST | `/teammates` | 1 | Operator |
 | PATCH | `/teammates/:id` | 1 | Operator |
 | POST | `/teammates/:id/invite` | 1 | Operator |
 | POST | `/teammates/:id/telegram-link` | 1 | Operator |
-| GET | `/tasks` | 1 | Operator (all) · Teammate (mine) |
-| POST | `/tasks` | 1 | Operator |
-| GET | `/tasks/:id` | 1 | Operator · Teammate (if assignee) |
+| GET | `/tasks` | 1 | Operator (all in group) · Teammate (mine in group) |
+| POST | `/tasks` | 1 | Operator in active group |
+| GET | `/tasks/:id` | 1 | Operator in group · Teammate (if assignee) |
 | PATCH | `/tasks/:id` | 1 | Operator (full) · Teammate (own tasks) |
-| DELETE | `/tasks/:id` | 1 | Operator (any) · Teammate (if assignee) |
-| POST | `/tasks/:id/notify` | 1 | Operator |
+| DELETE | `/tasks/:id` | 1 | Operator (any in group) · Teammate (if assignee) |
+| POST | `/tasks/:id/notify` | 1 | Operator in active group |
 | POST | `/telegram/webhook` | 1 | Webhook secret |
 | GET | `/health` | 1 | Public |
-| GET | `/audit` | 2 | Operator |
-| GET | `/export` | 2 | Operator · §6.5.2 |
+| GET | `/audit` | 2 | Operator in active group |
+| GET | `/export` | 2 | Operator in active group · §6.5.2 |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
 ---
@@ -540,7 +578,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 │   ├── BRAND.md
 │   └── DEPLOY-DIGITALOCEAN.md
 ├── brand/
-├── public/              # brand assets · optional demo.mp4
+├── public/              # brand assets · demo.webm (+ CSS fallback)
 ├── docker-compose.yml
 ├── Dockerfile
 ├── prisma/
@@ -563,8 +601,12 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Term | Meaning |
 |------|---------|
-| Operator | Full-access web role; UI: Operator / Operador |
-| Teammate | Limited web role + Telegram; UI: Teammate / Compañero / Colega |
+| **User** | One account (email + password). Not inherently operator or teammate. |
+| **Group** | Team workspace — tasks, members, relay settings scoped here. |
+| **Group membership** | Links `user` + `group` + `role` (`operator` \| `teammate`). Source of truth for permissions. |
+| **Active group** | Group selected in session; UI and API operate in this context. |
+| **Operator** | Full-access role **in a group**; UI: Operator / Operador |
+| **Teammate** | Limited role **in a group** + Telegram relay; UI: Teammate / Compañero / Colega |
 | Relay queue | One active Telegram task per teammate; next sent on `done` |
 | Task status | Code: `todo` · `doing` · `done`. UI (en): To do · In progress · Done — see [UIUX.md](./UIUX.md#status-naming) |
 | Account status | `invited` (no password yet) · `active` (can log in) |
@@ -591,4 +633,5 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-06-25 | Initial spec; 3-phase structure; Sir brand |
 | 2026-06-28 | Operator self-tasks (P1-TASK-13); Operator Telegram alerts on teammate done + due/overdue (P1-TG-09–11) |
 | 2026-06-27 | Operator + Teammate roles; relay queue; unified `users` model; spec cleanup; [UIUX.md](./UIUX.md); P3-07 offline web sync (§7.1) |
+| 2026-07-11 | User → group → role model: groups hub, membership-scoped permissions, data model without `users.role` |
 | 2026-07-11 | §6.5 backup + JSON export; hosted web app model (landing, §4.1); P1-UI-03–07; P3-12–15 backlog |

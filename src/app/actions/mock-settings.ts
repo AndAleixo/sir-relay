@@ -21,5 +21,5 @@ export async function updateUserLocale(newLocale: string, pathname: string) {
 
   const segments = pathname.split("/");
   segments[1] = newLocale;
-  redirect(segments.join("/") || `/${newLocale}/settings`);
+  redirect(segments.join("/") || `/${newLocale}/profile`);
 }

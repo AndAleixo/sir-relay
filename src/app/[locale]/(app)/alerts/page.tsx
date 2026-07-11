@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/require-session";
+import { PageHeader } from "@/components/layout/app-shell";
 import { OperatorAlertsList } from "@/components/alerts/operator-alerts-list";
 
 export default async function AlertsPage({
@@ -16,11 +17,12 @@ export default async function AlertsPage({
   requireRole(session, "operator", locale);
 
   const taskList = await tasks.listTasks({ session });
-  await alerts.syncDueAlerts(taskList);
-  const alertList = await alerts.listRecentAlerts(50);
+  await alerts.syncDueAlerts(taskList, { session });
+  const alertList = await alerts.listRecentAlerts({ session }, 50);
 
   return (
     <>
+      <PageHeader title={t("alerts.title")} />
       <p className="mb-4 text-sm text-[var(--text-muted)]">{t("alerts.subtitle")}</p>
       <OperatorAlertsList
         alerts={alertList}

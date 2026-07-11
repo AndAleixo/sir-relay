@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
-import { loginPath } from "@/lib/entry-route";
+import { requireSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 
 export default async function NewGroupPage({
@@ -20,10 +20,10 @@ export default async function NewGroupPage({
   const { locale } = await params;
   const { error } = await searchParams;
   const t = await getTranslations();
-  const session = await getServices().auth.getSession();
+  const session = await requireSession(locale);
 
-  if (!session) {
-    redirect(loginPath(locale, { session: "expired" }));
+  if (session.user.mustChangePassword) {
+    redirect(`/${locale}/change-password`);
   }
 
   return (

@@ -11,9 +11,10 @@ import { shellStyles } from "./app-shell.styles";
 interface UserMenuProps {
   locale: string;
   user: User;
+  activeGroupName: string | null;
 }
 
-export function UserMenu({ locale, user }: UserMenuProps) {
+export function UserMenu({ locale, user, activeGroupName }: UserMenuProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -67,7 +68,11 @@ export function UserMenu({ locale, user }: UserMenuProps) {
         <div className={shellStyles.userMenuPanel} role="menu">
           <div className={shellStyles.userMenuHeader}>
             <p className={shellStyles.userMenuName}>{user.name}</p>
-            <p className={shellStyles.userMenuRole}>{t(`roles.${user.role}`)}</p>
+            <p className={shellStyles.userMenuRole}>
+              {activeGroupName
+                ? `${activeGroupName} · ${t(`roles.${user.role}`)}`
+                : t("shell.switchGroup")}
+            </p>
           </div>
           <Link
             href={`/${locale}/profile`}

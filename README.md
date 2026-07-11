@@ -1,8 +1,8 @@
 # SirRelay
 
-**SirRelay** is an app by **Sir** — a **hosted web task relay** for small teams.
+**SirRelay** is an app by **Sir** — a **hosted web task relay** for small groups.
 
-One web app, two roles: the **Operator** runs everything; each **Teammate** works on their own tasks. On **Telegram**, the bot delivers **one task at a time** — reply `done` and the next task in the queue is sent automatically. **No dashboards, no performance metrics** — calm coordination, not surveillance.
+Create an account, join or start a **group**, then work as **Operator** or **Teammate** inside that group. On **Telegram**, the bot delivers **one task at a time** — reply `done` and the next task in the queue is sent automatically. **No dashboards, no performance metrics** — calm coordination, not surveillance.
 
 | | |
 |---|---|

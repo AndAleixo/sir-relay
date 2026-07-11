@@ -29,11 +29,11 @@ export default async function TeammateDetailPage({
   if (!session) return null;
   requireRole(session, "operator", locale);
 
-  const teammate = await teammates.getTeammate(id);
+  const teammate = await teammates.getTeammate(id, { session });
   if (!teammate) redirect(`/${locale}/teammates`);
 
-  const inviteToken = await teammates.getInviteToken(id);
-  const telegramToken = await teammates.getTelegramLinkToken(id);
+  const inviteToken = await teammates.getInviteToken(id, { session });
+  const telegramToken = await teammates.getTelegramLinkToken(id, { session });
   const inviteUrl = inviteToken ? joinInviteUrl(locale, inviteToken) : "";
   const telegramUrl = telegramToken ? telegramBotUrl(telegramToken) : "";
 

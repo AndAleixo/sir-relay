@@ -40,14 +40,18 @@ export async function mockUpdateTeammate(
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
 
-  await requireOperatorSession(locale);
+  const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
 
   try {
-    await teammates.updateTeammate(teammateId, {
-      ...(name ? { name } : {}),
-      ...(email ? { email } : {}),
-    });
+    await teammates.updateTeammate(
+      teammateId,
+      {
+        ...(name ? { name } : {}),
+        ...(email ? { email } : {}),
+      },
+      { session },
+    );
   } catch {
     redirect(`/${locale}/teammates/${teammateId}?error=edit`);
   }
@@ -57,19 +61,19 @@ export async function mockUpdateTeammate(
 }
 
 export async function mockDeactivateTeammate(locale: string, teammateId: string) {
-  await requireOperatorSession(locale);
+  const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
 
-  await teammates.deactivateTeammate(teammateId);
+  await teammates.deactivateTeammate(teammateId, { session });
   revalidatePath(`/${locale}/teammates`);
   redirect(`/${locale}/teammates`);
 }
 
 export async function mockRegenerateInvite(locale: string, teammateId: string) {
-  await requireOperatorSession(locale);
+  const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
 
-  await teammates.regenerateInvite(teammateId);
+  await teammates.regenerateInvite(teammateId, { session });
   revalidatePath(`/${locale}/teammates/${teammateId}`);
   redirect(`/${locale}/teammates/${teammateId}`);
 }
@@ -78,10 +82,10 @@ export async function mockRegenerateTeammateTelegramLink(
   locale: string,
   teammateId: string,
 ) {
-  await requireOperatorSession(locale);
+  const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
 
-  await teammates.regenerateTelegramLink(teammateId);
+  await teammates.regenerateTelegramLink(teammateId, { session });
   revalidatePath(`/${locale}/teammates/${teammateId}`);
   redirect(`/${locale}/teammates/${teammateId}`);
 }

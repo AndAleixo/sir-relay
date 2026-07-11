@@ -1,20 +1,30 @@
-import type { OperatorAlert, Task } from "@/domain/types";
+import type { OperatorAlert, Session, Task } from "@/domain/types";
 import { isDueOrOverdue } from "@/lib/dates";
 import type {
   OperatorAlertPrefs,
   OperatorAlertService,
 } from "@/services/alert.types";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
+import { mockTaskService } from "@/services/mock/task.mock";
 
 const teammateIds = new Set(MOCK_TEAMMATES.map((t) => t.id));
 
-let prefs: OperatorAlertPrefs = {
-  taskDone: true,
-  taskDue: true,
-};
-
+const prefsByGroup = new Map<string, OperatorAlertPrefs>();
 const alerts: OperatorAlert[] = [];
 const dueAlertKeys = new Set<string>();
+
+function defaultPrefs(): OperatorAlertPrefs {
+  return { taskDone: true, taskDue: true };
+}
+
+function groupPrefs(groupId: string): OperatorAlertPrefs {
+  let prefs = prefsByGroup.get(groupId);
+  if (!prefs) {
+    prefs = defaultPrefs();
+    prefsByGroup.set(groupId, prefs);
+  }
+  return prefs;
+}
 
 function todayKey(): string {
   const today = new Date();
@@ -27,7 +37,11 @@ function hasLinkedOperator(): boolean {
   );
 }
 
-function pushAlert(input: Omit<OperatorAlert, "id" | "createdAt" | "sentToTelegram">) {
+function pushAlert(
+  groupId: string,
+  input: Omit<OperatorAlert, "id" | "createdAt" | "sentToTelegram">,
+) {
+  const prefs = groupPrefs(groupId);
   const typeEnabled =
     (input.type === "task_done" && prefs.taskDone) ||
     (input.type === "task_due" && prefs.taskDue);
@@ -45,24 +59,41 @@ function pushAlert(input: Omit<OperatorAlert, "id" | "createdAt" | "sentToTelegr
   }
 }
 
+function requireGroupId(ctx: { session: Session }): string {
+  const groupId = ctx.session.activeGroupId;
+  if (!groupId) throw new Error("No active group");
+  return groupId;
+}
+
 export class MockOperatorAlertService implements OperatorAlertService {
-  async getPrefs(): Promise<OperatorAlertPrefs> {
+  async getPrefs(ctx: { session: Session }): Promise<OperatorAlertPrefs> {
+    return { ...groupPrefs(requireGroupId(ctx)) };
+  }
+
+  async updatePrefs(
+    ctx: { session: Session },
+    next: Partial<OperatorAlertPrefs>,
+  ): Promise<OperatorAlertPrefs> {
+    const groupId = requireGroupId(ctx);
+    const prefs = { ...groupPrefs(groupId), ...next };
+    prefsByGroup.set(groupId, prefs);
     return { ...prefs };
   }
 
-  async updatePrefs(next: Partial<OperatorAlertPrefs>): Promise<OperatorAlertPrefs> {
-    prefs = { ...prefs, ...next };
-    return { ...prefs };
+  async listRecentAlerts(
+    ctx: { session: Session },
+    limit = 8,
+  ): Promise<OperatorAlert[]> {
+    const taskIds = new Set(
+      (await mockTaskService.listTasks(ctx)).map((task) => task.id),
+    );
+    return alerts.filter((alert) => taskIds.has(alert.taskId)).slice(0, limit);
   }
 
-  async listRecentAlerts(limit = 8): Promise<OperatorAlert[]> {
-    return alerts.slice(0, limit);
-  }
-
-  async notifyTaskDone(task: Task): Promise<void> {
+  async notifyTaskDone(task: Task, ctx: { session: Session }): Promise<void> {
     if (!teammateIds.has(task.assigneeId)) return;
 
-    pushAlert({
+    pushAlert(requireGroupId(ctx), {
       type: "task_done",
       taskId: task.id,
       taskTitle: task.title,
@@ -71,7 +102,8 @@ export class MockOperatorAlertService implements OperatorAlertService {
     });
   }
 
-  async syncDueAlerts(tasks: Task[]): Promise<void> {
+  async syncDueAlerts(tasks: Task[], ctx: { session: Session }): Promise<void> {
+    const groupId = requireGroupId(ctx);
     const day = todayKey();
 
     for (const task of tasks) {
@@ -79,11 +111,11 @@ export class MockOperatorAlertService implements OperatorAlertService {
       if (!teammateIds.has(task.assigneeId)) continue;
       if (!task.dueDate || !isDueOrOverdue(task.dueDate)) continue;
 
-      const dedupeKey = `${day}:${task.id}`;
+      const dedupeKey = `${groupId}:${day}:${task.id}`;
       if (dueAlertKeys.has(dedupeKey)) continue;
       dueAlertKeys.add(dedupeKey);
 
-      pushAlert({
+      pushAlert(groupId, {
         type: "task_due",
         taskId: task.id,
         taskTitle: task.title,

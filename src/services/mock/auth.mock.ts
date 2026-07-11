@@ -1,15 +1,16 @@
 import { cookies } from "next/headers";
 import type { Session, User } from "@/domain/types";
+import type { Locale } from "@/domain/types";
 import { hydrateSession } from "@/lib/session-hydrate";
 import type { AuthService } from "@/services/contracts";
 import {
-  MOCK_OPERATORS,
-  MOCK_TEAMMATES,
-} from "@/services/mock/data";
-import {
-  mockGroupMembershipLookup,
-} from "@/services/mock/groups.mock";
-import { consumeInviteToken, resolveInviteToken } from "@/services/mock/tokens.mock";
+  dynamicUsers,
+  findMockUserByEmail,
+  findMockUserById,
+  patchMockUser,
+} from "@/services/mock/users.mock";
+import { mockGroupMembershipLookup } from "@/services/mock/groups.mock";
+import { consumeInvite, resolveInvite } from "@/services/mock/tokens.mock";
 
 const MOCK_SESSION_COOKIE = "sirrelay_mock_session";
 
@@ -20,42 +21,12 @@ const cookieOptions = {
   secure: process.env.NODE_ENV === "production",
 };
 
-/** ponytail: in-memory signups reset on server restart. */
-const dynamicUsers: User[] = [];
-
-function allUsers(): User[] {
-  return [...MOCK_OPERATORS, ...MOCK_TEAMMATES, ...dynamicUsers];
-}
-
-function findUserByEmail(email: string): User | null {
-  const normalized = email.trim().toLowerCase();
-  const exact = allUsers().find(
-    (user) => user.active && user.email.toLowerCase() === normalized,
-  );
-  if (exact) return exact;
-
-  if (!normalized.includes("@")) {
-    return (
-      allUsers().find(
-        (user) =>
-          user.active && user.email.toLowerCase().split("@")[0] === normalized,
-      ) ?? null
-    );
-  }
-
-  return null;
-}
-
-function findUserById(userId: string): User | null {
-  return allUsers().find((user) => user.id === userId) ?? null;
-}
-
 function readSession(): Session | null {
   const raw = cookies().get(MOCK_SESSION_COOKIE)?.value;
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as Session;
-    const fresh = findUserById(parsed.user.id);
+    const fresh = findMockUserById(parsed.user.id);
     if (!fresh) return null;
     return hydrateSession(
       {
@@ -69,13 +40,16 @@ function readSession(): Session | null {
   }
 }
 
-function writeSession(session: Session | null) {
+function writeSession(
+  session: Session | null,
+  options: { autoPickGroup?: boolean } = {},
+) {
   const jar = cookies();
   if (!session) {
     jar.delete(MOCK_SESSION_COOKIE);
     return;
   }
-  const hydrated = hydrateSession(session, mockGroupMembershipLookup);
+  const hydrated = hydrateSession(session, mockGroupMembershipLookup, options);
   if (!hydrated) {
     jar.delete(MOCK_SESSION_COOKIE);
     return;
@@ -84,15 +58,7 @@ function writeSession(session: Session | null) {
 }
 
 function patchUser(userId: string, patch: Partial<User>) {
-  const lists = [MOCK_OPERATORS, MOCK_TEAMMATES, dynamicUsers];
-  for (const list of lists) {
-    const user = list.find((u) => u.id === userId);
-    if (user) {
-      Object.assign(user, patch);
-      return user;
-    }
-  }
-  return null;
+  return patchMockUser(userId, patch);
 }
 
 function buildSession(user: User, activeGroupId: string | null = null): Session {
@@ -116,7 +82,7 @@ export class MockAuthService implements AuthService {
       throw new Error("Invalid credentials");
     }
 
-    const user = findUserByEmail(email);
+    const user = findMockUserByEmail(email);
     if (!user) {
       throw new Error("Invalid credentials");
     }
@@ -126,11 +92,16 @@ export class MockAuthService implements AuthService {
     return session;
   }
 
-  async signup(name: string, email: string, password: string): Promise<Session> {
+  async signup(
+    name: string,
+    email: string,
+    password: string,
+    locale: Locale = "en",
+  ): Promise<Session> {
     if (!name.trim() || !email.trim() || password.length < 8) {
       throw new Error("Invalid signup");
     }
-    if (findUserByEmail(email)) {
+    if (findMockUserByEmail(email)) {
       throw new Error("Email taken");
     }
 
@@ -139,15 +110,15 @@ export class MockAuthService implements AuthService {
       name: name.trim(),
       email: email.trim().toLowerCase(),
       role: "operator",
-      locale: "en",
+      locale,
       active: true,
       mustChangePassword: false,
     };
     dynamicUsers.push(user);
 
     const session: Session = { user: { ...user }, activeGroupId: null };
-    writeSession(session);
-    return session;
+    writeSession(session, { autoPickGroup: false });
+    return hydrateSession(session, mockGroupMembershipLookup, { autoPickGroup: false })!;
   }
 
   async logout(): Promise<void> {
@@ -159,7 +130,7 @@ export class MockAuthService implements AuthService {
     currentPassword: string,
     newPassword: string,
   ): Promise<User> {
-    const user = findUserById(userId);
+    const user = findMockUserById(userId);
     if (!user || !user.active) {
       throw new Error("User not found");
     }
@@ -187,12 +158,12 @@ export class MockAuthService implements AuthService {
       throw new Error("Invalid password");
     }
 
-    const userId = consumeInviteToken(token);
-    if (!userId) {
+    const invite = consumeInvite(token);
+    if (!invite) {
       throw new Error("Invalid token");
     }
 
-    const user = findUserById(userId);
+    const user = findMockUserById(invite.userId);
     if (!user || !user.active) {
       throw new Error("Invalid token");
     }
@@ -201,14 +172,21 @@ export class MockAuthService implements AuthService {
       (user as { accountStatus: string }).accountStatus = "active";
     }
 
-    const session = buildSession({ ...user, mustChangePassword: false });
+    const session = buildSession(
+      { ...user, mustChangePassword: false },
+      invite.groupId,
+    );
     writeSession(session);
     return session;
   }
 
   async setActiveGroup(userId: string, groupId: string | null): Promise<Session> {
-    const user = findUserById(userId);
+    const user = findMockUserById(userId);
     if (!user) throw new Error("User not found");
+
+    if (groupId && !mockGroupMembershipLookup.hasMembership(userId, groupId)) {
+      throw new Error("Invalid group");
+    }
 
     const session = hydrateSession(
       {
@@ -216,9 +194,10 @@ export class MockAuthService implements AuthService {
         activeGroupId: groupId,
       },
       mockGroupMembershipLookup,
+      { autoPickGroup: false },
     );
     if (!session) throw new Error("Invalid session");
-    writeSession(session);
+    writeSession(session, { autoPickGroup: false });
     return session;
   }
 
@@ -236,7 +215,7 @@ export class MockAuthService implements AuthService {
   }
 
   async isInviteTokenValid(token: string): Promise<boolean> {
-    return Boolean(resolveInviteToken(token));
+    return Boolean(resolveInvite(token));
   }
 }
 

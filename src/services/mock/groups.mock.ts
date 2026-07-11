@@ -1,12 +1,20 @@
-import type { Group, GroupMembership, Role } from "@/domain/types";
+import type { Group, GroupInvitePreview, GroupMembership, Role } from "@/domain/types";
 import type { GroupService } from "@/services/contracts";
 import type { GroupMembershipLookup } from "@/lib/session-hydrate";
+import { findMockUserById } from "@/services/mock/users.mock";
+import {
+  consumeInvite,
+  resolveInvite,
+} from "@/services/mock/tokens.mock";
 
-export const MOCK_GROUPS: Group[] = [{ id: "group-demo", name: "Demo Shop" }];
+export const MOCK_GROUPS: Group[] = [
+  { id: "group-demo", name: "Demo Shop" },
+  { id: "group-side", name: "Side Project" },
+];
 
 export const MOCK_MEMBERSHIPS: GroupMembership[] = [
-  { groupId: "group-demo", userId: "user-operator", role: "operator" },
   { groupId: "group-demo", userId: "user-operator-2", role: "operator" },
+  { groupId: "group-side", userId: "user-operator-2", role: "operator" },
   { groupId: "group-demo", userId: "user-ana", role: "teammate" },
   { groupId: "group-demo", userId: "user-bruno", role: "teammate" },
   { groupId: "group-demo", userId: "user-carla", role: "teammate" },
@@ -21,6 +29,10 @@ function allMemberships(): GroupMembership[] {
 
 function allGroups(): Group[] {
   return [...MOCK_GROUPS, ...extraGroups];
+}
+
+function getGroup(groupId: string): Group | null {
+  return allGroups().find((group) => group.id === groupId) ?? null;
 }
 
 function listGroupsForUser(userId: string): Group[] {
@@ -47,6 +59,15 @@ function pickDefaultGroupId(userId: string): string | null {
   return groups.length === 1 ? groups[0].id : null;
 }
 
+function inviteNeedsPassword(userId: string): boolean {
+  const user = findMockUserById(userId);
+  if (!user) return true;
+  if ("accountStatus" in user) {
+    return (user as { accountStatus: string }).accountStatus === "invited";
+  }
+  return false;
+}
+
 function createGroupForUser(userId: string, name: string): Group {
   const group: Group = {
     id: `group-${Date.now().toString(36)}`,
@@ -63,6 +84,7 @@ export function addGroupMember(
   userId: string,
   role: Role,
 ): void {
+  if (getMembership(userId, groupId)) return;
   extraMemberships.push({ groupId, userId, role });
 }
 
@@ -95,6 +117,50 @@ export class MockGroupService implements GroupService {
 
   async isMember(userId: string, groupId: string): Promise<boolean> {
     return Boolean(getMembership(userId, groupId));
+  }
+
+  async previewInvite(token: string): Promise<GroupInvitePreview | null> {
+    const record = resolveInvite(token);
+    if (!record) return null;
+
+    const user = findMockUserById(record.userId);
+    const group = getGroup(record.groupId);
+    if (!user || !group) return null;
+
+    const membership = getMembership(record.userId, record.groupId);
+    if (!membership) return null;
+
+    return {
+      groupId: group.id,
+      groupName: group.name,
+      email: user.email,
+      role: membership.role,
+      needsPassword: inviteNeedsPassword(record.userId),
+    };
+  }
+
+  async acceptInvite(userId: string, token: string): Promise<Group> {
+    const record = resolveInvite(token);
+    if (!record) throw new Error("Invalid invite");
+
+    if (record.userId !== userId) {
+      throw new Error("Invite is for a different account");
+    }
+
+    const user = findMockUserById(userId);
+    const group = getGroup(record.groupId);
+    if (!user || !group) throw new Error("Invalid invite");
+
+    if (!getMembership(userId, record.groupId)) {
+      throw new Error("Invalid invite");
+    }
+
+    if ("accountStatus" in user) {
+      (user as { accountStatus: string }).accountStatus = "active";
+    }
+
+    consumeInvite(token);
+    return group;
   }
 }
 

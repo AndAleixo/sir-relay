@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { AuthPageHeader } from "@/components/auth/auth-page-header";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Card, CardBody } from "@/components/ui/card";
@@ -13,8 +14,9 @@ export default async function PrivacyPage({
   const t = await getTranslations();
 
   return (
-    <div className={authShellStyles.shell}>
-      <div className="mx-auto w-full max-w-2xl py-12">
+    <div className={`${authShellStyles.shell} flex min-h-screen flex-col`}>
+      <div className="mx-auto w-full max-w-2xl flex-1 py-12">
+        <AuthPageHeader locale={locale} />
         <Card>
           <CardBody className="space-y-4">
             <h1 className="text-xl font-semibold text-[var(--text-primary)]">

@@ -1,21 +1,35 @@
 import type { Session, Task, TaskStatus } from "@/domain/types";
-import type { CreateTaskInput } from "@/services/contracts";
-import type { TaskService } from "@/services/contracts";
+import type { CreateTaskInput, TaskService } from "@/services/contracts";
 import {
   MOCK_OPERATORS,
   MOCK_TASKS,
   MOCK_TEAMMATES,
 } from "@/services/mock/data";
+import { userIdsInGroup } from "@/services/mock/groups.mock";
+
+function tasksInGroup(tasks: Task[], session: Session): Task[] {
+  const groupId = session.activeGroupId;
+  if (!groupId) return [];
+  const ids = userIdsInGroup(groupId);
+  return tasks.filter((t) => ids.has(t.assigneeId));
+}
 
 function filterTasksForSession(tasks: Task[], session: Session): Task[] {
-  if (session.user.role === "operator") return tasks;
-  return tasks.filter((t) => t.assigneeId === session.user.id);
+  const scoped = tasksInGroup(tasks, session);
+  if (session.user.role === "operator") return scoped;
+  return scoped.filter((t) => t.assigneeId === session.user.id);
 }
 
 function resolveAssignee(
   assigneeId: string,
   session: Session,
 ): { assigneeId: string; assigneeName: string } {
+  const groupId = session.activeGroupId;
+  if (!groupId) throw new Error("Invalid assignee");
+
+  const ids = userIdsInGroup(groupId);
+  if (!ids.has(assigneeId)) throw new Error("Invalid assignee");
+
   if (assigneeId === session.user.id && session.user.role === "operator") {
     return { assigneeId: session.user.id, assigneeName: session.user.name };
   }
@@ -43,13 +57,8 @@ export class MockTaskService implements TaskService {
   async getTask(id: string, ctx: { session: Session }): Promise<Task | null> {
     const task = this.tasks.find((t) => t.id === id);
     if (!task) return null;
-    if (
-      ctx.session.user.role === "teammate" &&
-      task.assigneeId !== ctx.session.user.id
-    ) {
-      return null;
-    }
-    return task;
+    const visible = filterTasksForSession([task], ctx.session);
+    return visible[0] ?? null;
   }
 
   async createTask(input: CreateTaskInput, ctx: { session: Session }): Promise<Task> {
@@ -105,6 +114,7 @@ export class MockTaskService implements TaskService {
     if (ctx.session.user.role !== "operator") {
       throw new Error("Forbidden");
     }
+    resolveAssignee(assigneeId, ctx.session);
     const task = await this.getTask(id, ctx);
     if (!task) throw new Error("Task not found");
     const updated = {

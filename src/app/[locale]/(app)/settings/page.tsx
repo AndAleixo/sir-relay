@@ -1,9 +1,8 @@
 import { getTranslations } from "next-intl/server";
-import { mockOpenGroupsHub } from "@/app/actions/mock-groups";
+import { PageHeader } from "@/components/layout/app-shell";
 import { OperatorAlertSettings } from "@/components/settings/operator-alert-settings";
-import { SettingsLocaleField } from "@/components/settings/settings-locale-field";
 import { Card, CardBody } from "@/components/ui/card";
-import { Label } from "@/components/ui/input";
+import { requireAppSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 
 export default async function SettingsPage({
@@ -13,34 +12,24 @@ export default async function SettingsPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations();
-  const { auth, alerts } = getServices();
-  const session = await auth.getSession();
-  if (!session) return null;
+  const session = await requireAppSession(locale);
+  const { alerts, groups } = getServices();
 
+  const groupList = await groups.listForUser(session.user.id);
+  const activeGroup =
+    groupList.find((group) => group.id === session.activeGroupId) ?? null;
   const isOperator = session.user.role === "operator";
-  const alertPrefs = isOperator ? await alerts.getPrefs() : null;
+  const alertPrefs = isOperator ? await alerts.getPrefs({ session }) : null;
 
   return (
-    <div className="grid max-w-lg gap-4">
-        <Card>
-          <CardBody className="space-y-4">
-            <div>
-              <Label htmlFor="locale">{t("settings.locale")}</Label>
-              <div className="mt-1.5">
-                <SettingsLocaleField locale={locale} />
-              </div>
-              <p className="mt-2 text-xs text-[var(--text-muted)]">{t("settings.localeHint")}</p>
-            </div>
-            <form action={mockOpenGroupsHub.bind(null, locale)}>
-              <button
-                type="submit"
-                className="text-sm font-medium text-brand-accent hover:text-brand-accent-hover"
-              >
-                {t("settings.groupsLink")}
-              </button>
-            </form>
-          </CardBody>
-        </Card>
+    <>
+      <PageHeader title={t("settings.title")} />
+      <div className="grid max-w-lg gap-4">
+        {activeGroup ? (
+          <p className="text-sm text-[var(--text-muted)]">
+            {t("settings.groupScopeHint", { group: activeGroup.name })}
+          </p>
+        ) : null}
 
         {isOperator && alertPrefs ? (
           <Card>
@@ -59,7 +48,14 @@ export default async function SettingsPage({
               />
             </CardBody>
           </Card>
-        ) : null}
-    </div>
+        ) : (
+          <Card>
+            <CardBody>
+              <p className="text-sm text-[var(--text-muted)]">{t("settings.teammateEmpty")}</p>
+            </CardBody>
+          </Card>
+        )}
+      </div>
+    </>
   );
 }

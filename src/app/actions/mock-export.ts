@@ -1,22 +1,18 @@
 "use server";
 
-import type { SirRelayExport } from "@/domain/export";
 import { getServices } from "@/services";
-import {
-  buildMockExport,
-  mockExportFilename,
-} from "@/services/mock/export.mock";
 
 export async function mockExportDataAction(
   userId?: string,
-): Promise<{ export: SirRelayExport; filename: string }> {
+): Promise<{ export: import("@/domain/export").SirRelayExport; filename: string }> {
   const session = await getServices().auth.getSession();
   if (!session?.activeGroupId || session.user.role !== "operator") {
     throw new Error("Forbidden");
   }
 
+  const { export: exportSvc } = getServices();
   return {
-    export: await buildMockExport(userId),
-    filename: mockExportFilename(userId),
+    export: await exportSvc.buildExport({ session }, userId),
+    filename: exportSvc.filename(userId),
   };
 }

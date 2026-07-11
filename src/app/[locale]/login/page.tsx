@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { mockLogin } from "@/app/actions/mock-auth";
+import { AuthPageHeader } from "@/components/auth/auth-page-header";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,7 @@ export default async function LoginPage({
   return (
     <div className={`${authShellStyles.shell} flex min-h-screen flex-col`}>
       <div className={authShellStyles.loginWrap}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/logo.svg" alt={t("common.appName")} className={authShellStyles.loginLogo} />
+        <AuthPageHeader locale={locale} />
         <Card>
           <CardBody className="space-y-4">
             <div className="text-center">

@@ -1,18 +1,6 @@
 import type { Task, Teammate, User } from "@/domain/types";
 
-export const MOCK_OPERATOR: User = {
-  id: "user-operator",
-  name: "Alex Morgan",
-  email: "alex@example.com",
-  role: "operator",
-  locale: "en",
-  active: true,
-  telegramStatus: "linked",
-  mustChangePassword: false,
-};
-
 export const MOCK_OPERATORS: User[] = [
-  MOCK_OPERATOR,
   {
     id: "user-operator-2",
     name: "Sam Rivera",

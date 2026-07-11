@@ -1,8 +1,10 @@
 import type { SirRelayExport, ExportUser } from "@/domain/export";
 import { toExportTask } from "@/domain/export";
-import type { Teammate, User } from "@/domain/types";
+import type { Session, Teammate, User } from "@/domain/types";
+import type { ExportService } from "@/services/contracts";
 import { MOCK_OPERATORS, MOCK_TASKS, MOCK_TEAMMATES } from "@/services/mock/data";
 import { mockOperatorAlertService } from "@/services/mock/alerts.mock";
+import { userIdsInGroup } from "@/services/mock/groups.mock";
 
 function toExportUser(user: User | Teammate): ExportUser {
   if (user.role === "teammate") {
@@ -30,53 +32,68 @@ function toExportUser(user: User | Teammate): ExportUser {
   };
 }
 
-function listOrgUsers(): (User | Teammate)[] {
+function usersInGroup(groupId: string): (User | Teammate)[] {
+  const ids = userIdsInGroup(groupId);
   return [
-    ...MOCK_OPERATORS.filter((user) => user.active),
-    ...MOCK_TEAMMATES.filter((user) => user.active),
+    ...MOCK_OPERATORS.filter((user) => user.active && ids.has(user.id)),
+    ...MOCK_TEAMMATES.filter((user) => user.active && ids.has(user.id)),
   ];
 }
 
-export async function buildMockExport(userId?: string): Promise<SirRelayExport> {
-  const exportedAt = new Date().toISOString();
-  const users = listOrgUsers();
+function tasksInGroup(groupId: string) {
+  const ids = userIdsInGroup(groupId);
+  return MOCK_TASKS.filter((task) => ids.has(task.assigneeId));
+}
 
-  if (userId) {
-    const user = users.find((entry) => entry.id === userId);
-    if (!user) {
-      throw new Error("User not found");
+export class MockExportService implements ExportService {
+  async buildExport(
+    ctx: { session: Session },
+    userId?: string,
+  ): Promise<SirRelayExport> {
+    const groupId = ctx.session.activeGroupId;
+    if (!groupId) throw new Error("No active group");
+
+    const exportedAt = new Date().toISOString();
+    const users = usersInGroup(groupId);
+    const tasks = tasksInGroup(groupId);
+
+    if (userId) {
+      const user = users.find((entry) => entry.id === userId);
+      if (!user) throw new Error("User not found");
+
+      return {
+        version: 1,
+        exportedAt,
+        app: "sirrelay",
+        scope: "user",
+        scopeUserId: userId,
+        users: [toExportUser(user)],
+        tasks: tasks.filter((task) => task.assigneeId === userId).map(toExportTask),
+        telegramActivity: [],
+      };
     }
+
+    const alertPrefs = await mockOperatorAlertService.getPrefs(ctx);
 
     return {
       version: 1,
       exportedAt,
       app: "sirrelay",
-      scope: "user",
-      scopeUserId: userId,
-      users: [toExportUser(user)],
-      tasks: MOCK_TASKS.filter((task) => task.assigneeId === userId).map(toExportTask),
+      scope: "full",
+      scopeUserId: null,
+      users: users.map(toExportUser),
+      tasks: tasks.map(toExportTask),
       telegramActivity: [],
+      alertPrefs,
     };
   }
 
-  const alertPrefs = await mockOperatorAlertService.getPrefs();
-
-  return {
-    version: 1,
-    exportedAt,
-    app: "sirrelay",
-    scope: "full",
-    scopeUserId: null,
-    users: users.map(toExportUser),
-    tasks: MOCK_TASKS.map(toExportTask),
-    telegramActivity: [],
-    alertPrefs,
-  };
+  filename(userId?: string): string {
+    const day = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    return userId
+      ? `sirrelay-export-${userId}-${day}.json`
+      : `sirrelay-export-${day}.json`;
+  }
 }
 
-export function mockExportFilename(userId?: string): string {
-  const day = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  return userId
-    ? `sirrelay-export-${userId}-${day}.json`
-    : `sirrelay-export-${day}.json`;
-}
+export const mockExportService = new MockExportService();

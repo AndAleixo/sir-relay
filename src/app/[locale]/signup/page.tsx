@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { mockSignup } from "@/app/actions/mock-auth";
+import { AuthPageHeader } from "@/components/auth/auth-page-header";
 import { PasswordFormFields } from "@/components/auth/password-form-fields";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -39,6 +40,7 @@ export default async function SignupPage({
   return (
     <div className={`${authShellStyles.shell} flex min-h-screen flex-col`}>
       <div className={authShellStyles.loginWrap}>
+        <AuthPageHeader locale={locale} />
         <Card>
           <CardBody className="space-y-4">
             <div className="text-center">

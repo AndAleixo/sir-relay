@@ -1,5 +1,7 @@
+import type { SirRelayExport } from "@/domain/export";
 import type {
   Group,
+  GroupInvitePreview,
   Locale,
   Role,
   Session,
@@ -30,7 +32,7 @@ export interface CreateTeammateInput {
 export interface AuthService {
   getSession(): Promise<Session | null>;
   login(email: string, password: string): Promise<Session>;
-  signup(name: string, email: string, password: string): Promise<Session>;
+  signup(name: string, email: string, password: string, locale?: Locale): Promise<Session>;
   logout(): Promise<void>;
   changePassword(
     userId: string,
@@ -48,6 +50,8 @@ export interface GroupService {
   create(userId: string, name: string): Promise<Group>;
   roleInGroup(userId: string, groupId: string): Promise<Role | null>;
   isMember(userId: string, groupId: string): Promise<boolean>;
+  previewInvite(token: string): Promise<GroupInvitePreview | null>;
+  acceptInvite(userId: string, token: string): Promise<Group>;
 }
 
 export interface TaskService {
@@ -77,7 +81,7 @@ export interface TaskService {
 export interface TeammateService {
   listTeammates(ctx: { session: Session }): Promise<Teammate[]>;
   listOrganizationUsers(ctx: { session: Session }): Promise<OrganizationUser[]>;
-  getTeammate(id: string): Promise<Teammate | null>;
+  getTeammate(id: string, ctx: { session: Session }): Promise<Teammate | null>;
   createTeammate(
     input: CreateTeammateInput,
     ctx: { session: Session },
@@ -85,12 +89,18 @@ export interface TeammateService {
   updateTeammate(
     id: string,
     input: { name?: string; email?: string },
+    ctx: { session: Session },
   ): Promise<Teammate>;
-  deactivateTeammate(id: string): Promise<Teammate>;
-  regenerateInvite(id: string): Promise<string>;
-  regenerateTelegramLink(id: string): Promise<string>;
-  getInviteToken(id: string): Promise<string | null>;
-  getTelegramLinkToken(id: string): Promise<string | null>;
+  deactivateTeammate(id: string, ctx: { session: Session }): Promise<Teammate>;
+  regenerateInvite(id: string, ctx: { session: Session }): Promise<string>;
+  regenerateTelegramLink(id: string, ctx: { session: Session }): Promise<string>;
+  getInviteToken(id: string, ctx: { session: Session }): Promise<string | null>;
+  getTelegramLinkToken(id: string, ctx: { session: Session }): Promise<string | null>;
+}
+
+export interface ExportService {
+  buildExport(ctx: { session: Session }, userId?: string): Promise<SirRelayExport>;
+  filename(userId?: string): string;
 }
 
 export interface UserService {
@@ -106,4 +116,5 @@ export interface Services {
   teammates: TeammateService;
   users: UserService;
   alerts: OperatorAlertService;
+  export: ExportService;
 }

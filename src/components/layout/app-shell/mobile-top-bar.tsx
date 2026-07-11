@@ -6,6 +6,7 @@ import type { User } from "@/domain/types";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
 import { isPrimaryNavActive } from "@/lib/navigation";
+import { GroupSwitcher, type ShellGroup } from "./group-switcher";
 import { LocaleSwitcher } from "./locale-switcher";
 import {
   SidebarNavIcon,
@@ -23,6 +24,8 @@ interface MobileTopBarProps {
   locale: string;
   appName: string;
   user: User;
+  groups: ShellGroup[];
+  activeGroupId: string | null;
   items: MobileNavItem[];
 }
 
@@ -34,6 +37,8 @@ export function MobileTopBar({
   locale,
   appName,
   user,
+  groups,
+  activeGroupId,
   items,
 }: MobileTopBarProps) {
   const pathname = usePathname();
@@ -54,6 +59,14 @@ export function MobileTopBar({
           />
         </Link>
         <div className={shellStyles.mobileHeaderActions}>
+          <GroupSwitcher
+            locale={locale}
+            groups={groups}
+            activeGroupId={activeGroupId}
+            compact
+            prominent
+            placement="below"
+          />
           <LocaleSwitcher locale={locale} compact />
           <Link
             href={`/${locale}/profile`}

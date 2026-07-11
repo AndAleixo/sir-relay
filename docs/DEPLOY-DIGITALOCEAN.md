@@ -199,4 +199,4 @@ curl -s "${APP_URL}/api/v1/health"
 | `Dockerfile` | Next.js standalone |
 | `Caddyfile` | HTTPS reverse proxy |
 | `.env.example` | Variáveis necessárias |
-| `public/brand/demo.mp4` | (Opcional) Vídeo demo na landing — H.264, muted, &lt; 10 MB |
+| `public/brand/demo.webm` | Vídeo demo na landing — muted, loop; fallback CSS se falhar |

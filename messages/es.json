@@ -19,12 +19,15 @@
   "shell": {
     "collapseSidebar": "Contraer barra lateral",
     "expandSidebar": "Expandir barra lateral",
-    "accountMenu": "Menú de cuenta"
+    "accountMenu": "Menú de cuenta",
+    "switchGroup": "Cambiar de grupo",
+    "manageGroups": "Gestionar grupos…"
   },
   "auth": {
     "login": "Iniciar sesión",
     "signup": "Crear cuenta",
     "loginTitle": "Bienvenido de nuevo",
+    "backToHome": "Volver al inicio",
     "loginSubtitle": "Entra para abrir tus grupos y tareas.",
     "signupTitle": "Crea tu cuenta",
     "signupSubtitle": "Gratis para empezar — crea un grupo o únete por invitación.",
@@ -46,7 +49,8 @@
     "passwordHint": "Mínimo 8 caracteres.",
     "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
     "passwordMismatch": "Las contraseñas no coinciden.",
-    "passwordChanged": "Contraseña actualizada."
+    "passwordChanged": "Contraseña actualizada.",
+    "currentPasswordInvalid": "La contraseña actual no es correcta."
   },
   "legal": {
     "privacy": "Privacidad",
@@ -54,26 +58,38 @@
   },
   "groups": {
     "title": "Tus grupos",
-    "subtitle": "Elige un grupo para trabajar o crea uno nuevo.",
-    "empty": "Aún no estás en ningún grupo. Crea uno para empezar.",
+    "subtitle": "Abre un grupo, crea uno nuevo o únete con un enlace de invitación.",
+    "empty": "Aún no estás en ningún grupo. Crea uno o únete con una invitación.",
     "create": "Crear grupo",
-    "createAnother": "Crear otro grupo",
     "open": "Abrir",
+    "current": "Actual",
+    "backToApp": "Volver a la app",
     "newTitle": "Crear un grupo",
-    "newSubtitle": "Un grupo es tu espacio de equipo — tareas, miembros y relay Telegram.",
+    "newSubtitle": "Serás operador — tareas, miembros y relay Telegram viven aquí.",
     "name": "Nombre del grupo",
     "namePlaceholder": "p. ej. Tienda demo",
     "nameTooShort": "El nombre debe tener al menos 2 caracteres.",
-    "switch": "Cambiar de grupo"
+    "invalid": "Ese grupo no está disponible en tu cuenta.",
+    "inviteInvalid": "Ese enlace de invitación no es válido o expiró.",
+    "joinTitle": "Unirse con invitación",
+    "joinHint": "Pega el enlace del operador o abre /join/… en el navegador.",
+    "joinLabel": "Enlace o código de invitación",
+    "joinPlaceholder": "https://…/join/abc123 o abc123",
+    "joinSubmit": "Continuar"
   },
   "terms": {
     "title": "Términos de servicio",
     "stub": "SirRelay se ofrece tal cual para coordinar tareas en equipo. Los términos completos se publicarán antes del lanzamiento."
   },
   "join": {
-    "title": "Únete a tu grupo",
-    "subtitle": "Define una contraseña para aceptar la invitación y unirte al grupo.",
+    "title": "Unirse a un grupo",
+    "subtitle": "Define una contraseña para activar tu cuenta y unirte al grupo.",
+    "subtitleNamed": "Unirse a {group} como {role}.",
     "submit": "Unirse al grupo",
+    "accept": "Unirse a {group}",
+    "accountEmail": "Cuenta: {email}",
+    "wrongAccount": "Esta invitación es para {email}. Cierra sesión e inicia con esa cuenta.",
+    "emailMismatch": "Esta invitación pertenece a otra cuenta.",
     "invalidToken": "Este enlace de invitación no es válido o expiró."
   },
   "privacy": {
@@ -163,12 +179,11 @@
     "sectionDone": "Hecho"
   },
   "settings": {
-    "title": "Ajustes",
-    "locale": "Idioma",
-    "localeHint": "Se aplica a toda la app. Guardado en tu cuenta al iniciar sesión.",
-    "groupsLink": "Cambiar de grupo",
+    "title": "Ajustes del grupo",
+    "groupScopeHint": "Estos ajustes aplican solo a {group}. Tareas, compañeros y alertas en otras páginas son también de este grupo.",
+    "teammateEmpty": "Sin ajustes de grupo para compañeros. Los operadores configuran alertas aquí.",
     "operatorAlerts": "Alertas del operador",
-    "operatorAlertsHint": "Se envían a tu Telegram cuando están activas. El historial completo está en la página Alertas.",
+    "operatorAlertsHint": "Solo para este grupo. Se envían a tu Telegram cuando están activas.",
     "alertTaskDone": "Compañero completó una tarea",
     "alertTaskDoneHint": "Cuando un compañero marca una tarea como hecha (web o Telegram).",
     "alertTaskDue": "Tarea de compañero vencida o por vencer",
@@ -183,18 +198,19 @@
     "photoHint": "JPG o PNG, hasta 2 MB. Guardado en tu cuenta cuando la API esté conectada.",
     "accountInfo": "Cuenta",
     "displayName": "Nombre visible",
-    "role": "Rol",
+    "language": "Idioma",
+    "languageHint": "Se aplica en todos tus grupos.",
     "telegramSection": "Telegram",
-    "telegramLinkedHint": "Las notificaciones de tareas se envían a tu chat de Telegram.",
+    "telegramLinkedHint": "Telegram está vinculado a tu cuenta — para relay de tareas y alertas de operador.",
     "telegramPendingHint": "Abre el enlace de invitación del operador para conectar Telegram y recibir alertas.",
-    "telegramOperatorLinkedHint": "Las alertas de finalización y vencimiento se envían a tu Telegram.",
     "telegramOperatorPendingHint": "Vincula Telegram aquí para recibir alertas cuando los compañeros terminen tareas o venzan plazos.",
     "passwordSection": "Contraseña",
     "generateTelegramLink": "Generar enlace Telegram",
     "telegramLinkCode": "Abre este enlace en Telegram para conectar alertas."
   },
   "alerts": {
-    "subtitle": "Cuando los compañeros terminan tareas o vencen plazos. Configura el envío en Ajustes.",
+    "title": "Alertas",
+    "subtitle": "Eventos de tareas en este grupo. Configura el envío en Ajustes del grupo.",
     "empty": "Sin alertas aún. Marca una tarea de compañero como hecha o espera una fecha de vencimiento.",
     "taskDone": "Completada:",
     "taskDue": "Vence:",

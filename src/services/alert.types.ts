@@ -1,4 +1,4 @@
-import type { OperatorAlert, Task } from "@/domain/types";
+import type { OperatorAlert, Session, Task } from "@/domain/types";
 
 export interface OperatorAlertPrefs {
   taskDone: boolean;
@@ -6,9 +6,12 @@ export interface OperatorAlertPrefs {
 }
 
 export interface OperatorAlertService {
-  getPrefs(): Promise<OperatorAlertPrefs>;
-  updatePrefs(prefs: Partial<OperatorAlertPrefs>): Promise<OperatorAlertPrefs>;
-  listRecentAlerts(limit?: number): Promise<OperatorAlert[]>;
-  notifyTaskDone(task: Task): Promise<void>;
-  syncDueAlerts(tasks: Task[]): Promise<void>;
+  getPrefs(ctx: { session: Session }): Promise<OperatorAlertPrefs>;
+  updatePrefs(
+    ctx: { session: Session },
+    prefs: Partial<OperatorAlertPrefs>,
+  ): Promise<OperatorAlertPrefs>;
+  listRecentAlerts(ctx: { session: Session }, limit?: number): Promise<OperatorAlert[]>;
+  notifyTaskDone(task: Task, ctx: { session: Session }): Promise<void>;
+  syncDueAlerts(tasks: Task[], ctx: { session: Session }): Promise<void>;
 }

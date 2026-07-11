@@ -19,12 +19,15 @@
   "shell": {
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
-    "accountMenu": "Account menu"
+    "accountMenu": "Account menu",
+    "switchGroup": "Switch group",
+    "manageGroups": "Manage groups…"
   },
   "auth": {
     "login": "Log in",
     "signup": "Sign up",
     "loginTitle": "Welcome back",
+    "backToHome": "Back to home",
     "loginSubtitle": "Sign in to open your groups and tasks.",
     "signupTitle": "Create your account",
     "signupSubtitle": "Start free — then create a group or join one by invite.",
@@ -46,7 +49,8 @@
     "passwordHint": "Minimum 8 characters.",
     "passwordTooShort": "Password must be at least 8 characters.",
     "passwordMismatch": "Passwords do not match.",
-    "passwordChanged": "Password updated."
+    "passwordChanged": "Password updated.",
+    "currentPasswordInvalid": "Current password is incorrect."
   },
   "legal": {
     "privacy": "Privacy",
@@ -54,26 +58,38 @@
   },
   "groups": {
     "title": "Your groups",
-    "subtitle": "Pick a group to work in, or create a new one.",
-    "empty": "You are not in any group yet. Create one to get started.",
+    "subtitle": "Open a group, create a new one, or join with an invite link.",
+    "empty": "You are not in any group yet. Create one or join with an invite.",
     "create": "Create group",
-    "createAnother": "Create another group",
     "open": "Open",
+    "current": "Current",
+    "backToApp": "Back to app",
     "newTitle": "Create a group",
-    "newSubtitle": "A group is your team space — tasks, members, and Telegram relay.",
+    "newSubtitle": "You become the operator — tasks, members, and Telegram relay live here.",
     "name": "Group name",
     "namePlaceholder": "e.g. Demo Shop",
     "nameTooShort": "Group name must be at least 2 characters.",
-    "switch": "Switch group"
+    "invalid": "That group is not available on your account.",
+    "inviteInvalid": "That invite link is invalid or has expired.",
+    "joinTitle": "Join with invite",
+    "joinHint": "Paste the link from your operator or open /join/… in the browser.",
+    "joinLabel": "Invite link or code",
+    "joinPlaceholder": "https://…/join/abc123 or abc123",
+    "joinSubmit": "Continue"
   },
   "terms": {
     "title": "Terms of Service",
     "stub": "SirRelay is provided as-is for team task coordination. Full terms will be published before public launch."
   },
   "join": {
-    "title": "Join your group",
-    "subtitle": "Set a password to accept the invite and join the group.",
+    "title": "Join a group",
+    "subtitle": "Set a password to activate your account and join the group.",
+    "subtitleNamed": "Join {group} as {role}.",
     "submit": "Join group",
+    "accept": "Join {group}",
+    "accountEmail": "Account: {email}",
+    "wrongAccount": "This invite is for {email}. Log out and sign in with that account.",
+    "emailMismatch": "This invite belongs to a different account.",
     "invalidToken": "This invite link is invalid or has expired."
   },
   "privacy": {
@@ -163,12 +179,11 @@
     "sectionDone": "Done"
   },
   "settings": {
-    "title": "Settings",
-    "locale": "Language",
-    "localeHint": "Applies to the whole app. Saved to your account when signed in.",
-    "groupsLink": "Switch group",
+    "title": "Group settings",
+    "groupScopeHint": "These settings apply only to {group}. Tasks, teammates, and alerts on other pages are for this group too.",
+    "teammateEmpty": "No group settings for teammates. Operators configure alerts here.",
     "operatorAlerts": "Operator alerts",
-    "operatorAlertsHint": "Sent to your linked Telegram when enabled. The full history is on the Alerts page.",
+    "operatorAlertsHint": "For this group only. Sent to your linked Telegram when enabled.",
     "alertTaskDone": "Teammate completed a task",
     "alertTaskDoneHint": "When a teammate marks a task done (web or Telegram).",
     "alertTaskDue": "Teammate task due or overdue",
@@ -183,18 +198,19 @@
     "photoHint": "JPG or PNG, up to 2 MB. Stored on your account when the API is connected.",
     "accountInfo": "Account",
     "displayName": "Display name",
-    "role": "Role",
+    "language": "Language",
+    "languageHint": "Applies across all groups on your account.",
     "telegramSection": "Telegram",
-    "telegramLinkedHint": "Task notifications are sent to your linked Telegram chat.",
+    "telegramLinkedHint": "Telegram is linked to your account — for task relay and operator alerts.",
     "telegramPendingHint": "Open the invite link from your operator to connect Telegram and receive task alerts.",
-    "telegramOperatorLinkedHint": "Task completion and due-date alerts are sent to your linked Telegram chat.",
     "telegramOperatorPendingHint": "Link Telegram here to receive alerts when teammates finish tasks or tasks become due.",
     "passwordSection": "Password",
     "generateTelegramLink": "Generate Telegram link",
     "telegramLinkCode": "Open this link in Telegram to connect alerts."
   },
   "alerts": {
-    "subtitle": "When teammates finish tasks or tasks become due. Configure delivery in Settings.",
+    "title": "Alerts",
+    "subtitle": "Task events in this group. Configure delivery in Group settings.",
     "empty": "No alerts yet. Mark a teammate task done or wait for a due date to trigger one.",
     "taskDone": "Completed:",
     "taskDue": "Due:",

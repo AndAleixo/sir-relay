@@ -9,6 +9,7 @@ import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
 import { AppHeader } from "./app-header";
 import { MobileTopBar } from "./mobile-top-bar";
+import type { ShellGroup } from "./group-switcher";
 import { SidebarLogo } from "./sidebar-logo";
 import {
   SidebarNavIcon,
@@ -27,14 +28,23 @@ interface NavItem {
 interface AppShellProps {
   locale: string;
   user: User;
+  groups: ShellGroup[];
+  activeGroupId: string | null;
   children: React.ReactNode;
 }
 
-export function AppShell({ locale, user, children }: AppShellProps) {
+export function AppShell({
+  locale,
+  user,
+  groups,
+  activeGroupId,
+  children,
+}: AppShellProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarCollapsed();
   const isOperator = user.role === "operator";
+  const hasActiveGroup = activeGroupId != null;
 
   const nav: NavItem[] = [
     {
@@ -63,7 +73,9 @@ export function AppShell({ locale, user, children }: AppShellProps) {
     },
   ];
 
-  const visibleNav = nav.filter((item) => item.roles.includes(user.role));
+  const visibleNav = hasActiveGroup
+    ? nav.filter((item) => item.roles.includes(user.role))
+    : [];
 
   return (
     <div className={shellStyles.root}>
@@ -92,27 +104,27 @@ export function AppShell({ locale, user, children }: AppShellProps) {
               const active = isPrimaryNavActive(pathname, item.href);
 
               return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  shellStyles.navLink,
-                  active && shellStyles.navLinkActive,
-                  collapsed && shellStyles.navLinkCollapsed,
-                )}
-                title={collapsed ? item.label : undefined}
-                aria-current={active ? "page" : undefined}
-              >
-                <SidebarNavIcon name={item.icon} />
-                <span
+                <Link
+                  key={item.href}
+                  href={item.href}
                   className={cn(
-                    shellStyles.navLabel,
-                    collapsed && shellStyles.navLabelCollapsed,
+                    shellStyles.navLink,
+                    active && shellStyles.navLinkActive,
+                    collapsed && shellStyles.navLinkCollapsed,
                   )}
+                  title={collapsed ? item.label : undefined}
+                  aria-current={active ? "page" : undefined}
                 >
-                  {item.label}
-                </span>
-              </Link>
+                  <SidebarNavIcon name={item.icon} />
+                  <span
+                    className={cn(
+                      shellStyles.navLabel,
+                      collapsed && shellStyles.navLabelCollapsed,
+                    )}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
               );
             })}
           </nav>
@@ -139,7 +151,6 @@ export function AppShell({ locale, user, children }: AppShellProps) {
                 )}
               >
                 <p className={shellStyles.userName}>{user.name}</p>
-                <p className={shellStyles.userRole}>{t(`roles.${user.role}`)}</p>
               </div>
             </Link>
           </div>
@@ -173,8 +184,20 @@ export function AppShell({ locale, user, children }: AppShellProps) {
       </div>
 
       <div className={shellStyles.main}>
-        <MobileTopBar locale={locale} appName={t("common.appName")} user={user} items={visibleNav} />
-        <AppHeader locale={locale} user={user} />
+        <MobileTopBar
+          locale={locale}
+          appName={t("common.appName")}
+          user={user}
+          groups={groups}
+          activeGroupId={activeGroupId}
+          items={visibleNav}
+        />
+        <AppHeader
+          locale={locale}
+          user={user}
+          groups={groups}
+          activeGroupId={activeGroupId}
+        />
         <main className={cn(shellStyles.content, isOperator && shellStyles.contentWide)}>
           {children}
         </main>
@@ -185,9 +208,11 @@ export function AppShell({ locale, user, children }: AppShellProps) {
 
 export function PageHeader({
   title,
+  subtitle,
   action,
 }: {
   title?: string;
+  subtitle?: string;
   action?: React.ReactNode;
 }) {
   if (!title && !action) return null;
@@ -199,7 +224,14 @@ export function PageHeader({
         !title && shellStyles.pageHeaderActionOnly,
       )}
     >
-      {title ? <h1 className={shellStyles.pageTitle}>{title}</h1> : null}
+      {title ? (
+        <div>
+          <h1 className={shellStyles.pageTitle}>{title}</h1>
+          {subtitle ? (
+            <p className="mt-1 text-sm text-[var(--text-muted)]">{subtitle}</p>
+          ) : null}
+        </div>
+      ) : null}
       {action}
     </div>
   );

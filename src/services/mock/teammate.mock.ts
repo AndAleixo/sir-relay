@@ -1,10 +1,11 @@
-import type { Locale, Role, Teammate, User } from "@/domain/types";
+import type { Locale, Session, Teammate, User } from "@/domain/types";
 import type {
   CreateTeammateInput,
   OrganizationUser,
   TeammateService,
   UserService,
 } from "@/services/contracts";
+import { patchMockUser, findMockUserById, findMockUserByEmail } from "@/services/mock/users.mock";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
 import { addGroupMember, userIdsInGroup } from "@/services/mock/groups.mock";
 import {
@@ -14,24 +15,31 @@ import {
   getTelegramLinkTokenForUser,
 } from "@/services/mock/tokens.mock";
 
-function memberIdsForGroup(groupId: string): Set<string> {
-  return userIdsInGroup(groupId);
+function requireTeammateInGroup(
+  ctx: { session: Session },
+  id: string,
+): Teammate {
+  const groupId = ctx.session.activeGroupId;
+  if (!groupId || !userIdsInGroup(groupId).has(id)) {
+    throw new Error("Teammate not found");
+  }
+  const teammate = MOCK_TEAMMATES.find((t) => t.id === id);
+  if (!teammate) throw new Error("Teammate not found");
+  return teammate;
 }
 
 export class MockTeammateService implements TeammateService {
-  async listTeammates(ctx: { session: { activeGroupId: string | null } }) {
+  async listTeammates(ctx: { session: Session }) {
     const groupId = ctx.session.activeGroupId;
     if (!groupId) return [];
-    const ids = memberIdsForGroup(groupId);
+    const ids = userIdsInGroup(groupId);
     return MOCK_TEAMMATES.filter((t) => t.active && ids.has(t.id));
   }
 
-  async listOrganizationUsers(ctx: {
-    session: { activeGroupId: string | null };
-  }): Promise<OrganizationUser[]> {
+  async listOrganizationUsers(ctx: { session: Session }): Promise<OrganizationUser[]> {
     const groupId = ctx.session.activeGroupId;
     if (!groupId) return [];
-    const ids = memberIdsForGroup(groupId);
+    const ids = userIdsInGroup(groupId);
     const operators = MOCK_OPERATORS.filter(
       (user) => user.active && ids.has(user.id),
     ) as OrganizationUser[];
@@ -41,22 +49,41 @@ export class MockTeammateService implements TeammateService {
     return [...operators, ...teammates];
   }
 
-  async getTeammate(id: string) {
-    return MOCK_TEAMMATES.find((t) => t.id === id) ?? null;
+  async getTeammate(id: string, ctx: { session: Session }) {
+    try {
+      return requireTeammateInGroup(ctx, id);
+    } catch {
+      return null;
+    }
   }
 
   async createTeammate(
     input: CreateTeammateInput,
-    ctx: { session: { activeGroupId: string | null } },
+    ctx: { session: Session },
   ): Promise<Teammate> {
     const groupId = ctx.session.activeGroupId;
     if (!groupId) throw new Error("No active group");
+
+    const email = input.email.trim().toLowerCase();
+    const existing = findMockUserByEmail(email);
+    if (existing) {
+      if (userIdsInGroup(groupId).has(existing.id)) {
+        throw new Error("Already in group");
+      }
+      addGroupMember(groupId, existing.id, "teammate");
+      return {
+        ...existing,
+        role: "teammate",
+        accountStatus: "active",
+        telegramStatus: existing.telegramStatus ?? "pending",
+      };
+    }
 
     const id = `user-${Date.now()}`;
     const teammate: Teammate = {
       id,
       name: input.name,
-      email: input.email.toLowerCase(),
+      email,
       role: "teammate",
       locale: input.locale,
       active: true,
@@ -64,8 +91,8 @@ export class MockTeammateService implements TeammateService {
       telegramStatus: "pending",
     };
     MOCK_TEAMMATES.push(teammate);
-    addGroupMember(groupId, id, "teammate" satisfies Role);
-    createInviteToken(id);
+    addGroupMember(groupId, id, "teammate");
+    createInviteToken(id, groupId);
     createTelegramLinkToken(id);
     return teammate;
   }
@@ -73,9 +100,9 @@ export class MockTeammateService implements TeammateService {
   async updateTeammate(
     id: string,
     input: { name?: string; email?: string },
+    ctx: { session: Session },
   ): Promise<Teammate> {
-    const teammate = MOCK_TEAMMATES.find((user) => user.id === id);
-    if (!teammate) throw new Error("Teammate not found");
+    const teammate = requireTeammateInGroup(ctx, id);
 
     if (input.name?.trim()) {
       teammate.name = input.name.trim();
@@ -91,59 +118,48 @@ export class MockTeammateService implements TeammateService {
     return { ...teammate };
   }
 
-  async deactivateTeammate(id: string): Promise<Teammate> {
-    const teammate = MOCK_TEAMMATES.find((user) => user.id === id);
-    if (!teammate) throw new Error("Teammate not found");
+  async deactivateTeammate(id: string, ctx: { session: Session }): Promise<Teammate> {
+    const teammate = requireTeammateInGroup(ctx, id);
     teammate.active = false;
     return { ...teammate };
   }
 
-  async regenerateInvite(id: string): Promise<string> {
-    const teammate = MOCK_TEAMMATES.find((user) => user.id === id);
-    if (!teammate) throw new Error("Teammate not found");
-    return createInviteToken(id);
+  async regenerateInvite(id: string, ctx: { session: Session }): Promise<string> {
+    requireTeammateInGroup(ctx, id);
+    return createInviteToken(id, ctx.session.activeGroupId!);
   }
 
-  async regenerateTelegramLink(id: string): Promise<string> {
-    const teammate = MOCK_TEAMMATES.find((user) => user.id === id);
-    if (!teammate) throw new Error("Teammate not found");
+  async regenerateTelegramLink(id: string, ctx: { session: Session }): Promise<string> {
+    const teammate = requireTeammateInGroup(ctx, id);
     teammate.telegramStatus = "pending";
     return createTelegramLinkToken(id);
   }
 
-  async getInviteToken(id: string): Promise<string | null> {
-    return getInviteTokenForUser(id) ?? createInviteToken(id);
+  async getInviteToken(id: string, ctx: { session: Session }): Promise<string | null> {
+    if (!(await this.getTeammate(id, ctx))) return null;
+    return getInviteTokenForUser(id) ?? createInviteToken(id, ctx.session.activeGroupId!);
   }
 
-  async getTelegramLinkToken(id: string): Promise<string | null> {
+  async getTelegramLinkToken(id: string, ctx: { session: Session }): Promise<string | null> {
+    if (!(await this.getTeammate(id, ctx))) return null;
     return getTelegramLinkTokenForUser(id) ?? createTelegramLinkToken(id);
   }
 }
 
 export class MockUserService implements UserService {
   async updateLocale(userId: string, locale: Locale): Promise<User> {
-    const operator = MOCK_OPERATORS.find((user) => user.id === userId);
-    if (operator) {
-      operator.locale = locale;
-      return { ...operator };
-    }
-
-    const teammate = MOCK_TEAMMATES.find((t) => t.id === userId);
-    if (teammate) {
-      teammate.locale = locale;
-      return { ...teammate };
-    }
-
-    throw new Error("User not found");
+    const updated = patchMockUser(userId, { locale });
+    if (!updated) throw new Error("User not found");
+    return { ...updated };
   }
 
   async regenerateTelegramLink(userId: string): Promise<string> {
-    const operator = MOCK_OPERATORS.find((user) => user.id === userId);
-    if (operator) {
-      operator.telegramStatus = "pending";
-      return createTelegramLinkToken(userId);
+    const user = findMockUserById(userId);
+    if (!user || user.role !== "operator") {
+      throw new Error("User not found");
     }
-    throw new Error("User not found");
+    patchMockUser(userId, { telegramStatus: "pending" });
+    return createTelegramLinkToken(userId);
   }
 
   async getTelegramLinkToken(userId: string): Promise<string | null> {

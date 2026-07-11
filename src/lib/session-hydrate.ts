@@ -7,16 +7,23 @@ export interface GroupMembershipLookup {
   hasMembership(userId: string, groupId: string): boolean;
 }
 
+export type HydrateSessionOptions = {
+  /** When false, keep activeGroupId null instead of auto-picking a single group. */
+  autoPickGroup?: boolean;
+};
+
 /** Hydrate session: membership role + auto-select when user has exactly one group. */
 export function hydrateSession(
   raw: Session,
   groups: GroupMembershipLookup,
+  options: HydrateSessionOptions = {},
 ): Session | null {
   const { user } = raw;
   if (!user.active) return null;
 
+  const autoPick = options.autoPickGroup !== false;
   let activeGroupId = raw.activeGroupId ?? null;
-  if (!activeGroupId) {
+  if (!activeGroupId && autoPick) {
     activeGroupId = groups.pickDefaultGroupId(user.id);
   }
 

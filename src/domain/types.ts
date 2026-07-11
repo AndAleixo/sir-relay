@@ -19,6 +19,16 @@ export interface GroupMembership {
   role: Role;
 }
 
+/** Public invite metadata — no secrets. */
+export interface GroupInvitePreview {
+  groupId: string;
+  groupName: string;
+  email: string;
+  role: Role;
+  /** True when invitee must set a password (new / invited account). */
+  needsPassword: boolean;
+}
+
 export interface User {
   id: string;
   name: string;

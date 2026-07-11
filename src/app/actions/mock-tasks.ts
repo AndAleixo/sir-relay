@@ -52,7 +52,7 @@ export async function updateOperatorAlertPrefs(formData: FormData) {
   const session = await auth.getSession();
   if (!session || session.user.role !== "operator") return;
 
-  await alerts.updatePrefs({ taskDone, taskDue });
+  await alerts.updatePrefs({ session }, { taskDone, taskDue });
   revalidatePath("/", "layout");
 }
 
@@ -127,7 +127,7 @@ export async function updateTaskStatusAction(
   const updated = await tasks.updateTaskStatus(taskId, status, { session });
 
   if (existing.status !== "done" && status === "done") {
-    await alerts.notifyTaskDone(updated);
+    await alerts.notifyTaskDone(updated, { session });
   }
 
   if (options?.clientMutationId) {
@@ -243,7 +243,7 @@ export async function saveTaskDetailAction(
   if (existing.status !== status) {
     const updated = await tasks.updateTaskStatus(taskId, status, { session });
     if (existing.status !== "done" && status === "done") {
-      await alerts.notifyTaskDone(updated);
+      await alerts.notifyTaskDone(updated, { session });
     }
   }
 
@@ -254,7 +254,7 @@ export async function saveTaskDetailAction(
   ) {
     let assigneeName = session.user.name;
     if (assigneeId !== session.user.id) {
-      const teammate = await teammates.getTeammate(assigneeId);
+      const teammate = await teammates.getTeammate(assigneeId, { session });
       if (!teammate) return;
       assigneeName = teammate.name;
     }

@@ -62,7 +62,7 @@ export default async function ChangePasswordPage({
             </div>
             {error === "invalid" ? (
               <p className="rounded-button border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-700">
-                {t("auth.loginError")}
+                {t("auth.currentPasswordInvalid")}
               </p>
             ) : null}
             {errorKey ? (

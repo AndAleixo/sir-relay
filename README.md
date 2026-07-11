@@ -26,7 +26,8 @@ These files define the product, UI, architecture, and brand. Skipping them leads
 1. [**docs/REQUIREMENTS.md**](./docs/REQUIREMENTS.md) — what the product does, business rules, phases, API, permissions (**source of truth**)
 2. [**docs/UIUX.md**](./docs/UIUX.md) — layouts, boards, screens, interactions, components
 3. [**docs/ARCHITECTURE.md**](./docs/ARCHITECTURE.md) — code structure, mock routes, mock → API
-4. [**docs/BRAND.md**](./docs/BRAND.md) — colors, logos, visual tokens
+4. [**docs/ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) — four environments: dev mock · dev hybrid · prod local · prod VPS
+5. [**docs/BRAND.md**](./docs/BRAND.md) — colors, logos, visual tokens
 
 For deployment, read [**docs/DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) after the above.
 
@@ -39,6 +40,7 @@ For deployment, read [**docs/DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEA
 | [**REQUIREMENTS.md**](./docs/REQUIREMENTS.md) | Full spec: roles, relay queue, tasks, Telegram, phases 1–3, schema, API, permissions | **Always** — before any product feature or bugfix |
 | [**UIUX.md**](./docs/UIUX.md) | Shell, boards (Operator vs Teammate), cards, forms, empty states, components | When changing pages, layout, or UI flows |
 | [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) | `src/` layout, mock routes, `getServices()`, sync, task forms | When changing structure, services, or mock/API integration |
+| [**ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) | Dev mock · dev hybrid · prod local · prod VPS; env vars; workflow | When setting up local DB, Docker smoke test, or planning deploy |
 | [**BRAND.md**](./docs/BRAND.md) | Sir identity, icons vs logos, palette, CSS tokens | When changing colors, typography, logos, or visual components |
 | [**DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | DigitalOcean Droplet deploy: Docker Compose, PostgreSQL, Caddy, HTTPS | When preparing or updating production |
 
@@ -92,7 +94,7 @@ Details in [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-lay
 **UI mock complete** — landing + app UI, in-memory services. **Phase 1 backend** (Prisma, API, Telegram) not started.
 
 ```bash
-npm install && npm run dev && npm run check:routes
+npm install && npm run dev-mock && npm run check:routes
 ```
 
 Open `http://localhost:3000` · demo: `sam@example.com` (2 groups → hub) · `ana@example.com` (teammate, 1 group → tasks) · new signup → `/groups`.

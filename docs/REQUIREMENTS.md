@@ -325,7 +325,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `alerts` | ✓ | — |
 | `settings` | ✓ | ✓ | Group-scoped operator alert prefs only |
 
-**Phase 1 acceptance test:** Landing at `https://app.example.com/en` → Sign up → create group (operator) → add teammate → invite + Telegram link → two tasks → only first notified → teammate replies `done` → second on Telegram → both on web. **Or:** demo login `sam@example.com` → Demo Shop → same relay loop. Stack on VPS with HTTPS.
+**Phase 1 acceptance test:** Landing → sign up → create group → add teammate → invite + Telegram → two tasks → relay `done` on Telegram. **Or:** demo `sam@example.com` → hub → Demo Shop → same loop. Stack on VPS with HTTPS.
 
 ---
 

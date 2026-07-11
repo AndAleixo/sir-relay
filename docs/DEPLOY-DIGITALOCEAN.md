@@ -4,7 +4,9 @@ Guia para publicar o SirRelay como **aplicação web com domínio público** num
 
 Visitantes acedem à **landing** (`https://app.teudominio.com/en`); utilizadores autenticados entram na app. Stack alinhada com [REQUIREMENTS.md §4.1](./REQUIREMENTS.md#41-product-model--hosted-web-app-primary) e [§5.8](./REQUIREMENTS.md#58-deploy).
 
-**Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [README.md](../README.md)
+**Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [ENVIRONMENTS.md](./ENVIRONMENTS.md) · [README.md](../README.md)
+
+**Ambientes (4):** dev mock · dev híbrido · prod local · prod VPS — [ENVIRONMENTS.md](./ENVIRONMENTS.md). Este guia cobre **prod VPS** (passos 6–10).
 
 **Estado:** infra preparada; app em fase mock (landing + UI) — usar este guia quando a Fase 1 (API + Prisma) estiver pronta.
 
@@ -134,6 +136,7 @@ TELEGRAM_WEBHOOK_SECRET=...
 docker compose up -d --build
 docker compose ps
 docker compose logs -f app
+# ou no servidor: npm run prod-vps
 ```
 
 Caddy obtém certificado Let's Encrypt quando `APP_DOMAIN` aponta para o Droplet.
@@ -181,7 +184,7 @@ curl -s "${APP_URL}/api/v1/health"
 - [ ] **Landing pública** em `/` ou `/en` (sem login)
 - [ ] Sign up / Log in no header → `/signup` · `/login` funcionam
 - [ ] Novo utilizador → `/groups` → criar grupo
-- [ ] Login demo `sam@example.com` → grupo Demo Shop → `/teammates`
+- [ ] Login demo `sam@example.com` → hub `/groups` → Demo Shop → `/teammates`
 - [ ] Criar teammate → invite + link Telegram
 - [ ] Webhook Telegram `ok`
 - [ ] Relay: 2 tarefas → só 1ª no TG → `done` → 2ª chega
@@ -195,8 +198,10 @@ curl -s "${APP_URL}/api/v1/health"
 
 | Ficheiro | Função |
 |----------|--------|
-| `docker-compose.yml` | app + postgres + caddy |
+| `docker-compose.yml` | app + postgres + caddy (prod local + VPS) |
+| `docker-compose.dev.yml` | override — expõe Postgres :5432 para dev híbrido |
 | `Dockerfile` | Next.js standalone |
 | `Caddyfile` | HTTPS reverse proxy |
-| `.env.example` | Variáveis necessárias |
+| `.env.example` | Variáveis por ambiente — ver [ENVIRONMENTS.md](./ENVIRONMENTS.md) |
+| `docs/ENVIRONMENTS.md` | Os quatro ambientes (mock · híbrido · prod local · VPS) |
 | `public/brand/demo.webm` | Vídeo demo na landing — muted, loop; fallback CSS se falhar |

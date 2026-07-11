@@ -1,6 +1,6 @@
 # Architecture
 
-**Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) · [UIUX.md](./UIUX.md) · [README.md](../README.md)
+**Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) · [UIUX.md](./UIUX.md) · [ENVIRONMENTS.md](./ENVIRONMENTS.md) · [README.md](../README.md)
 
 Presentation, domain types, and data access are separated so mock → API is a single swap. One Next.js deploy serves the **landing** and the **signed-in app**.
 
@@ -53,7 +53,7 @@ Unauthenticated access to app routes → `/login?session=expired`.
 
 ## Landing demo
 
-CSS board fallback in hero; primary video `public/brand/demo.webm` ([UIUX §2.0](./UIUX.md#20-marketing-landing)). Demo seed: `src/services/mock/data.ts` · login `sam@example.com` (operator in “Demo Shop”).
+CSS board fallback in hero; primary video `public/brand/demo.webm` ([UIUX §2.0](./UIUX.md#20-marketing-landing)). Demo seed: `src/services/mock/data.ts` · `sam@example.com` (hub, 2 groups) · `ana@example.com` (teammate → tasks).
 
 ## Task forms
 
@@ -65,6 +65,8 @@ CSS board fallback in hero; primary video `public/brand/demo.webm` ([UIUX §2.0]
 2. Set `NEXT_PUBLIC_SERVICE_MODE=api` in `getServices()`.
 3. Components unchanged — landing and routes stay the same.
 
+See [ENVIRONMENTS.md](./ENVIRONMENTS.md) for the **four environments** (dev mock · dev hybrid · prod local · prod VPS).
+
 ## Session sync (mock only)
 
 Edits live in `SyncProvider` until sync succeeds; sync bar on failure. Refresh discards unsent changes.
@@ -73,6 +75,7 @@ Edits live in `SyncProvider` until sync succeeds; sync bar on failure. Refresh d
 
 ```bash
 npm install && npm run dev && npm run check:routes
+# ou por ambiente: npm run dev-mock | dev-hybrid | prod-local
 ```
 
 `http://localhost:3000` — landing · `/en/login` — sign in · **demo:** `sam@example.com` (2 groups → hub) · `ana@example.com` (teammate → tasks) · new signup → `/groups`.

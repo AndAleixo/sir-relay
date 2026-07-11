@@ -1,0 +1,12 @@
+# Dev override — expose Postgres to the host for hybrid development
+# (npm run dev on the host + NEXT_PUBLIC_SERVICE_MODE=api)
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up postgres -d
+#
+# See docs/ENVIRONMENTS.md §1.2
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"

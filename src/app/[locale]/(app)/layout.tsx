@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
-import { getServices } from "@/services";
 import { AppLayoutClient } from "@/components/layout/app-layout-client";
+import { requireAppSession } from "@/lib/require-session";
 
 export default async function AppLayout({
   children,
@@ -10,16 +9,7 @@ export default async function AppLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const { auth } = getServices();
-  const session = await auth.getSession();
-
-  if (!session) {
-    redirect(`/${locale}/admin?session=expired`);
-  }
-
-  if (session.user.mustChangePassword) {
-    redirect(`/${locale}/change-password`);
-  }
+  const session = await requireAppSession(locale);
 
   return (
     <AppLayoutClient locale={locale} user={session.user}>

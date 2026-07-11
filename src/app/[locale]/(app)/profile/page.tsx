@@ -40,7 +40,7 @@ export default async function ProfilePage({
 
   const passwordErrorMessage =
     passwordError === "invalid"
-      ? t("admin.signInError")
+      ? t("auth.loginError")
       : passwordError === "short"
         ? t("auth.passwordTooShort")
         : passwordError === "mismatch"

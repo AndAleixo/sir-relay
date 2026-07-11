@@ -1,19 +1,30 @@
 import type { Session } from "@/domain/types";
 
-/**
- * Post-auth entry route.
- * Logged out → landing · must change password → change-password · operator → teammates · teammate → tasks
- */
-export function resolveEntryPath(locale: string, session: Session | null): string {
-  if (!session) return `/${locale}`;
+function roleHomePath(locale: string, session: Session): string {
   if (session.user.mustChangePassword) return `/${locale}/change-password`;
+  if (!session.activeGroupId) return `/${locale}/groups`;
   if (session.user.role === "operator") return `/${locale}/teammates`;
   return `/${locale}/tasks`;
 }
 
-/** Wrong-role guard fallback — always lands on the role home, not a generic /tasks. */
+/**
+ * Post-auth routing.
+ * Logged out → landing · password → change-password · no group → groups · else role home.
+ */
+export function resolveEntryPath(locale: string, session: Session | null): string {
+  if (!session) return `/${locale}`;
+  return roleHomePath(locale, session);
+}
+
 export function resolveRoleHomePath(locale: string, session: Session): string {
-  if (session.user.mustChangePassword) return `/${locale}/change-password`;
-  if (session.user.role === "operator") return `/${locale}/teammates`;
-  return `/${locale}/tasks`;
+  return roleHomePath(locale, session);
+}
+
+export const LOGIN_PATH = "login";
+
+export function loginPath(locale: string, query?: Record<string, string>): string {
+  const base = `/${locale}/${LOGIN_PATH}`;
+  if (!query || Object.keys(query).length === 0) return base;
+  const params = new URLSearchParams(query);
+  return `${base}?${params.toString()}`;
 }

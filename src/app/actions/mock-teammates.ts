@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Locale } from "@/domain/types";
 import { locales } from "@/i18n/config";
+import { requireOperatorSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 
 function parseLocale(value: FormDataEntryValue | null): Locale {
@@ -20,12 +21,12 @@ export async function mockCreateTeammate(locale: string, formData: FormData) {
     redirect(`/${locale}/teammates/new`);
   }
 
+  const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
-  const teammate = await teammates.createTeammate({
-    name,
-    email,
-    locale: teammateLocale,
-  });
+  const teammate = await teammates.createTeammate(
+    { name, email, locale: teammateLocale },
+    { session },
+  );
 
   revalidatePath(`/${locale}/teammates`);
   redirect(`/${locale}/teammates/${teammate.id}`);
@@ -39,11 +40,8 @@ export async function mockUpdateTeammate(
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
 
-  const { auth, teammates } = getServices();
-  const session = await auth.getSession();
-  if (!session || session.user.role !== "operator") {
-    redirect(`/${locale}/teammates`);
-  }
+  await requireOperatorSession(locale);
+  const { teammates } = getServices();
 
   try {
     await teammates.updateTeammate(teammateId, {
@@ -59,11 +57,8 @@ export async function mockUpdateTeammate(
 }
 
 export async function mockDeactivateTeammate(locale: string, teammateId: string) {
-  const { auth, teammates } = getServices();
-  const session = await auth.getSession();
-  if (!session || session.user.role !== "operator") {
-    redirect(`/${locale}/teammates`);
-  }
+  await requireOperatorSession(locale);
+  const { teammates } = getServices();
 
   await teammates.deactivateTeammate(teammateId);
   revalidatePath(`/${locale}/teammates`);
@@ -71,11 +66,8 @@ export async function mockDeactivateTeammate(locale: string, teammateId: string)
 }
 
 export async function mockRegenerateInvite(locale: string, teammateId: string) {
-  const { auth, teammates } = getServices();
-  const session = await auth.getSession();
-  if (!session || session.user.role !== "operator") {
-    redirect(`/${locale}/teammates`);
-  }
+  await requireOperatorSession(locale);
+  const { teammates } = getServices();
 
   await teammates.regenerateInvite(teammateId);
   revalidatePath(`/${locale}/teammates/${teammateId}`);
@@ -86,11 +78,8 @@ export async function mockRegenerateTeammateTelegramLink(
   locale: string,
   teammateId: string,
 ) {
-  const { auth, teammates } = getServices();
-  const session = await auth.getSession();
-  if (!session || session.user.role !== "operator") {
-    redirect(`/${locale}/teammates`);
-  }
+  await requireOperatorSession(locale);
+  const { teammates } = getServices();
 
   await teammates.regenerateTelegramLink(teammateId);
   revalidatePath(`/${locale}/teammates/${teammateId}`);

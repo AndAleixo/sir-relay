@@ -8,16 +8,26 @@ export type AccountStatus = "invited" | "active";
 
 export type TelegramLinkStatus = "linked" | "pending";
 
+export interface Group {
+  id: string;
+  name: string;
+}
+
+export interface GroupMembership {
+  groupId: string;
+  userId: string;
+  role: Role;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
+  /** Effective role in the active group (derived from membership when set). */
   role: Role;
   locale: Locale;
   active: boolean;
-  /** Seeded Operator must change password before using the app (Phase 1). */
   mustChangePassword?: boolean;
-  /** Optional — teammates: task relay · operators: alert delivery */
   telegramStatus?: TelegramLinkStatus;
 }
 
@@ -55,8 +65,6 @@ export interface Task {
 
 export interface Session {
   user: User;
-}
-
-export interface ServiceContext {
-  session: Session;
+  /** Selected group — required before app routes (tasks, teammates, …). */
+  activeGroupId: string | null;
 }

@@ -12,10 +12,12 @@
 | Level | Name | Role |
 |-------|------|------|
 | **Brand** | **Sir** | Parent brand — trust, clarity |
-| **Product** | **SirRelay** | Task relay app (web admin + Telegram bot) |
+| **Product** | **SirRelay** | Hosted web task relay + Telegram bot |
 | **Repo / package** | `sir-relay` | Technical identifier |
 
 **Tagline (optional):** *Relay work. Get it done.*
+
+**Marketing voice:** Calm, direct, small-team scale — avoid KPI/“10× productivity” language. Landing and product UI share the same palette ([UIUX.md §2.0](./UIUX.md#20-marketing-landing)).
 
 ---
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
-import { requireRole } from "@/lib/auth-guards";
+import { requireRole } from "@/lib/require-session";
 import { PageHeader } from "@/components/layout/app-shell";
 import { CreateTaskForm } from "@/components/tasks/task-form";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ export default async function NewTaskPage({
   if (!session) return null;
   requireRole(session, "operator", locale);
 
-  const teammateList = await teammates.listTeammates();
+  const teammateList = await teammates.listTeammates({ session });
   const assigneeOptions = [
     {
       id: session.user.id,

@@ -1,11 +1,12 @@
 # Deploy no DigitalOcean
 
-Guia para correr o SirRelay num **Droplet** com Docker Compose + Caddy.  
-Stack alinhada com [REQUIREMENTS.md §5.8](./REQUIREMENTS.md#58-deploy).
+Guia para publicar o SirRelay como **aplicação web com domínio público** num **Droplet** — Docker Compose + Caddy + PostgreSQL.
+
+Visitantes acedem à **landing** (`https://app.teudominio.com/en`); utilizadores autenticados entram na app. Stack alinhada com [REQUIREMENTS.md §4.1](./REQUIREMENTS.md#41-product-model--hosted-web-app-primary) e [§5.8](./REQUIREMENTS.md#58-deploy).
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [README.md](../README.md)
 
-**Estado:** infra preparada; app ainda em fase mock — usar este guia quando a Fase 1 (API + Prisma) estiver pronta.
+**Estado:** infra preparada; app em fase mock (landing + UI) — usar este guia quando a Fase 1 (API + Prisma) estiver pronta.
 
 ---
 
@@ -57,8 +58,10 @@ No teu domínio (DO DNS ou Cloudflare):
 
 | Tipo | Nome | Valor |
 |------|------|-------|
-| A | `@` ou `app` | IP do Droplet |
+| A | `app` | IP do Droplet |
 | A | `www` | IP do Droplet (opcional) |
+
+Recomendado: subdomínio **`app`** (ex.: `app.teudominio.com`) para a aplicação; domínio raiz pode redireccionar para marketing ou site institucional Sir.
 
 `APP_URL` = `https://app.teudominio.com` (sem barra final).  
 `APP_DOMAIN` = `app.teudominio.com` (host only, para o Caddyfile).
@@ -175,7 +178,10 @@ curl -s "${APP_URL}/api/v1/health"
 ## 10. Checklist pós-deploy
 
 - [ ] HTTPS activo (cadeado no browser)
-- [ ] Login Operator + password change (primeiro login)
+- [ ] **Landing pública** em `/` ou `/en` (sem login)
+- [ ] Sign up / Log in no header → `/signup` · `/login` funcionam
+- [ ] Novo utilizador → `/groups` → criar grupo
+- [ ] Login demo `sam@example.com` → grupo Demo Shop → `/teammates`
 - [ ] Criar teammate → invite + link Telegram
 - [ ] Webhook Telegram `ok`
 - [ ] Relay: 2 tarefas → só 1ª no TG → `done` → 2ª chega
@@ -193,3 +199,4 @@ curl -s "${APP_URL}/api/v1/health"
 | `Dockerfile` | Next.js standalone |
 | `Caddyfile` | HTTPS reverse proxy |
 | `.env.example` | Variáveis necessárias |
+| `public/brand/demo.mp4` | (Opcional) Vídeo demo na landing — H.264, muted, &lt; 10 MB |

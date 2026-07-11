@@ -21,19 +21,22 @@
     "expandSidebar": "Expandir barra lateral",
     "accountMenu": "Menu da conta"
   },
-  "admin": {
-    "signInTitle": "Entrar no SirRelay",
-    "signInSubtitle": "Instância self-hosted — entre para gerir utilizadores ou abrir a app.",
-    "signInMockHint": "Vídeo demo: sam@example.com (operador) · ana@example.com (colega) — qualquer senha não vazia. Alex deve alterar a senha no 1.º login.",
-    "signInError": "E-mail ou senha inválidos.",
-    "sessionNotice": "Esta instância usa um cookie de sessão essencial para entrar.",
-    "sessionExpired": "A sua sessão expirou. Entre novamente.",
-    "privacyLink": "Privacidade"
-  },
   "auth": {
     "login": "Entrar",
+    "signup": "Criar conta",
+    "loginTitle": "Bem-vindo de volta",
+    "loginSubtitle": "Entre para abrir os seus grupos e tarefas.",
+    "signupTitle": "Crie a sua conta",
+    "signupSubtitle": "Grátis para começar — crie um grupo ou entre por convite.",
+    "name": "Nome completo",
     "email": "E-mail",
     "password": "Senha",
+    "noAccount": "Ainda não tem conta?",
+    "hasAccount": "Já tem conta?",
+    "sessionNotice": "Usamos um cookie de sessão essencial para entrar.",
+    "sessionExpired": "A sua sessão expirou. Entre novamente.",
+    "loginError": "E-mail ou senha inválidos.",
+    "emailTaken": "Este e-mail já está registado.",
     "currentPassword": "Senha actual",
     "newPassword": "Nova senha",
     "confirmPassword": "Confirmar senha",
@@ -45,16 +48,38 @@
     "passwordMismatch": "As senhas não coincidem.",
     "passwordChanged": "Senha actualizada."
   },
+  "legal": {
+    "privacy": "Privacidade",
+    "terms": "Termos"
+  },
+  "groups": {
+    "title": "Os seus grupos",
+    "subtitle": "Escolha um grupo para trabalhar ou crie um novo.",
+    "empty": "Ainda não está em nenhum grupo. Crie um para começar.",
+    "create": "Criar grupo",
+    "createAnother": "Criar outro grupo",
+    "open": "Abrir",
+    "newTitle": "Criar um grupo",
+    "newSubtitle": "Um grupo é o espaço da sua equipa — tarefas, membros e relay Telegram.",
+    "name": "Nome do grupo",
+    "namePlaceholder": "ex. Loja demo",
+    "nameTooShort": "O nome deve ter pelo menos 2 caracteres.",
+    "switch": "Mudar de grupo"
+  },
+  "terms": {
+    "title": "Termos de serviço",
+    "stub": "O SirRelay é fornecido tal como está para coordenação de tarefas em equipa. Os termos completos serão publicados antes do lançamento."
+  },
   "join": {
-    "title": "Activar a sua conta",
-    "subtitle": "Defina uma senha para entrar nesta instância SirRelay.",
-    "submit": "Activar conta",
+    "title": "Junte-se ao seu grupo",
+    "subtitle": "Defina uma senha para aceitar o convite e entrar no grupo.",
+    "submit": "Entrar no grupo",
     "invalidToken": "Este link de convite é inválido ou expirou."
   },
   "privacy": {
     "title": "Privacidade",
-    "stub": "O SirRelay é self-hosted. Esta instância guarda dados de conta, tarefas e ligação Telegram no seu servidor.",
-    "cookies": "Usamos um cookie essencial para a sessão autenticada. Sem analytics de terceiros nesta instância, salvo se o Operador activar."
+    "stub": "O SirRelay guarda a sua conta, tarefas e ligação Telegram nos nossos servidores. Usamos um cookie de sessão essencial para entrar.",
+    "cookies": "Usamos um cookie essencial para a sessão autenticada. Sem analytics de terceiros salvo se activar em Configurações."
   },
   "roles": {
     "operator": "Operador",
@@ -80,7 +105,7 @@
     "namePlaceholder": "Nome completo",
     "newSubtitle": "Receberão um link de convite para ativar a conta e vincular o Telegram.",
     "localeHint": "Usado nas mensagens do Telegram e na interface web.",
-    "listSubtitle": "Operadores e colegas nesta instância.",
+    "listSubtitle": "Operadores e colegas da sua equipa.",
     "userCount": "{count, plural, one {# pessoa} other {# pessoas}}",
     "roleColumn": "Papel",
     "accountColumn": "Conta",
@@ -88,7 +113,7 @@
     "viewUser": "Ver",
     "exportAll": "Exportar tudo",
     "export": "Exportar",
-    "exportHint": "Descarrega um snapshot JSON dos dados mock. Backup completo do servidor: scripts SQL no README.",
+    "exportHint": "Descarrega um snapshot JSON dos dados da equipa.",
     "editSection": "Editar utilizador",
     "deactivate": "Desactivar",
     "deactivateConfirm": "Desactivar este utilizador? Não poderá entrar.",
@@ -140,7 +165,8 @@
   "settings": {
     "title": "Configurações",
     "locale": "Idioma",
-    "localeHint": "Aplica-se a toda a app. Guardado na sua conta nesta pré-visualização.",
+    "localeHint": "Aplica-se a toda a app. Guardado na sua conta quando autenticado.",
+    "groupsLink": "Mudar de grupo",
     "operatorAlerts": "Alertas do operador",
     "operatorAlertsHint": "Enviados para o seu Telegram quando activos. O histórico completo está na página Alertas.",
     "alertTaskDone": "Colega concluiu uma tarefa",
@@ -154,7 +180,7 @@
     "uploadPhoto": "Enviar foto",
     "changePhoto": "Alterar foto",
     "removePhoto": "Remover foto",
-    "photoHint": "JPG ou PNG, até 2 MB. Guardado localmente nesta prévia do browser.",
+    "photoHint": "JPG ou PNG, até 2 MB. Guardado na sua conta quando a API estiver ligada.",
     "accountInfo": "Conta",
     "displayName": "Nome de exibição",
     "role": "Papel",
@@ -190,7 +216,7 @@
     "eyebrow": "Relay simples para equipas",
     "heroTitle": "Gira a sua equipa sem pressão.",
     "heroSubtitle": "O SirRelay ajuda equipas pequenas a manter-se alinhadas — uma tarefa clara de cada vez, na web ou Telegram. Sem dashboards, sem métricas de desempenho, sem ruído.",
-    "ctaPrimary": "Começar",
+    "ctaPrimary": "Criar conta",
     "ctaSecondary": "Como tratamos os dados",
     "demoAria": "Pré-visualização do quadro SirRelay",
     "demoUrl": "app.sirrelay.com/{locale}/tasks",
@@ -214,6 +240,29 @@
         "body": "No Telegram, os colegas recebem uma única tarefa activa. Marque como concluída e chega a seguinte — relay focado, não sobrecarga."
       }
     },
-    "footerCopy": "© {year} Sir · SirRelay"
+    "footerCopy": "© {year} Sir · SirRelay",
+    "faqTitle": "Perguntas frequentes",
+    "faq": {
+      "what": {
+        "q": "O que é o SirRelay?",
+        "a": "Um relay de tarefas calmo para grupos pequenos — web para a visão completa, Telegram para uma tarefa de cada vez."
+      },
+      "groups": {
+        "q": "Como funcionam os grupos?",
+        "a": "Crie uma conta, inicie um grupo ou aceite um convite. Tarefas e membros vivem dentro de cada grupo."
+      },
+      "metrics": {
+        "q": "Medem métricas de produtividade?",
+        "a": "Não. Sem rankings, gráficos de velocidade nem KPIs de vigilância — só tarefas, prazos e relay."
+      },
+      "telegram": {
+        "q": "O Telegram é obrigatório?",
+        "a": "Não para admins. Membros trabalham melhor com Telegram para o relay de uma tarefa; a web mostra o mesmo estado."
+      },
+      "data": {
+        "q": "Onde ficam os meus dados?",
+        "a": "Nos servidores SirRelay (PostgreSQL). Páginas autenticadas não são cacheadas; a sessão usa um cookie essencial."
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-import type { Locale, Teammate, User } from "@/domain/types";
+import type { Locale, Role, Teammate, User } from "@/domain/types";
 import type {
   CreateTeammateInput,
   OrganizationUser,
@@ -6,6 +6,7 @@ import type {
   UserService,
 } from "@/services/contracts";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
+import { addGroupMember, userIdsInGroup } from "@/services/mock/groups.mock";
 import {
   createInviteToken,
   createTelegramLinkToken,
@@ -13,14 +14,30 @@ import {
   getTelegramLinkTokenForUser,
 } from "@/services/mock/tokens.mock";
 
+function memberIdsForGroup(groupId: string): Set<string> {
+  return userIdsInGroup(groupId);
+}
+
 export class MockTeammateService implements TeammateService {
-  async listTeammates() {
-    return MOCK_TEAMMATES.filter((t) => t.active);
+  async listTeammates(ctx: { session: { activeGroupId: string | null } }) {
+    const groupId = ctx.session.activeGroupId;
+    if (!groupId) return [];
+    const ids = memberIdsForGroup(groupId);
+    return MOCK_TEAMMATES.filter((t) => t.active && ids.has(t.id));
   }
 
-  async listOrganizationUsers(): Promise<OrganizationUser[]> {
-    const operators = MOCK_OPERATORS.filter((user) => user.active) as OrganizationUser[];
-    const teammates = MOCK_TEAMMATES.filter((user) => user.active);
+  async listOrganizationUsers(ctx: {
+    session: { activeGroupId: string | null };
+  }): Promise<OrganizationUser[]> {
+    const groupId = ctx.session.activeGroupId;
+    if (!groupId) return [];
+    const ids = memberIdsForGroup(groupId);
+    const operators = MOCK_OPERATORS.filter(
+      (user) => user.active && ids.has(user.id),
+    ) as OrganizationUser[];
+    const teammates = MOCK_TEAMMATES.filter(
+      (user) => user.active && ids.has(user.id),
+    );
     return [...operators, ...teammates];
   }
 
@@ -28,7 +45,13 @@ export class MockTeammateService implements TeammateService {
     return MOCK_TEAMMATES.find((t) => t.id === id) ?? null;
   }
 
-  async createTeammate(input: CreateTeammateInput): Promise<Teammate> {
+  async createTeammate(
+    input: CreateTeammateInput,
+    ctx: { session: { activeGroupId: string | null } },
+  ): Promise<Teammate> {
+    const groupId = ctx.session.activeGroupId;
+    if (!groupId) throw new Error("No active group");
+
     const id = `user-${Date.now()}`;
     const teammate: Teammate = {
       id,
@@ -41,6 +64,7 @@ export class MockTeammateService implements TeammateService {
       telegramStatus: "pending",
     };
     MOCK_TEAMMATES.push(teammate);
+    addGroupMember(groupId, id, "teammate" satisfies Role);
     createInviteToken(id);
     createTelegramLinkToken(id);
     return teammate;

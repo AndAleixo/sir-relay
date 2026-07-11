@@ -1,5 +1,7 @@
 import type {
+  Group,
   Locale,
+  Role,
   Session,
   Task,
   TaskStatus,
@@ -28,6 +30,7 @@ export interface CreateTeammateInput {
 export interface AuthService {
   getSession(): Promise<Session | null>;
   login(email: string, password: string): Promise<Session>;
+  signup(name: string, email: string, password: string): Promise<Session>;
   logout(): Promise<void>;
   changePassword(
     userId: string,
@@ -35,6 +38,16 @@ export interface AuthService {
     newPassword: string,
   ): Promise<User>;
   joinWithToken(token: string, password: string): Promise<Session>;
+  setActiveGroup(userId: string, groupId: string | null): Promise<Session>;
+  refreshSessionUser(user: User): Promise<void>;
+  isInviteTokenValid(token: string): Promise<boolean>;
+}
+
+export interface GroupService {
+  listForUser(userId: string): Promise<Group[]>;
+  create(userId: string, name: string): Promise<Group>;
+  roleInGroup(userId: string, groupId: string): Promise<Role | null>;
+  isMember(userId: string, groupId: string): Promise<boolean>;
 }
 
 export interface TaskService {
@@ -62,10 +75,13 @@ export interface TaskService {
 }
 
 export interface TeammateService {
-  listTeammates(): Promise<Teammate[]>;
-  listOrganizationUsers(): Promise<OrganizationUser[]>;
+  listTeammates(ctx: { session: Session }): Promise<Teammate[]>;
+  listOrganizationUsers(ctx: { session: Session }): Promise<OrganizationUser[]>;
   getTeammate(id: string): Promise<Teammate | null>;
-  createTeammate(input: CreateTeammateInput): Promise<Teammate>;
+  createTeammate(
+    input: CreateTeammateInput,
+    ctx: { session: Session },
+  ): Promise<Teammate>;
   updateTeammate(
     id: string,
     input: { name?: string; email?: string },
@@ -85,6 +101,7 @@ export interface UserService {
 
 export interface Services {
   auth: AuthService;
+  groups: GroupService;
   tasks: TaskService;
   teammates: TeammateService;
   users: UserService;

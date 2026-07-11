@@ -1,6 +1,7 @@
 import type { Services } from "@/services/contracts";
 import { mockOperatorAlertService } from "@/services/mock/alerts.mock";
 import { mockAuthService } from "@/services/mock/auth.mock";
+import { mockGroupService } from "@/services/mock/groups.mock";
 import { mockTaskService } from "@/services/mock/task.mock";
 import {
   mockTeammateService,
@@ -20,6 +21,7 @@ export function getServices(): Services {
   if (mode === "mock") {
     return {
       auth: mockAuthService,
+      groups: mockGroupService,
       tasks: mockTaskService,
       teammates: mockTeammateService,
       users: mockUserService,

@@ -8,7 +8,7 @@ export const MOCK_OPERATOR: User = {
   locale: "en",
   active: true,
   telegramStatus: "linked",
-  mustChangePassword: true,
+  mustChangePassword: false,
 };
 
 export const MOCK_OPERATORS: User[] = [
@@ -24,15 +24,6 @@ export const MOCK_OPERATORS: User[] = [
     telegramStatus: "linked",
   },
 ];
-
-export const MOCK_TEAMMATE_USER: User = {
-  id: "user-ana",
-  name: "Ana Silva",
-  email: "ana@example.com",
-  role: "teammate",
-  locale: "pt",
-  active: true,
-};
 
 /** Demo-ready seed data — balanced board, Jul 2026 dates, no failed Telegram flags. */
 export const MOCK_TEAMMATES: Teammate[] = [

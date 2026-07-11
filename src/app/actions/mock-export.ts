@@ -10,9 +10,8 @@ import {
 export async function mockExportDataAction(
   userId?: string,
 ): Promise<{ export: SirRelayExport; filename: string }> {
-  const { auth } = getServices();
-  const session = await auth.getSession();
-  if (!session || session.user.role !== "operator") {
+  const session = await getServices().auth.getSession();
+  if (!session?.activeGroupId || session.user.role !== "operator") {
     throw new Error("Forbidden");
   }
 

@@ -1,9 +1,9 @@
 # SirRelay — UI/UX
 
-**Purpose:** Layout, interaction, and visual behavior for the web app and Telegram experience.  
+**Purpose:** Layout, interaction, and visual behavior for the **public landing**, signed-in web app, and Telegram experience.  
 **Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) (what must work) · [BRAND.md](./BRAND.md) (colors, logos, tokens) · [ARCHITECTURE.md](./ARCHITECTURE.md) (code layout)
 
-**Last updated:** 2026-06-28
+**Last updated:** 2026-07-11
 
 ### Status naming
 
@@ -28,8 +28,49 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 | **Role clarity** | Operator sees the **team**; Teammate sees **my work** |
 | **To do + In progress first** | Active work is always visible; Done is secondary on the Operator board |
 | **Calm UI** | Gray/white surfaces; yellow accent for CTAs and In progress column |
+| **No metric pressure** | No velocity charts, leaderboards, or surveillance KPIs — tasks and due dates only |
 | **Small team scale** | 2–5 teammates; no enterprise density — readable cards, generous spacing |
 | **Account vs app config** | **Profile** = personal account (photo, identity, Telegram) · **Settings** = app preferences (language, operator alerts) |
+| **Web first** | Responsive web is the primary client; landing and app share brand tokens; native apps reuse API later |
+
+---
+
+## 2.0 Marketing landing
+
+Public page at `/[locale]` for logged-out visitors. Implemented in `src/components/landing/`.
+
+### Layout
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  logo.svg          [EN · ES · PT]              [ Log in ]    │  ← sticky header
+├──────────────────────────────────────────────────────────────┤
+│  Eyebrow · Headline · Subtitle                               │
+│  [ Get started ]  [ How we handle data ]                     │
+│                                                              │
+│  ┌─ browser chrome ─────────────────────────────────────┐   │
+│  │  Product demo (CSS board · optional demo.mp4)        │   │
+│  └──────────────────────────────────────────────────────┘   │
+├──────────────────────────────────────────────────────────────┤
+│  3 feature cards — simple · no metrics · one task at a time  │
+├──────────────────────────────────────────────────────────────┤
+│  © Sir · SirRelay    FAQ · Privacy · Terms · Log in · Sign up │  ← footer
+└──────────────────────────────────────────────────────────────┘
+```
+
+| Element | Spec |
+|---------|------|
+| Header | Sticky; logo links home; locale links; **Sign up** (ghost) + **Log in** → `/[locale]/signup` · `/login` |
+| Hero | Value prop: calm team coordination, no KPI pressure; primary CTA **Create account** → `/signup` |
+| Demo | Board preview in browser frame; optional video `public/brand/demo.mp4` (H.264, muted, loop, poster) |
+| Features | Three cards — simple to run · no metric pressure · one task at a time (Telegram relay) |
+| FAQ | `#faq` — groups, metrics, Telegram, data/cache (public pages CDN-friendly; signed-in pages `no-store`) |
+| Footer | Copyright, FAQ, Privacy, Terms, Log in, Sign up — shared `SiteFooter` on auth/legal pages |
+| App store badges | **None** in Phase 1 (P3-13) |
+
+**Voice:** Reassuring, plain language — “manage without pressure”, not “boost productivity 10×”.
+
+**Logged-in users:** `/[locale]` redirects to app home per [ARCHITECTURE.md](./ARCHITECTURE.md#entry-redirects).
 
 ---
 
@@ -258,7 +299,11 @@ Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditT
 
 | Screen | Route | Operator | Teammate |
 |--------|-------|----------|----------|
-| **Admin portal (sign-in)** | `/admin` | ✓ | ✓ |
+| **Marketing landing** | `/` (locale home) | Public | Public |
+| **Sign up** | `/signup` | Public | Public |
+| **Log in** | `/login` | Public | Public |
+| **Groups hub** | `/groups` | ✓ (pick/create) | ✓ (pick/create) |
+| **Create group** | `/groups/new` | ✓ | ✓ |
 | Tasks board | `/tasks` | Team board (§3.2) | Status Kanban (§3.1) |
 | New task | `/tasks/new` | ✓ | — |
 | Task detail | `/tasks/[id]` | ✓ | Own only |
@@ -268,12 +313,13 @@ Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditT
 | **Alerts** | `/alerts` | ✓ | — |
 | **Profile** | `/profile` | ✓ | ✓ |
 | Settings | `/settings` | ✓ | ✓ |
-| Join (activate) | `/join/[token]` | Public | Public |
+| Join (group invite) | `/join/[token]` | Public | Public |
 | Change password | `/change-password` | ✓ | ✓ |
 | Privacy | `/privacy` | Public | Public |
+| Terms | `/terms` | Public | Public |
 | Audit | `/audit` | ✓ (Phase 2) | — |
 
-**Default URL:** `/[locale]/admin` — instance sign-in (model A). After login, operators go to `/teammates`; teammates go to `/tasks`.
+**Default URL:** `/[locale]` — public landing when logged out. **Sign up** / **Log in** from header or footer. After login: no group → `/groups`; operator in group → `/teammates`; teammate in group → `/tasks`. Legacy `/admin` redirects to `/login`.
 
 **Profile** is reached from the avatar and sidebar footer — not in primary nav. **Settings** stays in sidebar / mobile tabs.
 
@@ -308,13 +354,11 @@ Both roles. Access: avatar (header / mobile), sidebar footer, account menu.
 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
-| **Photo** | Upload / change / remove profile photo | Mock: `localStorage` per user id |
-| **Account** | Display name, email, role badge | Read-only in mock |
-| **Password** | Change password form | ✓ mock |
-| **Telegram** | Link status + generate link (Operator) | ✓ mock |
-| **Log out** | Button (mobile primary exit; desktop also in account menu) | ✓ mock |
-
-Production: photo via `PATCH /me` or upload endpoint.
+| **Photo** | Upload / change / remove profile photo | Mock: browser storage · production: server upload |
+| **Account** | Display name, email, role badge | Read-only until `PATCH /me` |
+| **Password** | Change password form | ✓ |
+| **Telegram** | Link status + generate link (Operator) | ✓ |
+| **Log out** | Button (mobile primary exit; desktop also in account menu) | ✓ |
 
 ### 8.2 Settings (`/settings`)
 
@@ -322,8 +366,8 @@ Both roles. Access: sidebar / mobile tabs, account menu.
 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
-| **Language** | Locale selector (`en` · `es` · `pt`) | Persisted in mock session; `PATCH /me` in production |
-| **Operator alerts** | Toggles: teammate task done · teammate task due/overdue | ✓ mock (history on **Alerts** page) |
+| **Language** | Locale selector (`en` · `es` · `pt`) | Saved to account (`PATCH /me` in production) |
+| **Operator alerts** | Toggles: teammate task done · teammate task due/overdue | History on **Alerts** page |
 
 ### 8.3 Alerts (`/alerts`)
 
@@ -433,16 +477,18 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 
 | UX item | Phase | Mock status |
 |---------|-------|-------------|
+| Marketing landing | 1 | ✓ mock |
 | Team board + inline edit + quick add | 1 | ✓ mock |
 | Task create + edit + delete forms | 1 | ✓ mock |
-| Status Kanban + list toggle | 1 | ✓ |
-| Profile vs Settings split | 1 | ✓ |
-| Sidebar collapse + logo cross-fade | 3 (P3-13) | ✓ in mock |
-| Drag-and-drop on Kanban | 3 (P3-03) | ✓ in mock |
-| Locale persist via API | 1 | URL switch only (mock session cookie) |
-| Operator alerts + **Alerts** page | 1 | ✓ mock |
+| Status Kanban + list toggle | 1 | ✓ mock |
+| Profile vs Settings split | 1 | ✓ mock |
 | Join + change-password + privacy | 1 | ✓ mock |
+| Operator alerts + **Alerts** page | 1 | ✓ mock |
+| Sidebar collapse + logo cross-fade | 3 (P3-11) | ✓ in mock |
+| Drag-and-drop on Kanban | 3 (P3-03) | ✓ in mock |
+| Locale persist via API | 1 | mock cookie only |
 | Audit screen | 2 | — |
+| Native mobile apps | 3 (P3-13) | — |
 
 ---
 
@@ -456,5 +502,6 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |
 | 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |
 | 2026-06-28 | Legacy cleanup: removed stub routes, mock banner, non-functional task/teammate actions; Alerts page |
+| 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

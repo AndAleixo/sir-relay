@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Task, TaskStatus } from "@/domain/types";
 import type { SyncActionOptions, TaskActionResult } from "@/domain/sync";
+import { requireOperatorSession } from "@/lib/require-session";
 import { getServices, serviceMode } from "@/services";
 import {
   getAppliedMutation,
@@ -26,11 +27,8 @@ export async function mockCreateTask(locale: string, formData: FormData) {
     redirect(`/${locale}/tasks/new`);
   }
 
-  const { auth, tasks } = getServices();
-  const session = await auth.getSession();
-  if (!session || session.user.role !== "operator") {
-    redirect(`/${locale}/tasks`);
-  }
+  const session = await requireOperatorSession(locale);
+  const { tasks } = getServices();
 
   await tasks.createTask(
     {
@@ -281,11 +279,8 @@ export async function deleteTaskAction(locale: string, taskId: string): Promise<
 }
 
 export async function renotifyTaskAction(locale: string, taskId: string) {
-  const { auth, tasks } = getServices();
-  const session = await auth.getSession();
-  if (!session || session.user.role !== "operator") {
-    redirect(`/${locale}/tasks/${taskId}`);
-  }
+  const session = await requireOperatorSession(locale);
+  const { tasks } = getServices();
 
   await tasks.renotifyTask(taskId, { session });
   revalidatePath(`/${locale}/tasks/${taskId}`);

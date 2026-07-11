@@ -1,11 +1,15 @@
 import { cookies } from "next/headers";
 import type { Session, User } from "@/domain/types";
+import { hydrateSession } from "@/lib/session-hydrate";
 import type { AuthService } from "@/services/contracts";
 import {
   MOCK_OPERATORS,
   MOCK_TEAMMATES,
 } from "@/services/mock/data";
-import { consumeInviteToken } from "@/services/mock/tokens.mock";
+import {
+  mockGroupMembershipLookup,
+} from "@/services/mock/groups.mock";
+import { consumeInviteToken, resolveInviteToken } from "@/services/mock/tokens.mock";
 
 const MOCK_SESSION_COOKIE = "sirrelay_mock_session";
 
@@ -16,18 +20,23 @@ const cookieOptions = {
   secure: process.env.NODE_ENV === "production",
 };
 
+/** ponytail: in-memory signups reset on server restart. */
+const dynamicUsers: User[] = [];
+
+function allUsers(): User[] {
+  return [...MOCK_OPERATORS, ...MOCK_TEAMMATES, ...dynamicUsers];
+}
+
 function findUserByEmail(email: string): User | null {
   const normalized = email.trim().toLowerCase();
-  const allUsers: User[] = [...MOCK_OPERATORS, ...MOCK_TEAMMATES];
-
-  const exact = allUsers.find(
+  const exact = allUsers().find(
     (user) => user.active && user.email.toLowerCase() === normalized,
   );
   if (exact) return exact;
 
   if (!normalized.includes("@")) {
     return (
-      allUsers.find(
+      allUsers().find(
         (user) =>
           user.active && user.email.toLowerCase().split("@")[0] === normalized,
       ) ?? null
@@ -38,21 +47,23 @@ function findUserByEmail(email: string): User | null {
 }
 
 function findUserById(userId: string): User | null {
-  return (
-    MOCK_OPERATORS.find((user) => user.id === userId) ??
-    MOCK_TEAMMATES.find((user) => user.id === userId) ??
-    null
-  );
+  return allUsers().find((user) => user.id === userId) ?? null;
 }
 
 function readSession(): Session | null {
   const raw = cookies().get(MOCK_SESSION_COOKIE)?.value;
   if (!raw) return null;
   try {
-    const session = JSON.parse(raw) as Session;
-    const fresh = findUserById(session.user.id);
-    if (!fresh || !fresh.active) return null;
-    return { user: { ...fresh } };
+    const parsed = JSON.parse(raw) as Session;
+    const fresh = findUserById(parsed.user.id);
+    if (!fresh) return null;
+    return hydrateSession(
+      {
+        user: { ...fresh },
+        activeGroupId: parsed.activeGroupId ?? null,
+      },
+      mockGroupMembershipLookup,
+    );
   } catch {
     return null;
   }
@@ -64,26 +75,37 @@ function writeSession(session: Session | null) {
     jar.delete(MOCK_SESSION_COOKIE);
     return;
   }
-  jar.set(MOCK_SESSION_COOKIE, JSON.stringify(session), cookieOptions);
+  const hydrated = hydrateSession(session, mockGroupMembershipLookup);
+  if (!hydrated) {
+    jar.delete(MOCK_SESSION_COOKIE);
+    return;
+  }
+  jar.set(MOCK_SESSION_COOKIE, JSON.stringify(hydrated), cookieOptions);
 }
 
 function patchUser(userId: string, patch: Partial<User>) {
-  const operator = MOCK_OPERATORS.find((user) => user.id === userId);
-  if (operator) {
-    Object.assign(operator, patch);
-    return operator;
+  const lists = [MOCK_OPERATORS, MOCK_TEAMMATES, dynamicUsers];
+  for (const list of lists) {
+    const user = list.find((u) => u.id === userId);
+    if (user) {
+      Object.assign(user, patch);
+      return user;
+    }
   }
-
-  const teammate = MOCK_TEAMMATES.find((user) => user.id === userId);
-  if (teammate) {
-    Object.assign(teammate, patch);
-    return teammate;
-  }
-
   return null;
 }
 
-/** Mock session in httpOnly cookie — survives server actions like real auth. */
+function buildSession(user: User, activeGroupId: string | null = null): Session {
+  return hydrateSession(
+    {
+      user: { ...user },
+      activeGroupId:
+        activeGroupId ?? mockGroupMembershipLookup.pickDefaultGroupId(user.id),
+    },
+    mockGroupMembershipLookup,
+  )!;
+}
+
 export class MockAuthService implements AuthService {
   async getSession(): Promise<Session | null> {
     return readSession();
@@ -99,7 +121,31 @@ export class MockAuthService implements AuthService {
       throw new Error("Invalid credentials");
     }
 
-    const session: Session = { user: { ...user } };
+    const session = buildSession(user);
+    writeSession(session);
+    return session;
+  }
+
+  async signup(name: string, email: string, password: string): Promise<Session> {
+    if (!name.trim() || !email.trim() || password.length < 8) {
+      throw new Error("Invalid signup");
+    }
+    if (findUserByEmail(email)) {
+      throw new Error("Email taken");
+    }
+
+    const user: User = {
+      id: `user-${Date.now().toString(36)}`,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      role: "operator",
+      locale: "en",
+      active: true,
+      mustChangePassword: false,
+    };
+    dynamicUsers.push(user);
+
+    const session: Session = { user: { ...user }, activeGroupId: null };
     writeSession(session);
     return session;
   }
@@ -129,7 +175,10 @@ export class MockAuthService implements AuthService {
     const updated = patchUser(userId, { mustChangePassword: false });
     if (!updated) throw new Error("User not found");
 
-    writeSession({ user: { ...updated } });
+    const current = readSession();
+    writeSession(
+      buildSession(updated, current?.activeGroupId ?? null),
+    );
     return { ...updated };
   }
 
@@ -143,19 +192,51 @@ export class MockAuthService implements AuthService {
       throw new Error("Invalid token");
     }
 
-    const teammate = MOCK_TEAMMATES.find((user) => user.id === userId);
-    if (!teammate || !teammate.active) {
+    const user = findUserById(userId);
+    if (!user || !user.active) {
       throw new Error("Invalid token");
     }
 
-    teammate.accountStatus = "active";
-    const session: Session = { user: { ...teammate, mustChangePassword: false } };
+    if ("accountStatus" in user) {
+      (user as { accountStatus: string }).accountStatus = "active";
+    }
+
+    const session = buildSession({ ...user, mustChangePassword: false });
     writeSession(session);
     return session;
   }
 
-  async updateSessionUser(user: User): Promise<void> {
-    writeSession({ user });
+  async setActiveGroup(userId: string, groupId: string | null): Promise<Session> {
+    const user = findUserById(userId);
+    if (!user) throw new Error("User not found");
+
+    const session = hydrateSession(
+      {
+        user: { ...user },
+        activeGroupId: groupId,
+      },
+      mockGroupMembershipLookup,
+    );
+    if (!session) throw new Error("Invalid session");
+    writeSession(session);
+    return session;
+  }
+
+  async refreshSessionUser(user: User): Promise<void> {
+    const current = readSession();
+    writeSession(
+      hydrateSession(
+        {
+          user,
+          activeGroupId: current?.activeGroupId ?? null,
+        },
+        mockGroupMembershipLookup,
+      ),
+    );
+  }
+
+  async isInviteTokenValid(token: string): Promise<boolean> {
+    return Boolean(resolveInviteToken(token));
   }
 }
 

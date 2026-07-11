@@ -30,7 +30,10 @@ export async function LandingHeader({ locale }: LandingHeaderProps) {
               </Link>
             ))}
           </div>
-          <Link href={`/${locale}/admin`}>
+          <Link href={`/${locale}/signup`}>
+            <Button variant="ghost">{t("auth.signup")}</Button>
+          </Link>
+          <Link href={`/${locale}/login`}>
             <Button variant="secondary">{t("auth.login")}</Button>
           </Link>
         </nav>

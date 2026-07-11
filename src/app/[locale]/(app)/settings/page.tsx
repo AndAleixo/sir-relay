@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { mockOpenGroupsHub } from "@/app/actions/mock-groups";
 import { OperatorAlertSettings } from "@/components/settings/operator-alert-settings";
 import { SettingsLocaleField } from "@/components/settings/settings-locale-field";
 import { Card, CardBody } from "@/components/ui/card";
@@ -30,6 +31,14 @@ export default async function SettingsPage({
               </div>
               <p className="mt-2 text-xs text-[var(--text-muted)]">{t("settings.localeHint")}</p>
             </div>
+            <form action={mockOpenGroupsHub.bind(null, locale)}>
+              <button
+                type="submit"
+                className="text-sm font-medium text-brand-accent hover:text-brand-accent-hover"
+              >
+                {t("settings.groupsLink")}
+              </button>
+            </form>
           </CardBody>
         </Card>
 

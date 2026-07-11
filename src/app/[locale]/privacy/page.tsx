@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { adminStyles } from "@/components/admin/admin.styles";
+import { authShellStyles } from "@/components/layout/auth-shell.styles";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { Card, CardBody } from "@/components/ui/card";
 
 export default async function PrivacyPage({
@@ -12,7 +13,7 @@ export default async function PrivacyPage({
   const t = await getTranslations();
 
   return (
-    <div className={adminStyles.shell}>
+    <div className={authShellStyles.shell}>
       <div className="mx-auto w-full max-w-2xl py-12">
         <Card>
           <CardBody className="space-y-4">
@@ -22,7 +23,7 @@ export default async function PrivacyPage({
             <p className="text-sm text-[var(--text-primary)]">{t("privacy.stub")}</p>
             <p className="text-sm text-[var(--text-muted)]">{t("privacy.cookies")}</p>
             <Link
-              href={`/${locale}/admin`}
+              href={`/${locale}/login`}
               className="inline-block text-sm font-medium text-brand-accent hover:text-brand-accent-hover"
             >
               {t("auth.login")}
@@ -30,6 +31,7 @@ export default async function PrivacyPage({
           </CardBody>
         </Card>
       </div>
+      <SiteFooter locale={locale} />
     </div>
   );
 }

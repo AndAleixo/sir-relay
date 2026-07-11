@@ -15,7 +15,7 @@ export default async function TasksPage({
 
   const isOperator = session.user.role === "operator";
   const taskList = await tasks.listTasks({ session });
-  const teammateList = isOperator ? await teammates.listTeammates() : [];
+  const teammateList = isOperator ? await teammates.listTeammates({ session }) : [];
 
   if (isOperator) {
     await alerts.syncDueAlerts(taskList);

@@ -2,11 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { mockChangePassword } from "@/app/actions/mock-auth";
-import { adminStyles } from "@/components/admin/admin.styles";
+import { authShellStyles } from "@/components/layout/auth-shell.styles";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { PasswordFormFields } from "@/components/auth/password-form-fields";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
+import { loginPath } from "@/lib/entry-route";
 import { getServices } from "@/services";
 
 const errorKeys = {
@@ -28,7 +30,7 @@ export default async function ChangePasswordPage({
   const session = await auth.getSession();
 
   if (!session) {
-    redirect(`/${locale}/admin?session=expired`);
+    redirect(loginPath(locale, { session: "expired" }));
   }
 
   const mustChangePassword = Boolean(session.user.mustChangePassword);
@@ -44,8 +46,8 @@ export default async function ChangePasswordPage({
       : null;
 
   return (
-    <div className={adminStyles.shell}>
-      <div className={adminStyles.loginWrap}>
+    <div className={authShellStyles.shell}>
+      <div className={authShellStyles.loginWrap}>
         <Card>
           <CardBody className="space-y-4">
             <div className="text-center">
@@ -60,7 +62,7 @@ export default async function ChangePasswordPage({
             </div>
             {error === "invalid" ? (
               <p className="rounded-button border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-700">
-                {t("admin.signInError")}
+                {t("auth.loginError")}
               </p>
             ) : null}
             {errorKey ? (
@@ -99,6 +101,7 @@ export default async function ChangePasswordPage({
           </CardBody>
         </Card>
       </div>
+      <SiteFooter locale={locale} />
     </div>
   );
 }

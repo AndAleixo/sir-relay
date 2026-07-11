@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { resolveEntryPath } from "@/lib/entry-route";
+import { loginPath, resolveEntryPath } from "@/lib/entry-route";
 import { getServices } from "@/services";
 
 export async function mockLogin(locale: string, formData: FormData) {
@@ -14,14 +14,36 @@ export async function mockLogin(locale: string, formData: FormData) {
     revalidatePath("/", "layout");
     redirect(resolveEntryPath(locale, session));
   } catch {
-    redirect(`/${locale}/admin?error=invalid`);
+    redirect(loginPath(locale, { error: "invalid" }));
+  }
+}
+
+export async function mockSignup(locale: string, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (password.length < 8) {
+    redirect(`/${locale}/signup?error=short`);
+  }
+  if (password !== confirmPassword) {
+    redirect(`/${locale}/signup?error=mismatch`);
+  }
+
+  try {
+    const session = await getServices().auth.signup(name, email, password);
+    revalidatePath("/", "layout");
+    redirect(resolveEntryPath(locale, session));
+  } catch {
+    redirect(`/${locale}/signup?error=taken`);
   }
 }
 
 export async function mockLogout(locale: string) {
   await getServices().auth.logout();
   revalidatePath("/", "layout");
-  redirect(`/${locale}/admin`);
+  redirect(`/${locale}`);
 }
 
 export async function mockChangePassword(locale: string, formData: FormData) {
@@ -39,7 +61,7 @@ export async function mockChangePassword(locale: string, formData: FormData) {
   const { auth } = getServices();
   const session = await auth.getSession();
   if (!session) {
-    redirect(`/${locale}/admin?session=expired`);
+    redirect(loginPath(locale, { session: "expired" }));
   }
 
   try {
@@ -49,11 +71,8 @@ export async function mockChangePassword(locale: string, formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect(
-    resolveEntryPath(locale, {
-      user: { ...session.user, mustChangePassword: false },
-    }),
-  );
+  const next = await auth.getSession();
+  redirect(resolveEntryPath(locale, next));
 }
 
 export async function mockJoinAccount(locale: string, token: string, formData: FormData) {
@@ -91,7 +110,7 @@ export async function mockProfileChangePassword(locale: string, formData: FormDa
   const { auth } = getServices();
   const session = await auth.getSession();
   if (!session) {
-    redirect(`/${locale}/admin?session=expired`);
+    redirect(loginPath(locale, { session: "expired" }));
   }
 
   try {
@@ -108,7 +127,7 @@ export async function mockGenerateTelegramLink(locale: string) {
   const { auth, users } = getServices();
   const session = await auth.getSession();
   if (!session) {
-    redirect(`/${locale}/admin?session=expired`);
+    redirect(loginPath(locale, { session: "expired" }));
   }
 
   await users.regenerateTelegramLink(session.user.id);

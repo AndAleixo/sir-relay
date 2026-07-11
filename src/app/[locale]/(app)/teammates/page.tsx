@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { OrganizationUser } from "@/services/contracts";
 import { getServices } from "@/services";
-import { requireRole } from "@/lib/auth-guards";
+import { requireRole } from "@/lib/require-session";
 import { ExportDataButton } from "@/components/teammates/export-data-button";
 import { teamListStyles } from "@/components/teammates/team-list.styles";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
@@ -26,7 +26,7 @@ export default async function TeammatesPage({
   if (!session) return null;
   requireRole(session, "operator", locale);
 
-  const users = await teammates.listOrganizationUsers();
+  const users = await teammates.listOrganizationUsers({ session });
 
   return (
     <>

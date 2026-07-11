@@ -5,23 +5,28 @@
 **Audience:** Developer / AI implementer  
 **Last updated:** 2026-07-11
 
-Related docs: [BRAND.md](./BRAND.md) (visual identity) · [UIUX.md](./UIUX.md) (layouts & interaction) · [README.md](../README.md) (overview)
+Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../README.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
 ---
 
 ## 1. Product summary
 
-**SirRelay** is a self-hosted task relay for teams of **2–5 teammates**, built by **Sir**.
+**SirRelay** is a **hosted web task relay** for teams of **2–5 teammates**, built by **Sir**. Deployed on a **public domain** (DigitalOcean + HTTPS); data lives in **PostgreSQL** on the server.
 
 | Piece | Description |
 |-------|-------------|
+| **Marketing site** | Public landing at `/[locale]` — product story, demo, Log in |
 | **Web app** | Single app, two roles: **Operator** (manages everything) and **Teammate** (own tasks only) |
 | **Telegram bot** | Delivers tasks one at a time; teammates reply to report progress |
 | **Relay queue** | When a task is marked `done`, the next `todo` task is sent automatically |
 
+**Positioning:** Simple team coordination — **no performance dashboards, leaderboards, or surveillance-style metrics.**
+
 **Operator** creates teammates and tasks (including tasks for themselves), monitors all activity on the web.
 
 **Teammate** works via Telegram (primary) or web (optional): sees assigned tasks and updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
+
+**Clients:** Responsive **web first** (Phase 1). Native **iOS/Android** → Phase 3 (P3-13), same `/api/v1`.
 
 **Languages:** English, Spanish, Portuguese (`en`, `es`, `pt`).
 
@@ -92,18 +97,23 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | Hosting | **DigitalOcean Droplet** (EU region) · Docker Compose · PostgreSQL · Caddy (HTTPS) |
 | Stack | Next.js App Router · TypeScript · Prisma · grammy · next-intl · Tailwind · Zod |
 | Visual identity | [BRAND.md](./BRAND.md) |
-| **Product model** | **A — Single-tenant self-host** (§4.1). One install = one organization. No public signup. Umbrel/VPS/Docker. Multi-tenant SaaS out of scope unless explicitly requested. |
+| **Product model** | **Hosted web app** (§4.1). Public landing + sign-in app on one domain. PostgreSQL persistence. Invite-only teammates in Phase 1. |
 
-### 4.1 Product model A (single-tenant self-host)
+### 4.1 Product model — Hosted web app (primary)
 
 | Aspect | Decision |
 |--------|----------|
-| Deployment | One instance per organization (Docker on DO, Umbrel, private VPS) |
-| Entry URL | `/[locale]/admin` — instance sign-in portal (Model A) |
-| Users | Invite-only; Operator manages users in **Teammates** (`/teammates`) |
-| Public registration | **No** — no “create account” on a shared cloud |
-| Scaling | Vertical (bigger VPS) or **multiple Operators** (P3-02) within same instance; many customers = many instances, not one multi-tenant DB |
-| Future SaaS (model B) | Not Phase 1–3 unless product direction changes |
+| **Deployment** | One SirRelay stack on **DigitalOcean Droplet** (EU), public **domain + HTTPS** (Caddy). Same Docker Compose can run elsewhere if needed. |
+| **Public entry** | `/[locale]` — marketing landing (logged-out visitors) |
+| **Sign up / Log in** | `/[locale]/signup` · `/[locale]/login` — any user creates an account |
+| **Groups hub** | `/[locale]/groups` — pick or create a group after sign-in (no active group) |
+| **Legacy** | `/[locale]/admin` redirects to `/login` |
+| **Data** | **PostgreSQL** on the deployment; tasks, users, groups, and settings persisted server-side |
+| **Accounts (Phase 1)** | Self-serve sign-up; user creates a group **or** joins via invite link. Role (`operator` / `teammate`) is **per group**, not at login. |
+| **Mobile** | Responsive web in Phase 1; native iOS/Android → Phase 3 (P3-13), same `/api/v1` |
+| **Metrics / KPIs** | **Out of scope** — no velocity charts, leaderboards, or employee surveillance dashboards |
+| **Multi-tenant SaaS** | Not Phase 1 — one organization per deployment. Many customers = many deployments (or P3-15). |
+| **Private VPS / LAN** | Same Docker stack works elsewhere; Telegram webhook still needs a **public HTTPS URL**. |
 
 ---
 
@@ -122,7 +132,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-07 | Change password | Available on **Profile** (both roles); forced first login via `/change-password` |
 | P1-AUTH-08 | Update profile | `PATCH /me` — update `locale` (`en` \| `es` \| `pt`); optional avatar in later phase |
 | P1-AUTH-09 | Teammate signup | Operator creates teammate → invite link (72h) → `/join/<token>` → set password |
-| P1-AUTH-10 | Post-login routing | `operator` → all tasks · `teammate` → my tasks |
+| P1-AUTH-10 | Post-login routing | No group → `/groups` · operator in group → `/teammates` · teammate in group → `/tasks` |
 
 ### 5.2 Teammates
 
@@ -173,6 +183,11 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 |----|-------------|---------------------|
 | P1-UI-01 | Branding | Login/header logos per [BRAND.md](./BRAND.md); favicon `icon.svg`; tokens `brand/brand.css` |
 | P1-UI-02 | Role-based nav | Operator: Tasks · Teammates · Alerts · Settings · Teammate: Tasks · Settings; **Profile** via avatar / sidebar footer (not primary nav) |
+| P1-UI-03 | Marketing landing | Public `/[locale]` when logged out — hero, product demo, feature highlights, footer — [UIUX.md §2.0](./UIUX.md#20-marketing-landing) |
+| P1-UI-04 | Landing header | `logo.svg`, locale switcher, **Sign up** + **Log in** → `/signup` · `/login` |
+| P1-UI-05 | Product demo | Animated board preview (mock); optional video at `public/brand/demo.mp4` (H.264, muted, loop) |
+| P1-UI-06 | No metric UI | No velocity charts, leaderboards, or employee KPI dashboards in Phase 1–2 |
+| P1-UI-07 | App store links | **None** in Phase 1 — web only; native store badges → P3-13 |
 | P1-VIEW-01 | List sort | By due date, status, updated_at |
 | P1-VIEW-02 | Task boards | Teammate: 3-column Kanban (To do · In progress · Done). Operator: **Me** column (self-assigned tasks) + one column per active teammate — To do + In progress expanded, Done collapsed — [UIUX.md §3](./UIUX.md#3-task-boards--two-layouts) |
 | P1-VIEW-03 | List view | Both roles; sort/filter; mobile fallback for Operator board |
@@ -218,7 +233,7 @@ Full hardening → Phase 2.
 | P1-DEP-01 | `docker-compose.yml`: app, postgres, Caddy |
 | P1-DEP-02 | `docker compose up -d` starts the stack |
 | P1-DEP-03 | Postgres persistent volume |
-| P1-DEP-04 | README: env setup, first login, Telegram webhook registration |
+| P1-DEP-04 | README + deploy doc | Env setup, DNS, first login, landing at `/`, Telegram webhook — [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) |
 | P1-DEP-05 | Next.js `output: 'standalone'` |
 | P1-DEP-06 | `GET /api/v1/health` → `{ "status": "ok" \| "fail" }` (`fail` = DB unreachable) |
 | P1-DEP-07 | Versioned Prisma migrations |
@@ -268,8 +283,10 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 | Route | Operator | Teammate | Notes |
 |-------|----------|----------|-------|
-| `admin` | Sign-in / redirect | Sign-in / redirect | **Default landing** when not in app |
-| `join/[token]`, `change-password` | — | — | Phase 1 API (not in UI mock) |
+| `/` (locale home) | Redirect if session | Redirect if session | **Public landing** when logged out |
+| `admin` | Sign-in / redirect | Sign-in / redirect | Log in from landing header |
+| `privacy` | Public | Public | Footer link from landing |
+| `join/[token]`, `change-password` | — | — | Auth flows |
 | `profile` | ✓ | ✓ |
 | `tasks` | All tasks | My tasks |
 | `tasks/new` | ✓ | — |
@@ -280,7 +297,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 **API:** see §9.
 
-**Phase 1 acceptance test:** Operator creates teammate → invite + Telegram link → creates two tasks → only first notified → teammate replies `done` → second arrives on Telegram → both visible on web → stack runs on VPS with HTTPS.
+**Phase 1 acceptance test:** Landing loads at `https://app.example.com/en` → Log in → Operator creates teammate → invite + Telegram link → creates two tasks → only first notified → teammate replies `done` → second arrives on Telegram → both visible on web → stack runs on VPS with HTTPS.
 
 ---
 
@@ -418,7 +435,6 @@ audit_logs
 
 | ID | Feature |
 |----|---------|
-| P3-01 | ~~Operator Telegram alerts on teammate reply~~ → **Phase 1** (P1-TG-09, P1-TG-10) |
 | P3-02 | Multiple Operator accounts |
 | P3-03 | Drag-and-drop Kanban |
 | P3-04 | Web comment thread (view/add on task detail) |
@@ -430,10 +446,13 @@ audit_logs
 | P3-10 | Custom branding overrides |
 | P3-11 | Logo collapse animation ([BRAND.md](./BRAND.md) §3.3) |
 | P3-12 | JSON import (restore from §6.5.2 export) |
+| P3-13 | Native mobile apps (iOS / Android) — same `/api/v1`; web remains primary until shipped |
+| P3-14 | PWA install + optional push notifications |
+| P3-15 | Public organization signup (multi-tenant or self-serve deploy) |
 
 ### 7.1 Offline web sync (P3-07)
 
-Both roles. Requires Phase 1 API + DB. Out of scope: PWA install, Service Worker, multi-tab coordination.
+Both roles. Requires Phase 1 API + DB. PWA install → P3-14. Out of scope here: Service Worker, multi-tab coordination.
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
@@ -513,7 +532,6 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 ```
 /
-```
 ├── README.md
 ├── docs/
 │   ├── REQUIREMENTS.md
@@ -522,22 +540,22 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 │   ├── BRAND.md
 │   └── DEPLOY-DIGITALOCEAN.md
 ├── brand/
-├── public/
+├── public/              # brand assets · optional demo.mp4
 ├── docker-compose.yml
 ├── Dockerfile
 ├── prisma/
 ├── scripts/
 │   ├── backup-db.sh
-│   └── restore-db.sh
+│   ├── restore-db.sh
+│   └── check-entry-routes.mjs
 └── src/
     ├── app/[locale]/
-    ├── app/api/v1/
-    ├── lib/
-    ├── messages/
-    └── middleware.ts
+    ├── components/landing/
+    ├── services/
+    └── messages/
 ```
 
-**Repo status:** UI mock phase (boards, create/edit/delete tasks, teammates, alerts, profile, settings) + deploy skeleton (Dockerfile, Compose, Caddy). Phase 1 API/Prisma pending.
+**Repo status:** UI mock complete (landing + app). Phase 1 API/Prisma pending.
 
 ---
 
@@ -573,4 +591,4 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-06-25 | Initial spec; 3-phase structure; Sir brand |
 | 2026-06-28 | Operator self-tasks (P1-TASK-13); Operator Telegram alerts on teammate done + due/overdue (P1-TG-09–11) |
 | 2026-06-27 | Operator + Teammate roles; relay queue; unified `users` model; spec cleanup; [UIUX.md](./UIUX.md); P3-07 offline web sync (§7.1) |
-| 2026-07-11 | §6.5 backup (SQL scripts) + JSON export on Teammates (full / per person); P3-12 JSON import |
+| 2026-07-11 | §6.5 backup + JSON export; hosted web app model (landing, §4.1); P1-UI-03–07; P3-12–15 backlog |

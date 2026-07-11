@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
-import { requireRole } from "@/lib/auth-guards";
+import { requireRole } from "@/lib/require-session";
 import { OperatorAlertsList } from "@/components/alerts/operator-alerts-list";
 
 export default async function AlertsPage({

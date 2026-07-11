@@ -32,7 +32,9 @@ export default async function TaskDetailPage({
   const isOperator = session.user.role === "operator";
 
   const assigneeTeammate = isOperator
-    ? (await teammates.listTeammates()).find((teammate) => teammate.id === task.assigneeId)
+    ? (await teammates.listTeammates({ session })).find(
+        (teammate) => teammate.id === task.assigneeId,
+      )
     : null;
   const assigneeTelegramPending =
     isOperator &&
@@ -46,7 +48,7 @@ export default async function TaskDetailPage({
           id: session.user.id,
           label: t("tasks.assignToMe", { name: session.user.name }),
         },
-        ...(await teammates.listTeammates()).map((teammate) => ({
+        ...(await teammates.listTeammates({ session })).map((teammate) => ({
           id: teammate.id,
           label: teammate.name,
         })),

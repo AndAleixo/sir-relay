@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { getServices } from "@/services";
 import { resolveEntryPath } from "@/lib/entry-route";
 import { LandingFeatures } from "@/components/landing/landing-features";
-import { LandingFooter } from "@/components/landing/landing-footer";
+import { LandingFaq } from "@/components/landing/landing-faq";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { LandingHero } from "@/components/landing/landing-hero";
 import { landingStyles } from "@/components/landing/landing.styles";
@@ -26,8 +27,9 @@ export default async function LocaleHomePage({
       <main className={landingStyles.main}>
         <LandingHero locale={locale} />
         <LandingFeatures />
+        <LandingFaq />
       </main>
-      <LandingFooter locale={locale} />
+      <SiteFooter locale={locale} variant="marketing" />
     </div>
   );
 }

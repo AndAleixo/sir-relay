@@ -15,7 +15,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { joinInviteUrl, telegramBotUrl } from "@/lib/app-url";
 import { getServices } from "@/services";
-import { requireRole } from "@/lib/auth-guards";
+import { requireRole } from "@/lib/require-session";
 
 export default async function TeammateDetailPage({
   params,

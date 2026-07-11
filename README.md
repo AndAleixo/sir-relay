@@ -1,8 +1,8 @@
 # SirRelay
 
-**SirRelay** is an app by **Sir** — a self-hosted task relay for small teams.
+**SirRelay** is an app by **Sir** — a **hosted web task relay** for small teams.
 
-One web app, two roles: the **Operator** runs everything; each **Teammate** works on their own tasks. On **Telegram**, the bot delivers **one task at a time** — reply `done` and the next task in the queue is sent automatically.
+One web app, two roles: the **Operator** runs everything; each **Teammate** works on their own tasks. On **Telegram**, the bot delivers **one task at a time** — reply `done` and the next task in the queue is sent automatically. **No dashboards, no performance metrics** — calm coordination, not surveillance.
 
 | | |
 |---|---|
@@ -56,8 +56,9 @@ Distributes operational tasks and tracks progress in one place — web for the f
 
 | Role | How they use it |
 |------|-----------------|
-| **Operator** | Web: manage teammates, create tasks (for teammates **or themselves**), view Kanban/list of everything · optional Telegram for **alerts** (task completed, due/overdue) |
-| **Teammate** | **Telegram** (primary): receive one task, reply, mark progress with keywords · **Web** (optional): view and update **only their** tasks |
+| **User** | Creates an account, then **creates a group** or **joins one by invite** |
+| **Operator** (in a group) | Web: manage members, create tasks, view Kanban/list · optional Telegram for **alerts** |
+| **Teammate** (in a group) | **Telegram** (primary): one task at a time · **Web**: view and update **only their** tasks |
 
 ### Relay flow
 
@@ -67,7 +68,9 @@ Distributes operational tasks and tracks progress in one place — web for the f
 4. Teammate **replies** to the message (e.g. `done`, `feito`) → task becomes `done` → **next task arrives on Telegram**  
 5. Operator and Teammate see the same state on the web  
 
-Hosting: **DigitalOcean Droplet** (EU) — Docker Compose, PostgreSQL, Caddy (HTTPS). See [docs/DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md).
+Hosting: **DigitalOcean Droplet** (EU) with a **public domain** — Docker Compose, PostgreSQL, Caddy (HTTPS). Visitors land on a marketing page; signed-in users get the app. See [docs/DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md).
+
+**Future:** native iOS/Android apps (Phase 3) will use the same API — web is the primary client for now.
 
 Languages: **English, Spanish, and Portuguese** (`en`, `es`, `pt`).
 
@@ -86,17 +89,13 @@ Details in [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-lay
 
 ## Project status
 
-**UI mock phase — complete.** Full web UI with mock data and in-memory services. Phase 1 backend (Prisma, API, Telegram) not started.
-
-Main routes: `/admin`, `/join/[token]`, `/change-password`, `/privacy`, tasks, teammates (with export), alerts, profile, settings. See [ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+**UI mock complete** — landing + app UI, in-memory services. **Phase 1 backend** (Prisma, API, Telegram) not started.
 
 ```bash
-npm install
-npm run dev
-npm run check:routes   # verify entry redirects
+npm install && npm run dev && npm run check:routes
 ```
 
-Open `http://localhost:3000` · sign in at `/admin` (`alex@example.com` — change password first · `sam@example.com` · `ana@example.com`, any password).
+Open `http://localhost:3000` · demo: `sam@example.com` (operator in Demo Shop) · new signup → create a group at `/groups`.
 
 ---
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { mockCreateTeammate } from "@/app/actions/mock-teammates";
 import { getServices } from "@/services";
-import { requireRole } from "@/lib/auth-guards";
+import { requireRole } from "@/lib/require-session";
 import { PageHeader } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";

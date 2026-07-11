@@ -1,15 +1,17 @@
-/** ponytail: runnable check — node scripts/check-entry-routes.mjs */
+/** ponytail: mirrors src/lib/entry-route.ts — keep in sync when routing changes */
 import assert from "node:assert/strict";
 
 function resolveEntryPath(locale, session) {
   if (!session) return `/${locale}`;
   if (session.user.mustChangePassword) return `/${locale}/change-password`;
+  if (!session.activeGroupId) return `/${locale}/groups`;
   if (session.user.role === "operator") return `/${locale}/teammates`;
   return `/${locale}/tasks`;
 }
 
 function resolveRoleHomePath(locale, session) {
   if (session.user.mustChangePassword) return `/${locale}/change-password`;
+  if (!session.activeGroupId) return `/${locale}/groups`;
   if (session.user.role === "operator") return `/${locale}/teammates`;
   return `/${locale}/tasks`;
 }
@@ -17,23 +19,39 @@ function resolveRoleHomePath(locale, session) {
 const locale = "en";
 assert.equal(resolveEntryPath(locale, null), "/en");
 assert.equal(
-  resolveEntryPath(locale, { user: { role: "operator", mustChangePassword: true } }),
+  resolveEntryPath(locale, {
+    user: { role: "operator", mustChangePassword: true },
+    activeGroupId: "g1",
+  }),
   "/en/change-password",
 );
 assert.equal(
-  resolveEntryPath(locale, { user: { role: "operator", mustChangePassword: false } }),
+  resolveEntryPath(locale, {
+    user: { role: "operator", mustChangePassword: false },
+    activeGroupId: null,
+  }),
+  "/en/groups",
+);
+assert.equal(
+  resolveEntryPath(locale, {
+    user: { role: "operator", mustChangePassword: false },
+    activeGroupId: "g1",
+  }),
   "/en/teammates",
 );
 assert.equal(
-  resolveEntryPath(locale, { user: { role: "teammate" } }),
+  resolveEntryPath(locale, { user: { role: "teammate" }, activeGroupId: "g1" }),
   "/en/tasks",
 );
 assert.equal(
-  resolveRoleHomePath(locale, { user: { role: "teammate" } }),
+  resolveRoleHomePath(locale, { user: { role: "teammate" }, activeGroupId: "g1" }),
   "/en/tasks",
 );
 assert.equal(
-  resolveRoleHomePath(locale, { user: { role: "operator", mustChangePassword: false } }),
+  resolveRoleHomePath(locale, {
+    user: { role: "operator", mustChangePassword: false },
+    activeGroupId: "g1",
+  }),
   "/en/teammates",
 );
 

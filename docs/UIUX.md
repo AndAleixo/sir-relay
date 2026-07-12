@@ -385,7 +385,7 @@ Table: name, email, role, account status, Telegram status, view link. Operators 
 
 **Add teammate** — header button → `/teammates/new` (name, email); on save → detail page with invite + Telegram links (copy buttons).
 
-**Export (Phase 2)** — toolbar **Export all** · per-row **Export** · detail page **Export** (scoped). Spec: [REQUIREMENTS.md §6.5.2](./REQUIREMENTS.md#652-json-export-app).
+**Export (Phase 2)** — toolbar **Export all** · per-row **Export** on the list. Spec: [REQUIREMENTS.md §6.5.2](./REQUIREMENTS.md#652-json-export-app).
 
 ### Detail `/teammates/[id]`
 

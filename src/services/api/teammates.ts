@@ -223,6 +223,18 @@ export class ApiUserService implements UserService {
     return role === "teammate" ? toTeammate(updated, role) : toUser(updated, role);
   }
 
+  async updateName(userId: string, name: string) {
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: { name: name.trim() },
+    });
+    const membership = await prisma.groupMembership.findFirst({
+      where: { userId },
+    });
+    const role = membership ? toRole(membership.role) : "operator";
+    return role === "teammate" ? toTeammate(updated, role) : toUser(updated, role);
+  }
+
   async regenerateTelegramLink(userId: string): Promise<string> {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error("User not found");

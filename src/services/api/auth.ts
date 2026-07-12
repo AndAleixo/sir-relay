@@ -153,7 +153,11 @@ export class ApiAuthService implements AuthService {
       : toUser(updated, role ?? "operator");
   }
 
-  async joinWithToken(token: string, password: string): Promise<Session> {
+  async joinWithToken(
+    token: string,
+    password: string,
+    locale: Locale = defaultLocale,
+  ): Promise<Session> {
     if (password.length < 8) throw new Error("Invalid password");
 
     const tokenHash = hashToken(token);
@@ -176,6 +180,7 @@ export class ApiAuthService implements AuthService {
           passwordHash: await hashPassword(password),
           accountStatus: "active",
           mustChangePassword: false,
+          locale: fromLocale(locale),
         },
       }),
       prisma.teammateInviteToken.update({

@@ -39,7 +39,7 @@ export interface AuthService {
     currentPassword: string,
     newPassword: string,
   ): Promise<User>;
-  joinWithToken(token: string, password: string): Promise<Session>;
+  joinWithToken(token: string, password: string, locale?: Locale): Promise<Session>;
   setActiveGroup(userId: string, groupId: string | null): Promise<Session>;
   refreshSessionUser(user: User): Promise<void>;
   isInviteTokenValid(token: string): Promise<boolean>;
@@ -109,6 +109,7 @@ export interface ExportService {
 
 export interface UserService {
   updateLocale(userId: string, locale: Locale): Promise<User>;
+  updateName(userId: string, name: string): Promise<User>;
   regenerateTelegramLink(userId: string): Promise<string>;
   getTelegramLinkToken(userId: string): Promise<string | null>;
 }

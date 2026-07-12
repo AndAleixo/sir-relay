@@ -152,7 +152,11 @@ export class MockAuthService implements AuthService {
     return { ...updated };
   }
 
-  async joinWithToken(token: string, password: string): Promise<Session> {
+  async joinWithToken(
+    token: string,
+    password: string,
+    locale: Locale = defaultLocale,
+  ): Promise<Session> {
     if (password.length < 8) {
       throw new Error("Invalid password");
     }
@@ -170,6 +174,7 @@ export class MockAuthService implements AuthService {
     if ("accountStatus" in user) {
       (user as { accountStatus: string }).accountStatus = "active";
     }
+    user.locale = locale;
 
     const session = buildSession(
       { ...user, mustChangePassword: false },

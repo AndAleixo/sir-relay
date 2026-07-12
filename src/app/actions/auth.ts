@@ -100,7 +100,10 @@ export async function joinAccountForm(locale: string, token: string, formData: F
 
   let session;
   try {
-    session = await getServices().auth.joinWithToken(token, newPassword);
+    const joinLocale = locales.includes(locale as Locale)
+      ? (locale as Locale)
+      : defaultLocale;
+    session = await getServices().auth.joinWithToken(token, newPassword, joinLocale);
   } catch {
     redirect(`/${locale}/join/${token}?error=invalid`);
   }
@@ -134,6 +137,25 @@ export async function profileChangePasswordForm(locale: string, formData: FormDa
 
   revalidatePath(`/${locale}/profile`);
   redirect(`/${locale}/profile?passwordChanged=1`);
+}
+
+export async function profileUpdateNameForm(locale: string, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+
+  if (name.length < 2) {
+    redirect(`/${locale}/profile?nameError=short`);
+  }
+
+  const { auth, users } = getServices();
+  const session = await auth.getSession();
+  if (!session) {
+    redirect(loginPath(locale, { session: "expired" }));
+  }
+
+  const user = await users.updateName(session.user.id, name);
+  await auth.refreshSessionUser(user);
+  revalidatePath("/", "layout");
+  redirect(`/${locale}/profile?nameSaved=1`);
 }
 
 export async function generateTelegramLinkAction(locale: string) {

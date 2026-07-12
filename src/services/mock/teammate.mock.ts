@@ -164,6 +164,12 @@ export class MockUserService implements UserService {
     return { ...updated };
   }
 
+  async updateName(userId: string, name: string): Promise<User> {
+    const updated = patchMockUser(userId, { name: name.trim() });
+    if (!updated) throw new Error("User not found");
+    return { ...updated };
+  }
+
   async regenerateTelegramLink(userId: string): Promise<string> {
     const user = findMockUserById(userId);
     if (!user || user.role !== "operator") {

@@ -6,7 +6,6 @@ import {
   updateTeammateForm,
 } from "@/app/actions/teammates";
 import { Banner } from "@/components/ui/banner";
-import { ExportDataButton } from "@/components/teammates/export-data-button";
 import { PageHeader } from "@/components/layout/app-shell";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
 import { DeactivateTeammateButton } from "@/components/teammates/deactivate-teammate-button";
@@ -44,16 +43,7 @@ export default async function TeammateDetailPage({
 
   return (
     <>
-      <PageHeader
-        title={teammate.name}
-        action={
-          <ExportDataButton
-            userId={teammate.id}
-            label={t("teammate.export")}
-            variant="secondary"
-          />
-        }
-      />
+      <PageHeader title={teammate.name} />
       {error === "promote" ? (
         <Banner variant="danger" className="mb-4">
           {t("teammate.promoteFailed")}

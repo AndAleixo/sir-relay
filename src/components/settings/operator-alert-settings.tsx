@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useTransition } from "react";
 import { updateOperatorAlertPrefs } from "@/app/actions/tasks";
 
 interface OperatorAlertSettingsProps {
   taskDone: boolean;
   taskDue: boolean;
+  viewAlertsHref?: string;
   labels: {
     taskDone: string;
     taskDoneHint: string;
@@ -13,12 +15,14 @@ interface OperatorAlertSettingsProps {
     taskDueHint: string;
     operatorSection: string;
     operatorSectionHint: string;
+    viewAlertHistory: string;
   };
 }
 
 export function OperatorAlertSettings({
   taskDone,
   taskDue,
+  viewAlertsHref,
   labels,
 }: OperatorAlertSettingsProps) {
   const [pending, startTransition] = useTransition();
@@ -64,6 +68,14 @@ export function OperatorAlertSettings({
           onChange={(event) => submitPrefs(taskDone, event.target.checked)}
         />
       </label>
+      {viewAlertsHref ? (
+        <Link
+          href={viewAlertsHref}
+          className="inline-block text-sm font-medium text-brand-accent hover:text-brand-accent-hover"
+        >
+          {labels.viewAlertHistory}
+        </Link>
+      ) : null}
     </div>
   );
 }

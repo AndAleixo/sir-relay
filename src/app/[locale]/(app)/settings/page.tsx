@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
 import { GroupDangerSettings } from "@/components/settings/group-danger-settings";
 import { OperatorAlertSettings } from "@/components/settings/operator-alert-settings";
-import { Card, CardBody } from "@/components/ui/card";
+import { Banner } from "@/components/ui/banner";
+import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { requireAppSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 
@@ -26,37 +28,55 @@ export default async function SettingsPage({
     <>
       <PageHeader
         title={t("settings.title")}
-        subtitle={activeGroup?.name}
+        subtitle={
+          activeGroup ? t("settings.pageSubtitle", { group: activeGroup.name }) : undefined
+        }
       />
-      <div className="grid max-w-lg gap-4">
-        {activeGroup ? (
-          <p className="text-sm text-[var(--text-muted)]">
-            {t("settings.groupScopeHint", { group: activeGroup.name })}
-          </p>
-        ) : null}
-
-        {!isOperator ? (
-          <p className="text-sm text-[var(--text-muted)]">{t("settings.teammateHint")}</p>
-        ) : null}
-
+      <div className="grid max-w-xl gap-4">
         {isOperator && alertPrefs ? (
+          <>
+            {session.user.telegramStatus === "pending" ? (
+              <Banner variant="warning">
+                {t("settings.linkTelegram")}{" "}
+                <Link
+                  href={`/${locale}/profile`}
+                  className="font-medium underline underline-offset-2"
+                >
+                  {t("common.account")}
+                </Link>
+              </Banner>
+            ) : null}
+            <Card>
+              <CardBody>
+                <OperatorAlertSettings
+                  taskDone={alertPrefs.taskDone}
+                  taskDue={alertPrefs.taskDue}
+                  viewAlertsHref={`/${locale}/alerts`}
+                  labels={{
+                    operatorSection: t("settings.operatorAlerts"),
+                    operatorSectionHint: t("settings.operatorAlertsHint"),
+                    taskDone: t("settings.alertTaskDone"),
+                    taskDoneHint: t("settings.alertTaskDoneHint"),
+                    taskDue: t("settings.alertTaskDue"),
+                    taskDueHint: t("settings.alertTaskDueHint"),
+                    viewAlertHistory: t("settings.viewAlertHistory"),
+                  }}
+                />
+              </CardBody>
+            </Card>
+          </>
+        ) : (
           <Card>
+            <CardHeader>
+              <h2 className="text-sm font-semibold">{t("settings.notifications")}</h2>
+            </CardHeader>
             <CardBody>
-              <OperatorAlertSettings
-                taskDone={alertPrefs.taskDone}
-                taskDue={alertPrefs.taskDue}
-                labels={{
-                  operatorSection: t("settings.operatorAlerts"),
-                  operatorSectionHint: t("settings.operatorAlertsHint"),
-                  taskDone: t("settings.alertTaskDone"),
-                  taskDoneHint: t("settings.alertTaskDoneHint"),
-                  taskDue: t("settings.alertTaskDue"),
-                  taskDueHint: t("settings.alertTaskDueHint"),
-                }}
-              />
+              <p className="text-sm text-[var(--text-muted)]">
+                {t("settings.teammateNotificationsHint")}
+              </p>
             </CardBody>
           </Card>
-        ) : null}
+        )}
 
         {activeGroup ? (
           <Card>

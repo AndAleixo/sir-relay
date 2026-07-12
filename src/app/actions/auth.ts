@@ -11,13 +11,14 @@ export async function loginForm(locale: string, formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
+  let session;
   try {
-    const session = await getServices().auth.login(email, password);
-    revalidatePath("/", "layout");
-    redirect(resolveEntryPath(locale, session));
+    session = await getServices().auth.login(email, password);
   } catch {
     redirect(loginPath(locale, { error: "invalid" }));
   }
+  revalidatePath("/", "layout");
+  redirect(resolveEntryPath(locale, session));
 }
 
 export async function signupForm(locale: string, formData: FormData) {
@@ -33,21 +34,22 @@ export async function signupForm(locale: string, formData: FormData) {
     redirect(`/${locale}/signup?error=mismatch`);
   }
 
+  let session;
   try {
     const signupLocale = locales.includes(locale as Locale)
       ? (locale as Locale)
       : "en";
-    const session = await getServices().auth.signup(
+    session = await getServices().auth.signup(
       name,
       email,
       newPassword,
       signupLocale,
     );
-    revalidatePath("/", "layout");
-    redirect(resolveEntryPath(locale, session));
   } catch {
     redirect(`/${locale}/signup?error=taken`);
   }
+  revalidatePath("/", "layout");
+  redirect(resolveEntryPath(locale, session));
 }
 
 export async function logoutAction(locale: string) {
@@ -96,13 +98,14 @@ export async function joinAccountForm(locale: string, token: string, formData: F
     redirect(`/${locale}/join/${token}?error=mismatch`);
   }
 
+  let session;
   try {
-    const session = await getServices().auth.joinWithToken(token, newPassword);
-    revalidatePath("/", "layout");
-    redirect(resolveEntryPath(locale, session));
+    session = await getServices().auth.joinWithToken(token, newPassword);
   } catch {
     redirect(`/${locale}/join/${token}?error=invalid`);
   }
+  revalidatePath("/", "layout");
+  redirect(resolveEntryPath(locale, session));
 }
 
 export async function profileChangePasswordForm(locale: string, formData: FormData) {

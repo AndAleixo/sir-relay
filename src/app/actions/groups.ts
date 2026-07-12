@@ -26,12 +26,13 @@ async function acceptInviteAndActivate(
   token: string,
 ): Promise<GroupFormState> {
   const { groups } = getServices();
+  let group;
   try {
-    const group = await groups.acceptInvite(userId, token);
-    return activateGroupAndRedirect(locale, userId, group.id);
+    group = await groups.acceptInvite(userId, token);
   } catch {
     return { error: "invite_invalid" };
   }
+  return activateGroupAndRedirect(locale, userId, group.id);
 }
 
 export async function selectGroup(

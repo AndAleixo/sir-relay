@@ -12,15 +12,22 @@ import {
 
 export type ServiceMode = "mock" | "api";
 
-const mode: ServiceMode =
-  (process.env.NEXT_PUBLIC_SERVICE_MODE as ServiceMode) ?? "mock";
+const mode = process.env.NEXT_PUBLIC_SERVICE_MODE;
 
+function requireServiceMode(): ServiceMode {
+  if (mode === "mock" || mode === "api") return mode;
+  throw new Error(
+    `NEXT_PUBLIC_SERVICE_MODE must be mock or api (got ${mode ?? "unset"}). Set it in .env — see .env.example`,
+  );
+}
+
+export const serviceMode = requireServiceMode();
 /**
  * Single entry point for data access.
- * UI and pages import `getServices()` — swap mock → API by changing mode / env.
+ * UI and pages import `getServices()` — mode comes from `.env` only.
  */
 export function getServices(): Services {
-  if (mode === "mock") {
+  if (serviceMode === "mock") {
     return {
       auth: mockAuthService,
       groups: mockGroupService,
@@ -32,13 +39,9 @@ export function getServices(): Services {
     };
   }
 
-  if (mode === "api") {
+  if (serviceMode === "api") {
     return createApiServices();
   }
 
-  throw new Error(
-    `Unknown NEXT_PUBLIC_SERVICE_MODE=${mode}. Use mock or api.`,
-  );
+  throw new Error(`Unexpected service mode: ${serviceMode}`);
 }
-
-export { mode as serviceMode };

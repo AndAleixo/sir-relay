@@ -9,13 +9,14 @@ cd "$ROOT"
 COMPOSE=(docker compose)
 COMPOSE_DEV=(docker compose -f docker-compose.yml -f docker-compose.dev.yml)
 
-env_file() {
+require_env() {
+  if [[ ! -f .env ]]; then
+    echo "error: copy .env.example → .env" >&2
+    exit 1
+  fi
   if [[ -f .env.local ]]; then
-    echo .env.local
-  elif [[ -f .env ]]; then
-    echo .env
-  else
-    echo ""
+    echo "error: .env.local found — remove it; this project uses .env only" >&2
+    exit 1
   fi
 }
 

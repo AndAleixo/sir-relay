@@ -1,27 +1,18 @@
 #!/usr/bin/env bash
-# Dev híbrido (oficina) — Postgres Docker + npm run dev + SERVICE_MODE=api
+# Dev híbrido — Postgres Docker + npm run dev + SERVICE_MODE=api
 set -euo pipefail
 source "$(dirname "$0")/_common.sh"
 require_docker
+require_env
 
-EF="$(env_file)"
-if [[ -z "$EF" ]]; then
-  echo "error: copy .env.example → .env.local (or .env) and enable the Dev híbrido section" >&2
-  exit 1
-fi
-
-# .env.local wins over .env — fall back if local file is mock-only (missing POSTGRES_PASSWORD)
-if ! grep -q '^POSTGRES_PASSWORD=' "$EF" 2>/dev/null && [[ -f .env ]] && grep -q '^POSTGRES_PASSWORD=' .env 2>/dev/null; then
-  echo "→ using .env (add POSTGRES_PASSWORD to .env.local to override)"
-  EF=".env"
-fi
+EF=".env"
 
 if ! grep -qE '^NEXT_PUBLIC_SERVICE_MODE=api' "$EF" 2>/dev/null; then
-  echo "warn: set NEXT_PUBLIC_SERVICE_MODE=api in $EF"
+  echo "warn: set NEXT_PUBLIC_SERVICE_MODE=api in .env" >&2
 fi
 
 if ! grep -q '^POSTGRES_PASSWORD=' "$EF" 2>/dev/null; then
-  echo "error: set POSTGRES_PASSWORD in $EF (same value as DATABASE_URL password)" >&2
+  echo "error: set POSTGRES_PASSWORD in .env (same value as DATABASE_URL password)" >&2
   exit 1
 fi
 
@@ -37,9 +28,8 @@ if [[ -f prisma/schema.prisma ]]; then
   if [[ -f prisma/seed.ts ]] || [[ -f prisma/seed.js ]]; then
     npx prisma db seed
   fi
-else
-  echo "ponytail: prisma/ not found — skipping migrate"
 fi
 
-echo "→ dev-hybrid · http://localhost:3000"
+echo "→ dev-hybrid · NEXT_PUBLIC_SERVICE_MODE=api · http://localhost:3000"
+echo "  login: sam@example.com / demo12345"
 exec npm run dev

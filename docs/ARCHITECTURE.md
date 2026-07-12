@@ -98,7 +98,7 @@ Passos:
 1. Implementar `src/services/api/*` (contratos em `contracts.ts`).
 2. `prisma/schema.prisma` + migrate + seed.
 3. Ramo `api` em `getServices()` + `GET /api/v1/health`.
-4. `NEXT_PUBLIC_SERVICE_MODE=api` em `.env.local` · `npm run dev-hybrid`.
+4. `NEXT_PUBLIC_SERVICE_MODE=api` em `.env` · `npm run dev-hybrid`.
 
 Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina).
 

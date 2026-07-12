@@ -23,7 +23,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env
+# env — single .env (see .env.example); .env*.local ignored if legacy files exist
 .env
 .env*.local
 

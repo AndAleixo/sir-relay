@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { acceptInvite } from "@/app/actions/groups";
 import { joinAccountForm } from "@/app/actions/auth";
@@ -8,6 +9,7 @@ import { PasswordFormFields } from "@/components/auth/password-form-fields";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
+import { resolveEntryPath } from "@/lib/entry-route";
 import { getServices } from "@/services";
 
 const errorKeys = {
@@ -30,6 +32,11 @@ export default async function JoinPage({
   const { auth, groups } = getServices();
   const preview = await groups.previewInvite(token);
   const session = await auth.getSession();
+
+  // Used or expired link while already signed in — go to app (not a false "invalid" page).
+  if (session && !preview) {
+    redirect(resolveEntryPath(locale, session));
+  }
 
   const errorKey =
     error && error in errorKeys

@@ -16,8 +16,6 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ locale, user, groups, activeGroupId }: AppHeaderProps) {
-  const activeGroup = groups.find((group) => group.id === activeGroupId);
-
   return (
     <header className={shellStyles.header}>
       <div className={shellStyles.headerGroup}>
@@ -25,7 +23,6 @@ export function AppHeader({ locale, user, groups, activeGroupId }: AppHeaderProp
           locale={locale}
           groups={groups}
           activeGroupId={activeGroupId}
-          prominent
         />
       </div>
       <div className={shellStyles.headerActions}>
@@ -37,7 +34,7 @@ export function AppHeader({ locale, user, groups, activeGroupId }: AppHeaderProp
         >
           <UserAvatar userId={user.id} userName={user.name} />
         </Link>
-        <UserMenu locale={locale} user={user} activeGroupName={activeGroup?.name ?? null} />
+        <UserMenu locale={locale} user={user} />
       </div>
     </header>
   );

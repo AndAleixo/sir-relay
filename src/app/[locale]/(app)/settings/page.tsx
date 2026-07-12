@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
+import { GroupDangerSettings } from "@/components/settings/group-danger-settings";
 import { OperatorAlertSettings } from "@/components/settings/operator-alert-settings";
 import { Card, CardBody } from "@/components/ui/card";
 import { requireAppSession } from "@/lib/require-session";
@@ -23,7 +24,10 @@ export default async function SettingsPage({
 
   return (
     <>
-      <PageHeader title={t("settings.title")} />
+      <PageHeader
+        title={t("settings.title")}
+        subtitle={activeGroup?.name}
+      />
       <div className="grid max-w-lg gap-4">
         {activeGroup ? (
           <p className="text-sm text-[var(--text-muted)]">
@@ -48,13 +52,15 @@ export default async function SettingsPage({
               />
             </CardBody>
           </Card>
-        ) : (
+        ) : null}
+
+        {activeGroup ? (
           <Card>
             <CardBody>
-              <p className="text-sm text-[var(--text-muted)]">{t("settings.teammateEmpty")}</p>
+              <GroupDangerSettings locale={locale} group={activeGroup} />
             </CardBody>
           </Card>
-        )}
+        ) : null}
       </div>
     </>
   );

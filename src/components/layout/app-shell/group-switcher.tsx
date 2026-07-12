@@ -22,7 +22,6 @@ interface GroupSwitcherProps {
   groups: UserGroup[];
   activeGroupId: string | null;
   compact?: boolean;
-  prominent?: boolean;
 }
 
 type PanelAnchor = { top: number; left: number; width: number };
@@ -76,7 +75,6 @@ function GroupSwitcherFallback({
   groups,
   activeGroupId,
   compact,
-  prominent,
 }: GroupSwitcherProps) {
   const t = useTranslations();
   const active =
@@ -95,8 +93,8 @@ function GroupSwitcherFallback({
     >
       <div
         className={cn(
+          shellStyles.headerControl,
           shellStyles.groupSwitcherTrigger,
-          prominent && shellStyles.groupSwitcherTriggerProminent,
           compact && shellStyles.groupSwitcherTriggerCompact,
           "pointer-events-none opacity-80",
         )}
@@ -142,7 +140,6 @@ function GroupSwitcherInner({
   groups,
   activeGroupId,
   compact = false,
-  prominent = false,
 }: GroupSwitcherProps) {
   const t = useTranslations();
   const pathname = usePathname();
@@ -302,8 +299,8 @@ function GroupSwitcherInner({
       <button
         type="button"
         className={cn(
+          shellStyles.headerControl,
           shellStyles.groupSwitcherTrigger,
-          prominent && shellStyles.groupSwitcherTriggerProminent,
           compact && shellStyles.groupSwitcherTriggerCompact,
         )}
         aria-expanded={open}

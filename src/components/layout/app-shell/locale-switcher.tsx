@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/cn";
 import { localeNames, locales, type AppLocale } from "@/i18n/config";
 import { shellStyles } from "./app-shell.styles";
 
@@ -27,7 +28,10 @@ export function LocaleSwitcher({ locale, compact }: LocaleSwitcherProps) {
       value={locale}
       onChange={onChange}
       aria-label={t("language")}
-      className={compact ? shellStyles.localeSelectCompact : shellStyles.localeSelect}
+      className={cn(
+        shellStyles.headerControl,
+        compact ? shellStyles.localeSelectCompact : shellStyles.localeSelect,
+      )}
     >
       {locales.map((loc) => (
         <option key={loc} value={loc}>

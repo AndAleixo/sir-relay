@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
-# Dev mock (maqueta) — in-memory services
+# Dev mock — in-memory services (forces SERVICE_MODE=mock for this process)
 set -euo pipefail
 source "$(dirname "$0")/_common.sh"
 
-if [[ ! -f .env.local ]]; then
-  cp .env.example .env.local
-  echo "created .env.local from .env.example (NEXT_PUBLIC_SERVICE_MODE=mock)"
+if [[ ! -f .env ]]; then
+  cp .env.example .env
+  echo "created .env from .env.example"
 fi
+require_env
 
-echo "→ dev-mock · http://localhost:3000"
-echo "  demo: sam@example.com (2 groups) · ana@example.com (tasks) · invite: mock-invite-ana-side as ana"
+export NEXT_PUBLIC_SERVICE_MODE=mock
+
+echo "→ dev-mock · NEXT_PUBLIC_SERVICE_MODE=mock · http://localhost:3000"
+echo "  demo: sam@example.com (any password) · ana@example.com (any password)"
 exec npm run dev

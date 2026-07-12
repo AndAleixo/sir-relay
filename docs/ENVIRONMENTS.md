@@ -13,7 +13,7 @@
 | # | Ambiente | Analogia | O que é |
 |---|----------|----------|---------|
 | 1 | **Dev mock** | **Maqueta** — bonita, nada é real | `npm run dev-mock` · dados em memória · zero Docker |
-| 2 | **Dev híbrido** | **Oficina** — montas o motor (API) com ferramentas rápidas | `npm run dev-hybrid` · Postgres Docker · `SERVICE_MODE=api` |
+| 2 | **Dev híbrido** | **Oficina** — montas o motor (API) com ferramentas rápidas | `npm run dev-hybrid` · Postgres Docker · `NEXT_PUBLIC_SERVICE_MODE=api` |
 | 3 | **Prod local** | **Test drive** — o carro completo na garagem | `docker compose up` · stack idêntico ao VPS |
 | 4 | **Prod VPS** | **Estrada** — clientes reais | Droplet + domínio + HTTPS + Telegram |
 
@@ -37,10 +37,10 @@
 | **Base de dados** | Nenhuma (memória) | Postgres Docker (:5432) | Postgres container | Postgres container |
 | **Docker** | Não | Só Postgres | Compose completo | Compose completo |
 | **Proxy / TLS** | — | — | Caddy (local) | Caddy + Let's Encrypt |
-| **`SERVICE_MODE`** | `mock` | `api` | `api` | `api` |
+| **`NEXT_PUBLIC_SERVICE_MODE`** | `mock` | `api` | `api` | `api` |
 | **Telegram** | — | Bot teste + tunnel* | Bot staging (opcional) | Bot produção |
 | **Persistência** | Reinicia com o Node | Volume Postgres | Volume Docker | Volume + backups |
-| **Ficheiro env** | `.env.local` | `.env.local` | `.env` | `.env` no servidor |
+| **Ficheiro env** | `.env` | `.env` | `.env` | `.env` no servidor |
 | **Estado hoje** | Active | Active (API + Prisma) | Pending smoke | Pending pós smoke local |
 
 \* Webhook Telegram em dev requer tunnel (ngrok / Cloudflare) ou testar só no VPS.
@@ -52,8 +52,8 @@
 **Actual.** Sem Docker, sem Postgres. Dados em `src/services/mock/`; reiniciam ao parar o servidor.
 
 ```bash
-cp .env.example .env.local
-npm run dev-mock          # ou: npm run dev
+cp .env.example .env   # se ainda não existir
+npm run dev-mock
 npm run check:routes
 ```
 
@@ -76,19 +76,17 @@ npm run check:routes
 Postgres em Docker; app com hot reload no host. **`NEXT_PUBLIC_SERVICE_MODE=api`** — liga a `src/services/api/*` (Prisma).
 
 ```bash
-cp .env.example .env.local
-# Secção 2: descomentar SERVICE_MODE=api, DATABASE_URL, POSTGRES_PASSWORD, SESSION_SECRET
-
-npm run dev-hybrid        # postgres + (prisma quando existir) + next dev
+cp .env.example .env
+npm run dev-hybrid
 # só postgres: npm run dev-hybrid-db
 ```
 
-Exemplo `.env.local`:
+Exemplo `.env` (dev híbrido):
 
 ```env
 NEXT_PUBLIC_SERVICE_MODE=api
 DATABASE_URL=postgresql://sirrelay:DEV_PASSWORD@localhost:5432/sirrelay
-POSTGRES_PASSWORD=DEV_PASSWORD   # igual ao compose e à password em DATABASE_URL
+POSTGRES_PASSWORD=DEV_PASSWORD
 SESSION_SECRET=...   # openssl rand -base64 32
 APP_URL=http://localhost:3000
 ```
@@ -106,10 +104,10 @@ APP_URL=http://localhost:3000
 **Smoke mínimo:**
 
 ```bash
-cp .env.example .env.local   # secção 2: SERVICE_MODE=api, DATABASE_URL, POSTGRES_PASSWORD, SESSION_SECRET
+cp .env.example .env
 npm run dev-hybrid
-curl -s http://localhost:3000/api/v1/health   # → {"ok":true,...}
-# browser: sam@example.com / demo12345 → groups → Demo Shop
+curl -s http://localhost:3000/api/v1/health
+# browser: sam@example.com / demo12345
 ```
 
 ### Dev híbrido — checklist de prontidão
@@ -209,7 +207,7 @@ Checklist: [DEPLOY-DIGITALOCEAN.md §10](./DEPLOY-DIGITALOCEAN.md#10-checklist-p
 
 ## Variáveis de ambiente
 
-Modelo: **`.env.example`** (4 secções). Nunca commitar `.env` / `.env.local` com segredos.
+Modelo: **`.env.example`** → copiar para **`.env`** (único ficheiro local; gitignored). Nunca commitar `.env` com segredos.
 
 ### Matriz `NEXT_PUBLIC_SERVICE_MODE`
 
@@ -245,9 +243,8 @@ DATABASE_URL: postgresql://sirrelay:${POSTGRES_PASSWORD}@postgres:5432/sirrelay
 | `docker-compose.dev.yml` | Dev híbrido (expõe Postgres :5432) |
 | `Dockerfile` | Prod local · VPS |
 | `Caddyfile` | Prod local · VPS |
-| `.env.example` | Todos (template) |
-| `.env.local` | Dev mock · dev híbrido (gitignored) |
-| `.env` | Prod local · VPS (gitignored) |
+| `.env.example` | Template (commitado) |
+| `.env` | Local + prod (gitignored) |
 | `scripts/env/dev-*.sh` · `prod-*.sh` | Um script por ambiente — ver tabela abaixo |
 | `scripts/check-entry-routes.mjs` | Dev mock (CI) |
 | `scripts/backup-db.sh` | VPS *(a criar)* |
@@ -303,7 +300,7 @@ Registo webhook: [DEPLOY-DIGITALOCEAN.md §7](./DEPLOY-DIGITALOCEAN.md#7-telegra
 
 | Comando | Ambiente | O que faz |
 |---------|----------|-----------|
-| `npm run dev-mock` | Dev mock | Cria `.env.local` se faltar · `next dev` |
+| `npm run dev-mock` | Dev mock | Força `NEXT_PUBLIC_SERVICE_MODE=mock` · `next dev` |
 | `npm run dev-hybrid` | Dev híbrido | Postgres + prisma (se existir) + `next dev` |
 | `npm run dev-hybrid-db` | Dev híbrido | Só Postgres (:5432) |
 | `npm run dev-hybrid-db-down` | Dev híbrido | Para containers dev |

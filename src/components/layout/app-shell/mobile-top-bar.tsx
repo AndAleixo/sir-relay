@@ -58,14 +58,15 @@ export function MobileTopBar({
             className={shellStyles.mobileLogo}
           />
         </Link>
-        <div className={shellStyles.mobileHeaderActions}>
+        <div className={shellStyles.mobileHeaderSwitcher}>
           <GroupSwitcher
             locale={locale}
             groups={groups}
             activeGroupId={activeGroupId}
             compact
-            prominent
           />
+        </div>
+        <div className={shellStyles.mobileHeaderEnd}>
           <LocaleSwitcher locale={locale} compact />
           <Link
             href={`/${locale}/profile`}

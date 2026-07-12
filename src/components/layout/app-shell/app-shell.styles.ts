@@ -48,11 +48,14 @@ export const shellStyles = {
   main: "flex min-w-0 flex-1 flex-col",
   mobileHeader:
     "sticky top-0 z-40 shrink-0 overflow-visible border-b border-[var(--border)] bg-surface-card md:hidden",
-  mobileHeaderTop: "flex h-14 items-center justify-between gap-3 overflow-visible px-4",
+  mobileHeaderTop:
+    "flex h-14 items-center gap-2 overflow-visible px-3",
+  mobileHeaderSwitcher: "min-w-0 flex-1",
+  mobileHeaderEnd: "flex shrink-0 items-center gap-2",
   mobileLogoLink: "flex shrink-0 items-center",
-  mobileLogo: "h-9 w-auto",
-  mobileHeaderActions: "relative flex items-center gap-2 overflow-visible",
-  mobileUserLink: "shrink-0 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
+  mobileLogo: "h-8 w-auto",
+  mobileUserLink:
+    "shrink-0 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   mobileNav: "flex items-stretch justify-around gap-1 border-t border-[var(--border)] px-2 py-1.5",
   mobileNavLink:
     "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-button px-2 py-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)]",
@@ -62,13 +65,14 @@ export const shellStyles = {
   header:
     "hidden h-14 items-center justify-between gap-4 overflow-visible border-b border-[var(--border)] bg-surface-card px-6 md:flex",
   headerGroup: "relative min-w-0 flex-1 overflow-visible",
-  headerActions: "flex items-center gap-1",
+  headerActions: "flex shrink-0 items-center gap-2",
   headerAvatarLink:
     "rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
-  localeSelect:
-    "rounded-button border border-[var(--border)] bg-surface-card px-3 py-1.5 text-sm text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
+  headerControl:
+    "inline-flex h-9 min-h-9 shrink-0 items-center rounded-button border border-[var(--border)] bg-surface-card text-[var(--text-primary)] transition-colors hover:border-brand-accent/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
+  localeSelect: "px-3 text-sm",
   localeSelectCompact:
-    "rounded-button border border-[var(--border)] bg-surface-card px-2 py-1 text-xs font-medium uppercase text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
+    "min-w-[3.25rem] px-2 text-xs font-medium uppercase tracking-wide",
   userMenuRoot: "relative",
   userMenuTrigger:
     "flex h-9 w-7 items-center justify-center rounded-button text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
@@ -76,22 +80,18 @@ export const shellStyles = {
     "absolute right-0 top-full z-50 mt-1 min-w-[12rem] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card py-1 shadow-lg",
   userMenuHeader: "border-b border-[var(--border)] px-3 py-2",
   userMenuName: "truncate text-sm font-medium text-[var(--text-primary)]",
-  userMenuRole: "text-xs text-[var(--text-muted)]",
   userMenuItem:
     "block w-full px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)]",
   userMenuForm: "border-t border-[var(--border)]",
   userMenuLogout: "text-[var(--text-muted)] hover:text-[var(--text-primary)]",
   groupSwitcherRoot: "relative min-w-0",
-  groupSwitcherCompact: "shrink-0",
+  groupSwitcherCompact: "w-full min-w-0",
   groupSwitcherTrigger:
-    "flex w-full min-w-0 items-center gap-2 rounded-button border border-[var(--border)] bg-[var(--surface-bg)] px-2.5 py-2 text-left transition-colors hover:border-brand-accent/30 hover:bg-surface-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
-  groupSwitcherTriggerProminent:
-    "max-w-md border-transparent bg-transparent px-0 py-0 hover:border-transparent hover:bg-transparent",
-  groupSwitcherTriggerCompact:
-    "max-w-[9rem] gap-1 rounded-button border border-[var(--border)] bg-surface-card px-2 py-1.5 text-sm",
+    "flex w-full min-w-0 gap-2 px-2.5 text-left text-sm hover:bg-[var(--surface-bg)]",
+  groupSwitcherTriggerCompact: "w-full min-w-0 gap-1 px-2 text-sm hover:bg-[var(--surface-bg)]",
   groupSwitcherText: "min-w-0 flex-1 overflow-hidden",
-  groupSwitcherName: "block truncate text-base font-semibold text-[var(--text-primary)]",
-  groupSwitcherNameCompact: "truncate text-sm font-medium text-[var(--text-primary)]",
+  groupSwitcherName: "block truncate font-medium text-[var(--text-primary)]",
+  groupSwitcherNameCompact: "truncate font-medium text-[var(--text-primary)]",
   groupSwitcherRole: "block truncate text-xs text-[var(--text-muted)]",
   groupSwitcherPanel:
     "absolute left-0 top-full z-[100] mt-1 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card shadow-lg",
@@ -110,8 +110,6 @@ export const shellStyles = {
   groupPanelForm: "space-y-3",
   groupPanelActions: "flex gap-2",
   groupPanelJoinRow: "flex gap-2",
-  groupPanelDangerAction:
-    "flex min-h-11 w-full touch-manipulation items-center rounded-button px-2 text-left text-sm font-medium text-[var(--danger)] transition-colors hover:bg-red-50 active:bg-red-50",
   groupSwitcherItem:
     "flex min-h-11 w-full touch-manipulation items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)] active:bg-[var(--surface-bg)]",
   groupSwitcherItemActive: "bg-brand-accent-soft text-brand-accent",

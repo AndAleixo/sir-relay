@@ -74,41 +74,63 @@ Para analytics self-hosted (Fase 2, opcional): `A` → `analytics` → mesmo IP.
 
 ## 5. Preparar o servidor
 
+**Script (recomendado)** — como `root` no Droplet:
+
+```bash
+# Depois de push para GitHub (repo privado — clone usa deploy key, §5.1):
+git clone git@github.com:AndAleixo/sir-relay.git /tmp/sir-relay
+bash /tmp/sir-relay/scripts/bootstrap-droplet.sh
+```
+
+Ou copia `scripts/bootstrap-droplet.sh` para o servidor e corre `bash bootstrap-droplet.sh`.
+
+Manual (equivalente):
+
 ```bash
 ssh root@SEU_IP
-
-adduser deploy
-usermod -aG sudo deploy
-rsync --archive --chown=deploy:deploy ~/.ssh /home/deploy
-
-sudo apt-get update
-sudo apt-get install -y ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-sudo usermod -aG docker deploy
+# … ver scripts/bootstrap-droplet.sh
 ```
 
-Sair e voltar como `deploy`:
+Sair e continuar como `deploy`:
 
 ```bash
-ssh deploy@SEU_IP
+su - deploy
 ```
+
+### 5.1 Repo privado — deploy key (GitHub)
+
+O repo [AndAleixo/sir-relay](https://github.com/AndAleixo/sir-relay) é **privado**. No Droplet, como **`deploy`**:
+
+```bash
+ssh-keygen -t ed25519 -C "sir-relay-droplet" -f ~/.ssh/id_ed25519 -N ""
+cat ~/.ssh/id_ed25519.pub
+```
+
+GitHub → **sir-relay** → **Settings** → **Deploy keys** → **Add deploy key**:
+
+- Title: `sirrelay-droplet`
+- Key: cola o output de `cat` acima
+- **Allow write access:** desligado (só `git pull`)
+
+Teste:
+
+```bash
+ssh -T git@github.com   # “Hi AndAleixo/sir-relay! You've successfully authenticated…”
+git clone git@github.com:AndAleixo/sir-relay.git
+cd sir-relay
+```
+
+Alternativa: [Personal Access Token](https://github.com/settings/tokens) com `repo` e `git clone https://…` — menos ideal (token no histórico).
 
 ---
 
 ## 6. Deploy da aplicação
 
 ```bash
-git clone https://github.com/SEU_USER/sir-relay.git
-cd sir-relay
-
-cp .env.example .env
+cd ~/sir-relay
+# .env prod (APP_DOMAIN=app.srelay.com, etc.) — ver § exemplo abaixo
 chmod 600 .env
-nano .env
+bash scripts/env/prod-vps.sh
 ```
 
 Gerar `SESSION_SECRET`:

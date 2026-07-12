@@ -38,3 +38,40 @@ wait_postgres() {
     sleep 1
   done
 }
+
+wait_postgres_compose() {
+  local -a cmd=( "${COMPOSE[@]}" )
+  if [[ $# -gt 0 ]]; then
+    cmd=( "$@" )
+  fi
+  "${cmd[@]}" up -d postgres
+  local tries=0
+  until "${cmd[@]}" exec -T postgres pg_isready -U sirrelay -d sirrelay >/dev/null 2>&1; do
+    tries=$((tries + 1))
+    if [[ $tries -gt 30 ]]; then
+      echo "error: postgres not ready after 30s" >&2
+      exit 1
+    fi
+    sleep 1
+  done
+}
+
+prisma_migrate_deploy_docker() {
+  local password=$1
+  local network
+  network="$(
+    docker compose ps -q postgres 2>/dev/null | head -1 \
+      | xargs -r docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{end}}'
+  )"
+  if [[ -z "$network" ]]; then
+    echo "error: postgres container network not found — is postgres running?" >&2
+    exit 1
+  fi
+  docker run --rm \
+    --network "$network" \
+    -v "$ROOT/prisma:/prisma" \
+    -w /prisma \
+    -e DATABASE_URL="postgresql://sirrelay:${password}@postgres:5432/sirrelay" \
+    node:20-bookworm-slim \
+    bash -c "npm install prisma@6.19.3 && npx prisma migrate deploy"
+}

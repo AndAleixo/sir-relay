@@ -36,7 +36,7 @@ src/
 | Server actions | `app/actions/groups.ts` | `selectGroup`, `createGroupForm`, `redeemInviteForm`, `acceptInvite`, `leaveGroupForm`, `deleteGroupForm` |
 | Teammate actions | `app/actions/teammates.ts` | create/update/deactivate/promote/regenerate |
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` |
-| Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete/promote |
+| Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete |
 | Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |
 | Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |
 

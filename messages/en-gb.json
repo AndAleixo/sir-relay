@@ -191,8 +191,6 @@
   "settings": {
     "title": "Settings",
     "pageSubtitle": "Settings for {group}",
-    "groupScopeHint": "These settings apply only to {group}. Tasks, teammates, and alerts on other pages are for this group too.",
-    "teammateHint": "Operator alert toggles are configured by operators. You can leave this group below.",
     "notifications": "Notifications",
     "teammateNotificationsHint": "Alert preferences are configured by operators in this group.",
     "linkTelegram": "Link Telegram in Account to receive alert notifications.",
@@ -209,7 +207,6 @@
     "alertTaskDueHint": "Once per day per task when due date is today or past."
   },
   "profile": {
-    "title": "Account settings",
     "accountScopeHint": "These settings apply to your account across all groups.",
     "photo": "Profile photo",
     "uploadPhoto": "Upload photo",

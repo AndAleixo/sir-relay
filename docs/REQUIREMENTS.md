@@ -133,7 +133,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-05 | First-login password change | **Bootstrap user only** (`must_change_password`); normal sign-ups skip forced change |
 | P1-AUTH-06 | Password storage | bcrypt; minimum 8 characters |
 | P1-AUTH-07 | Change password | Available on **Profile** (all users); optional forced flow via `/change-password` |
-| P1-AUTH-08 | Update profile | `PATCH /me` — update `locale` (`en-gb` \| `es-es` \| `pt-br`); optional avatar in later phase |
+| P1-AUTH-08 | Update profile | `PATCH /me` — update `name`, `locale` (`en-gb` \| `es-es` \| `pt-br`); avatar in later phase |
 | P1-AUTH-09 | Group invite | Operator adds teammate to group → invite link (72h) → `/join/<token>` → set password (new account) or activate (existing) |
 | P1-AUTH-10 | Post-login routing | No group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` |
 | P1-AUTH-11 | Sign up | `/signup` — name, email, password; new user has **no group** until create or join |
@@ -326,7 +326,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `tasks/[id]` | Yes | Own tasks only | Edit form + delete (mock) |
 | `teammates`, `teammates/new`, `teammates/[id]` | Yes (list includes operators in group) | — |
 | `alerts` | Yes | — |
-| `settings` | Yes | Yes | Group-scoped operator alert prefs only |
+| `settings` | Yes | Yes | Group alerts, leave/delete group |
 
 **Phase 1 acceptance test:** Landing → sign up → create group → add teammate → invite + Telegram → two tasks → relay `done` on Telegram. **Or:** demo `sam@example.com` → `/groups` → Demo Shop → same loop. Stack on VPS with HTTPS.
 
@@ -536,7 +536,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/auth/logout` | 1 | Session |
 | POST | `/auth/change-password` | 1 | Session |
 | GET | `/me` | 1 | Session |
-| PATCH | `/me` | 1 | Session `{ locale }` |
+| PATCH | `/me` | 1 | Session `{ name?, locale? }` |
 | POST | `/me/active-group` | 1 | Session `{ groupId \| null }` |
 | GET | `/groups` | 1 | Session — groups for current user + role per group |
 | POST | `/groups` | 1 | Session `{ name }` — creator becomes operator |

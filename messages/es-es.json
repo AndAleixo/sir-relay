@@ -191,8 +191,6 @@
   "settings": {
     "title": "Ajustes",
     "pageSubtitle": "Ajustes de {group}",
-    "groupScopeHint": "Estos ajustes aplican solo a {group}. Tareas, compañeros y alertas en otras páginas son también de este grupo.",
-    "teammateHint": "Los operadores configuran las alertas. Puedes abandonar este grupo abajo.",
     "notifications": "Notificaciones",
     "teammateNotificationsHint": "Las preferencias de alertas las configuran los operadores de este grupo.",
     "linkTelegram": "Vincula Telegram en Cuenta para recibir notificaciones de alertas.",
@@ -209,7 +207,6 @@
     "alertTaskDueHint": "Una vez al día por tarea cuando la fecha es hoy o ya pasó."
   },
   "profile": {
-    "title": "Ajustes de la cuenta",
     "accountScopeHint": "Estos ajustes aplican a tu cuenta en todos los grupos.",
     "photo": "Foto de perfil",
     "uploadPhoto": "Subir foto",

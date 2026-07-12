@@ -74,7 +74,7 @@ Hosting: **DigitalOcean Droplet** (EU) with a **public domain** — Docker Compo
 
 **Future:** native iOS/Android apps (Phase 3) will use the same API — web is the primary client for now.
 
-Languages: **English, Spanish, and Portuguese** (`en`, `es`, `pt`).
+Languages: **English (UK), Spanish (Spain), and Portuguese (Brazil)** (`en-gb`, `es-es`, `pt-br`).
 
 ---
 
@@ -91,7 +91,7 @@ Details in [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-lay
 
 ## Project status
 
-**UI mock complete** — landing + app shell + group panel (leave/delete/promote). **Phase 1 backend (Prisma + `services/api`)** — use **dev-hybrid** with Postgres.
+**UI mock complete** — landing + app shell + group panel (switch/create/join); leave/delete in Settings; promote on teammate detail. **Phase 1 backend (Prisma + `services/api`)** — use **dev-hybrid** with Postgres.
 
 | Ambiente | Comando | Estado |
 |----------|---------|--------|

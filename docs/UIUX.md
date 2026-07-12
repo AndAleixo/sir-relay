@@ -30,7 +30,7 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 | **Calm UI** | Gray/white surfaces; yellow accent for CTAs and In progress column |
 | **No metric pressure** | No velocity charts, leaderboards, or surveillance KPIs — tasks and due dates only |
 | **Small team scale** | 2–5 people per group; no enterprise density — readable cards, generous spacing |
-| **Account vs app config** | **Profile** = personal account (photo, identity, language, Telegram, password) · **Settings** = group-scoped operator alerts only |
+| **Account vs app config** | **Profile** = personal account (photo, name, language, Telegram, password) · **Settings** = group alerts, membership (leave/delete) |
 | **Web first** | Responsive web is the primary client; landing and app share brand tokens; native apps reuse API later |
 
 ### 1.1 Users, groups, and roles
@@ -45,7 +45,7 @@ User (account)
 |---------|-----|
 | **User** | Email + password; signs up at `/signup`; not labelled “operator” or “teammate” globally |
 | **Group** | Team workspace; **create inline** in header group panel or join via invite (`/join/[token]` or panel paste) |
-| **Role** | Per group; shown in group switcher and account menu |
+| **Role** | Per group; shown in **group switcher** only |
 | **Active group** | Session selection; all app screens (tasks, teammates, alerts) are scoped here |
 | **Switch / manage groups** | Header **group switcher** panel — switch, create, join with invite (dropdown anchored below trigger) |
 
@@ -407,12 +407,13 @@ All users. Access: avatar (header / mobile), sidebar footer, account menu.
 | Section | Content | Phase 1 |
 |---------|---------|---------|
 | **Photo** | Upload / change / remove profile photo | Mock: browser storage · production: server upload |
-| **Account** | Display name, email, **language** — **no role** | Read-only until `PATCH /me` |
+| **Account** | Editable display name; email read-only | Yes |
+| **Language** | Locale picker; persisted on account | Yes |
 | **Password** | Change password form | Yes |
-| **Telegram** | Account-level link status; operators can generate alert link here | Yes |
+| **Telegram** | Link status; operators generate alert link + copy | Yes |
 | **Log out** | Button (mobile primary exit; desktop also in account menu) | Yes |
 
-Group and role live in the **group switcher** and account menu — not on Profile.
+Group and role live in the **group switcher** only — not on Profile.
 
 ### 8.2 Settings (`/settings`)
 
@@ -420,9 +421,11 @@ All users with an active group. Access: sidebar / mobile tabs only (not account 
 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
-| **Operator alerts** | Toggles when operator in active group | History on **Alerts** page |
+| **Operator alerts** | Toggles + link to Alerts history; Telegram banner if unlinked | Yes |
+| **Notifications** | Teammate empty state (operators configure alerts) | Yes |
+| **Membership** | Leave group; delete group (operator) | Yes |
 
-Teammates see an empty-state hint. Language and group switching live on **Profile** and the header **Group switcher**, not here.
+Language and group switching live on **Profile** and the header **Group switcher**, not here.
 
 **Profile** has no role — account only. **Settings** is group-scoped alerts + leave/delete group. Group and role appear in the **group switcher** only.
 
@@ -564,7 +567,8 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |
 | 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |
 | 2026-06-28 | Legacy cleanup: removed stub routes, mock banner, non-functional task/teammate actions; Alerts page |
-| 2026-07-12 | Removed legacy routes: `/admin`, `/groups/new`, short locale prefixes (`/en`, `/es`, `/pt`) |
+| 2026-07-12 | Profile/Settings UX: editable name, copy Telegram link, settings subtitle, alerts link, join locale |
+| 2026-07-12 | Removed export from teammate detail; legacy routes removed |
 | 2026-07-11 | User → group → role model (§1.1); groups hub UX (§2.1); AuthPageHeader; membership-scoped nav and Profile badge |
 | 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |

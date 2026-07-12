@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { mockExportDataAction } from "@/app/actions/mock-export";
+import { exportDataAction } from "@/app/actions/export";
 import { Button, type ButtonVariant } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
@@ -35,7 +35,7 @@ export function ExportDataButton({
   async function handleExport() {
     setPending(true);
     try {
-      const { export: payload, filename } = await mockExportDataAction(userId);
+      const { export: payload, filename } = await exportDataAction(userId);
       downloadJson(filename, payload);
     } finally {
       setPending(false);

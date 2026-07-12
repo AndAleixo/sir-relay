@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { updateUserLocale } from "@/app/actions/mock-settings";
+import { updateUserLocale } from "@/app/actions/settings";
 import { localeNames, locales, type AppLocale } from "@/i18n/config";
 import { shellStyles } from "@/components/layout/app-shell/app-shell.styles";
 

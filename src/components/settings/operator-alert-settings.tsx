@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { updateOperatorAlertPrefs } from "@/app/actions/mock-tasks";
+import { updateOperatorAlertPrefs } from "@/app/actions/tasks";
 
 interface OperatorAlertSettingsProps {
   taskDone: boolean;

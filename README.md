@@ -91,19 +91,19 @@ Details in [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-lay
 
 ## Project status
 
-**UI mock complete** — landing + app shell + group panel. **Phase 1 backend (Prisma + `services/api`)** implemented — use **dev-hybrid** with Postgres for real persistence.
+**UI mock complete** — landing + app shell + group panel (leave/delete/promote). **Phase 1 backend (Prisma + `services/api`)** — use **dev-hybrid** with Postgres.
 
 | Ambiente | Comando | Estado |
 |----------|---------|--------|
-| Dev mock | `npm run dev-mock` | ✅ in-memory |
-| Dev híbrido | `npm run dev-hybrid` | ✅ Postgres + API · login `demo12345` |
-| Prod local / VPS | `npm run prod-local` | ⏳ smoke Docker app |
+| Dev mock | `npm run dev-mock` | Active — in-memory, any password |
+| Dev híbrido | `npm run dev-hybrid` | Active — Postgres + API, `demo12345`, resume last group |
+| Prod local / VPS | `npm run prod-local` | Pending — smoke Docker app |
 
 ```bash
 npm install && npm run dev-mock && npm run check:routes
 ```
 
-Open `http://localhost:3000` · demo: `sam@example.com` (2 groups) · `ana@example.com` (tasks) · invite: `mock-invite-ana-side` as ana · signup → `/groups`
+Open `http://localhost:3000` · demo: `sam@example.com` · `ana@example.com` (tasks) · promote Ana → Sam can leave group · signup → `/groups`
 
 ---
 

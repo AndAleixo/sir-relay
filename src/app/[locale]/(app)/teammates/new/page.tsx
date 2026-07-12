@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { mockCreateTeammate } from "@/app/actions/mock-teammates";
+import { createTeammateForm } from "@/app/actions/teammates";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/require-session";
 import { PageHeader } from "@/components/layout/app-shell";
@@ -27,7 +27,7 @@ export default async function NewTeammatePage({
       <Card className="max-w-xl">
         <CardBody className="space-y-4">
           <p className="text-sm text-[var(--text-muted)]">{t("teammate.newSubtitle")}</p>
-          <form action={mockCreateTeammate.bind(null, locale)} className="space-y-4">
+          <form action={createTeammateForm.bind(null, locale)} className="space-y-4">
             <div>
               <Label htmlFor="name">{t("teammate.name")}</Label>
               <Input id="name" name="name" required placeholder={t("teammate.namePlaceholder")} />

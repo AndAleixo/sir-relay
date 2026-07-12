@@ -148,10 +148,13 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-GRP-02 | Create | **Group switcher → Create group** (inline name ≥ 2 chars); creator is `operator`; group becomes active. `/groups/new` → redirect legacy |
 | P1-GRP-03 | Select | **Group switcher** sets `activeGroupId` → role home |
 | P1-GRP-04 | Auto-select | Single group + no active group → `GET /groups/auto` persiste cookie → role home; 2+ groups → `/groups` + panel open |
-| P1-GRP-05 | Manage | **Group switcher panel** anytime — switch, create, join (no session clear) |
+| P1-GRP-05 | Manage | **Group switcher panel** anytime — switch, create, join, **leave** (active group), **delete** (operator, active group) |
 | P1-GRP-06 | Join via invite | Invite link → `/join/<token>` (new account) **or** paste in group panel (signed in, same email) |
 | P1-GRP-07 | Join from panel | Paste invite in group panel → accept when signed in; adds membership if missing |
 | P1-GRP-08 | Existing email | Operator adds teammate email that already has an account → membership added; group in switcher |
+| P1-GRP-09 | Leave group | Any member may leave **active** group; sole operator with other members blocked — promote or delete first |
+| P1-GRP-10 | Delete group | Operator only; cascade tasks/teammates/alerts; session picks next group or `/groups` |
+| P1-GRP-11 | Resume last group | `users.last_active_group_id` + session cookie; login with 2+ groups opens last valid group (not picker) |
 
 ### 5.2 Teammates
 
@@ -168,6 +171,7 @@ Operator-only management **within the active group**.
 | P1-TM-07 | Link Telegram | One-time code (72h); `t.me/<bot>?start=<code>` or `/start <code>` |
 | P1-TM-08 | Regenerate Telegram link | New code if expired |
 | P1-TM-09 | One chat per teammate | `telegram_chat_id` unique across users |
+| P1-TM-10 | Promote to operator | Operator promotes **active** teammate in group → `group_memberships.role = operator`; appears as operator in team list |
 
 ### 5.3 Tasks & relay queue
 
@@ -275,7 +279,8 @@ Full hardening → Phase 2.
 ```
 users
   id, name, email, password_hash, locale,
-  telegram_chat_id, active, must_change_password, created_at, updated_at
+  telegram_chat_id, active, must_change_password, account_status,
+  last_active_group_id, created_at, updated_at
 
 groups
   id, name, created_at, updated_at
@@ -313,17 +318,17 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 |-------|-------------------|-------------------|-------|
 | `/` (locale home) | Redirect if session | Redirect if session | **Public landing** when logged out |
 | `login`, `signup` | Public | Public | Account entry; **AuthPageHeader** → back to landing |
-| `groups` | ✓ | ✓ | No active group landing (panel opens); create/join in switcher |
+| `groups` | Yes | Yes | No active group landing (panel opens); create/join in switcher |
 | `privacy`, `terms` | Public | Public | Footer links; **AuthPageHeader** on legal pages |
 | `join/[token]`, `change-password` | — | — | Auth flows |
 | `admin` | — | — | Legacy redirect → `login` |
-| `profile` | ✓ | ✓ | Account is global; accessible without active group; no role badge |
+| `profile` | Yes | Yes | Account is global; accessible without active group; no role badge |
 | `tasks` | All tasks in group | My tasks in group |
-| `tasks/new` | ✓ | — |
-| `tasks/[id]` | ✓ | Own tasks only | Edit form + delete (mock) |
-| `teammates`, `teammates/new`, `teammates/[id]` | ✓ (list includes operators in group) | — |
-| `alerts` | ✓ | — |
-| `settings` | ✓ | ✓ | Group-scoped operator alert prefs only |
+| `tasks/new` | Yes | — |
+| `tasks/[id]` | Yes | Own tasks only | Edit form + delete (mock) |
+| `teammates`, `teammates/new`, `teammates/[id]` | Yes (list includes operators in group) | — |
+| `alerts` | Yes | — |
+| `settings` | Yes | Yes | Group-scoped operator alert prefs only |
 
 **Phase 1 acceptance test:** Landing → sign up → create group → add teammate → invite + Telegram → two tasks → relay `done` on Telegram. **Or:** demo `sam@example.com` → `/groups` → Demo Shop → same loop. Stack on VPS with HTTPS.
 
@@ -503,18 +508,21 @@ Permissions apply **within the active group**. The same user may be operator in 
 
 | Action | Operator (in group) | Teammate (in group) | Teammate (Telegram) |
 |--------|---------------------|---------------------|---------------------|
-| Sign up / log in | ✓ | ✓ | — |
-| Create group | ✓ (becomes operator) | ✓ (becomes operator) | — |
-| Switch active group | ✓ | ✓ | — |
-| Manage teammates | ✓ | — | — |
-| Create / edit / delete tasks | ✓ | Own tasks only | — |
+| Sign up / log in | Yes | Yes | — |
+| Create group | Yes (becomes operator) | Yes (becomes operator) | — |
+| Switch active group | Yes | Yes | — |
+| Leave group | Yes | Yes | — |
+| Delete group | Yes (operator) | — | — |
+| Promote teammate → operator | Yes | — | — |
+| Manage teammates | Yes | — | — |
+| Create / edit / delete tasks | Yes | Own tasks only | — |
 | View tasks | All in group | Assigned to me | Current notification |
-| Change status | ✓ | Own tasks (`done` → relay) | Keywords (`done` → relay) |
+| Change status | Yes | Own tasks (`done` → relay) | Keywords (`done` → relay) |
 | Telegram reply log | — | — | Reply (stored server-side) |
-| Re-notify | ✓ | — | — |
+| Re-notify | Yes | — | — |
 | Link Telegram | Self-link on Profile (optional, alerts) · generate code for teammates | Via `/start` code | `/start <code>` |
-| Audit log | ✓ (Phase 2) | — | — |
-| Export data (JSON) | ✓ (Phase 2) | — | — |
+| Audit log | Yes (Phase 2) | — | — |
+| Export data (JSON) | Yes (Phase 2) | — | — |
 
 ---
 
@@ -535,12 +543,15 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | GET | `/groups` | 1 | Session — groups for current user + role per group |
 | POST | `/groups` | 1 | Session `{ name }` — creator becomes operator |
 | POST | `/groups/join` | 1 | Session `{ token }` — accept invite for signed-in user |
+| POST | `/groups/:id/leave` | 1 | Session — leave membership; empty group deleted |
+| DELETE | `/groups/:id` | 1 | Operator in group — delete group + cascade |
 | GET | `/groups/invites/:token` | 1 | Public preview — group name, email, needsPassword |
 | GET | `/teammates` | 1 | Operator in active group |
 | POST | `/teammates` | 1 | Operator |
 | PATCH | `/teammates/:id` | 1 | Operator |
 | POST | `/teammates/:id/invite` | 1 | Operator |
 | POST | `/teammates/:id/telegram-link` | 1 | Operator |
+| POST | `/teammates/:id/promote` | 1 | Operator — teammate → operator in active group |
 | GET | `/tasks` | 1 | Operator (all in group) · Teammate (mine in group) |
 | POST | `/tasks` | 1 | Operator in active group |
 | GET | `/tasks/:id` | 1 | Operator in group · Teammate (if assignee) |
@@ -584,19 +595,19 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 ├── prisma/              # schema + migrations + seed
 ├── scripts/
 │   ├── env/             # dev-mock · dev-hybrid · prod-local · prod-vps
-│   ├── backup-db.sh     # ❌ Phase 1
+│   ├── backup-db.sh     # Phase 2
 │   └── check-entry-routes.mjs
 └── src/
     ├── app/
-    │   ├── actions/groups.ts   # Group panel (mode-agnostic)
+    │   ├── actions/              # auth · groups · teammates · tasks · export · settings
     │   └── [locale]/
     ├── components/landing/
     ├── domain/types.ts         # UserGroup, Session, …
     ├── services/
     │   ├── contracts.ts
     │   ├── index.ts            # getServices()
-│   ├── mock/               # ✅
-│   └── api/                # ✅ Phase 1 (auth, groups, tasks, …)
+    │   ├── mock/
+    │   └── api/
     └── messages/
 ```
 
@@ -604,13 +615,13 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Área | Estado |
 |------|--------|
-| UI mock (landing + app + group panel) | ✅ |
-| `UserGroup` + `GroupService.listForUser` com roles | ✅ |
-| `app/actions/groups.ts` (thin layer) | ✅ |
-| `services/mock/*` | ✅ |
-| Prisma + `services/api/*` + `/api/v1/health` | ✅ |
-| Dev híbrido smoke | ✅ com Postgres — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina) |
-| Telegram webhook | ⏳ |
+| UI mock (landing + app + group panel) | Done |
+| `UserGroup` + `GroupService.listForUser` com roles | Done |
+| `app/actions/*` (mode-agnostic) | Done |
+| `services/mock/*` | Done |
+| Prisma + `services/api/*` + `/api/v1/health` | Done |
+| Dev híbrido smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina) |
+| Telegram webhook | Pending |
 
 ---
 

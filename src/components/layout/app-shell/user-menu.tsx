@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { User } from "@/domain/types";
-import { mockLogout } from "@/app/actions/mock-auth";
+import { logoutAction } from "@/app/actions/auth";
 import { cn } from "@/lib/cn";
 import { shellStyles } from "./app-shell.styles";
 
@@ -90,7 +90,7 @@ export function UserMenu({ locale, user, activeGroupName }: UserMenuProps) {
           >
             {t("common.settings")}
           </Link>
-          <form action={mockLogout.bind(null, locale)} className={shellStyles.userMenuForm}>
+          <form action={logoutAction.bind(null, locale)} className={shellStyles.userMenuForm}>
             <button type="submit" className={cn(shellStyles.userMenuItem, shellStyles.userMenuLogout)} role="menuitem">
               {t("common.logout")}
             </button>

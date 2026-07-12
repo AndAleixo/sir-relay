@@ -9,6 +9,7 @@ import { teamListStyles } from "@/components/teammates/team-list.styles";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { Button } from "@/components/ui/button";
 import { ToneBadge } from "@/components/ui/badge";
+import { Banner } from "@/components/ui/banner";
 import { cn } from "@/lib/cn";
 
 function isTeammate(user: OrganizationUser): user is OrganizationUser & { role: "teammate" } {
@@ -17,10 +18,13 @@ function isTeammate(user: OrganizationUser): user is OrganizationUser & { role: 
 
 export default async function TeammatesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ promoted?: string }>;
 }) {
   const { locale } = await params;
+  const { promoted } = await searchParams;
   const t = await getTranslations();
   const { auth, teammates } = getServices();
   const session = await auth.getSession();
@@ -32,6 +36,11 @@ export default async function TeammatesPage({
   return (
     <>
       <PageHeader title={t("common.teammates")} />
+      {promoted === "1" ? (
+        <Banner variant="info" className="mb-4">
+          {t("teammate.promoted")}
+        </Banner>
+      ) : null}
       <div className={viewToggleStyles.toolbar}>
         <p className={viewToggleStyles.toolbarText}>{t("teammate.listSubtitle")}</p>
         <div className="flex flex-wrap items-center gap-2">

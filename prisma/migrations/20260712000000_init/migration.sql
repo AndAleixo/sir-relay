@@ -1,4 +1,3 @@
-npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('operator', 'teammate');
 
@@ -172,14 +171,3 @@ ALTER TABLE "group_alert_prefs" ADD CONSTRAINT "group_alert_prefs_group_id_fkey"
 
 -- AddForeignKey
 ALTER TABLE "operator_alerts" ADD CONSTRAINT "operator_alerts_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "groups"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
-┌─────────────────────────────────────────────────────────┐
-│  Update available 5.22.0 -> 7.8.0                       │
-│                                                         │
-│  This is a major update - please follow the guide at    │
-│  https://pris.ly/d/major-version-upgrade                │
-│                                                         │
-│  Run the following to update                            │
-│    npm i --save-dev prisma@latest                       │
-│    npm i @prisma/client@latest                          │
-└─────────────────────────────────────────────────────────┘

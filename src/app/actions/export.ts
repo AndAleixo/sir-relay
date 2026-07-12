@@ -2,7 +2,7 @@
 
 import { getServices } from "@/services";
 
-export async function mockExportDataAction(
+export async function exportDataAction(
   userId?: string,
 ): Promise<{ export: import("@/domain/export").SirRelayExport; filename: string }> {
   const session = await getServices().auth.getSession();

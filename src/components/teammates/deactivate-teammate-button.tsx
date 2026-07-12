@@ -1,6 +1,6 @@
 "use client";
 
-import { mockDeactivateTeammate } from "@/app/actions/mock-teammates";
+import { deactivateTeammate } from "@/app/actions/teammates";
 import { Button } from "@/components/ui/button";
 
 type DeactivateTeammateButtonProps = {
@@ -22,7 +22,7 @@ export function DeactivateTeammateButton({
       variant="danger"
       onClick={() => {
         if (!window.confirm(confirmMessage)) return;
-        void mockDeactivateTeammate(locale, teammateId);
+        void deactivateTeammate(locale, teammateId);
       }}
     >
       {label}

@@ -7,7 +7,7 @@ import type {
 } from "@/services/contracts";
 import { patchMockUser, findMockUserById, findMockUserByEmail } from "@/services/mock/users.mock";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
-import { addGroupMember, userIdsInGroup } from "@/services/mock/groups.mock";
+import { addGroupMember, setMemberRole, userIdsInGroup } from "@/services/mock/groups.mock";
 import {
   createInviteToken,
   createTelegramLinkToken,
@@ -122,6 +122,16 @@ export class MockTeammateService implements TeammateService {
     const teammate = requireTeammateInGroup(ctx, id);
     teammate.active = false;
     return { ...teammate };
+  }
+
+  async promoteToOperator(id: string, ctx: { session: Session }): Promise<void> {
+    const teammate = requireTeammateInGroup(ctx, id);
+    const groupId = ctx.session.activeGroupId;
+    if (!groupId) throw new Error("No active group");
+    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
+    if (!teammate.active) throw new Error("Inactive user");
+    if (teammate.accountStatus !== "active") throw new Error("Account not active");
+    setMemberRole(groupId, id, "operator");
   }
 
   async regenerateInvite(id: string, ctx: { session: Session }): Promise<string> {

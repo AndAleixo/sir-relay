@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { renotifyTaskAction } from "@/app/actions/mock-tasks";
+import { renotifyTaskAction } from "@/app/actions/tasks";
 import { requireAppSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 import { isOverdue } from "@/lib/dates";

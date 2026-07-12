@@ -110,6 +110,8 @@ export const shellStyles = {
   groupPanelForm: "space-y-3",
   groupPanelActions: "flex gap-2",
   groupPanelJoinRow: "flex gap-2",
+  groupPanelDangerAction:
+    "flex min-h-11 w-full touch-manipulation items-center rounded-button px-2 text-left text-sm font-medium text-[var(--danger)] transition-colors hover:bg-red-50 active:bg-red-50",
   groupSwitcherItem:
     "flex min-h-11 w-full touch-manipulation items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)] active:bg-[var(--surface-bg)]",
   groupSwitcherItemActive: "bg-brand-accent-soft text-brand-accent",

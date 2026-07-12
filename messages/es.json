@@ -70,7 +70,15 @@
     "joinLabel": "Enlace o código de invitación",
     "joinPlaceholder": "https://…/join/abc123 o abc123",
     "joinSubmit": "Continuar",
-    "pickFromMenu": "Usa el menú de grupos arriba para abrir, crear o unirte a un grupo."
+    "pickFromMenu": "Usa el menú de grupos arriba para cambiar, crear, unirte, abandonar o eliminar un grupo.",
+    "leave": "Abandonar grupo",
+    "leaveConfirm": "¿Abandonar \"{group}\"? Puedes volver a unirte con una invitación.",
+    "delete": "Eliminar grupo",
+    "deleteConfirm": "¿Eliminar \"{group}\" permanentemente? Se borrarán todas las tareas, compañeros y alertas de este grupo.",
+    "lastOperator": "Eres el único operador. Promueve a un compañero, elimina el grupo o añade otro operador antes de abandonarlo.",
+    "forbidden": "No tienes permiso para hacer eso.",
+    "notMember": "No eres miembro de ese grupo.",
+    "actionFailed": "Algo salió mal. Inténtalo de nuevo."
   },
   "terms": {
     "title": "Términos de servicio",
@@ -128,6 +136,11 @@
     "editSection": "Editar usuario",
     "deactivate": "Desactivar",
     "deactivateConfirm": "¿Desactivar este usuario? No podrá entrar.",
+    "promoteToOperator": "Hacer operador",
+    "promoteConfirm": "¿Hacer a {name} operador? Gestionará compañeros, tareas y alertas en este grupo.",
+    "promoted": "Usuario promovido a operador.",
+    "promoteFailed": "No se pudo promover a este usuario. Debe tener la cuenta activa.",
+    "editFailed": "No se pudieron guardar los cambios.",
     "deactivated": "Desactivado",
     "regenerateInvite": "Regenerar invitación",
     "regenerateTelegram": "Regenerar enlace Telegram",

@@ -7,6 +7,8 @@ import type { UserGroup } from "@/domain/types";
 import type { GroupFormState } from "@/app/actions/groups";
 import {
   createGroupForm,
+  deleteGroupForm,
+  leaveGroupForm,
   redeemInviteForm,
   selectGroup,
 } from "@/app/actions/groups";
@@ -21,6 +23,10 @@ const errorKeys = {
   short: "nameTooShort",
   invite_invalid: "inviteInvalid",
   email_mismatch: "inviteEmailMismatch",
+  last_operator: "lastOperator",
+  forbidden: "forbidden",
+  not_member: "notMember",
+  action_failed: "actionFailed",
 } as const;
 
 function formErrorMessage(error: string | null | undefined, t: ReturnType<typeof useTranslations>) {
@@ -153,6 +159,63 @@ function GroupPanelJoinForm({
   );
 }
 
+function GroupPanelDangerSection({
+  locale,
+  group,
+}: {
+  locale: string;
+  group: UserGroup;
+}) {
+  const t = useTranslations();
+  const [leaveState, leaveAction] = useFormState(
+    leaveGroupForm.bind(null, locale),
+    emptyFormState,
+  );
+  const [deleteState, deleteAction] = useFormState(
+    deleteGroupForm.bind(null, locale),
+    emptyFormState,
+  );
+  const errorMessage =
+    formErrorMessage(leaveState?.error, t) ?? formErrorMessage(deleteState?.error, t);
+
+  return (
+    <div className={shellStyles.groupPanelSection}>
+      {errorMessage ? (
+        <p className={cn(shellStyles.groupPanelError, "mx-0 mt-0")}>{errorMessage}</p>
+      ) : null}
+      <form
+        action={leaveAction}
+        onSubmit={(event) => {
+          if (!window.confirm(t("groups.leaveConfirm", { group: group.name }))) {
+            event.preventDefault();
+          }
+        }}
+      >
+        <input type="hidden" name="groupId" value={group.id} />
+        <button type="submit" className={shellStyles.groupPanelDangerAction}>
+          {t("groups.leave")}
+        </button>
+      </form>
+      {group.role === "operator" ? (
+        <form
+          action={deleteAction}
+          className="mt-1"
+          onSubmit={(event) => {
+            if (!window.confirm(t("groups.deleteConfirm", { group: group.name }))) {
+              event.preventDefault();
+            }
+          }}
+        >
+          <input type="hidden" name="groupId" value={group.id} />
+          <button type="submit" className={shellStyles.groupPanelDangerAction}>
+            {t("groups.delete")}
+          </button>
+        </form>
+      ) : null}
+    </div>
+  );
+}
+
 interface GroupPanelMenuProps {
   locale: string;
   groups: UserGroup[];
@@ -174,6 +237,10 @@ export function GroupPanelMenu({
 }: GroupPanelMenuProps) {
   const t = useTranslations();
   const [showJoin, setShowJoin] = useState(false);
+  const activeGroup =
+    activeGroupId != null
+      ? (groups.find((group) => group.id === activeGroupId) ?? null)
+      : null;
 
   useEffect(() => {
     if (!panelOpen) {
@@ -263,6 +330,10 @@ export function GroupPanelMenu({
           </button>
         )}
       </div>
+
+      {activeGroup ? (
+        <GroupPanelDangerSection locale={locale} group={activeGroup} />
+      ) : null}
     </div>
   );
 }

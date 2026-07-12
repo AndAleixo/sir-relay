@@ -6,7 +6,16 @@ export async function pickDefaultGroupIdAsync(userId: string): Promise<string | 
     where: { userId },
     select: { groupId: true },
   });
-  return rows.length === 1 ? rows[0].groupId : null;
+  if (rows.length === 1) return rows[0].groupId;
+  if (rows.length === 0) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { lastActiveGroupId: true },
+  });
+  const last = user?.lastActiveGroupId;
+  if (last && rows.some((row) => row.groupId === last)) return last;
+  return null;
 }
 
 export async function roleInGroupAsync(

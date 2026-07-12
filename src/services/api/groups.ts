@@ -2,6 +2,7 @@ import type { Group, GroupInvitePreview, UserGroup } from "@/domain/types";
 import type { GroupService } from "@/services/contracts";
 import { prisma } from "@/lib/prisma";
 import { hashToken, newToken } from "@/lib/token-hash";
+import { pickDefaultGroupIdAsync } from "@/services/api/membership";
 import { toRole, toUserGroup } from "@/services/api/mappers";
 
 const INVITE_TTL_MS = 72 * 60 * 60 * 1000;
@@ -126,6 +127,54 @@ export class ApiGroupService implements GroupService {
     });
 
     return { id: invite.group.id, name: invite.group.name };
+  }
+
+  async pickResumeGroupId(userId: string): Promise<string | null> {
+    return pickDefaultGroupIdAsync(userId);
+  }
+
+  async leaveGroup(userId: string, groupId: string): Promise<void> {
+    const role = await this.roleInGroup(userId, groupId);
+    if (!role) throw new Error("not_member");
+
+    const [operators, members] = await Promise.all([
+      prisma.groupMembership.count({ where: { groupId, role: "operator" } }),
+      prisma.groupMembership.count({ where: { groupId } }),
+    ]);
+    if (role === "operator" && operators === 1 && members > 1) {
+      throw new Error("last_operator");
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.groupMembership.delete({
+        where: { groupId_userId: { groupId, userId } },
+      });
+      await tx.user.updateMany({
+        where: { id: userId, lastActiveGroupId: groupId },
+        data: { lastActiveGroupId: null },
+      });
+      const remaining = await tx.groupMembership.count({ where: { groupId } });
+      if (remaining === 0) {
+        await tx.user.updateMany({
+          where: { lastActiveGroupId: groupId },
+          data: { lastActiveGroupId: null },
+        });
+        await tx.group.delete({ where: { id: groupId } });
+      }
+    });
+  }
+
+  async deleteGroup(userId: string, groupId: string): Promise<void> {
+    const role = await this.roleInGroup(userId, groupId);
+    if (role !== "operator") throw new Error("forbidden");
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.updateMany({
+        where: { lastActiveGroupId: groupId },
+        data: { lastActiveGroupId: null },
+      });
+      await tx.group.delete({ where: { id: groupId } });
+    });
   }
 }
 

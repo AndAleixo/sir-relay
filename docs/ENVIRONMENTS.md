@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** UI mock completa · infra Docker pronta · Prisma + `/api/v1` por implementar (Phase 1).
+**Estado actual:** UI mock completa · **dev-híbrido activo** (Prisma + `services/api` + Postgres).
 
 ---
 
@@ -41,7 +41,7 @@
 | **Telegram** | — | Bot teste + tunnel* | Bot staging (opcional) | Bot produção |
 | **Persistência** | Reinicia com o Node | Volume Postgres | Volume Docker | Volume + backups |
 | **Ficheiro env** | `.env.local` | `.env.local` | `.env` | `.env` no servidor |
-| **Estado hoje** | ✅ activo | ✅ API + Prisma · Postgres + `.env.local` | ⏳ smoke Docker app | ⏳ pós smoke local |
+| **Estado hoje** | Active | Active (API + Prisma) | Pending smoke | Pending pós smoke local |
 
 \* Webhook Telegram em dev requer tunnel (ngrok / Cloudflare) ou testar só no VPS.
 
@@ -65,7 +65,7 @@ npm run check:routes
 
 **Usar para:** polish visual, roteiro de demo, fluxos user→group→role, gravação de vídeo.
 
-**UI actual (mock):** painel de grupos integrado no header (`group-switcher` + `group-panel-menu`); erros de invite/create inline (`useFormState`); `UserGroup` alinhado com `GET /groups`; actions em `src/app/actions/groups.ts`.
+**UI actual (mock):** painel de grupos no header — switch, create, join, leave, delete (operator); erros inline; promote na ficha teammate; actions em `app/actions/*`.
 
 **Não usar para:** provar persistência, migrations, Telegram real, performance de build Docker.
 
@@ -114,41 +114,33 @@ curl -s http://localhost:3000/api/v1/health   # → {"ok":true,...}
 
 ### Dev híbrido — checklist de prontidão
 
-O script `scripts/env/dev-hybrid.sh` já faz: validar `.env.local` · subir Postgres · `prisma migrate dev` + seed (se existirem) · `next dev`.
+O script `scripts/env/dev-hybrid.sh` faz: validar env · subir Postgres · `prisma migrate deploy` · `prisma generate` · seed · `next dev`.
 
 | # | Item | Estado | Notas |
 |---|------|--------|-------|
-| 1 | Docker + `docker-compose.dev.yml` | ✅ | Postgres exposto em `:5432` |
-| 2 | Scripts `dev-hybrid` / `dev-hybrid-db` | ✅ | `package.json` |
-| 3 | `.env.example` secção 2 | ✅ | `DATABASE_URL`, `POSTGRES_PASSWORD`, `SESSION_SECRET` |
-| 4 | UI + contratos (`UserGroup`, `GroupService`) | ✅ | Mock implementa; UI não muda no swap |
-| 5 | Server actions `src/app/actions/groups.ts` | ✅ | Thin layer → `getServices()` |
-| 6 | **`prisma/schema.prisma`** + migration | ✅ | `prisma/migrations/20260712000000_init` |
-| 7 | **`prisma/seed.ts`** | ✅ | Paridade mock · password `demo12345` |
-| 8 | Deps npm: `prisma`, `@prisma/client`, `bcrypt`, `jose`, `zod` | ✅ | Prisma 5.22 · grammy adiar |
-| 9 | **`src/services/api/*`** | ✅ | auth · groups · tasks · teammates · alerts · export |
-| 10 | Ramo `api` em **`getServices()`** | ✅ | |
-| 11 | **`GET /api/v1/health`** | ✅ | |
-| 12 | Auth API + cookie jose | ✅ | Cookie `sirrelay_session` |
-| 13 | Renomear **`mock-auth.ts`** → actions mode-agnostic | ⏳ | Funciona via `getServices()` |
-| 14 | Sync bar → API tasks | ✅ | `apiTaskService` |
-| 15 | Telegram webhook | ⏳ opcional | Tunnel ou prod local |
+| 1 | Docker + `docker-compose.dev.yml` | Done | Postgres exposto em `:5432` |
+| 2 | Scripts `dev-hybrid` / `dev-hybrid-db` | Done | `package.json` |
+| 3 | `.env.example` secção 2 | Done | `DATABASE_URL`, `POSTGRES_PASSWORD`, `SESSION_SECRET` |
+| 4 | UI + contratos (`UserGroup`, `GroupService`) | Done | Mock implementa; UI não muda no swap |
+| 5 | Server actions `app/actions/*` | Done | Thin layer → `getServices()` |
+| 6 | **`prisma/schema.prisma`** + migrations | Done | incl. `last_active_group_id` |
+| 7 | **`prisma/seed.ts`** | Done | Paridade mock · password `demo12345` |
+| 8 | Deps npm: `prisma`, `@prisma/client`, `bcrypt`, `jose`, `zod` | Done | Prisma 6.19 |
+| 9 | **`src/services/api/*`** | Done | auth · groups · tasks · teammates · alerts · export |
+| 10 | Ramo `api` em **`getServices()`** | Done | |
+| 11 | **`GET /api/v1/health`** | Done | |
+| 12 | Auth API + cookie jose | Done | Cookie `sirrelay_session` |
+| 13 | Actions mode-agnostic | Done | `auth`, `groups`, `teammates`, `tasks`, `export`, `settings` |
+| 14 | Sync bar → API tasks | Done | `apiTaskService` |
+| 15 | Telegram webhook | Pending | Opcional — tunnel ou prod local |
 
-**Ordem sugerida para primeiro smoke em híbrido:**
-
-1. Prisma schema + migrate + seed  
-2. `api/auth` + `GET /me` + `POST /me/active-group` + `GET /health`  
-3. `api/groups` (`listForUser`, `create`, `previewInvite`, `acceptInvite`)  
-4. Ramo `api` em `getServices()` → login real → criar/trocar grupo  
-5. `api/tasks` + `api/teammates` → fluxo acceptance reduzido  
-6. Telegram por último (ou só em prod local)
-
-**Smoke mínimo (quando 1–4 existirem):**
+**Smoke mínimo:**
 
 ```bash
 npm run dev-hybrid
 curl -s http://localhost:3000/api/v1/health   # → 200
-# browser: signup → /groups → create group → tasks/teammates
+# browser: sam@example.com / demo12345 → tasks (resume last group)
+# promote teammate → leave group · delete group
 ```
 
 ---
@@ -335,19 +327,19 @@ Fonte: `scripts/env/dev-mock.sh` · `dev-hybrid.sh` · `prod-local.sh` · `prod-
 
 ---
 
-## Backend — ordem Phase 1
+## Backend — pendente Phase 1
 
 Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) e [§9 API](./REQUIREMENTS.md#9-api-contract).
 
-1. Deps: `prisma`, `@prisma/client`, `bcrypt`, `jose`, `zod` (+ `grammy` quando Telegram)
-2. `prisma/schema.prisma` (§5.9) + `prisma migrate dev`
-3. `prisma/seed.ts` (paridade mock: Sam, Ana, Demo Shop, Side Project)
-4. `src/services/api/auth.ts` + `groups.ts` (+ `tasks`, `teammates`, …)
-5. Ramo `api` em `getServices()` + `GET /api/v1/health`
-6. Auth cookie (jose) · actions `mock-auth` → mode-agnostic
-7. Telegram (grammy) · `scripts/backup-db.sh`
+**Feito:** Prisma + seed + `services/api/*` + actions mode-agnostic + dev-híbrido smoke.
 
-**Fronteira pronta:** `contracts.ts` · `UserGroup` · `app/actions/groups.ts` · `hydrateSession()` — UI e actions não mudam no swap mock→api.
+**Pendente:**
+
+1. REST routes `/api/v1/*` (UI usa server actions)
+2. Telegram webhook (grammy)
+3. `scripts/backup-db.sh`
+
+**Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*` — UI igual em mock e API.
 
 ---
 

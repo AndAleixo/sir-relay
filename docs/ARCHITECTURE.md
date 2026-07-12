@@ -10,12 +10,18 @@ src/
 ├── services/
 │   ├── contracts.ts      # AuthService, GroupService, …
 │   ├── index.ts          # getServices() — mock | api
-│   ├── mock/             # ✅ dev-mock
-│   └── api/              # ✅ dev-hybrid (Prisma)
+│   ├── mock/             # dev-mock
+│   └── api/              # dev-hybrid (Prisma)
 ├── lib/
 │   ├── entry-route.ts    # Post-auth redirects
-│   └── session-hydrate.ts # Role + auto-pick (login only; readSession não auto-pick)
-├── app/actions/groups.ts # Group panel — thin → getServices()
+│   └── session-hydrate.ts # Role + resume group on login
+├── app/actions/
+│   ├── auth.ts           # Login, signup, logout, password
+│   ├── groups.ts         # Group panel
+│   ├── teammates.ts      # Teammate CRUD + promote
+│   ├── tasks.ts          # Tasks + alert prefs
+│   ├── export.ts         # JSON export
+│   └── settings.ts       # Locale preference
 └── app/[locale]/
     ├── groups/auto/      # Route handler: persist sole-group auto-select
     └── (app)/groups/     # Placeholder + panel auto-open
@@ -25,11 +31,13 @@ src/
 
 | Peça | Ficheiro | Notas |
 |------|----------|-------|
-| Switcher + panel open | `group-switcher.tsx` | Desktop dropdown · mobile popover ancorado ao trigger |
-| Lista + forms | `group-panel-menu.tsx` | Create/join com `useFormState` — erros inline, sem reload |
-| Server actions | `app/actions/groups.ts` | `selectGroup`, `createGroupForm`, `redeemInviteForm`, `acceptInvite` |
+| Switcher + panel open | `group-switcher.tsx` | Desktop dropdown · mobile popover (só um painel visível por breakpoint) |
+| Lista + forms | `group-panel-menu.tsx` | Create/join/leave/delete · promote via teammates detail |
+| Server actions | `app/actions/groups.ts` | `selectGroup`, `createGroupForm`, `redeemInviteForm`, `acceptInvite`, `leaveGroupForm`, `deleteGroupForm` |
+| Teammate actions | `app/actions/teammates.ts` | create/update/deactivate/promote/regenerate |
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` |
-| Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles |
+| Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete/promote |
+| Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |
 | Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |
 
 Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookies flash).
@@ -70,7 +78,7 @@ Unauthenticated access to app routes → `/login?session=expired`.
 
 ## Landing demo
 
-Demo seed: `src/services/mock/data.ts` · `sam@example.com` (2 groups → `/groups` + panel) · `ana@example.com` (teammate → tasks) · invite demo: `mock-invite-ana-side` as ana joins Side Project.
+Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `demo12345` (dev-hybrid) · 2 groups → login resume **Demo Shop** · `ana@example.com` (teammate → tasks) · invite: `mock-invite-ana-side` as ana joins Side Project.
 
 ## Task forms
 
@@ -83,7 +91,7 @@ Demo seed: `src/services/mock/data.ts` · `sam@example.com` (2 groups → `/grou
 | Entrada | `getServices()` → `mock/*` | `getServices()` → `api/*` |
 | Sessão | Cookie `sirrelay_mock_session` | jose + httpOnly cookie |
 | Grupos | `MockGroupService` | Prisma `group_memberships` |
-| Actions | `app/actions/groups.ts` | **Inalteradas** — chamam `getServices()` |
+| Actions | `app/actions/*` | Mode-agnostic — chamam `getServices()` |
 
 Passos:
 
@@ -104,7 +112,7 @@ Edits live in `SyncProvider` until sync succeeds; sync bar on failure. Refresh d
 
 ```bash
 npm install && npm run dev-mock && npm run check:routes
-# dev-hybrid (quando API existir): npm run dev-hybrid
+# dev-hybrid: npm run dev-hybrid   # Postgres + API · demo12345
 ```
 
-`http://localhost:3000` — landing · `/en/login` — sign in · **demo:** `sam@example.com` (2 groups → `/groups`) · `ana@example.com` (teammate → tasks) · invite: `mock-invite-ana-side` as ana@example.com
+`http://localhost:3000` — landing · `/en/login` — sign in · **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `demo12345` · invite: `mock-invite-ana-side` as ana@example.com

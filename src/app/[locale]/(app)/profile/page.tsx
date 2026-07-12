@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import {
-  mockGenerateTelegramLink,
-  mockProfileChangePassword,
-} from "@/app/actions/mock-auth";
+  generateTelegramLinkAction,
+  profileChangePasswordForm,
+} from "@/app/actions/auth";
 import { PageHeader } from "@/components/layout/app-shell";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { ProfileAvatarEditor } from "@/components/profile/profile-avatar-editor";
@@ -113,7 +113,7 @@ export default async function ProfilePage({
               {passwordErrorMessage}
             </p>
           ) : null}
-          <form action={mockProfileChangePassword.bind(null, locale)} className="space-y-4">
+          <form action={profileChangePasswordForm.bind(null, locale)} className="space-y-4">
             <PasswordFormFields
               labels={{
                 currentPassword: t("auth.currentPassword"),
@@ -163,7 +163,7 @@ export default async function ProfilePage({
                     </p>
                   </>
                 ) : null}
-                <form action={mockGenerateTelegramLink.bind(null, locale)}>
+                <form action={generateTelegramLinkAction.bind(null, locale)}>
                   <Button type="submit" variant="secondary">
                     {t("profile.generateTelegramLink")}
                   </Button>

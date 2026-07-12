@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { mockChangePassword } from "@/app/actions/mock-auth";
+import { changePasswordForm } from "@/app/actions/auth";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { PasswordFormFields } from "@/components/auth/password-form-fields";
@@ -37,7 +37,7 @@ export default async function ChangePasswordPage({
 
   async function changePasswordAction(formData: FormData) {
     "use server";
-    await mockChangePassword(locale, formData);
+    await changePasswordForm(locale, formData);
   }
 
   const errorKey =

@@ -46,6 +46,7 @@ async function main() {
         active: op.active,
         mustChangePassword: op.mustChangePassword ?? false,
         accountStatus: "active",
+        lastActiveGroupId: op.id === "user-operator-2" ? "group-demo" : null,
         telegramChatId: op.telegramStatus === "linked" ? "demo-chat-op" : null,
       },
     });

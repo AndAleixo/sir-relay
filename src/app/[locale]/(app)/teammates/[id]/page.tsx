@@ -2,13 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import {
-  mockRegenerateInvite,
-  mockRegenerateTeammateTelegramLink,
-  mockUpdateTeammate,
-} from "@/app/actions/mock-teammates";
+  regenerateInviteForm,
+  regenerateTeammateTelegramLinkForm,
+  updateTeammateForm,
+} from "@/app/actions/teammates";
+import { Banner } from "@/components/ui/banner";
 import { ExportDataButton } from "@/components/teammates/export-data-button";
 import { PageHeader } from "@/components/layout/app-shell";
 import { DeactivateTeammateButton } from "@/components/teammates/deactivate-teammate-button";
+import { PromoteTeammateButton } from "@/components/teammates/promote-teammate-button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -19,10 +21,13 @@ import { requireRole } from "@/lib/require-session";
 
 export default async function TeammateDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { locale, id } = await params;
+  const { error } = await searchParams;
   const t = await getTranslations();
   const { teammates, auth } = getServices();
   const session = await auth.getSession();
@@ -49,6 +54,16 @@ export default async function TeammateDetailPage({
           />
         }
       />
+      {error === "promote" ? (
+        <Banner variant="danger" className="mb-4">
+          {t("teammate.promoteFailed")}
+        </Banner>
+      ) : null}
+      {error === "edit" ? (
+        <Banner variant="danger" className="mb-4">
+          {t("teammate.editFailed")}
+        </Banner>
+      ) : null}
       <div className="grid max-w-2xl gap-4">
         <Card>
           <CardHeader>
@@ -81,7 +96,7 @@ export default async function TeammateDetailPage({
             <h2 className="text-sm font-semibold">{t("teammate.editSection")}</h2>
           </CardHeader>
           <CardBody>
-            <form action={mockUpdateTeammate.bind(null, locale, id)} className="space-y-4">
+            <form action={updateTeammateForm.bind(null, locale, id)} className="space-y-4">
               <div>
                 <Label htmlFor="name">{t("teammate.name")}</Label>
                 <Input id="name" name="name" defaultValue={teammate.name} required />
@@ -112,7 +127,7 @@ export default async function TeammateDetailPage({
               {inviteUrl}
             </code>
             <p className="text-xs text-[var(--text-muted)]">{t("teammate.inviteLinkHint")}</p>
-            <form action={mockRegenerateInvite.bind(null, locale, id)}>
+            <form action={regenerateInviteForm.bind(null, locale, id)}>
               <Button type="submit" variant="secondary">
                 {t("teammate.regenerateInvite")}
               </Button>
@@ -129,13 +144,22 @@ export default async function TeammateDetailPage({
               {telegramUrl}
             </code>
             <p className="text-xs text-[var(--text-muted)]">{t("teammate.telegramLinkHint")}</p>
-            <form action={mockRegenerateTeammateTelegramLink.bind(null, locale, id)}>
+            <form action={regenerateTeammateTelegramLinkForm.bind(null, locale, id)}>
               <Button type="submit" variant="secondary">
                 {t("teammate.regenerateTelegram")}
               </Button>
             </form>
           </CardBody>
         </Card>
+
+        {teammate.active && teammate.accountStatus === "active" ? (
+          <PromoteTeammateButton
+            locale={locale}
+            teammateId={id}
+            label={t("teammate.promoteToOperator")}
+            confirmMessage={t("teammate.promoteConfirm", { name: teammate.name })}
+          />
+        ) : null}
 
         {teammate.active ? (
           <DeactivateTeammateButton

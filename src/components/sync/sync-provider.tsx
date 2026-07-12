@@ -18,7 +18,7 @@ import type {
   SyncState,
 } from "@/domain/sync";
 import { executePendingMutation } from "@/lib/sync/execute-mutation";
-import { quickCreateTaskAction } from "@/app/actions/mock-tasks";
+import { quickCreateTaskAction } from "@/app/actions/tasks";
 import {
   syncRetryConfig,
   syncRetryDelayMs,

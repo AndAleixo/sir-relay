@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { acceptInvite } from "@/app/actions/groups";
-import { mockJoinAccount } from "@/app/actions/mock-auth";
+import { joinAccountForm } from "@/app/actions/auth";
 import { AuthPageHeader } from "@/components/auth/auth-page-header";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
 import { PasswordFormFields } from "@/components/auth/password-form-fields";
@@ -93,7 +93,7 @@ export default async function JoinPage({
             ) : null}
 
             {preview?.needsPassword && (!session || emailMatches) ? (
-              <form action={mockJoinAccount.bind(null, locale, token)} className="space-y-4">
+              <form action={joinAccountForm.bind(null, locale, token)} className="space-y-4">
                 {preview ? (
                   <p className="text-center text-xs text-[var(--text-muted)]">
                     {t("join.accountEmail", { email: preview.email })}

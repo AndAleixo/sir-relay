@@ -44,6 +44,7 @@ model User {
   active             Boolean       @default(true)
   mustChangePassword Boolean       @default(false) @map("must_change_password")
   accountStatus      AccountStatus @default(active) @map("account_status")
+  lastActiveGroupId  String?       @map("last_active_group_id")
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
 

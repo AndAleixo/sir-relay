@@ -98,27 +98,30 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 
 | Page | Route | Header | Purpose |
 |------|-------|--------|---------|
-| Sign up | `/signup` | ✓ `AuthPageHeader` | New account → `/groups` (no group yet) |
-| Log in | `/login` | ✓ `AuthPageHeader` | Existing account → role home or `/groups` |
-| Join group | `/join/[token]` | ✓ `AuthPageHeader` | New teammate: set password · existing account → accept |
-| Privacy / Terms | `/privacy`, `/terms` | ✓ `AuthPageHeader` | Legal stubs |
+| Sign up | `/signup` | Yes `AuthPageHeader` | New account → `/groups` (no group yet) |
+| Log in | `/login` | Yes `AuthPageHeader` | Existing account → role home or `/groups` |
+| Join group | `/join/[token]` | Yes `AuthPageHeader` | New teammate: set password · existing account → accept |
+| Privacy / Terms | `/privacy`, `/terms` | Yes `AuthPageHeader` | Legal stubs |
 | No active group | `/groups` | App shell | Placeholder copy; **group panel opens** automatically |
 
-**Group panel** (header switcher) — primary UI for switch · **create** (inline name) · **join** (paste invite). `/groups/new` redirects to `?create=1` (legacy URL).
+**Group panel** (header switcher) — switch · **create** · **join** · **leave** (active group) · **delete** (operator). `/groups/new` → `?create=1` (legacy).
 
 ```
 ┌─ Group panel (header switcher) ─────┐
-│  Demo Shop              ✓ Operator  │
+│  Demo Shop              * Operator  │
 │  Side Project              Teammate │
 ├─────────────────────────────────────┤
 │  Create group          (expand)     │
 │  Join with invite      (expand)     │
+├─────────────────────────────────────┤
+│  Leave group                        │
+│  Delete group          (operator)   │
 └─────────────────────────────────────┘
 ```
 
 - **Empty state:** expand create **or** join
 - **Single group, no active:** `/groups/auto` persiste cookie → role home (sem ficar em `/groups`)
-- **2+ groups, no active:** `/groups` + panel open
+- **2+ groups, no active:** `/groups` + panel open on visible switcher (desktop + mobile)
 - **Invite errors:** inline no formulário (sem reload); link inválido / email mismatch
 - **Mobile panel:** dropdown ancorado abaixo do trigger (não bottom sheet)
 - **Invite:** adds membership if missing (same email as invite)
@@ -322,7 +325,7 @@ Same card width and field order as **New task** (`/tasks/new`), plus status and 
 ┌─────────────────────────────────────────────────────────┐
 │  Edit task                              [← Back]        │
 │  ─────────────────────────────────────────────────────  │
-│  ⚠ Banner: delivery failed (if applicable)              │
+│  [Banner]: delivery failed (if applicable)              │
 │  ─────────────────────────────────────────────────────  │
 │  Title                                                  │
 │  Assignee* (Operator only)                              │
@@ -338,9 +341,9 @@ Same card width and field order as **New task** (`/tasks/new`), plus status and 
 
 | Element | Operator | Teammate |
 |---------|----------|----------|
-| Back | ✓ | ✓ |
-| Edit fields | ✓ all fields | ✓ own tasks (no assignee) |
-| Delete | ✓ any task | ✓ own tasks only |
+| Back | Yes | Yes |
+| Edit fields | Yes all fields | Yes own tasks (no assignee) |
+| Delete | Yes any task | Yes own tasks only |
 | Re-notify | Phase 1 API | — |
 
 Shared components: `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditTaskForm` — see [ARCHITECTURE.md](./ARCHITECTURE.md#task-forms).
@@ -356,21 +359,21 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 | **Marketing landing** | `/` (locale home) | Public | Public |
 | **Sign up** | `/signup` | Public | Public |
 | **Log in** | `/login` | Public | Public |
-| **No active group** | `/groups` | ✓ (panel opens) | ✓ (panel opens) |
+| **No active group** | `/groups` | Yes (panel opens) | Yes (panel opens) |
 | Tasks board | `/tasks` | Team board (§3.2) | Status Kanban (§3.1) |
-| New task | `/tasks/new` | ✓ | — |
-| Task detail | `/tasks/[id]` | ✓ | Own only |
-| Teammates | `/teammates` | ✓ | — |
-| New teammate | `/teammates/new` | ✓ | — |
-| Teammate detail | `/teammates/[id]` | ✓ | — |
-| **Alerts** | `/alerts` | ✓ | — |
-| **Profile** | `/profile` | ✓ | ✓ |
-| Settings | `/settings` | ✓ | ✓ |
+| New task | `/tasks/new` | Yes | — |
+| Task detail | `/tasks/[id]` | Yes | Own only |
+| Teammates | `/teammates` | Yes | — |
+| New teammate | `/teammates/new` | Yes | — |
+| Teammate detail | `/teammates/[id]` | Yes | — |
+| **Alerts** | `/alerts` | Yes | — |
+| **Profile** | `/profile` | Yes | Yes |
+| Settings | `/settings` | Yes | Yes |
 | Join (group invite) | `/join/[token]` | Public | Public |
-| Change password | `/change-password` | ✓ | ✓ |
+| Change password | `/change-password` | Yes | Yes |
 | Privacy | `/privacy` | Public | Public |
 | Terms | `/terms` | Public | Public |
-| Audit | `/audit` | ✓ (Phase 2) | — |
+| Audit | `/audit` | Yes (Phase 2) | — |
 
 **Default URL:** `/[locale]` — public landing when logged out. **Sign up** / **Log in** from header or footer. After login: no group → `/groups`; operator in active group → `/teammates`; teammate in active group → `/tasks`. Legacy `/admin` redirects to `/login`.
 
@@ -391,7 +394,7 @@ Table: name, email, role, account status, Telegram status, view link. Operators 
 ### Detail `/teammates/[id]`
 
 - Name, email, account + Telegram badges
-- Edit name (+ email before first login), deactivate
+- Edit name (+ email before first login), **promote to operator** (active account), deactivate
 - **Invite link** — `/join/{token}` · regenerate
 - **Telegram link** — `t.me/...?start=code` · regenerate
 
@@ -409,9 +412,9 @@ All users. Access: avatar (header / mobile), sidebar footer, account menu.
 |---------|---------|---------|
 | **Photo** | Upload / change / remove profile photo | Mock: browser storage · production: server upload |
 | **Account** | Display name, email, **language** — **no role** | Read-only until `PATCH /me` |
-| **Password** | Change password form | ✓ |
-| **Telegram** | Account-level link status; operators can generate alert link here | ✓ |
-| **Log out** | Button (mobile primary exit; desktop also in account menu) | ✓ |
+| **Password** | Change password form | Yes |
+| **Telegram** | Account-level link status; operators can generate alert link here | Yes |
+| **Log out** | Button (mobile primary exit; desktop also in account menu) | Yes |
 
 Group and role live in the **group switcher** and account menu — not on Profile.
 
@@ -433,8 +436,8 @@ Operator only. Access: sidebar / mobile tabs.
 
 | Content | Phase 1 |
 |---------|---------|
-| Feed of teammate **task done** and **due/overdue** events | ✓ mock |
-| Delivery badge: Telegram vs web-only (depends on Operator Telegram link) | ✓ mock |
+| Feed of teammate **task done** and **due/overdue** events | Yes mock |
+| Delivery badge: Telegram vs web-only (depends on Operator Telegram link) | Yes mock |
 | Preferences | **Settings** → Operator alerts toggles |
 
 Teammates do not have this route (redirect to `/tasks`).
@@ -497,7 +500,9 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 
 | Component | Notes |
 |-----------|-------|
-| `GroupSwitcher` + `GroupPanelMenu` | Header panel — switch · create inline · join with invite |
+| `GroupSwitcher` + `GroupPanelMenu` | Header panel — switch · create · join · leave · delete (danger section) |
+| `PromoteTeammateButton` | Teammate detail — promote to operator (confirm) |
+| `DeactivateTeammateButton` | Teammate detail — deactivate |
 | `AppShell` | Sidebar + collapse + role-based nav (when group active) + profile footer |
 | `AppHeader` | Desktop group switcher + locale switcher + avatar + account menu |
 | `MobileTopBar` | Compact logo, group switcher, locale, avatar, tab nav |
@@ -537,15 +542,15 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 
 | UX item | Phase | Mock status |
 |---------|-------|-------------|
-| Marketing landing | 1 | ✓ mock |
-| Team board + inline edit + quick add | 1 | ✓ mock |
-| Task create + edit + delete forms | 1 | ✓ mock |
-| Status Kanban + list toggle | 1 | ✓ mock |
-| Profile vs Settings split | 1 | ✓ mock |
-| Join + change-password + privacy | 1 | ✓ mock |
-| Operator alerts + **Alerts** page | 1 | ✓ mock |
-| Sidebar collapse + logo cross-fade | 3 (P3-11) | ✓ in mock |
-| Drag-and-drop on Kanban | 3 (P3-03) | ✓ in mock |
+| Marketing landing | 1 | Yes mock |
+| Team board + inline edit + quick add | 1 | Yes mock |
+| Task create + edit + delete forms | 1 | Yes mock |
+| Status Kanban + list toggle | 1 | Yes mock |
+| Profile vs Settings split | 1 | Yes mock |
+| Join + change-password + privacy | 1 | Yes mock |
+| Operator alerts + **Alerts** page | 1 | Yes mock |
+| Sidebar collapse + logo cross-fade | 3 (P3-11) | Yes in mock |
+| Drag-and-drop on Kanban | 3 (P3-03) | Yes in mock |
 | Locale persist via API | 1 | mock cookie only |
 | Audit screen | 2 | — |
 | Native mobile apps | 3 (P3-13) | — |
@@ -562,6 +567,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |
 | 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |
 | 2026-06-28 | Legacy cleanup: removed stub routes, mock banner, non-functional task/teammate actions; Alerts page |
+| 2026-07-12 | Group leave/delete; promote teammate; last-group resume; teammate actions → `teammates.ts` |
 | 2026-07-11 | User → group → role model (§1.1); groups hub UX (§2.1); AuthPageHeader; membership-scoped nav and Profile badge |
 | 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |

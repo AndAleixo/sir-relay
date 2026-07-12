@@ -12,7 +12,7 @@ export type HydrateSessionOptions = {
   autoPickGroup?: boolean;
 };
 
-/** Hydrate session: membership role + auto-select when user has exactly one group. */
+/** Hydrate session: membership role + resume last/single group when none selected. */
 export function hydrateSession(
   raw: Session,
   groups: GroupMembershipLookup,

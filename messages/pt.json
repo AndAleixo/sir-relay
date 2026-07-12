@@ -70,7 +70,15 @@
     "joinLabel": "Link ou código de convite",
     "joinPlaceholder": "https://…/join/abc123 ou abc123",
     "joinSubmit": "Continuar",
-    "pickFromMenu": "Use o menu de grupos acima para abrir, criar ou entrar num grupo."
+    "pickFromMenu": "Use o menu de grupos acima para mudar, criar, entrar, abandonar ou eliminar um grupo.",
+    "leave": "Abandonar grupo",
+    "leaveConfirm": "Abandonar \"{group}\"? Pode voltar a entrar com um convite.",
+    "delete": "Eliminar grupo",
+    "deleteConfirm": "Eliminar \"{group}\" permanentemente? Todas as tarefas, colegas e alertas deste grupo serão removidos.",
+    "lastOperator": "É o único operator. Promova um colega, elimine o grupo ou adicione outro operator antes de abandonar.",
+    "forbidden": "Não tem permissão para fazer isso.",
+    "notMember": "Não é membro desse grupo.",
+    "actionFailed": "Algo correu mal. Tente novamente."
   },
   "terms": {
     "title": "Termos de serviço",
@@ -128,6 +136,11 @@
     "editSection": "Editar utilizador",
     "deactivate": "Desactivar",
     "deactivateConfirm": "Desactivar este utilizador? Não poderá entrar.",
+    "promoteToOperator": "Tornar operator",
+    "promoteConfirm": "Tornar {name} operator? Vai gerir colegas, tarefas e alertas neste grupo.",
+    "promoted": "Utilizador promovido a operator.",
+    "promoteFailed": "Não foi possível promover este utilizador. A conta tem de estar activa.",
+    "editFailed": "Não foi possível guardar as alterações.",
     "deactivated": "Desactivado",
     "regenerateInvite": "Regenerar convite",
     "regenerateTelegram": "Regenerar link Telegram",

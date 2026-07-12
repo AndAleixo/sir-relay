@@ -1,6 +1,6 @@
 "use client";
 
-import { mockCreateTask } from "@/app/actions/mock-tasks";
+import { createTaskForm } from "@/app/actions/tasks";
 import {
   TaskFormActions,
   TaskFormFields,
@@ -21,7 +21,7 @@ export function CreateTaskForm({
   assigneeOptions,
   labels,
 }: CreateTaskFormProps) {
-  const createAction = mockCreateTask.bind(null, locale);
+  const createAction = createTaskForm.bind(null, locale);
   const { save, cancel, ...fieldLabels } = labels;
 
   return (

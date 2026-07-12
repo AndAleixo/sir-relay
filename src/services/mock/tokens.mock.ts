@@ -94,22 +94,12 @@ export function resolveInvite(token: string): InviteRecord | null {
   return record;
 }
 
-/** @deprecated use resolveInvite */
-export function resolveInviteToken(token: string): string | null {
-  return resolveInvite(token)?.userId ?? null;
-}
-
 export function consumeInvite(token: string): InviteRecord | null {
   const store = tokenStore();
   const record = resolveInvite(token);
   if (!record) return null;
   store.inviteTokens.delete(token);
   return record;
-}
-
-/** @deprecated use consumeInvite */
-export function consumeInviteToken(token: string): string | null {
-  return consumeInvite(token)?.userId ?? null;
 }
 
 export function getInviteTokenForUser(userId: string): string | null {

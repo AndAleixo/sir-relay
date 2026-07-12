@@ -37,14 +37,43 @@ function mockGroupExtras(): MockGroupExtras {
   return g[key];
 }
 
+function removedMembershipKeys(): Set<string> {
+  const key = "__sirrelay_mock_removed_memberships__";
+  const g = globalThis as typeof globalThis & {
+    [k: string]: Set<string> | undefined;
+  };
+  if (!g[key]) g[key] = new Set();
+  return g[key];
+}
+
+function deletedGroupIds(): Set<string> {
+  const key = "__sirrelay_mock_deleted_groups__";
+  const g = globalThis as typeof globalThis & {
+    [k: string]: Set<string> | undefined;
+  };
+  if (!g[key]) g[key] = new Set();
+  return g[key];
+}
+
+function membershipKey(groupId: string, userId: string) {
+  return `${groupId}:${userId}`;
+}
+
 function allMemberships(): GroupMembership[] {
   const { extraMemberships } = mockGroupExtras();
-  return [...MOCK_MEMBERSHIPS, ...extraMemberships];
+  const removed = removedMembershipKeys();
+  const deleted = deletedGroupIds();
+  return [...MOCK_MEMBERSHIPS, ...extraMemberships].filter(
+    (membership) =>
+      !removed.has(membershipKey(membership.groupId, membership.userId)) &&
+      !deleted.has(membership.groupId),
+  );
 }
 
 function allGroups(): Group[] {
   const { extraGroups } = mockGroupExtras();
-  return [...MOCK_GROUPS, ...extraGroups];
+  const deleted = deletedGroupIds();
+  return [...MOCK_GROUPS, ...extraGroups].filter((group) => !deleted.has(group.id));
 }
 
 function getGroup(groupId: string): Group | null {
@@ -72,7 +101,44 @@ function roleInGroup(userId: string, groupId: string): Role | null {
 
 function pickDefaultGroupId(userId: string): string | null {
   const groups = listGroupsForUser(userId);
-  return groups.length === 1 ? groups[0].id : null;
+  if (groups.length === 1) return groups[0].id;
+  const last = lastActiveGroupByUser().get(userId);
+  if (last && groups.some((group) => group.id === last)) return last;
+  return null;
+}
+
+function lastActiveGroupByUser(): Map<string, string> {
+  const key = "__sirrelay_mock_last_active_group__";
+  const g = globalThis as typeof globalThis & {
+    [k: string]: Map<string, string> | undefined;
+  };
+  if (!g[key]) g[key] = new Map();
+  return g[key];
+}
+
+export function rememberMockLastActiveGroup(userId: string, groupId: string) {
+  lastActiveGroupByUser().set(userId, groupId);
+}
+
+export function clearMockLastActiveGroup(userId: string, groupId?: string) {
+  const map = lastActiveGroupByUser();
+  if (!groupId || map.get(userId) === groupId) {
+    map.delete(userId);
+  }
+}
+
+function clearMockLastActiveGroupForGroup(groupId: string) {
+  for (const [userId, activeGroupId] of Array.from(lastActiveGroupByUser().entries())) {
+    if (activeGroupId === groupId) {
+      lastActiveGroupByUser().delete(userId);
+    }
+  }
+}
+
+export function setMemberRole(groupId: string, userId: string, role: Role): void {
+  const membership = getMembership(userId, groupId);
+  if (!membership) throw new Error("Not a member");
+  membership.role = role;
 }
 
 function inviteNeedsPassword(userId: string): boolean {
@@ -181,6 +247,50 @@ export class MockGroupService implements GroupService {
 
     consumeInvite(token);
     return group;
+  }
+
+  async pickResumeGroupId(userId: string): Promise<string | null> {
+    return pickDefaultGroupId(userId);
+  }
+
+  async leaveGroup(userId: string, groupId: string): Promise<void> {
+    const membership = getMembership(userId, groupId);
+    if (!membership) throw new Error("not_member");
+
+    const members = allMemberships().filter((row) => row.groupId === groupId);
+    const operators = members.filter((row) => row.role === "operator");
+    if (membership.role === "operator" && operators.length === 1 && members.length > 1) {
+      throw new Error("last_operator");
+    }
+
+    removedMembershipKeys().add(membershipKey(groupId, userId));
+    const { extraMemberships } = mockGroupExtras();
+    const idx = extraMemberships.findIndex(
+      (row) => row.userId === userId && row.groupId === groupId,
+    );
+    if (idx >= 0) extraMemberships.splice(idx, 1);
+    clearMockLastActiveGroup(userId, groupId);
+
+    if (allMemberships().filter((row) => row.groupId === groupId).length === 0) {
+      deletedGroupIds().add(groupId);
+    }
+  }
+
+  async deleteGroup(userId: string, groupId: string): Promise<void> {
+    const role = await this.roleInGroup(userId, groupId);
+    if (role !== "operator") throw new Error("forbidden");
+    clearMockLastActiveGroupForGroup(groupId);
+    deletedGroupIds().add(groupId);
+    const { extraGroups, extraMemberships } = mockGroupExtras();
+    for (let i = extraGroups.length - 1; i >= 0; i -= 1) {
+      if (extraGroups[i].id === groupId) extraGroups.splice(i, 1);
+    }
+    for (let i = extraMemberships.length - 1; i >= 0; i -= 1) {
+      if (extraMemberships[i].groupId === groupId) extraMemberships.splice(i, 1);
+    }
+    for (const member of MOCK_MEMBERSHIPS.filter((row) => row.groupId === groupId)) {
+      removedMembershipKeys().add(membershipKey(groupId, member.userId));
+    }
   }
 }
 

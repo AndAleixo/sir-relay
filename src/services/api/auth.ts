@@ -197,6 +197,13 @@ export class ApiAuthService implements AuthService {
       throw new Error("Invalid group");
     }
 
+    if (groupId) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { lastActiveGroupId: groupId },
+      });
+    }
+
     return persistSession({ userId, activeGroupId: groupId }, { autoPickGroup: false });
   }
 

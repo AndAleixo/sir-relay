@@ -53,6 +53,9 @@ export interface GroupService {
   isMember(userId: string, groupId: string): Promise<boolean>;
   previewInvite(token: string): Promise<GroupInvitePreview | null>;
   acceptInvite(userId: string, token: string): Promise<Group>;
+  pickResumeGroupId(userId: string): Promise<string | null>;
+  leaveGroup(userId: string, groupId: string): Promise<void>;
+  deleteGroup(userId: string, groupId: string): Promise<void>;
 }
 
 export interface TaskService {
@@ -93,6 +96,7 @@ export interface TeammateService {
     ctx: { session: Session },
   ): Promise<Teammate>;
   deactivateTeammate(id: string, ctx: { session: Session }): Promise<Teammate>;
+  promoteToOperator(id: string, ctx: { session: Session }): Promise<void>;
   regenerateInvite(id: string, ctx: { session: Session }): Promise<string>;
   regenerateTelegramLink(id: string, ctx: { session: Session }): Promise<string>;
   getInviteToken(id: string, ctx: { session: Session }): Promise<string | null>;

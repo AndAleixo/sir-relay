@@ -121,6 +121,22 @@ function GroupSwitcherFallback({
   );
 }
 
+const MD_DOWN_MQ = "(max-width: 767px)";
+
+function useMdDown() {
+  const [mdDown, setMdDown] = useState(false);
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia(MD_DOWN_MQ);
+    const sync = () => setMdDown(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return mdDown;
+}
+
 function GroupSwitcherInner({
   locale,
   groups,
@@ -132,6 +148,7 @@ function GroupSwitcherInner({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const mdDown = useMdDown();
   const [open, setOpen] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -150,10 +167,9 @@ function GroupSwitcherInner({
   }, []);
 
   useEffect(() => {
-    if (pathname.endsWith("/groups")) {
-      setOpen(true);
-    }
-  }, [pathname]);
+    if (!pathname.endsWith("/groups")) return;
+    setOpen(compact === mdDown);
+  }, [pathname, compact, mdDown]);
 
   useEffect(() => {
     if (searchParams.get("create") === "1") {
@@ -176,7 +192,7 @@ function GroupSwitcherInner({
   }, []);
 
   useLayoutEffect(() => {
-    if (!open || !compact || !rootRef.current) {
+    if (!open || !compact || !mdDown || !rootRef.current) {
       setPanelAnchor(null);
       return;
     }
@@ -198,10 +214,11 @@ function GroupSwitcherInner({
       window.removeEventListener("resize", updateAnchor);
       window.removeEventListener("scroll", updateAnchor, true);
     };
-  }, [open, compact]);
+  }, [open, compact, mdDown]);
 
   useEffect(() => {
     if (!open) return;
+    if (compact !== mdDown) return;
 
     function onPointerDown(event: PointerEvent) {
       const target = event.target as Node;
@@ -220,7 +237,7 @@ function GroupSwitcherInner({
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, closePanel]);
+  }, [open, compact, mdDown, closePanel]);
 
   const panelMenuProps = {
     locale,
@@ -244,7 +261,7 @@ function GroupSwitcherInner({
   );
 
   const mobilePanel =
-    open && compact && mounted && panelAnchor
+    open && compact && mdDown && mounted && panelAnchor
       ? createPortal(
           <>
             <button
@@ -315,7 +332,7 @@ function GroupSwitcherInner({
         )}
       </button>
 
-      {open && !compact ? desktopPanel : null}
+      {open && !compact && !mdDown ? desktopPanel : null}
       {mobilePanel}
     </div>
   );

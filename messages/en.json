@@ -70,7 +70,15 @@
     "joinLabel": "Invite link or code",
     "joinPlaceholder": "https://…/join/abc123 or abc123",
     "joinSubmit": "Continue",
-    "pickFromMenu": "Use the group menu above to open, create, or join a group."
+    "pickFromMenu": "Use the group menu above to switch, create, join, leave, or delete a group.",
+    "leave": "Leave group",
+    "leaveConfirm": "Leave \"{group}\"? You can rejoin later with an invite.",
+    "delete": "Delete group",
+    "deleteConfirm": "Delete \"{group}\" permanently? All tasks, teammates, and alerts in this group will be removed.",
+    "lastOperator": "You are the only operator. Promote a teammate, delete the group, or add another operator before leaving.",
+    "forbidden": "You don't have permission to do that.",
+    "notMember": "You are not a member of that group.",
+    "actionFailed": "Something went wrong. Try again."
   },
   "terms": {
     "title": "Terms of Service",
@@ -128,6 +136,11 @@
     "editSection": "Edit user",
     "deactivate": "Deactivate",
     "deactivateConfirm": "Deactivate this user? They will not be able to sign in.",
+    "promoteToOperator": "Make operator",
+    "promoteConfirm": "Make {name} an operator? They will manage teammates, tasks, and alerts in this group.",
+    "promoted": "User promoted to operator.",
+    "promoteFailed": "Could not promote this user. They must have an active account.",
+    "editFailed": "Could not save changes.",
     "deactivated": "Deactivated",
     "regenerateInvite": "Regenerate invite",
     "regenerateTelegram": "Regenerate Telegram link",

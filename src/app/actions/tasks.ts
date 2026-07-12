@@ -17,7 +17,7 @@ function maybeRevalidate() {
   }
 }
 
-export async function mockCreateTask(locale: string, formData: FormData) {
+export async function createTaskForm(locale: string, formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const assigneeId = String(formData.get("assigneeId") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();

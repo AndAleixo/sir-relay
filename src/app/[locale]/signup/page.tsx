@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { mockSignup } from "@/app/actions/mock-auth";
+import { signupForm } from "@/app/actions/auth";
 import { AuthPageHeader } from "@/components/auth/auth-page-header";
 import { PasswordFormFields } from "@/components/auth/password-form-fields";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
@@ -54,7 +54,7 @@ export default async function SignupPage({
                 {t(`auth.${errorKey}`)}
               </p>
             ) : null}
-            <form action={mockSignup.bind(null, locale)} className="space-y-4">
+            <form action={signupForm.bind(null, locale)} className="space-y-4">
               <div>
                 <Label htmlFor="name">{t("auth.name")}</Label>
                 <Input id="name" name="name" required autoComplete="name" />

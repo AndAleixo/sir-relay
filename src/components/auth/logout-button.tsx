@@ -1,4 +1,4 @@
-import { mockLogout } from "@/app/actions/mock-auth";
+import { logoutAction } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 
 type LogoutButtonProps = {
@@ -15,7 +15,7 @@ export function LogoutButton({
   className,
 }: LogoutButtonProps) {
   return (
-    <form action={mockLogout.bind(null, locale)}>
+    <form action={logoutAction.bind(null, locale)}>
       <Button type="submit" variant={variant} className={className}>
         {label}
       </Button>

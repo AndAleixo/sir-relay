@@ -7,7 +7,7 @@ import { loginPath, resolveEntryPath } from "@/lib/entry-route";
 import { locales } from "@/i18n/config";
 import { getServices } from "@/services";
 
-export async function mockLogin(locale: string, formData: FormData) {
+export async function loginForm(locale: string, formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
@@ -20,7 +20,7 @@ export async function mockLogin(locale: string, formData: FormData) {
   }
 }
 
-export async function mockSignup(locale: string, formData: FormData) {
+export async function signupForm(locale: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const newPassword = String(formData.get("newPassword") ?? "");
@@ -50,13 +50,13 @@ export async function mockSignup(locale: string, formData: FormData) {
   }
 }
 
-export async function mockLogout(locale: string) {
+export async function logoutAction(locale: string) {
   await getServices().auth.logout();
   revalidatePath("/", "layout");
   redirect(`/${locale}`);
 }
 
-export async function mockChangePassword(locale: string, formData: FormData) {
+export async function changePasswordForm(locale: string, formData: FormData) {
   const currentPassword = String(formData.get("currentPassword") ?? "");
   const newPassword = String(formData.get("newPassword") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
@@ -85,7 +85,7 @@ export async function mockChangePassword(locale: string, formData: FormData) {
   redirect(resolveEntryPath(locale, next));
 }
 
-export async function mockJoinAccount(locale: string, token: string, formData: FormData) {
+export async function joinAccountForm(locale: string, token: string, formData: FormData) {
   const newPassword = String(formData.get("newPassword") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
@@ -105,7 +105,7 @@ export async function mockJoinAccount(locale: string, token: string, formData: F
   }
 }
 
-export async function mockProfileChangePassword(locale: string, formData: FormData) {
+export async function profileChangePasswordForm(locale: string, formData: FormData) {
   const currentPassword = String(formData.get("currentPassword") ?? "");
   const newPassword = String(formData.get("newPassword") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
@@ -133,7 +133,7 @@ export async function mockProfileChangePassword(locale: string, formData: FormDa
   redirect(`/${locale}/profile?passwordChanged=1`);
 }
 
-export async function mockGenerateTelegramLink(locale: string) {
+export async function generateTelegramLinkAction(locale: string) {
   const { auth, users } = getServices();
   const session = await auth.getSession();
   if (!session) {

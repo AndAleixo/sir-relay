@@ -12,7 +12,7 @@ function parseLocale(value: FormDataEntryValue | null): Locale {
   return locales.includes(locale as Locale) ? (locale as Locale) : "en";
 }
 
-export async function mockCreateTeammate(locale: string, formData: FormData) {
+export async function createTeammateForm(locale: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const teammateLocale = parseLocale(formData.get("locale"));
@@ -32,7 +32,7 @@ export async function mockCreateTeammate(locale: string, formData: FormData) {
   redirect(`/${locale}/teammates/${teammate.id}`);
 }
 
-export async function mockUpdateTeammate(
+export async function updateTeammateForm(
   locale: string,
   teammateId: string,
   formData: FormData,
@@ -60,7 +60,7 @@ export async function mockUpdateTeammate(
   redirect(`/${locale}/teammates/${teammateId}`);
 }
 
-export async function mockDeactivateTeammate(locale: string, teammateId: string) {
+export async function deactivateTeammate(locale: string, teammateId: string) {
   const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
 
@@ -69,7 +69,22 @@ export async function mockDeactivateTeammate(locale: string, teammateId: string)
   redirect(`/${locale}/teammates`);
 }
 
-export async function mockRegenerateInvite(locale: string, teammateId: string) {
+export async function promoteTeammate(locale: string, teammateId: string) {
+  const session = await requireOperatorSession(locale);
+  const { teammates } = getServices();
+
+  try {
+    await teammates.promoteToOperator(teammateId, { session });
+  } catch {
+    redirect(`/${locale}/teammates/${teammateId}?error=promote`);
+  }
+
+  revalidatePath(`/${locale}/teammates`);
+  revalidatePath("/", "layout");
+  redirect(`/${locale}/teammates?promoted=1`);
+}
+
+export async function regenerateInviteForm(locale: string, teammateId: string) {
   const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
 
@@ -78,7 +93,7 @@ export async function mockRegenerateInvite(locale: string, teammateId: string) {
   redirect(`/${locale}/teammates/${teammateId}`);
 }
 
-export async function mockRegenerateTeammateTelegramLink(
+export async function regenerateTeammateTelegramLinkForm(
   locale: string,
   teammateId: string,
 ) {

@@ -3,7 +3,7 @@ import {
   reassignTaskAction,
   updateTaskFieldsAction,
   updateTaskStatusAction,
-} from "@/app/actions/mock-tasks";
+} from "@/app/actions/tasks";
 
 export async function executePendingMutation(
   mutation: PendingMutation,

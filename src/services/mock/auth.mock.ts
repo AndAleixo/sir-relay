@@ -9,7 +9,7 @@ import {
   patchMockUser,
   registerDynamicUser,
 } from "@/services/mock/users.mock";
-import { mockGroupMembershipLookup } from "@/services/mock/groups.mock";
+import { mockGroupMembershipLookup, rememberMockLastActiveGroup } from "@/services/mock/groups.mock";
 import { consumeInvite, resolveInvite } from "@/services/mock/tokens.mock";
 
 const MOCK_SESSION_COOKIE = "sirrelay_mock_session";
@@ -184,6 +184,10 @@ export class MockAuthService implements AuthService {
 
     if (groupId && !mockGroupMembershipLookup.hasMembership(userId, groupId)) {
       throw new Error("Invalid group");
+    }
+
+    if (groupId) {
+      rememberMockLastActiveGroup(userId, groupId);
     }
 
     const session = hydrateSession(

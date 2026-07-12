@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteTaskAction, saveTaskDetailAction } from "@/app/actions/mock-tasks";
+import { deleteTaskAction, saveTaskDetailAction } from "@/app/actions/tasks";
 import {
   TaskFormActions,
   TaskFormFields,

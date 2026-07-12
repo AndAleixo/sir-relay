@@ -158,6 +158,19 @@ export class ApiTeammateService implements TeammateService {
     return toTeammate(updated, "teammate");
   }
 
+  async promoteToOperator(id: string, ctx: { session: Session }): Promise<void> {
+    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
+    const groupId = requireGroupId(ctx.session);
+    const teammate = await requireTeammateInGroup(ctx, id);
+    if (!teammate.active) throw new Error("Inactive user");
+    if (teammate.accountStatus !== "active") throw new Error("Account not active");
+
+    await prisma.groupMembership.update({
+      where: { groupId_userId: { groupId, userId: id } },
+      data: { role: "operator" },
+    });
+  }
+
   async regenerateInvite(id: string, ctx: { session: Session }): Promise<string> {
     await requireTeammateInGroup(ctx, id);
     return latestInviteToken(id, requireGroupId(ctx.session));

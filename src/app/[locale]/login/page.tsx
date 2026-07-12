@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { mockLogin } from "@/app/actions/mock-auth";
+import { loginForm } from "@/app/actions/auth";
 import { AuthPageHeader } from "@/components/auth/auth-page-header";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -50,7 +50,7 @@ export default async function LoginPage({
                 {t("auth.loginError")}
               </p>
             ) : null}
-            <form action={mockLogin.bind(null, locale)} className="space-y-4">
+            <form action={loginForm.bind(null, locale)} className="space-y-4">
               <div>
                 <Label htmlFor="email">{t("auth.email")}</Label>
                 <Input

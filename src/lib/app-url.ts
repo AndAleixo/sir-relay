@@ -2,14 +2,15 @@ import { headers } from "next/headers";
 
 /** Build absolute URL for invite/Telegram links in server components. */
 export function resolveAppOrigin(): string {
-  const configured = process.env.APP_URL?.replace(/\/$/, "");
-  if (configured) return configured;
-
   const host = headers().get("host");
-  if (!host) return "http://localhost:3000";
+  if (host) {
+    const protocol =
+      host.includes("localhost") || host.startsWith("127.0.0.1") ? "http" : "https";
+    return `${protocol}://${host}`;
+  }
 
-  const protocol = host.includes("localhost") ? "http" : "https";
-  return `${protocol}://${host}`;
+  const configured = process.env.APP_URL?.replace(/\/$/, "");
+  return configured ?? "http://localhost:3000";
 }
 
 export function joinInviteUrl(locale: string, token: string): string {

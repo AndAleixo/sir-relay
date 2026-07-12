@@ -1,0 +1,8 @@
+# Prod-local override — HTTP on :80 (no TLS redirect). VPS uses root Caddyfile + APP_DOMAIN host.
+services:
+  postgres:
+    ports:
+      - "5433:5432"
+  caddy:
+    volumes:
+      - ./Caddyfile.local:/etc/caddy/Caddyfile:ro

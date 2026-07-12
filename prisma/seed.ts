@@ -7,6 +7,7 @@ import {
   MOCK_TEAMMATES,
 } from "../src/services/mock/data";
 import { MOCK_GROUPS, MOCK_MEMBERSHIPS } from "../src/services/mock/groups.mock";
+import { fromLocale } from "../src/services/api/mappers";
 
 const prisma = new PrismaClient();
 
@@ -42,7 +43,7 @@ async function main() {
         name: op.name,
         email: op.email,
         passwordHash,
-        locale: op.locale,
+        locale: fromLocale(op.locale),
         active: op.active,
         mustChangePassword: op.mustChangePassword ?? false,
         accountStatus: "active",
@@ -59,7 +60,7 @@ async function main() {
         name: teammate.name,
         email: teammate.email,
         passwordHash,
-        locale: teammate.locale,
+        locale: fromLocale(teammate.locale),
         active: teammate.active,
         accountStatus: teammate.accountStatus,
         telegramChatId:

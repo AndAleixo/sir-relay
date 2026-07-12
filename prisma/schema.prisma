@@ -140,9 +140,12 @@ model TelegramLinkToken {
 }
 
 model GroupAlertPrefs {
-  groupId  String  @id @map("group_id")
-  taskDone Boolean @default(true) @map("task_done")
-  taskDue  Boolean @default(true) @map("task_due")
+  groupId         String  @id @map("group_id")
+  taskDone        Boolean @default(true) @map("task_done")
+  taskDue         Boolean @default(true) @map("task_due")
+  timezone        String  @default("UTC")
+  quietHoursStart Int?    @map("quiet_hours_start")
+  quietHoursEnd   Int?    @map("quiet_hours_end")
 
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 

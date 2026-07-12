@@ -133,6 +133,24 @@ export class ApiGroupService implements GroupService {
     return pickDefaultGroupIdAsync(userId);
   }
 
+  async renameGroup(userId: string, groupId: string, name: string): Promise<Group> {
+    const role = await this.roleInGroup(userId, groupId);
+    if (role !== "operator") throw new Error("forbidden");
+
+    const trimmed = name.trim();
+    if (trimmed.length < 2) throw new Error("short");
+
+    const updated = await prisma.group.update({
+      where: { id: groupId },
+      data: { name: trimmed },
+    });
+    return { id: updated.id, name: updated.name };
+  }
+
+  async countMembers(groupId: string): Promise<number> {
+    return prisma.groupMembership.count({ where: { groupId } });
+  }
+
   async leaveGroup(userId: string, groupId: string): Promise<void> {
     const role = await this.roleInGroup(userId, groupId);
     if (!role) throw new Error("not_member");

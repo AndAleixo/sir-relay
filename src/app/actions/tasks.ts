@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { Task, TaskStatus } from "@/domain/types";
 import type { SyncActionOptions, TaskActionResult } from "@/domain/sync";
 import { requireOperatorSession } from "@/lib/require-session";
+import { isGroupTimezone } from "@/lib/group-timezones";
 import { getServices, serviceMode } from "@/services";
 import {
   getAppliedMutation,
@@ -45,15 +46,44 @@ export async function createTaskForm(locale: string, formData: FormData) {
 }
 
 export async function updateOperatorAlertPrefs(formData: FormData) {
-  const taskDone = formData.get("taskDone") === "on";
-  const taskDue = formData.get("taskDue") === "on";
-
   const { auth, alerts } = getServices();
   const session = await auth.getSession();
   if (!session || session.user.role !== "operator") return;
 
-  await alerts.updatePrefs({ session }, { taskDone, taskDue });
+  const patch: Partial<import("@/services/alert.types").OperatorAlertPrefs> = {};
+
+  if (formData.has("taskDone")) {
+    patch.taskDone = formData.get("taskDone") === "on";
+  }
+  if (formData.has("taskDue")) {
+    patch.taskDue = formData.get("taskDue") === "on";
+  }
+  if (formData.has("timezone")) {
+    const timezone = String(formData.get("timezone") ?? "");
+    if (isGroupTimezone(timezone)) patch.timezone = timezone;
+  }
+  if (formData.has("quietHoursEnabled")) {
+    const enabled = formData.get("quietHoursEnabled") === "on";
+    if (!enabled) {
+      patch.quietHoursStart = null;
+      patch.quietHoursEnd = null;
+    } else {
+      patch.quietHoursStart = parseHour(formData.get("quietHoursStart"));
+      patch.quietHoursEnd = parseHour(formData.get("quietHoursEnd"));
+    }
+  }
+
+  if (Object.keys(patch).length === 0) return;
+
+  await alerts.updatePrefs({ session }, patch);
   revalidatePath("/", "layout");
+}
+
+function parseHour(value: FormDataEntryValue | null): number | null {
+  if (value == null || value === "") return null;
+  const hour = Number(value);
+  if (!Number.isInteger(hour) || hour < 0 || hour > 23) return null;
+  return hour;
 }
 
 export async function reassignTaskAction(

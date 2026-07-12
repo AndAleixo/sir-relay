@@ -3,6 +3,9 @@ import type { OperatorAlert, Session, Task } from "@/domain/types";
 export interface OperatorAlertPrefs {
   taskDone: boolean;
   taskDue: boolean;
+  timezone: string;
+  quietHoursStart: number | null;
+  quietHoursEnd: number | null;
 }
 
 export interface OperatorAlertService {

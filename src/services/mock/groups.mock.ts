@@ -253,6 +253,23 @@ export class MockGroupService implements GroupService {
     return pickDefaultGroupId(userId);
   }
 
+  async renameGroup(userId: string, groupId: string, name: string): Promise<Group> {
+    const role = await this.roleInGroup(userId, groupId);
+    if (role !== "operator") throw new Error("forbidden");
+
+    const trimmed = name.trim();
+    if (trimmed.length < 2) throw new Error("short");
+
+    const group = getGroup(groupId);
+    if (!group) throw new Error("not_member");
+    group.name = trimmed;
+    return { ...group };
+  }
+
+  async countMembers(groupId: string): Promise<number> {
+    return allMemberships().filter((row) => row.groupId === groupId).length;
+  }
+
   async leaveGroup(userId: string, groupId: string): Promise<void> {
     const membership = getMembership(userId, groupId);
     if (!membership) throw new Error("not_member");

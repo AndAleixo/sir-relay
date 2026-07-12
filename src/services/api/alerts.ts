@@ -1,7 +1,14 @@
 import type { OperatorAlert, Session, Task } from "@/domain/types";
-import { isDueOrOverdue } from "@/lib/dates";
 import type { OperatorAlertPrefs, OperatorAlertService } from "@/services/alert.types";
+import {
+  calendarDateInTimezone,
+  isDueOnOrBeforeTodayInTimezone,
+} from "@/lib/group-timezones";
 import { prisma } from "@/lib/prisma";
+import {
+  telegramDeliveryAllowed,
+  toOperatorAlertPrefs,
+} from "@/services/alert-prefs";
 import { apiTaskService } from "@/services/api/tasks";
 
 function requireGroupId(ctx: { session: Session }): string {
@@ -16,7 +23,7 @@ async function defaultPrefs(groupId: string): Promise<OperatorAlertPrefs> {
     create: { groupId },
     update: {},
   });
-  return { taskDone: row.taskDone, taskDue: row.taskDue };
+  return toOperatorAlertPrefs(row);
 }
 
 async function hasLinkedOperator(groupId: string): Promise<boolean> {
@@ -37,13 +44,20 @@ export class ApiOperatorAlertService implements OperatorAlertService {
     next: Partial<OperatorAlertPrefs>,
   ): Promise<OperatorAlertPrefs> {
     const groupId = requireGroupId(ctx);
-    const current = await defaultPrefs(groupId);
-    const merged = { ...current, ...next };
+    await defaultPrefs(groupId);
     const row = await prisma.groupAlertPrefs.update({
       where: { groupId },
-      data: merged,
+      data: {
+        ...(next.taskDone !== undefined ? { taskDone: next.taskDone } : {}),
+        ...(next.taskDue !== undefined ? { taskDue: next.taskDue } : {}),
+        ...(next.timezone !== undefined ? { timezone: next.timezone } : {}),
+        ...(next.quietHoursStart !== undefined
+          ? { quietHoursStart: next.quietHoursStart }
+          : {}),
+        ...(next.quietHoursEnd !== undefined ? { quietHoursEnd: next.quietHoursEnd } : {}),
+      },
     });
-    return { taskDone: row.taskDone, taskDue: row.taskDue };
+    return toOperatorAlertPrefs(row);
   }
 
   async listRecentAlerts(
@@ -86,6 +100,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
     });
     if (!membership || membership.role !== "teammate") return;
 
+    const linked = await hasLinkedOperator(groupId);
     await prisma.operatorAlert.create({
       data: {
         groupId,
@@ -94,7 +109,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
         taskTitle: task.title,
         assigneeName: task.assigneeName,
         dueDate: task.dueDate ? new Date(task.dueDate) : null,
-        sentToTelegram: await hasLinkedOperator(groupId),
+        sentToTelegram: linked && telegramDeliveryAllowed(prefs),
       },
     });
   }
@@ -104,12 +119,14 @@ export class ApiOperatorAlertService implements OperatorAlertService {
     const prefs = await defaultPrefs(groupId);
     if (!prefs.taskDue) return;
 
-    const dayStart = new Date();
-    dayStart.setUTCHours(0, 0, 0, 0);
+    const now = new Date();
+    const today = calendarDateInTimezone(now, prefs.timezone);
 
     for (const task of tasks) {
       if (task.status === "done") continue;
-      if (!task.dueDate || !isDueOrOverdue(task.dueDate)) continue;
+      if (!task.dueDate || !isDueOnOrBeforeTodayInTimezone(task.dueDate, prefs.timezone, now)) {
+        continue;
+      }
 
       const membership = await prisma.groupMembership.findUnique({
         where: {
@@ -118,16 +135,18 @@ export class ApiOperatorAlertService implements OperatorAlertService {
       });
       if (!membership || membership.role !== "teammate") continue;
 
-      const existing = await prisma.operatorAlert.findFirst({
-        where: {
-          groupId,
-          type: "task_due",
-          taskId: task.id,
-          createdAt: { gte: dayStart },
-        },
+      const latest = await prisma.operatorAlert.findFirst({
+        where: { groupId, type: "task_due", taskId: task.id },
+        orderBy: { createdAt: "desc" },
       });
-      if (existing) continue;
+      if (
+        latest &&
+        calendarDateInTimezone(latest.createdAt, prefs.timezone) === today
+      ) {
+        continue;
+      }
 
+      const linked = await hasLinkedOperator(groupId);
       await prisma.operatorAlert.create({
         data: {
           groupId,
@@ -136,7 +155,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
           taskTitle: task.title,
           assigneeName: task.assigneeName,
           dueDate: new Date(task.dueDate),
-          sentToTelegram: await hasLinkedOperator(groupId),
+          sentToTelegram: linked && telegramDeliveryAllowed(prefs, now),
         },
       });
     }

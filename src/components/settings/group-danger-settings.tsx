@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useFormState } from "react-dom";
 import { useTranslations } from "next-intl";
 import type { UserGroup } from "@/domain/types";
 import type { GroupFormState } from "@/app/actions/groups";
 import { deleteGroupForm, leaveGroupForm } from "@/app/actions/groups";
+import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 
 const emptyFormState: GroupFormState = { error: null };
@@ -27,9 +29,11 @@ function formErrorMessage(
 export function GroupDangerSettings({
   locale,
   group,
+  isLastOperator,
 }: {
   locale: string;
   group: UserGroup;
+  isLastOperator?: boolean;
 }) {
   const t = useTranslations();
   const [leaveState, leaveAction] = useFormState(
@@ -54,6 +58,18 @@ export function GroupDangerSettings({
           {t("settings.dangerZoneHint", { group: group.name })}
         </p>
       </div>
+
+      {isLastOperator ? (
+        <Banner variant="warning">
+          {t("settings.promoteBeforeLeave")}{" "}
+          <Link
+            href={`/${locale}/teammates`}
+            className="font-medium underline underline-offset-2"
+          >
+            {t("common.teammates")}
+          </Link>
+        </Banner>
+      ) : null}
 
       {errorMessage ? (
         <p className="rounded-button border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">

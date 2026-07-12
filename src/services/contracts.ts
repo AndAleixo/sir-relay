@@ -53,6 +53,8 @@ export interface GroupService {
   previewInvite(token: string): Promise<GroupInvitePreview | null>;
   acceptInvite(userId: string, token: string): Promise<Group>;
   pickResumeGroupId(userId: string): Promise<string | null>;
+  renameGroup(userId: string, groupId: string, name: string): Promise<Group>;
+  countMembers(groupId: string): Promise<number>;
   leaveGroup(userId: string, groupId: string): Promise<void>;
   deleteGroup(userId: string, groupId: string): Promise<void>;
 }

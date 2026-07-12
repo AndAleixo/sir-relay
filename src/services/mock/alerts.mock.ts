@@ -1,9 +1,13 @@
 import type { OperatorAlert, Session, Task } from "@/domain/types";
-import { isDueOrOverdue } from "@/lib/dates";
+import {
+  calendarDateInTimezone,
+  isDueOnOrBeforeTodayInTimezone,
+} from "@/lib/group-timezones";
 import type {
   OperatorAlertPrefs,
   OperatorAlertService,
 } from "@/services/alert.types";
+import { telegramDeliveryAllowed } from "@/services/alert-prefs";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
 import { mockTaskService } from "@/services/mock/task.mock";
 
@@ -14,7 +18,13 @@ const alerts: OperatorAlert[] = [];
 const dueAlertKeys = new Set<string>();
 
 function defaultPrefs(): OperatorAlertPrefs {
-  return { taskDone: true, taskDue: true };
+  return {
+    taskDone: true,
+    taskDue: true,
+    timezone: "UTC",
+    quietHoursStart: null,
+    quietHoursEnd: null,
+  };
 }
 
 function groupPrefs(groupId: string): OperatorAlertPrefs {
@@ -26,9 +36,8 @@ function groupPrefs(groupId: string): OperatorAlertPrefs {
   return prefs;
 }
 
-function todayKey(): string {
-  const today = new Date();
-  return `${today.getUTCFullYear()}-${today.getUTCMonth()}-${today.getUTCDate()}`;
+function dueDayKey(groupId: string, timezone: string): string {
+  return `${groupId}:${calendarDateInTimezone(new Date(), timezone)}`;
 }
 
 function hasLinkedOperator(): boolean {
@@ -40,6 +49,7 @@ function hasLinkedOperator(): boolean {
 function pushAlert(
   groupId: string,
   input: Omit<OperatorAlert, "id" | "createdAt" | "sentToTelegram">,
+  now = new Date(),
 ) {
   const prefs = groupPrefs(groupId);
   const typeEnabled =
@@ -50,8 +60,8 @@ function pushAlert(
   alerts.unshift({
     ...input,
     id: `alert-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    createdAt: new Date().toISOString(),
-    sentToTelegram: hasLinkedOperator(),
+    createdAt: now.toISOString(),
+    sentToTelegram: hasLinkedOperator() && telegramDeliveryAllowed(prefs, now),
   });
 
   if (alerts.length > 50) {
@@ -104,24 +114,32 @@ export class MockOperatorAlertService implements OperatorAlertService {
 
   async syncDueAlerts(tasks: Task[], ctx: { session: Session }): Promise<void> {
     const groupId = requireGroupId(ctx);
-    const day = todayKey();
+    const prefs = groupPrefs(groupId);
+    const now = new Date();
+    const day = dueDayKey(groupId, prefs.timezone);
 
     for (const task of tasks) {
       if (task.status === "done") continue;
       if (!teammateIds.has(task.assigneeId)) continue;
-      if (!task.dueDate || !isDueOrOverdue(task.dueDate)) continue;
+      if (!task.dueDate || !isDueOnOrBeforeTodayInTimezone(task.dueDate, prefs.timezone, now)) {
+        continue;
+      }
 
-      const dedupeKey = `${groupId}:${day}:${task.id}`;
+      const dedupeKey = `${day}:${task.id}`;
       if (dueAlertKeys.has(dedupeKey)) continue;
       dueAlertKeys.add(dedupeKey);
 
-      pushAlert(groupId, {
-        type: "task_due",
-        taskId: task.id,
-        taskTitle: task.title,
-        assigneeName: task.assigneeName,
-        dueDate: task.dueDate,
-      });
+      pushAlert(
+        groupId,
+        {
+          type: "task_due",
+          taskId: task.id,
+          taskTitle: task.title,
+          assigneeName: task.assigneeName,
+          dueDate: task.dueDate,
+        },
+        now,
+      );
     }
   }
 }

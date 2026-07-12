@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
 import { GroupDangerSettings } from "@/components/settings/group-danger-settings";
-import { OperatorAlertSettings } from "@/components/settings/operator-alert-settings";
+import { GroupGeneralSettings } from "@/components/settings/group-general-settings";
+import { GroupNotificationSettings } from "@/components/settings/group-notification-settings";
 import { Banner } from "@/components/ui/banner";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { requireAppSession } from "@/lib/require-session";
@@ -10,19 +11,30 @@ import { getServices } from "@/services";
 
 export default async function SettingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ renameError?: string; renamed?: string }>;
 }) {
   const { locale } = await params;
+  const { renameError, renamed } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
-  const { alerts, groups } = getServices();
+  const { alerts, groups, teammates } = getServices();
 
   const groupList = await groups.listForUser(session.user.id);
   const activeGroup =
     groupList.find((group) => group.id === session.activeGroupId) ?? null;
   const isOperator = session.user.role === "operator";
-  const alertPrefs = isOperator ? await alerts.getPrefs({ session }) : null;
+  const alertPrefs = isOperator && activeGroup ? await alerts.getPrefs({ session }) : null;
+
+  const memberCount = activeGroup ? await groups.countMembers(activeGroup.id) : 0;
+  let isLastOperator = false;
+  if (activeGroup && isOperator) {
+    const members = await teammates.listOrganizationUsers({ session });
+    const operators = members.filter((user) => user.role === "operator");
+    isLastOperator = operators.length === 1 && members.length > 1;
+  }
 
   return (
     <>
@@ -33,6 +45,24 @@ export default async function SettingsPage({
         }
       />
       <div className="grid max-w-xl gap-4">
+        {activeGroup ? (
+          <Card>
+            <CardHeader>
+              <h2 className="text-sm font-semibold">{t("settings.general")}</h2>
+            </CardHeader>
+            <CardBody>
+              <GroupGeneralSettings
+                locale={locale}
+                group={activeGroup}
+                memberCount={memberCount}
+                isOperator={isOperator}
+                renameError={renameError}
+                renamed={renamed === "1"}
+              />
+            </CardBody>
+          </Card>
+        ) : null}
+
         {isOperator && alertPrefs ? (
           <>
             {session.user.telegramStatus === "pending" ? (
@@ -47,20 +77,13 @@ export default async function SettingsPage({
               </Banner>
             ) : null}
             <Card>
+              <CardHeader>
+                <h2 className="text-sm font-semibold">{t("settings.notifications")}</h2>
+              </CardHeader>
               <CardBody>
-                <OperatorAlertSettings
-                  taskDone={alertPrefs.taskDone}
-                  taskDue={alertPrefs.taskDue}
+                <GroupNotificationSettings
+                  prefs={alertPrefs}
                   viewAlertsHref={`/${locale}/alerts`}
-                  labels={{
-                    operatorSection: t("settings.operatorAlerts"),
-                    operatorSectionHint: t("settings.operatorAlertsHint"),
-                    taskDone: t("settings.alertTaskDone"),
-                    taskDoneHint: t("settings.alertTaskDoneHint"),
-                    taskDue: t("settings.alertTaskDue"),
-                    taskDueHint: t("settings.alertTaskDueHint"),
-                    viewAlertHistory: t("settings.viewAlertHistory"),
-                  }}
                 />
               </CardBody>
             </Card>
@@ -80,8 +103,15 @@ export default async function SettingsPage({
 
         {activeGroup ? (
           <Card>
+            <CardHeader>
+              <h2 className="text-sm font-semibold">{t("settings.membership")}</h2>
+            </CardHeader>
             <CardBody>
-              <GroupDangerSettings locale={locale} group={activeGroup} />
+              <GroupDangerSettings
+                locale={locale}
+                group={activeGroup}
+                isLastOperator={isLastOperator}
+              />
             </CardBody>
           </Card>
         ) : null}

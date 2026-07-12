@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Locale } from "@/domain/types";
+import { requireAppSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 import { locales } from "@/i18n/config";
 
@@ -22,4 +23,28 @@ export async function updateUserLocale(newLocale: string, pathname: string) {
   const segments = pathname.split("/");
   segments[1] = newLocale;
   redirect(segments.join("/") || `/${newLocale}/profile`);
+}
+
+export async function renameGroupForm(locale: string, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const groupId = String(formData.get("groupId") ?? "").trim();
+
+  if (name.length < 2) {
+    redirect(`/${locale}/settings?renameError=short`);
+  }
+
+  const session = await requireAppSession(locale);
+  if (session.user.role !== "operator") {
+    redirect(`/${locale}/settings`);
+  }
+
+  const { groups } = getServices();
+  try {
+    await groups.renameGroup(session.user.id, groupId, name);
+  } catch {
+    redirect(`/${locale}/settings?renameError=failed`);
+  }
+
+  revalidatePath("/", "layout");
+  redirect(`/${locale}/settings?renamed=1`);
 }

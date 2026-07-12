@@ -3,7 +3,7 @@
 **Purpose:** Layout, interaction, and visual behavior for the **public landing**, signed-in web app, and Telegram experience.  
 **Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) (what must work) · [BRAND.md](./BRAND.md) (colors, logos, tokens) · [ARCHITECTURE.md](./ARCHITECTURE.md) (code layout)
 
-**Last updated:** 2026-07-11
+**Last updated:** 2026-07-12
 
 ### Status naming
 
@@ -117,8 +117,10 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 ```
 
 - **Empty state:** expand create **or** join
-- **Single group, no active:** auto-select (skip `/groups`)
+- **Single group, no active:** `/groups/auto` persiste cookie → role home (sem ficar em `/groups`)
 - **2+ groups, no active:** `/groups` + panel open
+- **Invite errors:** inline no formulário (sem reload); link inválido / email mismatch
+- **Mobile panel:** dropdown ancorado abaixo do trigger (não bottom sheet)
 - **Invite:** adds membership if missing (same email as invite)
 - **Join (new account):** `/join/[token]` — set password
 - **Existing account added by operator (same email):** membership added; group appears in switcher

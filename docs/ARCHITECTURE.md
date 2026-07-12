@@ -6,18 +6,33 @@ Presentation, domain types, and data access are separated so mock → API is a s
 
 ```
 src/
-├── domain/types.ts
-├── services/          # contracts · index.ts (getServices) · mock/
-├── components/
-│   ├── landing/       # Public marketing page
-│   ├── layout/        # App shell · SiteFooter
-│   ├── tasks/         # Boards, lists, forms
-│   ├── alerts/ · profile/ · sync/
-│   └── ui/<name>/
-├── lib/entry-route.ts # Post-auth redirects
-├── app/actions/groups.ts  # Group panel server actions (thin → getServices)
-└── app/[locale]/      # Routes
+├── domain/types.ts       # UserGroup, Session, Task, …
+├── services/
+│   ├── contracts.ts      # AuthService, GroupService, …
+│   ├── index.ts          # getServices() — mock | api
+│   ├── mock/             # ✅ activo
+│   └── api/              # ❌ Phase 1 — implementar para dev-hybrid
+├── lib/
+│   ├── entry-route.ts    # Post-auth redirects
+│   └── session-hydrate.ts # Role + auto-pick (login only; readSession não auto-pick)
+├── app/actions/groups.ts # Group panel — thin → getServices()
+└── app/[locale]/
+    ├── groups/auto/      # Route handler: persist sole-group auto-select
+    └── (app)/groups/     # Placeholder + panel auto-open
 ```
+
+## Groups (UI + boundary)
+
+| Peça | Ficheiro | Notas |
+|------|----------|-------|
+| Switcher + panel open | `group-switcher.tsx` | Desktop dropdown · mobile popover ancorado ao trigger |
+| Lista + forms | `group-panel-menu.tsx` | Create/join com `useFormState` — erros inline, sem reload |
+| Server actions | `app/actions/groups.ts` | `selectGroup`, `createGroupForm`, `redeemInviteForm`, `acceptInvite` |
+| Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` |
+| Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles |
+| Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |
+
+Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookies flash).
 
 ## Routes
 
@@ -27,7 +42,8 @@ src/
 | `/[locale]/login`, `/signup` | Public | CDN-friendly | Account sign-in / sign-up |
 | `/[locale]/privacy`, `/terms`, `/join/[token]` | Public | CDN-friendly | Legal · group invite activation |
 | `/[locale]/admin` | Public | — | Legacy redirect → `/login` |
-| `/[locale]/groups` | Session | private | No active group — panel opens · `/groups/new` → redirect |
+| `/[locale]/groups` | Session | private | No active group — panel opens · `/groups/new` → `?create=1` |
+| `/[locale]/groups/auto` | Session | private | Auto-pick sole group (persist cookie) |
 | `/[locale]/change-password` | Session | private | Forced / optional password change |
 | `/[locale]/tasks`, `/tasks/new`, `/tasks/[id]` | Session + group | private | Boards, list, CRUD |
 | `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | Operator team management |
@@ -62,11 +78,21 @@ Demo seed: `src/services/mock/data.ts` · `sam@example.com` (2 groups → `/grou
 
 ## Mock → API
 
-1. Implement services under `src/services/api/`.
-2. Set `NEXT_PUBLIC_SERVICE_MODE=api` in `getServices()`.
-3. Components unchanged — landing and routes stay the same.
+| Camada | Mock (hoje) | API (dev-hybrid) |
+|--------|-------------|------------------|
+| Entrada | `getServices()` → `mock/*` | `getServices()` → `api/*` |
+| Sessão | Cookie `sirrelay_mock_session` | jose + httpOnly cookie |
+| Grupos | `MockGroupService` | Prisma `group_memberships` |
+| Actions | `app/actions/groups.ts` | **Inalteradas** — chamam `getServices()` |
 
-See [ENVIRONMENTS.md](./ENVIRONMENTS.md) for the **four environments** (dev mock · dev hybrid · prod local · prod VPS).
+Passos:
+
+1. Implementar `src/services/api/*` (contratos em `contracts.ts`).
+2. `prisma/schema.prisma` + migrate + seed.
+3. Ramo `api` em `getServices()` + `GET /api/v1/health`.
+4. `NEXT_PUBLIC_SERVICE_MODE=api` em `.env.local` · `npm run dev-hybrid`.
+
+Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#dev-híbrido--checklist-de-prontidão).
 
 ## Session sync (mock only)
 
@@ -75,8 +101,8 @@ Edits live in `SyncProvider` until sync succeeds; sync bar on failure. Refresh d
 ## Run
 
 ```bash
-npm install && npm run dev && npm run check:routes
-# ou por ambiente: npm run dev-mock | dev-hybrid | prod-local
+npm install && npm run dev-mock && npm run check:routes
+# dev-hybrid (quando API existir): npm run dev-hybrid
 ```
 
 `http://localhost:3000` — landing · `/en/login` — sign in · **demo:** `sam@example.com` (2 groups → `/groups`) · `ana@example.com` (teammate → tasks) · invite: `mock-invite-ana-side` as ana@example.com

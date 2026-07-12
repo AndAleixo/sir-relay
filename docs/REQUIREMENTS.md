@@ -147,7 +147,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-GRP-01 | List | **Group switcher panel** lists groups with name + **role**; `/groups` is placeholder when no active group (panel opens) |
 | P1-GRP-02 | Create | **Group switcher → Create group** (inline name ≥ 2 chars); creator is `operator`; group becomes active. `/groups/new` → redirect legacy |
 | P1-GRP-03 | Select | **Group switcher** sets `activeGroupId` → role home |
-| P1-GRP-04 | Auto-select | Single group + no active group → auto-select (skip `/groups`); 2+ groups → `/groups` + panel open |
+| P1-GRP-04 | Auto-select | Single group + no active group → `GET /groups/auto` persiste cookie → role home; 2+ groups → `/groups` + panel open |
 | P1-GRP-05 | Manage | **Group switcher panel** anytime — switch, create, join (no session clear) |
 | P1-GRP-06 | Join via invite | Invite link → `/join/<token>` (new account) **or** paste in group panel (signed in, same email) |
 | P1-GRP-07 | Join from panel | Paste invite in group panel → accept when signed in; adds membership if missing |
@@ -581,19 +581,35 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 ├── public/              # brand assets · demo.webm (+ CSS fallback)
 ├── docker-compose.yml
 ├── Dockerfile
-├── prisma/
+├── prisma/              # ❌ Phase 1 — schema + seed
 ├── scripts/
-│   ├── backup-db.sh
-│   ├── restore-db.sh
+│   ├── env/             # dev-mock · dev-hybrid · prod-local · prod-vps
+│   ├── backup-db.sh     # ❌ Phase 1
 │   └── check-entry-routes.mjs
 └── src/
-    ├── app/[locale]/
+    ├── app/
+    │   ├── actions/groups.ts   # Group panel (mode-agnostic)
+    │   └── [locale]/
     ├── components/landing/
+    ├── domain/types.ts         # UserGroup, Session, …
     ├── services/
+    │   ├── contracts.ts
+    │   ├── index.ts            # getServices()
+    │   ├── mock/               # ✅
+    │   └── api/                # ❌ Phase 1
     └── messages/
 ```
 
-**Repo status:** UI mock complete (landing + app). Phase 1 API/Prisma pending.
+**Repo status:**
+
+| Área | Estado |
+|------|--------|
+| UI mock (landing + app + group panel) | ✅ |
+| `UserGroup` + `GroupService.listForUser` com roles | ✅ |
+| `app/actions/groups.ts` (thin layer) | ✅ |
+| `services/mock/*` | ✅ |
+| Prisma + `services/api/*` + `/api/v1` | ❌ |
+| Dev híbrido smoke | ❌ — ver [ENVIRONMENTS.md §2 checklist](./ENVIRONMENTS.md#dev-híbrido--checklist-de-prontidão) |
 
 ---
 

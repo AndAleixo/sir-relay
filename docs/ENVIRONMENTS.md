@@ -12,8 +12,8 @@
 
 | # | Ambiente | Analogia | O que é |
 |---|----------|----------|---------|
-| 1 | **Dev mock** | **Maqueta** — bonita, nada é real | `npm run dev` · dados em memória · zero Docker |
-| 2 | **Dev híbrido** | **Oficina** — montas o motor (API) com ferramentas rápidas | `npm run dev` + Postgres Docker · `SERVICE_MODE=api` |
+| 1 | **Dev mock** | **Maqueta** — bonita, nada é real | `npm run dev-mock` · dados em memória · zero Docker |
+| 2 | **Dev híbrido** | **Oficina** — montas o motor (API) com ferramentas rápidas | `npm run dev-hybrid` · Postgres Docker · `SERVICE_MODE=api` |
 | 3 | **Prod local** | **Test drive** — o carro completo na garagem | `docker compose up` · stack idêntico ao VPS |
 | 4 | **Prod VPS** | **Estrada** — clientes reais | Droplet + domínio + HTTPS + Telegram |
 
@@ -33,7 +33,7 @@
 | | **1 · Dev mock** | **2 · Dev híbrido** | **3 · Prod local** | **4 · Prod VPS** |
 |---|------------------|---------------------|--------------------|------------------|
 | **Objectivo** | Polish UI, demo, i18n | Desenvolver backend | Validar deploy completo | Utilizadores reais |
-| **App** | `npm run dev` | `npm run dev` | Container `app` | Container `app` |
+| **App** | `npm run dev-mock` | `npm run dev-hybrid` | Container `app` | Container `app` |
 | **Base de dados** | Nenhuma (memória) | Postgres Docker (:5432) | Postgres container | Postgres container |
 | **Docker** | Não | Só Postgres | Compose completo | Compose completo |
 | **Proxy / TLS** | — | — | Caddy (local) | Caddy + Let's Encrypt |
@@ -41,7 +41,7 @@
 | **Telegram** | — | Bot teste + tunnel* | Bot staging (opcional) | Bot produção |
 | **Persistência** | Reinicia com o Node | Volume Postgres | Volume Docker | Volume + backups |
 | **Ficheiro env** | `.env.local` | `.env.local` | `.env` | `.env` no servidor |
-| **Estado hoje** | ✅ activo | ⏳ quando houver API | ⏳ quando houver API | ⏳ pós Phase 1 |
+| **Estado hoje** | ✅ activo | ⏳ infra + script prontos · API/Prisma por implementar | ⏳ quando houver API | ⏳ pós Phase 1 |
 
 \* Webhook Telegram em dev requer tunnel (ngrok / Cloudflare) ou testar só no VPS.
 
@@ -65,6 +65,8 @@ npm run check:routes
 
 **Usar para:** polish visual, roteiro de demo, fluxos user→group→role, gravação de vídeo.
 
+**UI actual (mock):** painel de grupos integrado no header (`group-switcher` + `group-panel-menu`); erros de invite/create inline (`useFormState`); `UserGroup` alinhado com `GET /groups`; actions em `src/app/actions/groups.ts`.
+
 **Não usar para:** provar persistência, migrations, Telegram real, performance de build Docker.
 
 ---
@@ -77,7 +79,7 @@ Postgres em Docker; app com hot reload no host. **`NEXT_PUBLIC_SERVICE_MODE=api`
 cp .env.example .env.local
 # Secção 2: descomentar SERVICE_MODE=api, DATABASE_URL, POSTGRES_PASSWORD, SESSION_SECRET
 
-npm run dev-hybrid        # postgres + (prisma quando existir) + npm run dev
+npm run dev-hybrid        # postgres + (prisma quando existir) + next dev
 # só postgres: npm run dev-hybrid-db
 ```
 
@@ -86,9 +88,9 @@ Exemplo `.env.local`:
 ```env
 NEXT_PUBLIC_SERVICE_MODE=api
 DATABASE_URL=postgresql://sirrelay:DEV_PASSWORD@localhost:5432/sirrelay
+POSTGRES_PASSWORD=DEV_PASSWORD   # igual ao compose e à password em DATABASE_URL
 SESSION_SECRET=...   # openssl rand -base64 32
 APP_URL=http://localhost:3000
-POSTGRES_PASSWORD=DEV_PASSWORD   # igual ao compose
 ```
 
 | Item | Valor |
@@ -99,9 +101,48 @@ POSTGRES_PASSWORD=DEV_PASSWORD   # igual ao compose
 
 **Usar para:** implementar auth, groups, tasks, Prisma, debug SQL — dia-a-dia do backend.
 
-**Pré-requisito:** ramo `api` em `getServices()` implementado (hoje faz `throw` se `SERVICE_MODE=api`).
+**Hoje:** `npm run dev-hybrid` sobe Postgres e corre `next dev`, mas **`getServices()` faz `throw` se `SERVICE_MODE=api`** até existir `src/services/api/*`. Ver checklist abaixo.
 
 **Não fazer:** apontar `DATABASE_URL` para prod VPS; usar `SERVICE_MODE=api` sem services API.
+
+### Dev híbrido — checklist de prontidão
+
+O script `scripts/env/dev-hybrid.sh` já faz: validar `.env.local` · subir Postgres · `prisma migrate dev` + seed (se existirem) · `next dev`.
+
+| # | Item | Estado | Notas |
+|---|------|--------|-------|
+| 1 | Docker + `docker-compose.dev.yml` | ✅ | Postgres exposto em `:5432` |
+| 2 | Scripts `dev-hybrid` / `dev-hybrid-db` | ✅ | `package.json` |
+| 3 | `.env.example` secção 2 | ✅ | `DATABASE_URL`, `POSTGRES_PASSWORD`, `SESSION_SECRET` |
+| 4 | UI + contratos (`UserGroup`, `GroupService`) | ✅ | Mock implementa; UI não muda no swap |
+| 5 | Server actions `src/app/actions/groups.ts` | ✅ | Thin layer → `getServices()` |
+| 6 | **`prisma/schema.prisma`** | ❌ | Ver [REQUIREMENTS §5.9](./REQUIREMENTS.md#59-data-model) |
+| 7 | **`prisma/seed.ts`** | ❌ | Paridade mock: Sam (2 grupos), Ana, Demo Shop, Side Project |
+| 8 | Deps npm: `prisma`, `@prisma/client`, `bcrypt`, `jose`, `zod`, `grammy` | ❌ | Ver [REQUIREMENTS §10](./REQUIREMENTS.md#10-tech-stack--repo-layout) |
+| 9 | **`src/services/api/*`** | ❌ | Implementar `contracts.ts` contra Postgres |
+| 10 | Ramo `api` em **`getServices()`** | ❌ | Hoje: `throw` |
+| 11 | **`GET /api/v1/health`** | ❌ | Smoke test mínimo |
+| 12 | Auth API + cookie jose | ❌ | Substitui `sirrelay_mock_session` |
+| 13 | Renomear **`mock-auth.ts`** → actions mode-agnostic | ⏳ | Mesmo padrão que `groups.ts` |
+| 14 | Sync bar → API tasks (não `mock-tasks`) | ⏳ | Necessário para CRUD real em híbrido |
+| 15 | Telegram webhook | ⏳ opcional | Tunnel ou adiar para prod local |
+
+**Ordem sugerida para primeiro smoke em híbrido:**
+
+1. Prisma schema + migrate + seed  
+2. `api/auth` + `GET /me` + `POST /me/active-group` + `GET /health`  
+3. `api/groups` (`listForUser`, `create`, `previewInvite`, `acceptInvite`)  
+4. Ramo `api` em `getServices()` → login real → criar/trocar grupo  
+5. `api/tasks` + `api/teammates` → fluxo acceptance reduzido  
+6. Telegram por último (ou só em prod local)
+
+**Smoke mínimo (quando 1–4 existirem):**
+
+```bash
+npm run dev-hybrid
+curl -s http://localhost:3000/api/v1/health   # → 200
+# browser: signup → /groups → create group → tasks/teammates
+```
 
 ---
 
@@ -225,14 +266,14 @@ Dev mock ──► Dev híbrido ──► Prod local ──► Prod VPS
 
 ### Dia-a-dia hoje (Phase 1 UI)
 
-1. **Dev mock** — `npm run dev`
+1. **Dev mock** — `npm run dev-mock`
 2. `npm run lint` + `npm run check:routes` antes de commit
 
 ### Quando Phase 1 backend existir
 
 | Ordem | Ambiente | Quando |
 |-------|----------|--------|
-| 1 | Dev híbrido | Implementar Prisma + services |
+| 1 | Dev híbrido | Prisma + `services/api` — ver [checklist §2](./ENVIRONMENTS.md#dev-híbrido--checklist-de-prontidão) |
 | 2 | Prod local | Antes de merge grande ou release |
 | 3 | Prod VPS | Após smoke local OK |
 
@@ -291,11 +332,15 @@ Fonte: `scripts/env/dev-mock.sh` · `dev-hybrid.sh` · `prod-local.sh` · `prod-
 
 Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) e [§9 API](./REQUIREMENTS.md#9-api-contract).
 
-1. `prisma/schema.prisma` (§5.9)
-2. `prisma/seed.ts` (paridade com mock: Sam, Ana, Demo Shop)
-3. `src/services/api/*`
-4. Ramo `api` em `getServices()`
-5. Auth (jose + cookie) · Telegram (grammy) · `scripts/backup-db.sh`
+1. Deps: `prisma`, `@prisma/client`, `bcrypt`, `jose`, `zod` (+ `grammy` quando Telegram)
+2. `prisma/schema.prisma` (§5.9) + `prisma migrate dev`
+3. `prisma/seed.ts` (paridade mock: Sam, Ana, Demo Shop, Side Project)
+4. `src/services/api/auth.ts` + `groups.ts` (+ `tasks`, `teammates`, …)
+5. Ramo `api` em `getServices()` + `GET /api/v1/health`
+6. Auth cookie (jose) · actions `mock-auth` → mode-agnostic
+7. Telegram (grammy) · `scripts/backup-db.sh`
+
+**Fronteira pronta:** `contracts.ts` · `UserGroup` · `app/actions/groups.ts` · `hydrateSession()` — UI e actions não mudam no swap mock→api.
 
 ---
 

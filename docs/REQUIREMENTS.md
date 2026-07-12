@@ -109,7 +109,6 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | **Public entry** | `/[locale]` — marketing landing (logged-out visitors) |
 | **Sign up / Log in** | `/[locale]/signup` · `/[locale]/login` — any user creates an account |
 | **No active group** | `/[locale]/groups` — placeholder; group panel opens automatically |
-| **Legacy** | `/[locale]/admin` redirects to `/login` |
 | **Data** | **PostgreSQL** on the deployment; tasks, users, groups, and settings persisted server-side |
 | **Accounts (Phase 1)** | Self-serve **sign-up** (anyone). User **creates a group** (operator) **or joins** via invite link (teammate). Role is **per group membership**, not stored on the user row. |
 | **Session** | `{ userId, activeGroupId }`; effective `role` derived from `group_memberships` for the active group |
@@ -145,7 +144,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-GRP-01 | List | **Group switcher panel** lists groups with name + **role**; `/groups` is placeholder when no active group (panel opens) |
-| P1-GRP-02 | Create | **Group switcher → Create group** (inline name ≥ 2 chars); creator is `operator`; group becomes active. `/groups/new` → redirect legacy |
+| P1-GRP-02 | Create | **Group switcher → Create group** (inline name ≥ 2 chars); creator is `operator`; group becomes active |
 | P1-GRP-03 | Select | **Group switcher** sets `activeGroupId` → role home |
 | P1-GRP-04 | Auto-select | Single group + no active group → `GET /groups/auto` persiste cookie → role home; 2+ groups → `/groups` + panel open |
 | P1-GRP-05 | Manage | **Group switcher panel** — switch, create, join · **Settings** — leave (active group), delete (operator, active group) |
@@ -321,7 +320,6 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `groups` | Yes | Yes | No active group landing (panel opens); create/join in switcher |
 | `privacy`, `terms` | Public | Public | Footer links; **AuthPageHeader** on legal pages |
 | `join/[token]`, `change-password` | — | — | Auth flows |
-| `admin` | — | — | Legacy redirect → `login` |
 | `profile` | Yes | Yes | Account is global; accessible without active group; no role badge |
 | `tasks` | All tasks in group | My tasks in group |
 | `tasks/new` | Yes | — |

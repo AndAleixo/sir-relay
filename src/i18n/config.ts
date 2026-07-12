@@ -43,11 +43,3 @@ export function toAppLocale(locale: DbLocale): AppLocale {
 export function localePathPattern(): string {
   return locales.map((loc) => loc.replace(/-/g, "\\-")).join("|");
 }
-
-/** Legacy URL prefixes → current locale */
-export function resolveLegacyLocalePath(pathname: string): string | null {
-  const match = pathname.match(/^\/(en|es|pt)(?=\/|$)/);
-  if (!match) return null;
-  const next = dbToApp[match[1] as DbLocale];
-  return pathname.replace(/^\/(en|es|pt)(?=\/|$)/, `/${next}`);
-}

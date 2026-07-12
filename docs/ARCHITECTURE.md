@@ -49,8 +49,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]` | Public | CDN-friendly | Landing; redirects if session |
 | `/[locale]/login`, `/signup` | Public | CDN-friendly | Account sign-in / sign-up |
 | `/[locale]/privacy`, `/terms`, `/join/[token]` | Public | CDN-friendly | Legal · group invite activation |
-| `/[locale]/admin` | Public | — | Legacy redirect → `/login` |
-| `/[locale]/groups` | Session | private | No active group — panel opens · `/groups/new` → `?create=1` |
+| `/[locale]/groups` | Session | private | No active group — panel opens automatically |
 | `/[locale]/groups/auto` | Session | private | Auto-pick sole group (persist cookie) |
 | `/[locale]/change-password` | Session | private | Forced / optional password change |
 | `/[locale]/tasks`, `/tasks/new`, `/tasks/[id]` | Session + group | private | Boards, list, CRUD |

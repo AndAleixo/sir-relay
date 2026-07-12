@@ -4,7 +4,6 @@ import {
   defaultLocale,
   localePathPattern,
   locales,
-  resolveLegacyLocalePath,
 } from "./i18n/config";
 
 const intlMiddleware = createMiddleware({
@@ -37,14 +36,6 @@ function isAppPage(pathname: string): boolean {
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const legacyPath = resolveLegacyLocalePath(pathname);
-
-  if (legacyPath) {
-    const url = request.nextUrl.clone();
-    url.pathname = legacyPath;
-    return NextResponse.redirect(url);
-  }
-
   const response = intlMiddleware(request);
 
   if (isPublicPage(pathname)) {
@@ -57,14 +48,5 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/",
-    "/(en-gb|es-es|pt-br)/:path*",
-    "/en",
-    "/en/:path*",
-    "/es",
-    "/es/:path*",
-    "/pt",
-    "/pt/:path*",
-  ],
+  matcher: ["/", "/(en-gb|es-es|pt-br)/:path*"],
 };

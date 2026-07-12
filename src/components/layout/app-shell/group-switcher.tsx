@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -9,7 +8,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
 import type { UserGroup } from "@/domain/types";
@@ -63,79 +62,7 @@ function GroupIcon({ className }: { className?: string }) {
   );
 }
 
-export function GroupSwitcher(props: GroupSwitcherProps) {
-  return (
-    <Suspense fallback={<GroupSwitcherFallback {...props} />}>
-      <GroupSwitcherInner {...props} />
-    </Suspense>
-  );
-}
-
-function GroupSwitcherFallback({
-  groups,
-  activeGroupId,
-  compact,
-}: GroupSwitcherProps) {
-  const t = useTranslations();
-  const active =
-    activeGroupId != null
-      ? (groups.find((group) => group.id === activeGroupId) ?? null)
-      : null;
-  const triggerLabel =
-    active?.name ?? (groups.length === 0 ? t("groups.create") : t("shell.switchGroup"));
-
-  return (
-    <div
-      className={cn(
-        shellStyles.groupSwitcherRoot,
-        compact && shellStyles.groupSwitcherCompact,
-      )}
-    >
-      <div
-        className={cn(
-          shellStyles.headerControl,
-          shellStyles.groupSwitcherTrigger,
-          compact && shellStyles.groupSwitcherTriggerCompact,
-          "pointer-events-none opacity-80",
-        )}
-        aria-hidden
-      >
-        {compact ? (
-          <>
-            <span className={shellStyles.groupSwitcherNameCompact}>{triggerLabel}</span>
-            <Chevron />
-          </>
-        ) : (
-          <>
-            <GroupIcon className="h-4 w-4 shrink-0 text-[var(--text-muted)]" />
-            <span className={shellStyles.groupSwitcherText}>
-              <span className={shellStyles.groupSwitcherName}>{triggerLabel}</span>
-            </span>
-            <Chevron />
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-const MD_DOWN_MQ = "(max-width: 767px)";
-
-function useMdDown() {
-  const [mdDown, setMdDown] = useState(false);
-
-  useLayoutEffect(() => {
-    const mq = window.matchMedia(MD_DOWN_MQ);
-    const sync = () => setMdDown(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-
-  return mdDown;
-}
-
-function GroupSwitcherInner({
+export function GroupSwitcher({
   locale,
   groups,
   activeGroupId,
@@ -143,8 +70,6 @@ function GroupSwitcherInner({
 }: GroupSwitcherProps) {
   const t = useTranslations();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const mdDown = useMdDown();
   const [open, setOpen] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
@@ -167,14 +92,6 @@ function GroupSwitcherInner({
     if (!pathname.endsWith("/groups")) return;
     setOpen(compact === mdDown);
   }, [pathname, compact, mdDown]);
-
-  useEffect(() => {
-    if (searchParams.get("create") === "1") {
-      setOpen(true);
-      setShowCreate(true);
-      router.replace(pathname);
-    }
-  }, [searchParams, pathname, router]);
 
   useEffect(() => {
     if (prevActiveGroupId.current === activeGroupId) return;
@@ -333,4 +250,20 @@ function GroupSwitcherInner({
       {mobilePanel}
     </div>
   );
+}
+
+const MD_DOWN_MQ = "(max-width: 767px)";
+
+function useMdDown() {
+  const [mdDown, setMdDown] = useState(false);
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia(MD_DOWN_MQ);
+    const sync = () => setMdDown(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return mdDown;
 }

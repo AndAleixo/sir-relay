@@ -104,7 +104,7 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 | Privacy / Terms | `/privacy`, `/terms` | Yes `AuthPageHeader` | Legal stubs |
 | No active group | `/groups` | App shell | Placeholder copy; **group panel opens** automatically |
 
-**Group panel** (header switcher) — switch · **create** · **join**. Leave/delete live on **Settings** (`/settings`). `/groups/new` → `?create=1` (legacy).
+**Group panel** (header switcher) — switch · **create** · **join**. Leave/delete live on **Settings** (`/settings`).
 
 ```
 ┌─ Group panel (header switcher) ─────┐
@@ -371,7 +371,7 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 | Terms | `/terms` | Public | Public |
 | Audit | `/audit` | Yes (Phase 2) | — |
 
-**Default URL:** `/[locale]` — public landing when logged out. **Sign up** / **Log in** from header or footer. After login: no group → `/groups`; operator in active group → `/teammates`; teammate in active group → `/tasks`. Legacy `/admin` redirects to `/login`.
+**Default URL:** `/[locale]` — public landing when logged out. **Sign up** / **Log in** from header or footer. After login: no group → `/groups`; operator in active group → `/teammates`; teammate in active group → `/tasks`.
 
 **Profile** is reached from the avatar and sidebar footer — not in primary nav. **Settings** stays in sidebar / mobile tabs (group alert prefs only). **Group switcher** in header is the primary way to change active group.
 
@@ -564,7 +564,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |
 | 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |
 | 2026-06-28 | Legacy cleanup: removed stub routes, mock banner, non-functional task/teammate actions; Alerts page |
-| 2026-07-12 | Group leave/delete; promote teammate; last-group resume; teammate actions → `teammates.ts` |
+| 2026-07-12 | Removed legacy routes: `/admin`, `/groups/new`, short locale prefixes (`/en`, `/es`, `/pt`) |
 | 2026-07-11 | User → group → role model (§1.1); groups hub UX (§2.1); AuthPageHeader; membership-scoped nav and Profile badge |
 | 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |

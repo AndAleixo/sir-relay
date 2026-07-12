@@ -66,16 +66,26 @@ export const shellStyles = {
     "hidden h-14 items-center justify-between gap-4 overflow-visible border-b border-[var(--border)] bg-surface-card px-6 md:flex",
   headerGroup: "relative min-w-0 flex-1 overflow-visible",
   headerActions: "flex shrink-0 items-center gap-2",
-  headerAvatarLink:
-    "rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   headerControl:
     "inline-flex h-9 min-h-9 shrink-0 items-center rounded-button border border-[var(--border)] bg-surface-card text-[var(--text-primary)] transition-colors hover:border-brand-accent/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
-  localeSelect: "px-3 text-sm",
-  localeSelectCompact:
-    "min-w-[3.25rem] px-2 text-xs font-medium uppercase tracking-wide",
+  localePickerRoot: "relative shrink-0",
+  localePickerRootFull: "w-full shrink",
+  localePickerTrigger:
+    "gap-2 px-2.5 text-sm hover:bg-[var(--surface-bg)]",
+  localePickerTriggerCompact: "min-w-[4.5rem] gap-1.5 px-2 text-xs font-medium",
+  localePickerTriggerFull: "w-full justify-between px-3",
+  localePickerLabel: "truncate",
+  localePickerPanel:
+    "absolute right-0 top-full z-50 mt-1 min-w-[11rem] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card py-1 shadow-lg",
+  localePickerPanelFull: "left-0 right-0 min-w-0",
+  localePickerItem:
+    "flex min-h-11 w-full touch-manipulation items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)] active:bg-[var(--surface-bg)]",
+  localePickerItemActive:
+    "bg-brand-accent-soft text-brand-accent hover:bg-brand-accent-soft hover:text-brand-accent",
+  localePickerItemMain: "flex min-w-0 items-center gap-2.5",
   userMenuRoot: "relative",
   userMenuTrigger:
-    "flex h-9 w-7 items-center justify-center rounded-button text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
+    "flex h-9 items-center gap-0.5 rounded-button pl-0.5 pr-1 text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   userMenuPanel:
     "absolute right-0 top-full z-50 mt-1 min-w-[12rem] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card py-1 shadow-lg",
   userMenuHeader: "border-b border-[var(--border)] px-3 py-2",

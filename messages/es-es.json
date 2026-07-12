@@ -6,6 +6,7 @@
     "back": "Volver",
     "logout": "Cerrar sesión",
     "profile": "Perfil",
+    "account": "Cuenta",
     "settings": "Ajustes",
     "tasks": "Tareas",
     "teammates": "Compañeros",
@@ -187,8 +188,9 @@
     "sectionDone": "Hecho"
   },
   "settings": {
-    "title": "Ajustes del grupo",
+    "title": "Ajustes",
     "groupScopeHint": "Estos ajustes aplican solo a {group}. Tareas, compañeros y alertas en otras páginas son también de este grupo.",
+    "teammateHint": "Los operadores configuran las alertas. Puedes abandonar este grupo abajo.",
     "operatorAlerts": "Alertas del operador",
     "operatorAlertsHint": "Solo para este grupo. Se envían a tu Telegram cuando están activas.",
     "dangerZone": "Abandonar o eliminar {group}",
@@ -201,7 +203,8 @@
     "alertTaskDueHint": "Una vez al día por tarea cuando la fecha es hoy o ya pasó."
   },
   "profile": {
-    "title": "Perfil",
+    "title": "Ajustes de la cuenta",
+    "accountScopeHint": "Estos ajustes aplican a tu cuenta en todos los grupos.",
     "photo": "Foto de perfil",
     "uploadPhoto": "Subir foto",
     "changePhoto": "Cambiar foto",
@@ -221,7 +224,7 @@
   },
   "alerts": {
     "title": "Alertas",
-    "subtitle": "Eventos de tareas en este grupo. Configura el envío en Ajustes del grupo.",
+    "subtitle": "Eventos de tareas en este grupo. Configura el envío en Ajustes.",
     "empty": "Sin alertas aún. Marca una tarea de compañero como hecha o espera una fecha de vencimiento.",
     "taskDone": "Completada:",
     "taskDue": "Vence:",

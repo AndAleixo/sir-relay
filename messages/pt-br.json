@@ -6,6 +6,7 @@
     "back": "Voltar",
     "logout": "Sair",
     "profile": "Perfil",
+    "account": "Conta",
     "settings": "Configurações",
     "tasks": "Tarefas",
     "teammates": "Colegas",
@@ -187,8 +188,9 @@
     "sectionDone": "Concluído"
   },
   "settings": {
-    "title": "Configurações do grupo",
+    "title": "Configurações",
     "groupScopeHint": "Estas configurações aplicam-se só a {group}. Tarefas, colegas e alertas noutras páginas são também deste grupo.",
+    "teammateHint": "Os alertas do operador são configurados por operadores. Pode abandonar este grupo abaixo.",
     "operatorAlerts": "Alertas do operador",
     "operatorAlertsHint": "Só para este grupo. Enviados para o seu Telegram quando activos.",
     "dangerZone": "Abandonar ou eliminar {group}",
@@ -201,7 +203,8 @@
     "alertTaskDueHint": "Uma vez por dia por tarefa quando o prazo é hoje ou já passou."
   },
   "profile": {
-    "title": "Perfil",
+    "title": "Configurações da conta",
+    "accountScopeHint": "Estas configurações aplicam-se à sua conta em todos os grupos.",
     "photo": "Foto de perfil",
     "uploadPhoto": "Enviar foto",
     "changePhoto": "Alterar foto",
@@ -221,7 +224,7 @@
   },
   "alerts": {
     "title": "Alertas",
-    "subtitle": "Eventos de tarefas neste grupo. Configure o envio em Configurações do grupo.",
+    "subtitle": "Eventos de tarefas neste grupo. Configure o envio em Configurações.",
     "empty": "Sem alertas ainda. Marque uma tarefa de colega como concluída ou aguarde um prazo.",
     "taskDone": "Concluída:",
     "taskDue": "Prazo:",

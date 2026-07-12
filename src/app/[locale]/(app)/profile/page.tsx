@@ -53,6 +53,8 @@ export default async function ProfilePage({
     <>
       <PageHeader title={t("profile.title")} />
       <div className="grid max-w-lg gap-4">
+      <p className="text-sm text-[var(--text-muted)]">{t("profile.accountScopeHint")}</p>
+
       {passwordChanged === "1" ? (
         <Banner variant="info">{t("auth.passwordChanged")}</Banner>
       ) : null}

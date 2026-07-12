@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import type { Session, User } from "@/domain/types";
 import type { Locale } from "@/domain/types";
+import { defaultLocale } from "@/i18n/config";
 import { hydrateSession } from "@/lib/session-hydrate";
 import type { AuthService } from "@/services/contracts";
 import {
@@ -94,7 +95,7 @@ export class MockAuthService implements AuthService {
     name: string,
     email: string,
     password: string,
-    locale: Locale = "en",
+    locale: Locale = defaultLocale,
   ): Promise<Session> {
     if (!name.trim() || !email.trim() || password.length < 8) {
       throw new Error("Invalid signup");

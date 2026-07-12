@@ -5,12 +5,30 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { User } from "@/domain/types";
 import { logoutAction } from "@/app/actions/auth";
+import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
 import { shellStyles } from "./app-shell.styles";
 
 interface UserMenuProps {
   locale: string;
   user: User;
+}
+
+function MenuChevron({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("h-4 w-4 shrink-0", className)}
+      aria-hidden
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
 }
 
 export function UserMenu({ locale, user }: UserMenuProps) {
@@ -49,18 +67,8 @@ export function UserMenu({ locale, user }: UserMenuProps) {
         aria-label={t("shell.accountMenu")}
         onClick={() => setOpen((value) => !value)}
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="h-4 w-4"
-          aria-hidden
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+        <UserAvatar userId={user.id} userName={user.name} />
+        <MenuChevron className={open ? "rotate-180" : undefined} />
       </button>
 
       {open ? (
@@ -74,18 +82,14 @@ export function UserMenu({ locale, user }: UserMenuProps) {
             role="menuitem"
             onClick={() => setOpen(false)}
           >
-            {t("common.profile")}
-          </Link>
-          <Link
-            href={`/${locale}/settings`}
-            className={shellStyles.userMenuItem}
-            role="menuitem"
-            onClick={() => setOpen(false)}
-          >
-            {t("common.settings")}
+            {t("common.account")}
           </Link>
           <form action={logoutAction.bind(null, locale)} className={shellStyles.userMenuForm}>
-            <button type="submit" className={cn(shellStyles.userMenuItem, shellStyles.userMenuLogout)} role="menuitem">
+            <button
+              type="submit"
+              className={cn(shellStyles.userMenuItem, shellStyles.userMenuLogout)}
+              role="menuitem"
+            >
               {t("common.logout")}
             </button>
           </form>

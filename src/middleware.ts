@@ -1,32 +1,51 @@
 import { NextResponse, type NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
-import { defaultLocale, locales } from "./i18n/config";
+import {
+  defaultLocale,
+  localePathPattern,
+  locales,
+  resolveLegacyLocalePath,
+} from "./i18n/config";
 
 const intlMiddleware = createMiddleware({
   locales: [...locales],
   defaultLocale,
 });
 
+const LOCALE_SEGMENT = localePathPattern();
+
 const PUBLIC_CACHE =
   "public, s-maxage=3600, stale-while-revalidate=86400, max-age=300";
 const PRIVATE_CACHE = "private, no-store, max-age=0, must-revalidate";
 
+function stripLocale(pathname: string): string {
+  return pathname.replace(new RegExp(`^/(${LOCALE_SEGMENT})`), "") || "/";
+}
+
 function isPublicPage(pathname: string): boolean {
-  const stripped = pathname.replace(/^\/(en|es|pt)/, "") || "/";
+  const stripped = stripLocale(pathname);
   if (stripped === "/") return true;
   return /^\/(login|signup|privacy|terms|join)(\/|$)/.test(stripped);
 }
 
 function isAppPage(pathname: string): boolean {
-  const stripped = pathname.replace(/^\/(en|es|pt)/, "");
+  const stripped = stripLocale(pathname);
   return /^\/(tasks|teammates|alerts|profile|settings|groups|change-password)(\/|$)/.test(
     stripped,
   );
 }
 
 export default function middleware(request: NextRequest) {
-  const response = intlMiddleware(request);
   const { pathname } = request.nextUrl;
+  const legacyPath = resolveLegacyLocalePath(pathname);
+
+  if (legacyPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = legacyPath;
+    return NextResponse.redirect(url);
+  }
+
+  const response = intlMiddleware(request);
 
   if (isPublicPage(pathname)) {
     response.headers.set("Cache-Control", PUBLIC_CACHE);
@@ -38,5 +57,14 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/(en|es|pt)/:path*"],
+  matcher: [
+    "/",
+    "/(en-gb|es-es|pt-br)/:path*",
+    "/en",
+    "/en/:path*",
+    "/es",
+    "/es/:path*",
+    "/pt",
+    "/pt/:path*",
+  ],
 };

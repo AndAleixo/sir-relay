@@ -35,6 +35,10 @@ export default async function SettingsPage({
           </p>
         ) : null}
 
+        {!isOperator ? (
+          <p className="text-sm text-[var(--text-muted)]">{t("settings.teammateHint")}</p>
+        ) : null}
+
         {isOperator && alertPrefs ? (
           <Card>
             <CardBody>

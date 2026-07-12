@@ -2,7 +2,7 @@ export type Role = "operator" | "teammate";
 
 export type TaskStatus = "todo" | "doing" | "done";
 
-export type Locale = "en" | "es" | "pt";
+export type Locale = "en-gb" | "es-es" | "pt-br";
 
 export type AccountStatus = "invited" | "active";
 

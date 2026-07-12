@@ -1,4 +1,5 @@
 import type { Locale, Session, User } from "@/domain/types";
+import { defaultLocale } from "@/i18n/config";
 import type { AuthService } from "@/services/contracts";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
@@ -13,7 +14,7 @@ import {
   pickDefaultGroupIdAsync,
   roleInGroupAsync,
 } from "@/services/api/membership";
-import { toTeammate, toUser } from "@/services/api/mappers";
+import { toTeammate, toUser, fromLocale } from "@/services/api/mappers";
 
 type HydrateOptions = { autoPickGroup?: boolean };
 
@@ -83,7 +84,7 @@ export class ApiAuthService implements AuthService {
     name: string,
     email: string,
     password: string,
-    locale: Locale = "en",
+    locale: Locale = defaultLocale,
   ): Promise<Session> {
     if (!name.trim() || !email.trim() || password.length < 8) {
       throw new Error("Invalid signup");
@@ -100,7 +101,7 @@ export class ApiAuthService implements AuthService {
         name: name.trim(),
         email: normalized,
         passwordHash,
-        locale,
+        locale: fromLocale(locale),
         accountStatus: "active",
       },
     });

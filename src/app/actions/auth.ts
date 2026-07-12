@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Locale } from "@/domain/types";
 import { loginPath, resolveEntryPath } from "@/lib/entry-route";
-import { locales } from "@/i18n/config";
+import { locales, defaultLocale } from "@/i18n/config";
 import { getServices } from "@/services";
 
 export async function loginForm(locale: string, formData: FormData) {
@@ -38,7 +38,7 @@ export async function signupForm(locale: string, formData: FormData) {
   try {
     const signupLocale = locales.includes(locale as Locale)
       ? (locale as Locale)
-      : "en";
+      : defaultLocale;
     session = await getServices().auth.signup(
       name,
       email,

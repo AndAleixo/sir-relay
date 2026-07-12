@@ -140,7 +140,7 @@ export function AppShell({
                 shellStyles.sidebarProfileLink,
                 collapsed && shellStyles.sidebarProfileLinkCollapsed,
               )}
-              title={user.name}
+              title={t("common.account")}
             >
               <UserAvatar userId={user.id} userName={user.name} />
               <div

@@ -25,43 +25,43 @@ function resolveRoleHomePath(locale, session) {
   return `/${locale}/tasks`;
 }
 
-const locale = "en";
-assert.equal(resolveEntryPath(locale, null), "/en");
+const locale = "en-gb";
+assert.equal(resolveEntryPath(locale, null), "/en-gb");
 assert.equal(
   resolveEntryPath(locale, {
     user: { role: "operator", mustChangePassword: true },
     activeGroupId: "g1",
   }),
-  "/en/change-password",
+  "/en-gb/change-password",
 );
 assert.equal(
   resolveEntryPath(locale, {
     user: { role: "operator", mustChangePassword: false },
     activeGroupId: null,
   }),
-  "/en/groups",
+  "/en-gb/groups",
 );
 assert.equal(
   resolveEntryPath(locale, {
     user: { role: "operator", mustChangePassword: false },
     activeGroupId: "g1",
   }),
-  "/en/teammates",
+  "/en-gb/teammates",
 );
 assert.equal(
   resolveEntryPath(locale, { user: { role: "teammate" }, activeGroupId: "g1" }),
-  "/en/tasks",
+  "/en-gb/tasks",
 );
 assert.equal(
   resolveRoleHomePath(locale, { user: { role: "teammate" }, activeGroupId: "g1" }),
-  "/en/tasks",
+  "/en-gb/tasks",
 );
 assert.equal(
   resolveRoleHomePath(locale, {
     user: { role: "operator", mustChangePassword: false },
     activeGroupId: "g1",
   }),
-  "/en/teammates",
+  "/en-gb/teammates",
 );
 
 // join + change-password forms post newPassword / confirmPassword (not password)
@@ -73,7 +73,7 @@ assert.equal(String(joinForm.get("password") ?? ""), "");
 
 assert.equal(parseInviteToken("mock-invite-ana"), "mock-invite-ana");
 assert.equal(
-  parseInviteToken("https://app.example.com/en/join/mock-invite-ana"),
+  parseInviteToken("https://app.example.com/en-gb/join/mock-invite-ana"),
   "mock-invite-ana",
 );
 assert.equal(parseInviteToken(""), null);

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { User, UserGroup } from "@/domain/types";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
@@ -42,6 +43,7 @@ export function MobileTopBar({
   items,
 }: MobileTopBarProps) {
   const pathname = usePathname();
+  const t = useTranslations();
 
   return (
     <header className={shellStyles.mobileHeader} data-mobile-shell-header>
@@ -71,7 +73,7 @@ export function MobileTopBar({
           <Link
             href={`/${locale}/profile`}
             className={shellStyles.mobileUserLink}
-            title={user.name}
+            title={t("common.account")}
           >
             <UserAvatar userId={user.id} userName={user.name} />
           </Link>

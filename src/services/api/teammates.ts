@@ -10,7 +10,7 @@ import {
   createInviteTokenRecord,
   createTelegramLinkTokenRecord,
 } from "@/services/api/groups";
-import { toRole, toTeammate, toUser } from "@/services/api/mappers";
+import { fromLocale, toRole, toTeammate, toUser } from "@/services/api/mappers";
 
 function requireGroupId(session: Session): string {
   const groupId = session.activeGroupId;
@@ -116,7 +116,7 @@ export class ApiTeammateService implements TeammateService {
         id,
         name: input.name.trim(),
         email,
-        locale: input.locale,
+        locale: fromLocale(input.locale),
         accountStatus: "invited",
         active: true,
       },
@@ -213,7 +213,7 @@ export class ApiUserService implements UserService {
   async updateLocale(userId: string, locale: Locale) {
     const updated = await prisma.user.update({
       where: { id: userId },
-      data: { locale },
+      data: { locale: fromLocale(locale) },
     });
     const membership = await prisma.groupMembership.findFirst({
       where: { userId },

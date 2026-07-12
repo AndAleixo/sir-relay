@@ -6,6 +6,7 @@
     "back": "Back",
     "logout": "Log out",
     "profile": "Profile",
+    "account": "Account",
     "settings": "Settings",
     "tasks": "Tasks",
     "teammates": "Teammates",
@@ -187,8 +188,9 @@
     "sectionDone": "Done"
   },
   "settings": {
-    "title": "Group settings",
+    "title": "Settings",
     "groupScopeHint": "These settings apply only to {group}. Tasks, teammates, and alerts on other pages are for this group too.",
+    "teammateHint": "Operator alert toggles are configured by operators. You can leave this group below.",
     "operatorAlerts": "Operator alerts",
     "operatorAlertsHint": "For this group only. Sent to your linked Telegram when enabled.",
     "dangerZone": "Leave or delete {group}",
@@ -201,7 +203,8 @@
     "alertTaskDueHint": "Once per day per task when due date is today or past."
   },
   "profile": {
-    "title": "Profile",
+    "title": "Account settings",
+    "accountScopeHint": "These settings apply to your account across all groups.",
     "photo": "Profile photo",
     "uploadPhoto": "Upload photo",
     "changePhoto": "Change photo",
@@ -221,7 +224,7 @@
   },
   "alerts": {
     "title": "Alerts",
-    "subtitle": "Task events in this group. Configure delivery in Group settings.",
+    "subtitle": "Task events in this group. Configure delivery in Settings.",
     "empty": "No alerts yet. Mark a teammate task done or wait for a due date to trigger one.",
     "taskDone": "Completed:",
     "taskDue": "Due:",

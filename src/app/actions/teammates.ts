@@ -3,13 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Locale } from "@/domain/types";
-import { locales } from "@/i18n/config";
+import { defaultLocale, locales } from "@/i18n/config";
 import { requireOperatorSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 
 function parseLocale(value: FormDataEntryValue | null): Locale {
   const locale = String(value ?? "en");
-  return locales.includes(locale as Locale) ? (locale as Locale) : "en";
+  return locales.includes(locale as Locale) ? (locale as Locale) : defaultLocale;
 }
 
 export async function createTeammateForm(locale: string, formData: FormData) {

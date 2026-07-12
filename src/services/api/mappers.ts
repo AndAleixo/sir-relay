@@ -11,15 +11,20 @@ import type {
 } from "@/domain/types";
 import type {
   AccountStatus as DbAccountStatus,
-  Locale as DbLocale,
+  Locale as PrismaLocale,
   Role as DbRole,
   Task as DbTask,
   TaskStatus as DbTaskStatus,
   User as DbUser,
 } from "@prisma/client";
+import { toAppLocale, toDbLocale, type DbLocale } from "@/i18n/config";
 
-export function toLocale(value: DbLocale): Locale {
-  return value;
+export function toLocale(value: PrismaLocale): Locale {
+  return toAppLocale(value as DbLocale);
+}
+
+export function fromLocale(value: Locale): PrismaLocale {
+  return toDbLocale(value) as PrismaLocale;
 }
 
 export function toRole(value: DbRole): Role {

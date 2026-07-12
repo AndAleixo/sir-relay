@@ -19,6 +19,13 @@ export const localeCompactLabels: Record<AppLocale, string> = {
   "pt-br": "PT-BR",
 };
 
+/** Short labels for marketing header (EN · ES · PT). */
+export const localeShortLabels: Record<AppLocale, string> = {
+  "en-gb": "EN",
+  "es-es": "ES",
+  "pt-br": "PT",
+};
+
 const appToDb: Record<AppLocale, DbLocale> = {
   "en-gb": "en",
   "es-es": "es",

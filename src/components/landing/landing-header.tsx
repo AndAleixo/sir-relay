@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
-import { localeNames, locales, type AppLocale } from "@/i18n/config";
+import { LandingLocaleNav } from "./landing-locale-nav";
 import { landingStyles } from "./landing.styles";
 
 type LandingHeaderProps = {
@@ -19,17 +19,7 @@ export async function LandingHeader({ locale }: LandingHeaderProps) {
           <img src="/brand/logo.svg" alt={t("common.appName")} className={landingStyles.logo} />
         </Link>
         <nav className={landingStyles.nav} aria-label={t("landing.headerNav")}>
-          <div className="hidden items-center gap-2 sm:flex">
-            {locales.map((loc) => (
-              <Link
-                key={loc}
-                href={`/${loc}`}
-                className={loc === locale ? landingStyles.localeActive : landingStyles.localeLink}
-              >
-                {localeNames[loc as AppLocale]}
-              </Link>
-            ))}
-          </div>
+          <LandingLocaleNav locale={locale} />
           <Link href={`/${locale}/signup`}>
             <Button variant="ghost">{t("auth.signup")}</Button>
           </Link>

@@ -5,9 +5,14 @@ export const landingStyles = {
   headerInner:
     "mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 md:px-6",
   logo: "h-8 w-auto",
-  nav: "flex items-center gap-3 md:gap-5",
-  localeLink: "text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)]",
-  localeActive: "text-sm font-medium text-[var(--text-primary)]",
+  nav: "flex items-center gap-3 md:gap-4",
+  localeNav: "shrink-0",
+  localeSegmentGroup:
+    "inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--surface-bg)] p-0.5 shadow-sm",
+  localeSegment:
+    "min-w-[2.75rem] rounded-full px-3 py-1.5 text-center text-xs font-medium tracking-wide text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
+  localeSegmentActive:
+    "min-w-[2.75rem] rounded-full bg-surface-card px-3 py-1.5 text-center text-xs font-semibold tracking-wide text-[var(--text-primary)] shadow-sm ring-1 ring-[var(--border)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   main: "flex-1",
   hero: "mx-auto w-full max-w-6xl px-4 py-12 md:px-6 md:py-20",
   heroGrid: "grid items-center gap-10 lg:grid-cols-2 lg:gap-16",

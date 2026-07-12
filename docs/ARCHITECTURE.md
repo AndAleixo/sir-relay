@@ -32,7 +32,7 @@ src/
 | Peça | Ficheiro | Notas |
 |------|----------|-------|
 | Switcher + panel open | `group-switcher.tsx` | Desktop dropdown · mobile popover (só um painel visível por breakpoint) |
-| Lista + forms | `group-panel-menu.tsx` | Create/join/leave/delete · promote via teammates detail |
+| Lista + forms | `group-panel-menu.tsx` | Create/join only · leave/delete in `group-danger-settings.tsx` |
 | Server actions | `app/actions/groups.ts` | `selectGroup`, `createGroupForm`, `redeemInviteForm`, `acceptInvite`, `leaveGroupForm`, `deleteGroupForm` |
 | Teammate actions | `app/actions/teammates.ts` | create/update/deactivate/promote/regenerate |
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` |
@@ -115,4 +115,4 @@ npm install && npm run dev-mock && npm run check:routes
 # dev-hybrid: npm run dev-hybrid   # Postgres + API · demo12345
 ```
 
-`http://localhost:3000` — landing · `/en/login` — sign in · **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `demo12345` · invite: `mock-invite-ana-side` as ana@example.com
+`http://localhost:3000` — landing · `/en-gb/login` — sign in · **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `demo12345` · invite: `mock-invite-ana-side` as ana@example.com

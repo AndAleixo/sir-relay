@@ -15,7 +15,9 @@
     "list": "Lista",
     "newTask": "Nueva tarea",
     "viewAll": "Ver todo",
-    "dragHandle": "Arrastrar tarea"
+    "dragHandle": "Arrastrar tarea",
+    "copy": "Copiar enlace",
+    "copied": "Copiado"
   },
   "shell": {
     "collapseSidebar": "Contraer barra lateral",
@@ -124,7 +126,6 @@
     "name": "Nombre",
     "namePlaceholder": "Nombre completo",
     "newSubtitle": "Recibirán un enlace de invitación para activar la cuenta y vincular Telegram.",
-    "localeHint": "Se usa en los mensajes de Telegram y en la interfaz web.",
     "listSubtitle": "Operadores y compañeros de tu equipo.",
     "userCount": "{count, plural, one {# persona} other {# personas}}",
     "roleColumn": "Rol",

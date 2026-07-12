@@ -15,7 +15,9 @@
     "list": "List",
     "newTask": "New task",
     "viewAll": "View all",
-    "dragHandle": "Drag task"
+    "dragHandle": "Drag task",
+    "copy": "Copy link",
+    "copied": "Copied"
   },
   "shell": {
     "collapseSidebar": "Collapse sidebar",
@@ -124,7 +126,6 @@
     "name": "Name",
     "namePlaceholder": "Full name",
     "newSubtitle": "They will receive an invite link to activate their account and link Telegram.",
-    "localeHint": "Used for Telegram messages and the web UI.",
     "listSubtitle": "Operators and teammates on your team.",
     "userCount": "{count, plural, one {# person} other {# people}}",
     "roleColumn": "Role",

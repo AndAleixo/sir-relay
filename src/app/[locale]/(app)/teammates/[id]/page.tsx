@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import {
@@ -9,6 +8,7 @@ import {
 import { Banner } from "@/components/ui/banner";
 import { ExportDataButton } from "@/components/teammates/export-data-button";
 import { PageHeader } from "@/components/layout/app-shell";
+import { CopyLinkButton } from "@/components/teammates/copy-link-button";
 import { DeactivateTeammateButton } from "@/components/teammates/deactivate-teammate-button";
 import { PromoteTeammateButton } from "@/components/teammates/promote-teammate-button";
 import { ToneBadge } from "@/components/ui/badge";
@@ -123,9 +123,16 @@ export default async function TeammateDetailPage({
             <h2 className="text-sm font-semibold">{t("teammate.inviteLink")}</h2>
           </CardHeader>
           <CardBody className="space-y-3">
-            <code className="block break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
-              {inviteUrl}
-            </code>
+            <div className="flex items-start gap-2">
+              <code className="min-w-0 flex-1 break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
+                {inviteUrl}
+              </code>
+              <CopyLinkButton
+                text={inviteUrl}
+                label={t("common.copy")}
+                copiedLabel={t("common.copied")}
+              />
+            </div>
             <p className="text-xs text-[var(--text-muted)]">{t("teammate.inviteLinkHint")}</p>
             <form action={regenerateInviteForm.bind(null, locale, id)}>
               <Button type="submit" variant="secondary">
@@ -140,9 +147,16 @@ export default async function TeammateDetailPage({
             <h2 className="text-sm font-semibold">{t("teammate.telegramLink")}</h2>
           </CardHeader>
           <CardBody className="space-y-3">
-            <code className="block break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
-              {telegramUrl}
-            </code>
+            <div className="flex items-start gap-2">
+              <code className="min-w-0 flex-1 break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
+                {telegramUrl}
+              </code>
+              <CopyLinkButton
+                text={telegramUrl}
+                label={t("common.copy")}
+                copiedLabel={t("common.copied")}
+              />
+            </div>
             <p className="text-xs text-[var(--text-muted)]">{t("teammate.telegramLinkHint")}</p>
             <form action={regenerateTeammateTelegramLinkForm.bind(null, locale, id)}>
               <Button type="submit" variant="secondary">

@@ -65,7 +65,7 @@ npm run check:routes
 
 **Usar para:** polish visual, roteiro de demo, fluxos user→group→role, gravação de vídeo.
 
-**UI actual (mock):** painel de grupos no header — switch, create, join, leave, delete (operator); erros inline; promote na ficha teammate; actions em `app/actions/*`.
+**UI actual (mock):** painel de grupos no header — switch, create, join; leave/delete em **Settings**; erros inline; promote na ficha teammate; actions em `app/actions/*`.
 
 **Não usar para:** provar persistência, migrations, Telegram real, performance de build Docker.
 
@@ -138,7 +138,7 @@ O script `scripts/env/dev-hybrid.sh` faz: validar env · subir Postgres · `pris
 npm run dev-hybrid
 curl -s http://localhost:3000/api/v1/health   # → 200
 # browser: sam@example.com / demo12345 → tasks (resume last group)
-# promote teammate → leave group · delete group
+# promote teammate → Settings → leave group · delete group
 ```
 
 ---

@@ -2,20 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import type { Locale } from "@/domain/types";
-import { defaultLocale, locales } from "@/i18n/config";
 import { requireOperatorSession } from "@/lib/require-session";
 import { getServices } from "@/services";
-
-function parseLocale(value: FormDataEntryValue | null): Locale {
-  const locale = String(value ?? "en");
-  return locales.includes(locale as Locale) ? (locale as Locale) : defaultLocale;
-}
 
 export async function createTeammateForm(locale: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
-  const teammateLocale = parseLocale(formData.get("locale"));
 
   if (!name || !email) {
     redirect(`/${locale}/teammates/new`);
@@ -23,10 +15,7 @@ export async function createTeammateForm(locale: string, formData: FormData) {
 
   const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
-  const teammate = await teammates.createTeammate(
-    { name, email, locale: teammateLocale },
-    { session },
-  );
+  const teammate = await teammates.createTeammate({ name, email }, { session });
 
   revalidatePath(`/${locale}/teammates`);
   redirect(`/${locale}/teammates/${teammate.id}`);

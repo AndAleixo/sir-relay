@@ -27,7 +27,6 @@ export interface CreateTaskInput {
 export interface CreateTeammateInput {
   name: string;
   email: string;
-  locale: Locale;
 }
 
 export interface AuthService {

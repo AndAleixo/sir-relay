@@ -181,7 +181,7 @@ curl -s "${APP_URL}/api/v1/health"
 ## 10. Checklist pós-deploy
 
 - [ ] HTTPS activo (cadeado no browser)
-- [ ] **Landing pública** em `/` ou `/en` (sem login)
+- [ ] **Landing pública** em `/` ou `/en-gb` (sem login)
 - [ ] Sign up / Log in no header → `/signup` · `/login` funcionam
 - [ ] Novo utilizador → `/groups` → criar grupo
 - [ ] Login demo `sam@example.com` → `/groups` (painel) → Demo Shop → `/teammates`

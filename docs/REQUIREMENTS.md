@@ -134,7 +134,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-05 | First-login password change | **Bootstrap user only** (`must_change_password`); normal sign-ups skip forced change |
 | P1-AUTH-06 | Password storage | bcrypt; minimum 8 characters |
 | P1-AUTH-07 | Change password | Available on **Profile** (all users); optional forced flow via `/change-password` |
-| P1-AUTH-08 | Update profile | `PATCH /me` — update `locale` (`en` \| `es` \| `pt`); optional avatar in later phase |
+| P1-AUTH-08 | Update profile | `PATCH /me` — update `locale` (`en-gb` \| `es-es` \| `pt-br`); optional avatar in later phase |
 | P1-AUTH-09 | Group invite | Operator adds teammate to group → invite link (72h) → `/join/<token>` → set password (new account) or activate (existing) |
 | P1-AUTH-10 | Post-login routing | No group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` |
 | P1-AUTH-11 | Sign up | `/signup` — name, email, password; new user has **no group** until create or join |
@@ -148,7 +148,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-GRP-02 | Create | **Group switcher → Create group** (inline name ≥ 2 chars); creator is `operator`; group becomes active. `/groups/new` → redirect legacy |
 | P1-GRP-03 | Select | **Group switcher** sets `activeGroupId` → role home |
 | P1-GRP-04 | Auto-select | Single group + no active group → `GET /groups/auto` persiste cookie → role home; 2+ groups → `/groups` + panel open |
-| P1-GRP-05 | Manage | **Group switcher panel** anytime — switch, create, join, **leave** (active group), **delete** (operator, active group) |
+| P1-GRP-05 | Manage | **Group switcher panel** — switch, create, join · **Settings** — leave (active group), delete (operator, active group) |
 | P1-GRP-06 | Join via invite | Invite link → `/join/<token>` (new account) **or** paste in group panel (signed in, same email) |
 | P1-GRP-07 | Join from panel | Paste invite in group panel → accept when signed in; adds membership if missing |
 | P1-GRP-08 | Existing email | Operator adds teammate email that already has an account → membership added; group in switcher |
@@ -217,7 +217,7 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | P1-VIEW-04 | Responsive | Usable at 375px; Operator board → list on mobile per UIUX.md |
 | P1-I18N-01 | Locales | Full UI in `en`, `es`, `pt` via next-intl |
 | P1-I18N-02 | User locale | Persisted; selector on login, header, and **Profile** (`PATCH /me`) |
-| P1-I18N-03 | Telegram copy | Per-teammate locale; fallback `en` |
+| P1-I18N-03 | Telegram copy | Per-user locale (Profile or join URL); fallback `en-gb` |
 
 ### 5.6 Telegram bot
 

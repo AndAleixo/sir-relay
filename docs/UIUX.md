@@ -104,7 +104,7 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 | Privacy / Terms | `/privacy`, `/terms` | Yes `AuthPageHeader` | Legal stubs |
 | No active group | `/groups` | App shell | Placeholder copy; **group panel opens** automatically |
 
-**Group panel** (header switcher) — switch · **create** · **join** · **leave** (active group) · **delete** (operator). `/groups/new` → `?create=1` (legacy).
+**Group panel** (header switcher) — switch · **create** · **join**. Leave/delete live on **Settings** (`/settings`). `/groups/new` → `?create=1` (legacy).
 
 ```
 ┌─ Group panel (header switcher) ─────┐
@@ -113,9 +113,6 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 ├─────────────────────────────────────┤
 │  Create group          (expand)     │
 │  Join with invite      (expand)     │
-├─────────────────────────────────────┤
-│  Leave group                        │
-│  Delete group          (operator)   │
 └─────────────────────────────────────┘
 ```
 
@@ -159,10 +156,9 @@ Same chrome for everyone; **navigation and default view depend on role in the ac
 | Sidebar logo | `logo.svg` expanded · `logo-compact.svg` collapsed; cross-fade animation |
 | Sidebar nav | Tasks · Teammates* · Alerts* · Settings — icons + labels (icons only when collapsed) |
 | Sidebar footer | Profile link (name + avatar) only |
-| Top header | **Group switcher** (name + role, dropdown) · locale switcher · avatar link · account menu chevron |
-| Avatar | Links to **Profile**; shows uploaded photo or initial |
-| Account menu (`▾`) | Name · `{group} · {role}` · Profile · Settings · Log out |
-| Locale | `<select>` in header (same route, new locale prefix); also on login screen |
+| Top header | **Group switcher** · locale picker · account menu (avatar + chevron) |
+| Account menu (`▾`) | Name · Account · Log out |
+| Locale | Custom dropdown in header (same route, new locale prefix); also on login screen |
 | Primary CTA | “New task” — Operator only, yellow button per [BRAND.md](./BRAND.md) |
 
 **Post-login landing:** no group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` (Kanban)
@@ -387,7 +383,7 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 
 Table: name, email, role, account status, Telegram status, view link. Operators link to **Profile**; teammates to detail.
 
-**Add teammate** — header button → `/teammates/new` (name, email, locale); on save → detail page with invite + Telegram links.
+**Add teammate** — header button → `/teammates/new` (name, email); on save → detail page with invite + Telegram links (copy buttons).
 
 **Export (Phase 2)** — toolbar **Export all** · per-row **Export** · detail page **Export** (scoped). Spec: [REQUIREMENTS.md §6.5.2](./REQUIREMENTS.md#652-json-export-app).
 
@@ -395,8 +391,8 @@ Table: name, email, role, account status, Telegram status, view link. Operators 
 
 - Name, email, account + Telegram badges
 - Edit name (+ email before first login), **promote to operator** (active account), deactivate
-- **Invite link** — `/join/{token}` · regenerate
-- **Telegram link** — `t.me/...?start=code` · regenerate
+- **Invite link** — `/join/{token}` · copy · regenerate
+- **Telegram link** — `t.me/...?start=code` · copy · regenerate
 
 ---
 
@@ -420,7 +416,7 @@ Group and role live in the **group switcher** and account menu — not on Profil
 
 ### 8.2 Settings (`/settings`)
 
-All users with an active group. Access: sidebar / mobile tabs, account menu.
+All users with an active group. Access: sidebar / mobile tabs only (not account menu).
 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
@@ -428,7 +424,7 @@ All users with an active group. Access: sidebar / mobile tabs, account menu.
 
 Teammates see an empty-state hint. Language and group switching live on **Profile** and the header **Group switcher**, not here.
 
-**Profile** has no role — account only. **Settings** is group-scoped alerts. **App shell** header / account menu show `{group} · {role}`.
+**Profile** has no role — account only. **Settings** is group-scoped alerts + leave/delete group. Group and role appear in the **group switcher** only.
 
 ### 8.3 Alerts (`/alerts`)
 
@@ -492,7 +488,7 @@ Reply to each message to update your progress.
 All caught up — no more tasks. 🎉
 ```
 
-Localized per teammate `locale` (`en`, `es`, `pt`).
+Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 
 ---
 
@@ -500,11 +496,12 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 
 | Component | Notes |
 |-----------|-------|
-| `GroupSwitcher` + `GroupPanelMenu` | Header panel — switch · create · join · leave · delete (danger section) |
+| `GroupSwitcher` + `GroupPanelMenu` | Header panel — switch · create · join |
+| `GroupDangerSettings` | Settings page — leave / delete active group |
 | `PromoteTeammateButton` | Teammate detail — promote to operator (confirm) |
 | `DeactivateTeammateButton` | Teammate detail — deactivate |
 | `AppShell` | Sidebar + collapse + role-based nav (when group active) + profile footer |
-| `AppHeader` | Desktop group switcher + locale switcher + avatar + account menu |
+| `AppHeader` | Desktop group switcher + locale picker + account menu |
 | `MobileTopBar` | Compact logo, group switcher, locale, avatar, tab nav |
 | `LocaleSwitcher` | Same-path locale change via URL prefix |
 | `UserMenu` | Account dropdown (Profile, Settings, Log out) |

@@ -1,3 +1,4 @@
+import { defaultLocale } from "@/i18n/config";
 import type { Locale, Session, Teammate, User } from "@/domain/types";
 import type {
   CreateTeammateInput,
@@ -85,7 +86,7 @@ export class MockTeammateService implements TeammateService {
       name: input.name,
       email,
       role: "teammate",
-      locale: input.locale,
+      locale: defaultLocale,
       active: true,
       accountStatus: "invited",
       telegramStatus: "pending",

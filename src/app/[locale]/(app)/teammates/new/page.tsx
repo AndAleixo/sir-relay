@@ -6,8 +6,7 @@ import { requireRole } from "@/lib/require-session";
 import { PageHeader } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
-import { Input, Label, Select } from "@/components/ui/input";
-import { localeNames, locales, type AppLocale } from "@/i18n/config";
+import { Input, Label } from "@/components/ui/input";
 
 export default async function NewTeammatePage({
   params,
@@ -41,17 +40,6 @@ export default async function NewTeammatePage({
                 required
                 placeholder="teammate@example.com"
               />
-            </div>
-            <div>
-              <Label htmlFor="locale">{t("profile.language")}</Label>
-              <Select id="locale" name="locale" defaultValue={session.user.locale}>
-                {locales.map((loc) => (
-                  <option key={loc} value={loc}>
-                    {localeNames[loc as AppLocale]}
-                  </option>
-                ))}
-              </Select>
-              <p className="mt-1.5 text-xs text-[var(--text-muted)]">{t("teammate.localeHint")}</p>
             </div>
             <div className="flex gap-2 pt-2">
               <Button type="submit">{t("teammate.createTeammate")}</Button>

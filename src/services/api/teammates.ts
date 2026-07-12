@@ -5,6 +5,7 @@ import type {
   TeammateService,
   UserService,
 } from "@/services/contracts";
+import { defaultLocale } from "@/i18n/config";
 import { prisma } from "@/lib/prisma";
 import {
   createInviteTokenRecord,
@@ -116,7 +117,7 @@ export class ApiTeammateService implements TeammateService {
         id,
         name: input.name.trim(),
         email,
-        locale: fromLocale(input.locale),
+        locale: fromLocale(defaultLocale),
         accountStatus: "invited",
         active: true,
       },

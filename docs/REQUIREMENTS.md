@@ -20,7 +20,7 @@ Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../R
 | **Telegram bot** | Delivers tasks one at a time; teammates reply to report progress |
 | **Relay queue** | When a task is marked `done`, the next `todo` task is sent automatically |
 
-**Account model:** Anyone can **sign up**. After login they **create a group** (becoming **operator** there) or **join a group** via invite (as **teammate**). The **same user** can be operator in one group and teammate in another — switch active group via the **header group switcher** or `/groups` hub.
+**Account model:** Anyone can **sign up**. After login they **create a group** (becoming **operator** there) or **join a group** via invite (as **teammate**). The **same user** can be operator in one group and teammate in another — switch active group via the **header group switcher panel** or `/groups` when no group is active.
 
 **Positioning:** Simple team coordination — **no performance dashboards, leaderboards, or surveillance-style metrics.**
 
@@ -108,12 +108,12 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | **Deployment** | One SirRelay stack on **DigitalOcean Droplet** (EU), public **domain + HTTPS** (Caddy). Same Docker Compose can run elsewhere if needed. |
 | **Public entry** | `/[locale]` — marketing landing (logged-out visitors) |
 | **Sign up / Log in** | `/[locale]/signup` · `/[locale]/login` — any user creates an account |
-| **Groups hub** | `/[locale]/groups` — pick or create a group after sign-in (no active group) |
+| **No active group** | `/[locale]/groups` — placeholder; group panel opens automatically |
 | **Legacy** | `/[locale]/admin` redirects to `/login` |
 | **Data** | **PostgreSQL** on the deployment; tasks, users, groups, and settings persisted server-side |
 | **Accounts (Phase 1)** | Self-serve **sign-up** (anyone). User **creates a group** (operator) **or joins** via invite link (teammate). Role is **per group membership**, not stored on the user row. |
 | **Session** | `{ userId, activeGroupId }`; effective `role` derived from `group_memberships` for the active group |
-| **Multi-group** | One account may belong to many groups; **group switcher** or `/groups` hub to pick active group (no session clear) |
+| **Multi-group** | One account may belong to many groups; **group switcher panel** or `/groups` when no active group |
 | **Mobile** | Responsive web in Phase 1; native iOS/Android → Phase 3 (P3-13), same `/api/v1` |
 | **Metrics / KPIs** | **Out of scope** — no velocity charts, leaderboards, or employee surveillance dashboards |
 | **Multi-tenant SaaS** | Not Phase 1 — one organization per deployment. Many customers = many deployments (or P3-15). |
@@ -144,14 +144,14 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-GRP-01 | List | `/groups` lists groups the user belongs to; each row shows group name + **role in that group** |
-| P1-GRP-02 | Create | `/groups/new` or **Group switcher → Create group** — name ≥ 2 chars; creator is `operator`; group becomes active |
-| P1-GRP-03 | Select | Hub **Open** or header **Group switcher** sets `activeGroupId` → role home |
-| P1-GRP-04 | Auto-select | Single group + no active group → auto-select (skip hub); 2+ groups → `/groups` hub |
-| P1-GRP-05 | Manage hub | **Group switcher → Manage groups** → `/groups` anytime (create, join, switch) — no session clear |
-| P1-GRP-06 | Join via invite | Operator invite link → `/join/<token>` · new account sets password · existing account (same email) accepts in one click |
-| P1-GRP-07 | Join from hub | Paste invite link/code on `/groups` → routes to join or accepts when already signed in |
-| P1-GRP-08 | Existing email | Operator adds teammate email that already has an account → membership added; user sees group on hub (no password invite) |
+| P1-GRP-01 | List | **Group switcher panel** lists groups with name + **role**; `/groups` is placeholder when no active group (panel opens) |
+| P1-GRP-02 | Create | **Group switcher → Create group** (inline name ≥ 2 chars); creator is `operator`; group becomes active. `/groups/new` → redirect legacy |
+| P1-GRP-03 | Select | **Group switcher** sets `activeGroupId` → role home |
+| P1-GRP-04 | Auto-select | Single group + no active group → auto-select (skip `/groups`); 2+ groups → `/groups` + panel open |
+| P1-GRP-05 | Manage | **Group switcher panel** anytime — switch, create, join (no session clear) |
+| P1-GRP-06 | Join via invite | Invite link → `/join/<token>` (new account) **or** paste in group panel (signed in, same email) |
+| P1-GRP-07 | Join from panel | Paste invite in group panel → accept when signed in; adds membership if missing |
+| P1-GRP-08 | Existing email | Operator adds teammate email that already has an account → membership added; group in switcher |
 
 ### 5.2 Teammates
 
@@ -313,7 +313,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 |-------|-------------------|-------------------|-------|
 | `/` (locale home) | Redirect if session | Redirect if session | **Public landing** when logged out |
 | `login`, `signup` | Public | Public | Account entry; **AuthPageHeader** → back to landing |
-| `groups`, `groups/new` | ✓ | ✓ | Pick or create group (no active group) |
+| `groups` | ✓ | ✓ | No active group landing (panel opens); create/join in switcher |
 | `privacy`, `terms` | Public | Public | Footer links; **AuthPageHeader** on legal pages |
 | `join/[token]`, `change-password` | — | — | Auth flows |
 | `admin` | — | — | Legacy redirect → `login` |
@@ -325,7 +325,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `alerts` | ✓ | — |
 | `settings` | ✓ | ✓ | Group-scoped operator alert prefs only |
 
-**Phase 1 acceptance test:** Landing → sign up → create group → add teammate → invite + Telegram → two tasks → relay `done` on Telegram. **Or:** demo `sam@example.com` → hub → Demo Shop → same loop. Stack on VPS with HTTPS.
+**Phase 1 acceptance test:** Landing → sign up → create group → add teammate → invite + Telegram → two tasks → relay `done` on Telegram. **Or:** demo `sam@example.com` → `/groups` → Demo Shop → same loop. Stack on VPS with HTTPS.
 
 ---
 

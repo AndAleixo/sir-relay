@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import type { User } from "@/domain/types";
+import type { User, UserGroup } from "@/domain/types";
 import { UserAvatar } from "@/components/profile/user-avatar";
-import { GroupSwitcher, type ShellGroup } from "./group-switcher";
+import { GroupSwitcher } from "./group-switcher";
 import { LocaleSwitcher } from "./locale-switcher";
 import { UserMenu } from "./user-menu";
 import { shellStyles } from "./app-shell.styles";
@@ -11,7 +11,7 @@ import { shellStyles } from "./app-shell.styles";
 interface AppHeaderProps {
   locale: string;
   user: User;
-  groups: ShellGroup[];
+  groups: UserGroup[];
   activeGroupId: string | null;
 }
 
@@ -25,7 +25,6 @@ export function AppHeader({ locale, user, groups, activeGroupId }: AppHeaderProp
           locale={locale}
           groups={groups}
           activeGroupId={activeGroupId}
-          placement="below"
           prominent
         />
       </div>

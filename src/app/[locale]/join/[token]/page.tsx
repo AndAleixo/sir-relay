@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { mockAcceptInvite } from "@/app/actions/mock-groups";
+import { acceptInvite } from "@/app/actions/groups";
 import { mockJoinAccount } from "@/app/actions/mock-auth";
 import { AuthPageHeader } from "@/components/auth/auth-page-header";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
@@ -85,7 +85,7 @@ export default async function JoinPage({
             ) : null}
 
             {canAcceptLoggedIn ? (
-              <form action={mockAcceptInvite.bind(null, locale, token)}>
+              <form action={acceptInvite.bind(null, locale, token)}>
                 <Button type="submit" className="w-full">
                   {t("join.accept", { group: preview.groupName })}
                 </Button>

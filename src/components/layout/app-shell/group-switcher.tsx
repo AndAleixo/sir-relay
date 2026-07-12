@@ -1,29 +1,31 @@
 "use client";
 
-import Link from "next/link";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { Role } from "@/domain/types";
-import { mockSelectGroup } from "@/app/actions/mock-groups";
 import { cn } from "@/lib/cn";
-import { shellStyles } from "./app-shell.styles";
+import type { UserGroup } from "@/domain/types";
+import { GroupPanelMenu } from "./group-panel-menu";
 
-export type ShellGroup = {
-  id: string;
-  name: string;
-  role: Role;
-};
+import { shellStyles } from "./app-shell.styles";
 
 interface GroupSwitcherProps {
   locale: string;
-  groups: ShellGroup[];
+  groups: UserGroup[];
   activeGroupId: string | null;
-  collapsed?: boolean;
   compact?: boolean;
   prominent?: boolean;
-  placement?: "below" | "above";
 }
+
+type PanelAnchor = { top: number; left: number; width: number };
 
 function Chevron({ className }: { className?: string }) {
   return (
@@ -62,20 +64,82 @@ function GroupIcon({ className }: { className?: string }) {
   );
 }
 
-export function GroupSwitcher({
+export function GroupSwitcher(props: GroupSwitcherProps) {
+  return (
+    <Suspense fallback={<GroupSwitcherFallback {...props} />}>
+      <GroupSwitcherInner {...props} />
+    </Suspense>
+  );
+}
+
+function GroupSwitcherFallback({
+  groups,
+  activeGroupId,
+  compact,
+  prominent,
+}: GroupSwitcherProps) {
+  const t = useTranslations();
+  const active =
+    activeGroupId != null
+      ? (groups.find((group) => group.id === activeGroupId) ?? null)
+      : null;
+  const triggerLabel =
+    active?.name ?? (groups.length === 0 ? t("groups.create") : t("shell.switchGroup"));
+
+  return (
+    <div
+      className={cn(
+        shellStyles.groupSwitcherRoot,
+        compact && shellStyles.groupSwitcherCompact,
+      )}
+    >
+      <div
+        className={cn(
+          shellStyles.groupSwitcherTrigger,
+          prominent && shellStyles.groupSwitcherTriggerProminent,
+          compact && shellStyles.groupSwitcherTriggerCompact,
+          "pointer-events-none opacity-80",
+        )}
+        aria-hidden
+      >
+        {compact ? (
+          <>
+            <span className={shellStyles.groupSwitcherNameCompact}>{triggerLabel}</span>
+            <Chevron />
+          </>
+        ) : (
+          <>
+            <GroupIcon className="h-4 w-4 shrink-0 text-[var(--text-muted)]" />
+            <span className={shellStyles.groupSwitcherText}>
+              <span className={shellStyles.groupSwitcherName}>{triggerLabel}</span>
+            </span>
+            <Chevron />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function GroupSwitcherInner({
   locale,
   groups,
   activeGroupId,
-  collapsed = false,
   compact = false,
   prominent = false,
-  placement = "above",
 }: GroupSwitcherProps) {
   const t = useTranslations();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [panelTop, setPanelTop] = useState(72);
+  const [panelAnchor, setPanelAnchor] = useState<PanelAnchor | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const prevActiveGroupId = useRef(activeGroupId);
+  const returnPath = pathname;
   const active =
     activeGroupId != null
       ? (groups.find((group) => group.id === activeGroupId) ?? null)
@@ -86,38 +150,68 @@ export function GroupSwitcher({
   }, []);
 
   useEffect(() => {
+    if (pathname.endsWith("/groups")) {
+      setOpen(true);
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    if (searchParams.get("create") === "1") {
+      setOpen(true);
+      setShowCreate(true);
+      router.replace(pathname);
+    }
+  }, [searchParams, pathname, router]);
+
+  useEffect(() => {
+    if (prevActiveGroupId.current === activeGroupId) return;
+    prevActiveGroupId.current = activeGroupId;
     setOpen(false);
+    setShowCreate(false);
   }, [activeGroupId]);
 
-  useLayoutEffect(() => {
-    if (!open || !compact) return;
+  const closePanel = useCallback(() => {
+    setOpen(false);
+    setShowCreate(false);
+  }, []);
 
-    function measure() {
-      const header = document.querySelector("[data-mobile-shell-header]");
-      const bottom = header?.getBoundingClientRect().bottom ?? 56;
-      setPanelTop(bottom + 4);
+  useLayoutEffect(() => {
+    if (!open || !compact || !rootRef.current) {
+      setPanelAnchor(null);
+      return;
     }
 
-    measure();
-    window.addEventListener("resize", measure);
-    window.addEventListener("orientationchange", measure);
+    function updateAnchor() {
+      const rect = rootRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setPanelAnchor({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: Math.min(Math.max(rect.width, 16 * 16), 22 * 16),
+      });
+    }
+
+    updateAnchor();
+    window.addEventListener("resize", updateAnchor);
+    window.addEventListener("scroll", updateAnchor, true);
     return () => {
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("orientationchange", measure);
+      window.removeEventListener("resize", updateAnchor);
+      window.removeEventListener("scroll", updateAnchor, true);
     };
   }, [open, compact]);
 
   useEffect(() => {
-    if (!open || compact) return;
+    if (!open) return;
 
     function onPointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
+      const target = event.target as Node;
+      if (rootRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
+      closePanel();
     }
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") closePanel();
     }
 
     document.addEventListener("pointerdown", onPointerDown);
@@ -126,94 +220,31 @@ export function GroupSwitcher({
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, compact]);
+  }, [open, closePanel]);
 
-  useEffect(() => {
-    if (!open || !compact) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [open, compact]);
+  const panelMenuProps = {
+    locale,
+    groups,
+    activeGroupId,
+    returnPath,
+    panelOpen: open,
+    showCreate,
+    onShowCreate: setShowCreate,
+  };
 
-  if (groups.length === 0) return null;
-
-  const menu = (
-    <>
-      <ul className="py-1">
-        {groups.map((group) => (
-          <li key={group.id}>
-            {group.id === activeGroupId ? (
-              <div
-                className={cn(
-                  shellStyles.groupSwitcherItem,
-                  shellStyles.groupSwitcherItemActive,
-                )}
-                role="menuitem"
-                aria-current="true"
-              >
-                <span className="truncate font-medium">{group.name}</span>
-                <span className={shellStyles.groupSwitcherItemRole}>
-                  {t(`roles.${group.role}`)}
-                </span>
-              </div>
-            ) : (
-              <form
-                action={mockSelectGroup.bind(null, locale, group.id)}
-                onSubmit={() => setOpen(false)}
-              >
-                <button
-                  type="submit"
-                  className={shellStyles.groupSwitcherItem}
-                  role="menuitem"
-                >
-                  <span className="truncate">{group.name}</span>
-                  <span className={shellStyles.groupSwitcherItemRole}>
-                    {t(`roles.${group.role}`)}
-                  </span>
-                </button>
-              </form>
-            )}
-          </li>
-        ))}
-      </ul>
-      <div className={shellStyles.groupSwitcherFooter}>
-        <Link
-          href={`/${locale}/groups/new`}
-          className={shellStyles.groupSwitcherFooterLink}
-          role="menuitem"
-          onClick={() => setOpen(false)}
-        >
-          {t("groups.create")}
-        </Link>
-        <Link
-          href={`/${locale}/groups`}
-          className={shellStyles.groupSwitcherFooterLink}
-          role="menuitem"
-          onClick={() => setOpen(false)}
-        >
-          {t("shell.manageGroups")}
-        </Link>
-      </div>
-    </>
-  );
+  const panelProps = {
+    role: "menu" as const,
+    "aria-label": t("groups.title"),
+  };
 
   const desktopPanel = (
-    <div
-      className={cn(
-        shellStyles.groupSwitcherPanel,
-        placement === "below" && shellStyles.groupSwitcherPanelBelow,
-        collapsed && shellStyles.groupSwitcherPanelCollapsed,
-      )}
-      role="menu"
-    >
-      {menu}
+    <div ref={panelRef} className={shellStyles.groupSwitcherPanel} {...panelProps}>
+      <GroupPanelMenu {...panelMenuProps} />
     </div>
   );
 
-  const mobileOverlay =
-    open && compact && mounted
+  const mobilePanel =
+    open && compact && mounted && panelAnchor
       ? createPortal(
           <>
             <button
@@ -221,19 +252,27 @@ export function GroupSwitcher({
               className={shellStyles.groupSwitcherBackdrop}
               aria-hidden
               tabIndex={-1}
-              onClick={() => setOpen(false)}
+              onClick={closePanel}
             />
             <div
+              ref={panelRef}
               className={shellStyles.groupSwitcherPanelMobile}
-              style={{ top: panelTop }}
-              role="menu"
+              style={{
+                top: panelAnchor.top,
+                left: panelAnchor.left,
+                width: panelAnchor.width,
+              }}
+              {...panelProps}
             >
-              {menu}
+              <GroupPanelMenu {...panelMenuProps} />
             </div>
           </>,
           document.body,
         )
       : null;
+
+  const triggerLabel =
+    active?.name ?? (groups.length === 0 ? t("groups.create") : t("shell.switchGroup"));
 
   return (
     <div
@@ -248,31 +287,23 @@ export function GroupSwitcher({
         className={cn(
           shellStyles.groupSwitcherTrigger,
           prominent && shellStyles.groupSwitcherTriggerProminent,
-          collapsed && shellStyles.groupSwitcherTriggerCollapsed,
           compact && shellStyles.groupSwitcherTriggerCompact,
         )}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={t("shell.switchGroup")}
-        title={collapsed ? (active?.name ?? t("shell.switchGroup")) : undefined}
         onClick={() => setOpen((value) => !value)}
       >
-        {collapsed ? (
-          <GroupIcon />
-        ) : compact ? (
+        {compact ? (
           <>
-            <span className={shellStyles.groupSwitcherNameCompact}>
-              {active?.name ?? t("shell.switchGroup")}
-            </span>
+            <span className={shellStyles.groupSwitcherNameCompact}>{triggerLabel}</span>
             <Chevron className={open ? "rotate-180" : undefined} />
           </>
         ) : (
           <>
             <GroupIcon className="h-4 w-4 shrink-0 text-[var(--text-muted)]" />
             <span className={shellStyles.groupSwitcherText}>
-              <span className={shellStyles.groupSwitcherName}>
-                {active?.name ?? t("shell.switchGroup")}
-              </span>
+              <span className={shellStyles.groupSwitcherName}>{triggerLabel}</span>
               {active ? (
                 <span className={shellStyles.groupSwitcherRole}>
                   {t(`roles.${active.role}`)}
@@ -285,7 +316,7 @@ export function GroupSwitcher({
       </button>
 
       {open && !compact ? desktopPanel : null}
-      {mobileOverlay}
+      {mobilePanel}
     </div>
   );
 }

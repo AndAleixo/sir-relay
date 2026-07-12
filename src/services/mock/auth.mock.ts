@@ -4,10 +4,10 @@ import type { Locale } from "@/domain/types";
 import { hydrateSession } from "@/lib/session-hydrate";
 import type { AuthService } from "@/services/contracts";
 import {
-  dynamicUsers,
   findMockUserByEmail,
   findMockUserById,
   patchMockUser,
+  registerDynamicUser,
 } from "@/services/mock/users.mock";
 import { mockGroupMembershipLookup } from "@/services/mock/groups.mock";
 import { consumeInvite, resolveInvite } from "@/services/mock/tokens.mock";
@@ -34,6 +34,7 @@ function readSession(): Session | null {
         activeGroupId: parsed.activeGroupId ?? null,
       },
       mockGroupMembershipLookup,
+      { autoPickGroup: false },
     );
   } catch {
     return null;
@@ -63,12 +64,9 @@ function patchUser(userId: string, patch: Partial<User>) {
 
 function buildSession(user: User, activeGroupId: string | null = null): Session {
   return hydrateSession(
-    {
-      user: { ...user },
-      activeGroupId:
-        activeGroupId ?? mockGroupMembershipLookup.pickDefaultGroupId(user.id),
-    },
+    { user: { ...user }, activeGroupId },
     mockGroupMembershipLookup,
+    { autoPickGroup: true },
   )!;
 }
 
@@ -114,7 +112,7 @@ export class MockAuthService implements AuthService {
       active: true,
       mustChangePassword: false,
     };
-    dynamicUsers.push(user);
+    registerDynamicUser(user);
 
     const session: Session = { user: { ...user }, activeGroupId: null };
     writeSession(session, { autoPickGroup: false });
@@ -210,6 +208,7 @@ export class MockAuthService implements AuthService {
           activeGroupId: current?.activeGroupId ?? null,
         },
         mockGroupMembershipLookup,
+        { autoPickGroup: false },
       ),
     );
   }

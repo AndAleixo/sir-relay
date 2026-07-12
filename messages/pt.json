@@ -21,7 +21,7 @@
     "expandSidebar": "Expandir barra lateral",
     "accountMenu": "Menu da conta",
     "switchGroup": "Mudar de grupo",
-    "manageGroups": "Gerir grupos…"
+    "pasteInvite": "Colar"
   },
   "auth": {
     "login": "Entrar",
@@ -58,24 +58,19 @@
   },
   "groups": {
     "title": "Os seus grupos",
-    "subtitle": "Abra um grupo, crie um novo ou entre com um link de convite.",
     "empty": "Ainda não está em nenhum grupo. Crie um ou entre com convite.",
     "create": "Criar grupo",
-    "open": "Abrir",
-    "current": "Actual",
-    "backToApp": "Voltar à app",
-    "newTitle": "Criar um grupo",
-    "newSubtitle": "Fica operator — tarefas, membros e relay Telegram ficam aqui.",
     "name": "Nome do grupo",
     "namePlaceholder": "ex. Loja demo",
     "nameTooShort": "O nome deve ter pelo menos 2 caracteres.",
-    "invalid": "Esse grupo não está disponível na sua conta.",
     "inviteInvalid": "Esse link de convite é inválido ou expirou.",
+    "inviteEmailMismatch": "Este convite é de outra conta. Entre com esse e-mail primeiro.",
     "joinTitle": "Entrar com convite",
-    "joinHint": "Cole o link do operator ou abra /join/… no browser.",
+    "joinHint": "Cole o link do operator ou o código de convite.",
     "joinLabel": "Link ou código de convite",
     "joinPlaceholder": "https://…/join/abc123 ou abc123",
-    "joinSubmit": "Continuar"
+    "joinSubmit": "Continuar",
+    "pickFromMenu": "Use o menu de grupos acima para abrir, criar ou entrar num grupo."
   },
   "terms": {
     "title": "Termos de serviço",

@@ -9,6 +9,7 @@ import type {
   TaskStatus,
   Teammate,
   User,
+  UserGroup,
 } from "@/domain/types";
 import type { OperatorAlertService } from "@/services/alert.types";
 
@@ -46,7 +47,7 @@ export interface AuthService {
 }
 
 export interface GroupService {
-  listForUser(userId: string): Promise<Group[]>;
+  listForUser(userId: string): Promise<UserGroup[]>;
   create(userId: string, name: string): Promise<Group>;
   roleInGroup(userId: string, groupId: string): Promise<Role | null>;
   isMember(userId: string, groupId: string): Promise<boolean>;

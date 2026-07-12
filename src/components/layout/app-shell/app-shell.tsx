@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { Role, User } from "@/domain/types";
+import type { Role, User, UserGroup } from "@/domain/types";
 import { isPrimaryNavActive } from "@/lib/navigation";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
 import { AppHeader } from "./app-header";
 import { MobileTopBar } from "./mobile-top-bar";
-import type { ShellGroup } from "./group-switcher";
 import { SidebarLogo } from "./sidebar-logo";
 import {
   SidebarNavIcon,
@@ -28,7 +27,7 @@ interface NavItem {
 interface AppShellProps {
   locale: string;
   user: User;
-  groups: ShellGroup[];
+  groups: UserGroup[];
   activeGroupId: string | null;
   children: React.ReactNode;
 }

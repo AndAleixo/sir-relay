@@ -87,7 +87,6 @@ export const shellStyles = {
     "flex w-full min-w-0 items-center gap-2 rounded-button border border-[var(--border)] bg-[var(--surface-bg)] px-2.5 py-2 text-left transition-colors hover:border-brand-accent/30 hover:bg-surface-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   groupSwitcherTriggerProminent:
     "max-w-md border-transparent bg-transparent px-0 py-0 hover:border-transparent hover:bg-transparent",
-  groupSwitcherTriggerCollapsed: "justify-center px-0 py-2",
   groupSwitcherTriggerCompact:
     "max-w-[9rem] gap-1 rounded-button border border-[var(--border)] bg-surface-card px-2 py-1.5 text-sm",
   groupSwitcherText: "min-w-0 flex-1 overflow-hidden",
@@ -95,17 +94,22 @@ export const shellStyles = {
   groupSwitcherNameCompact: "truncate text-sm font-medium text-[var(--text-primary)]",
   groupSwitcherRole: "block truncate text-xs text-[var(--text-muted)]",
   groupSwitcherPanel:
-    "absolute bottom-full left-0 z-[100] mb-1 w-full min-w-[12rem] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card shadow-lg",
-  groupSwitcherPanelBelow:
-    "bottom-auto top-full mb-0 mt-1",
-  groupSwitcherPanelCollapsed: "bottom-auto top-0 left-full ml-1 mt-0 w-56",
+    "absolute left-0 top-full z-[100] mt-1 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card shadow-lg",
   groupSwitcherPanelMobile:
-    "fixed inset-x-4 z-[200] max-h-[min(60vh,20rem)] overflow-y-auto overscroll-contain rounded-button border border-[var(--border)] bg-surface-card shadow-xl",
+    "fixed z-[200] max-h-[min(calc(100vh-5rem),32rem)] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card shadow-lg",
   groupSwitcherBackdrop: "fixed inset-0 z-[199] bg-black/25",
-  groupSwitcherFooter:
-    "flex flex-col border-t border-[var(--border)] py-1",
-  groupSwitcherFooterLink:
-    "flex min-h-11 touch-manipulation items-center px-3 py-2.5 text-sm text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] active:bg-[var(--surface-bg)]",
+  groupPanelBody: "max-h-[inherit] overflow-y-auto overscroll-contain",
+  groupPanelEmpty: "px-3 py-2 text-sm text-[var(--text-muted)]",
+  groupPanelError:
+    "mx-3 mt-2 rounded-button border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700",
+  groupPanelSection: "border-t border-[var(--border)] px-3 py-3",
+  groupPanelLabel: "text-sm font-medium text-[var(--text-primary)]",
+  groupPanelHint: "mt-1 text-xs text-[var(--text-muted)]",
+  groupPanelAction:
+    "flex min-h-11 w-full touch-manipulation items-center rounded-button px-2 text-left text-sm font-medium text-brand-accent transition-colors hover:bg-[var(--surface-bg)] active:bg-[var(--surface-bg)]",
+  groupPanelForm: "space-y-3",
+  groupPanelActions: "flex gap-2",
+  groupPanelJoinRow: "flex gap-2",
   groupSwitcherItem:
     "flex min-h-11 w-full touch-manipulation items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)] active:bg-[var(--surface-bg)]",
   groupSwitcherItemActive: "bg-brand-accent-soft text-brand-accent",

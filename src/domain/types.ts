@@ -13,6 +13,9 @@ export interface Group {
   name: string;
 }
 
+/** Group the user belongs to, with membership role (matches GET /groups). */
+export type UserGroup = Group & { role: Role };
+
 export interface GroupMembership {
   groupId: string;
   userId: string;

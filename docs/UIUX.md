@@ -44,12 +44,12 @@ User (account)
 | Concept | UX |
 |---------|-----|
 | **User** | Email + password; signs up at `/signup`; not labelled “operator” or “teammate” globally |
-| **Group** | Team workspace; created at `/groups/new` or joined via `/join/[token]` |
-| **Role** | Per group; shown on `/groups` list, group switcher, account menu |
+| **Group** | Team workspace; **create inline** in header group panel or join via invite (`/join/[token]` or panel paste) |
+| **Role** | Per group; shown in group switcher and account menu |
 | **Active group** | Session selection; all app screens (tasks, teammates, alerts) are scoped here |
-| **Switch group** | Header group switcher (desktop + mobile) → pick another group; footer link to `/groups` hub |
+| **Switch / manage groups** | Header **group switcher** panel — switch, create, join with invite (dropdown anchored below trigger) |
 
-**Post-login flow:** sign up / log in → (password change if bootstrap only) → **no group** → `/groups` → create or open → operator → `/teammates` · teammate → `/tasks`.
+**Post-login flow:** sign up / log in → (password change if bootstrap only) → **no group** → `/groups` (panel opens) → create or join → operator → `/teammates` · teammate → `/tasks`.
 
 ---
 
@@ -100,33 +100,28 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 |------|-------|--------|---------|
 | Sign up | `/signup` | ✓ `AuthPageHeader` | New account → `/groups` (no group yet) |
 | Log in | `/login` | ✓ `AuthPageHeader` | Existing account → role home or `/groups` |
-| Join group | `/join/[token]` | ✓ `AuthPageHeader` | Accept invite; set password |
+| Join group | `/join/[token]` | ✓ `AuthPageHeader` | New teammate: set password · existing account → accept |
 | Privacy / Terms | `/privacy`, `/terms` | ✓ `AuthPageHeader` | Legal stubs |
-| Groups hub | `/groups` | Logo in page title area | Pick group (shows **role per group**) |
-| Create group | `/groups/new` | — | Name → creator is operator → app |
+| No active group | `/groups` | App shell | Placeholder copy; **group panel opens** automatically |
 
-**Groups hub (`/groups`)** — reachable from the group switcher footer (**Manage groups**); also shown after sign-up when user has no active group, or after login with 2+ groups.
+**Group panel** (header switcher) — primary UI for switch · **create** (inline name) · **join** (paste invite). `/groups/new` redirects to `?create=1` (legacy URL).
 
 ```
-┌─────────────────────────────────────┐
-│  ← Back to app (when in a group)    │
-│  Your groups                        │
+┌─ Group panel (header switcher) ─────┐
+│  Demo Shop              ✓ Operator  │
+│  Side Project              Teammate │
 ├─────────────────────────────────────┤
-│  Demo Shop    Operator  [Current]   │
-│  Side project Teammate  [Open]      │
-├─────────────────────────────────────┤
-│  [ Create group ]                   │
-├─────────────────────────────────────┤
-│  Join with invite                   │
-│  [ paste link or code    ] [Go]     │
+│  Create group          (expand)     │
+│  Join with invite      (expand)     │
 └─────────────────────────────────────┘
 ```
 
-- **Empty state:** create **or** paste invite
-- **Single group, no active:** auto-select (skip hub)
-- **Create:** `/groups/new` — creator is operator
-- **Join:** paste link → `/join/[token]` or one-click accept if signed in with matching email
-- **Existing account added by operator:** new row appears on hub — no invite/password
+- **Empty state:** expand create **or** join
+- **Single group, no active:** auto-select (skip `/groups`)
+- **2+ groups, no active:** `/groups` + panel open
+- **Invite:** adds membership if missing (same email as invite)
+- **Join (new account):** `/join/[token]` — set password
+- **Existing account added by operator (same email):** membership added; group appears in switcher
 
 ---
 
@@ -359,8 +354,7 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 | **Marketing landing** | `/` (locale home) | Public | Public |
 | **Sign up** | `/signup` | Public | Public |
 | **Log in** | `/login` | Public | Public |
-| **Groups hub** | `/groups` | ✓ (pick/create) | ✓ (pick/create) |
-| **Create group** | `/groups/new` | ✓ (becomes operator) | ✓ (becomes operator) |
+| **No active group** | `/groups` | ✓ (panel opens) | ✓ (panel opens) |
 | Tasks board | `/tasks` | Team board (§3.2) | Status Kanban (§3.1) |
 | New task | `/tasks/new` | ✓ | — |
 | Task detail | `/tasks/[id]` | ✓ | Own only |
@@ -501,7 +495,7 @@ Localized per teammate `locale` (`en`, `es`, `pt`).
 
 | Component | Notes |
 |-----------|-------|
-| `GroupSwitcher` | Desktop + mobile header — switch group; footer links to create / manage hub |
+| `GroupSwitcher` + `GroupPanelMenu` | Header panel — switch · create inline · join with invite |
 | `AppShell` | Sidebar + collapse + role-based nav (when group active) + profile footer |
 | `AppHeader` | Desktop group switcher + locale switcher + avatar + account menu |
 | `MobileTopBar` | Compact logo, group switcher, locale, avatar, tab nav |

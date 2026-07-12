@@ -184,7 +184,7 @@ curl -s "${APP_URL}/api/v1/health"
 - [ ] **Landing pública** em `/` ou `/en` (sem login)
 - [ ] Sign up / Log in no header → `/signup` · `/login` funcionam
 - [ ] Novo utilizador → `/groups` → criar grupo
-- [ ] Login demo `sam@example.com` → hub `/groups` → Demo Shop → `/teammates`
+- [ ] Login demo `sam@example.com` → `/groups` (painel) → Demo Shop → `/teammates`
 - [ ] Criar teammate → invite + link Telegram
 - [ ] Webhook Telegram `ok`
 - [ ] Relay: 2 tarefas → só 1ª no TG → `done` → 2ª chega

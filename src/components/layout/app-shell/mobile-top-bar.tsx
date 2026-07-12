@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { User } from "@/domain/types";
+import type { User, UserGroup } from "@/domain/types";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
 import { isPrimaryNavActive } from "@/lib/navigation";
-import { GroupSwitcher, type ShellGroup } from "./group-switcher";
+import { GroupSwitcher } from "./group-switcher";
 import { LocaleSwitcher } from "./locale-switcher";
 import {
   SidebarNavIcon,
@@ -24,7 +24,7 @@ interface MobileTopBarProps {
   locale: string;
   appName: string;
   user: User;
-  groups: ShellGroup[];
+  groups: UserGroup[];
   activeGroupId: string | null;
   items: MobileNavItem[];
 }
@@ -65,7 +65,6 @@ export function MobileTopBar({
             activeGroupId={activeGroupId}
             compact
             prominent
-            placement="below"
           />
           <LocaleSwitcher locale={locale} compact />
           <Link

@@ -1,4 +1,4 @@
-import type { Group, GroupInvitePreview, GroupMembership, Role } from "@/domain/types";
+import type { Group, GroupInvitePreview, GroupMembership, Role, UserGroup } from "@/domain/types";
 import type { GroupService } from "@/services/contracts";
 import type { GroupMembershipLookup } from "@/lib/session-hydrate";
 import { findMockUserById } from "@/services/mock/users.mock";
@@ -20,14 +20,30 @@ export const MOCK_MEMBERSHIPS: GroupMembership[] = [
   { groupId: "group-demo", userId: "user-carla", role: "teammate" },
 ];
 
-const extraGroups: Group[] = [];
-const extraMemberships: GroupMembership[] = [];
+// ponytail: globalThis so create/join survive Next.js splitting action vs RSC module instances (and HMR).
+type MockGroupExtras = {
+  extraGroups: Group[];
+  extraMemberships: GroupMembership[];
+};
+
+function mockGroupExtras(): MockGroupExtras {
+  const key = "__sirrelay_mock_group_extras__";
+  const g = globalThis as typeof globalThis & {
+    [k: string]: MockGroupExtras | undefined;
+  };
+  if (!g[key]) {
+    g[key] = { extraGroups: [], extraMemberships: [] };
+  }
+  return g[key];
+}
 
 function allMemberships(): GroupMembership[] {
+  const { extraMemberships } = mockGroupExtras();
   return [...MOCK_MEMBERSHIPS, ...extraMemberships];
 }
 
 function allGroups(): Group[] {
+  const { extraGroups } = mockGroupExtras();
   return [...MOCK_GROUPS, ...extraGroups];
 }
 
@@ -69,6 +85,7 @@ function inviteNeedsPassword(userId: string): boolean {
 }
 
 function createGroupForUser(userId: string, name: string): Group {
+  const { extraGroups, extraMemberships } = mockGroupExtras();
   const group: Group = {
     id: `group-${Date.now().toString(36)}`,
     name: name.trim(),
@@ -85,7 +102,7 @@ export function addGroupMember(
   role: Role,
 ): void {
   if (getMembership(userId, groupId)) return;
-  extraMemberships.push({ groupId, userId, role });
+  mockGroupExtras().extraMemberships.push({ groupId, userId, role });
 }
 
 export function userIdsInGroup(groupId: string): Set<string> {
@@ -103,8 +120,11 @@ export const mockGroupMembershipLookup: GroupMembershipLookup = {
 };
 
 export class MockGroupService implements GroupService {
-  async listForUser(userId: string): Promise<Group[]> {
-    return listGroupsForUser(userId);
+  async listForUser(userId: string): Promise<UserGroup[]> {
+    return listGroupsForUser(userId).map((group) => ({
+      ...group,
+      role: roleInGroup(userId, group.id) ?? "teammate",
+    }));
   }
 
   async create(userId: string, name: string): Promise<Group> {
@@ -128,13 +148,12 @@ export class MockGroupService implements GroupService {
     if (!user || !group) return null;
 
     const membership = getMembership(record.userId, record.groupId);
-    if (!membership) return null;
 
     return {
       groupId: group.id,
       groupName: group.name,
       email: user.email,
-      role: membership.role,
+      role: membership?.role ?? "teammate",
       needsPassword: inviteNeedsPassword(record.userId),
     };
   }
@@ -143,16 +162,17 @@ export class MockGroupService implements GroupService {
     const record = resolveInvite(token);
     if (!record) throw new Error("Invalid invite");
 
-    if (record.userId !== userId) {
+    const user = findMockUserById(userId);
+    const invitedUser = findMockUserById(record.userId);
+    const group = getGroup(record.groupId);
+    if (!user || !invitedUser || !group) throw new Error("Invalid invite");
+
+    if (user.email.toLowerCase() !== invitedUser.email.toLowerCase()) {
       throw new Error("Invite is for a different account");
     }
 
-    const user = findMockUserById(userId);
-    const group = getGroup(record.groupId);
-    if (!user || !group) throw new Error("Invalid invite");
-
     if (!getMembership(userId, record.groupId)) {
-      throw new Error("Invalid invite");
+      addGroupMember(record.groupId, userId, "teammate");
     }
 
     if ("accountStatus" in user) {
@@ -165,3 +185,15 @@ export class MockGroupService implements GroupService {
 }
 
 export const mockGroupService = new MockGroupService();
+
+// ponytail: self-check — runtime create visible to membership lookup
+if (process.env.NODE_ENV !== "production") {
+  const uid = "__mock_group_selfcheck__";
+  const before = mockGroupMembershipLookup.hasMembership(uid, "group-nope");
+  const g = createGroupForUser(uid, "SelfCheck");
+  const ok =
+    !before &&
+    mockGroupMembershipLookup.hasMembership(uid, g.id) &&
+    listGroupsForUser(uid).some((x) => x.id === g.id);
+  if (!ok) console.error("groups.mock create self-check failed");
+}

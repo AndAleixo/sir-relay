@@ -1,11 +1,19 @@
 import type { User } from "@/domain/types";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
 
-/** ponytail: in-memory signups reset on server restart. */
-export const dynamicUsers: User[] = [];
+function dynamicUsers(): User[] {
+  const key = "__sirrelay_mock_dynamic_users__";
+  const g = globalThis as typeof globalThis & { [k: string]: User[] | undefined };
+  if (!g[key]) g[key] = [];
+  return g[key];
+}
+
+export function registerDynamicUser(user: User): void {
+  dynamicUsers().push(user);
+}
 
 export function allMockUsers(): User[] {
-  return [...MOCK_OPERATORS, ...MOCK_TEAMMATES, ...dynamicUsers];
+  return [...MOCK_OPERATORS, ...MOCK_TEAMMATES, ...dynamicUsers()];
 }
 
 export function findMockUserById(userId: string): User | null {
@@ -32,7 +40,7 @@ export function findMockUserByEmail(email: string): User | null {
 }
 
 export function patchMockUser(userId: string, patch: Partial<User>): User | null {
-  const lists = [MOCK_OPERATORS, MOCK_TEAMMATES, dynamicUsers];
+  const lists = [MOCK_OPERATORS, MOCK_TEAMMATES, dynamicUsers()];
   for (const list of lists) {
     const user = list.find((u) => u.id === userId);
     if (user) {

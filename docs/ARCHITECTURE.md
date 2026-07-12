@@ -15,6 +15,7 @@ src/
 │   ├── alerts/ · profile/ · sync/
 │   └── ui/<name>/
 ├── lib/entry-route.ts # Post-auth redirects
+├── app/actions/groups.ts  # Group panel server actions (thin → getServices)
 └── app/[locale]/      # Routes
 ```
 
@@ -26,7 +27,7 @@ src/
 | `/[locale]/login`, `/signup` | Public | CDN-friendly | Account sign-in / sign-up |
 | `/[locale]/privacy`, `/terms`, `/join/[token]` | Public | CDN-friendly | Legal · group invite activation |
 | `/[locale]/admin` | Public | — | Legacy redirect → `/login` |
-| `/[locale]/groups`, `/groups/new` | Session | private | Group hub · create group |
+| `/[locale]/groups` | Session | private | No active group — panel opens · `/groups/new` → redirect |
 | `/[locale]/change-password` | Session | private | Forced / optional password change |
 | `/[locale]/tasks`, `/tasks/new`, `/tasks/[id]` | Session + group | private | Boards, list, CRUD |
 | `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | Operator team management |
@@ -49,11 +50,11 @@ src/
 
 Unauthenticated access to app routes → `/login?session=expired`.
 
-**User model:** one **account** per person → zero or more **groups** → **role per membership** (`operator` / `teammate`). Session: `{ user, activeGroupId }`; effective role from `hydrateSession()` + `group_memberships`.
+**User model:** one **account** per person → zero or more **groups** → **role per membership** (`operator` / `teammate`). Session: `{ user, activeGroupId }`; effective role from `hydrateSession()` + `group_memberships`. `UserGroup` in `domain/types.ts` matches `GET /groups` (id, name, role).
 
 ## Landing demo
 
-CSS board fallback in hero; primary video `public/brand/demo.webm` ([UIUX §2.0](./UIUX.md#20-marketing-landing)). Demo seed: `src/services/mock/data.ts` · `sam@example.com` (hub, 2 groups) · `ana@example.com` (teammate → tasks).
+Demo seed: `src/services/mock/data.ts` · `sam@example.com` (2 groups → `/groups` + panel) · `ana@example.com` (teammate → tasks) · invite demo: `mock-invite-ana-side` as ana joins Side Project.
 
 ## Task forms
 
@@ -78,4 +79,4 @@ npm install && npm run dev && npm run check:routes
 # ou por ambiente: npm run dev-mock | dev-hybrid | prod-local
 ```
 
-`http://localhost:3000` — landing · `/en/login` — sign in · **demo:** `sam@example.com` (2 groups → hub) · `ana@example.com` (teammate → tasks) · new signup → `/groups`.
+`http://localhost:3000` — landing · `/en/login` — sign in · **demo:** `sam@example.com` (2 groups → `/groups`) · `ana@example.com` (teammate → tasks) · invite: `mock-invite-ana-side` as ana@example.com

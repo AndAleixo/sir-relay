@@ -9,5 +9,5 @@ if [[ ! -f .env.local ]]; then
 fi
 
 echo "→ dev-mock · http://localhost:3000"
-echo "  demo: sam@example.com (hub) · ana@example.com (tasks)"
+echo "  demo: sam@example.com (2 groups) · ana@example.com (tasks) · invite: mock-invite-ana-side as ana"
 exec npm run dev

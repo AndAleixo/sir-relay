@@ -41,7 +41,7 @@
 | **Telegram** | — | Bot teste + tunnel* | Bot staging (opcional) | Bot produção |
 | **Persistência** | Reinicia com o Node | Volume Postgres | Volume Docker | Volume + backups |
 | **Ficheiro env** | `.env.local` | `.env.local` | `.env` | `.env` no servidor |
-| **Estado hoje** | ✅ activo | ⏳ infra + script prontos · API/Prisma por implementar | ⏳ quando houver API | ⏳ pós Phase 1 |
+| **Estado hoje** | ✅ activo | ✅ API + Prisma · Postgres + `.env.local` | ⏳ smoke Docker app | ⏳ pós smoke local |
 
 \* Webhook Telegram em dev requer tunnel (ngrok / Cloudflare) ou testar só no VPS.
 
@@ -101,9 +101,16 @@ APP_URL=http://localhost:3000
 
 **Usar para:** implementar auth, groups, tasks, Prisma, debug SQL — dia-a-dia do backend.
 
-**Hoje:** `npm run dev-hybrid` sobe Postgres e corre `next dev`, mas **`getServices()` faz `throw` se `SERVICE_MODE=api`** até existir `src/services/api/*`. Ver checklist abaixo.
+**Hoje:** `npm run dev-hybrid` sobe Postgres, corre migrate + seed, e `next dev`. Login demo usa password **`demo12345`** (não qualquer string como no mock).
 
-**Não fazer:** apontar `DATABASE_URL` para prod VPS; usar `SERVICE_MODE=api` sem services API.
+**Smoke mínimo:**
+
+```bash
+cp .env.example .env.local   # secção 2: SERVICE_MODE=api, DATABASE_URL, POSTGRES_PASSWORD, SESSION_SECRET
+npm run dev-hybrid
+curl -s http://localhost:3000/api/v1/health   # → {"ok":true,...}
+# browser: sam@example.com / demo12345 → groups → Demo Shop
+```
 
 ### Dev híbrido — checklist de prontidão
 
@@ -116,16 +123,16 @@ O script `scripts/env/dev-hybrid.sh` já faz: validar `.env.local` · subir Post
 | 3 | `.env.example` secção 2 | ✅ | `DATABASE_URL`, `POSTGRES_PASSWORD`, `SESSION_SECRET` |
 | 4 | UI + contratos (`UserGroup`, `GroupService`) | ✅ | Mock implementa; UI não muda no swap |
 | 5 | Server actions `src/app/actions/groups.ts` | ✅ | Thin layer → `getServices()` |
-| 6 | **`prisma/schema.prisma`** | ❌ | Ver [REQUIREMENTS §5.9](./REQUIREMENTS.md#59-data-model) |
-| 7 | **`prisma/seed.ts`** | ❌ | Paridade mock: Sam (2 grupos), Ana, Demo Shop, Side Project |
-| 8 | Deps npm: `prisma`, `@prisma/client`, `bcrypt`, `jose`, `zod`, `grammy` | ❌ | Ver [REQUIREMENTS §10](./REQUIREMENTS.md#10-tech-stack--repo-layout) |
-| 9 | **`src/services/api/*`** | ❌ | Implementar `contracts.ts` contra Postgres |
-| 10 | Ramo `api` em **`getServices()`** | ❌ | Hoje: `throw` |
-| 11 | **`GET /api/v1/health`** | ❌ | Smoke test mínimo |
-| 12 | Auth API + cookie jose | ❌ | Substitui `sirrelay_mock_session` |
-| 13 | Renomear **`mock-auth.ts`** → actions mode-agnostic | ⏳ | Mesmo padrão que `groups.ts` |
-| 14 | Sync bar → API tasks (não `mock-tasks`) | ⏳ | Necessário para CRUD real em híbrido |
-| 15 | Telegram webhook | ⏳ opcional | Tunnel ou adiar para prod local |
+| 6 | **`prisma/schema.prisma`** + migration | ✅ | `prisma/migrations/20260712000000_init` |
+| 7 | **`prisma/seed.ts`** | ✅ | Paridade mock · password `demo12345` |
+| 8 | Deps npm: `prisma`, `@prisma/client`, `bcrypt`, `jose`, `zod` | ✅ | Prisma 5.22 · grammy adiar |
+| 9 | **`src/services/api/*`** | ✅ | auth · groups · tasks · teammates · alerts · export |
+| 10 | Ramo `api` em **`getServices()`** | ✅ | |
+| 11 | **`GET /api/v1/health`** | ✅ | |
+| 12 | Auth API + cookie jose | ✅ | Cookie `sirrelay_session` |
+| 13 | Renomear **`mock-auth.ts`** → actions mode-agnostic | ⏳ | Funciona via `getServices()` |
+| 14 | Sync bar → API tasks | ✅ | `apiTaskService` |
+| 15 | Telegram webhook | ⏳ opcional | Tunnel ou prod local |
 
 **Ordem sugerida para primeiro smoke em híbrido:**
 

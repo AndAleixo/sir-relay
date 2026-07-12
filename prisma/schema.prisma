@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  operator
+  teammate
+}
+
+enum TaskStatus {
+  todo
+  doing
+  done
+}
+
+enum Locale {
+  en
+  es
+  pt
+}
+
+enum AccountStatus {
+  invited
+  active
+}
+
+enum OperatorAlertType {
+  task_done
+  task_due
+}
+
+model User {
+  id                 String        @id
+  name               String
+  email              String        @unique
+  passwordHash       String?       @map("password_hash")
+  locale             Locale        @default(en)
+  telegramChatId     String?       @map("telegram_chat_id")
+  active             Boolean       @default(true)
+  mustChangePassword Boolean       @default(false) @map("must_change_password")
+  accountStatus      AccountStatus @default(active) @map("account_status")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  memberships        GroupMembership[]
+  assignedTasks      Task[]            @relation("TaskAssignee")
+  createdTasks       Task[]            @relation("TaskCreator")
+  inviteTokens       TeammateInviteToken[]
+  telegramLinkTokens TelegramLinkToken[]
+
+  @@map("users")
+}
+
+model Group {
+  id        String   @id
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  memberships GroupMembership[]
+  tasks       Task[]
+  alertPrefs  GroupAlertPrefs?
+  alerts      OperatorAlert[]
+  inviteTokens TeammateInviteToken[]
+
+  @@map("groups")
+}
+
+model GroupMembership {
+  groupId   String   @map("group_id")
+  userId    String   @map("user_id")
+  role      Role
+  createdAt DateTime @default(now()) @map("created_at")
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, userId])
+  @@map("group_memberships")
+}
+
+model Task {
+  id                   String     @id
+  groupId              String     @map("group_id")
+  title                String
+  description          String     @default("")
+  assigneeId           String     @map("assignee_id")
+  createdById          String     @map("created_by_id")
+  status               TaskStatus @default(todo)
+  dueDate              DateTime?  @map("due_date") @db.Date
+  telegramMessageId    String?    @map("telegram_message_id")
+  telegramChatId       String?    @map("telegram_chat_id")
+  telegramNotifiedAt   DateTime?  @map("telegram_notified_at")
+  createdAt            DateTime   @default(now()) @map("created_at")
+  updatedAt            DateTime   @updatedAt @map("updated_at")
+
+  group    Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  assignee User  @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  creator  User  @relation("TaskCreator", fields: [createdById], references: [id])
+
+  @@index([groupId])
+  @@index([assigneeId])
+  @@map("tasks")
+}
+
+model TeammateInviteToken {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  groupId   String    @map("group_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([userId, groupId])
+  @@map("teammate_invite_tokens")
+}
+
+model TelegramLinkToken {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("telegram_link_tokens")
+}
+
+model GroupAlertPrefs {
+  groupId  String  @id @map("group_id")
+  taskDone Boolean @default(true) @map("task_done")
+  taskDue  Boolean @default(true) @map("task_due")
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("group_alert_prefs")
+}
+
+model OperatorAlert {
+  id               String            @id @default(cuid())
+  groupId          String            @map("group_id")
+  type             OperatorAlertType
+  taskId           String            @map("task_id")
+  taskTitle        String            @map("task_title")
+  assigneeName     String            @map("assignee_name")
+  dueDate          DateTime?         @map("due_date") @db.Date
+  sentToTelegram   Boolean           @default(false) @map("sent_to_telegram")
+  createdAt        DateTime          @default(now()) @map("created_at")
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId, createdAt(sort: Desc)])
+  @@map("operator_alerts")
+}

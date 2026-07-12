@@ -91,13 +91,13 @@ Details in [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-lay
 
 ## Project status
 
-**UI mock complete** — landing + app shell + group panel integrado; contratos `UserGroup` / `GroupService` prontos para API. **Phase 1 backend** (Prisma, `services/api`, Telegram) not started.
+**UI mock complete** — landing + app shell + group panel. **Phase 1 backend (Prisma + `services/api`)** implemented — use **dev-hybrid** with Postgres for real persistence.
 
 | Ambiente | Comando | Estado |
 |----------|---------|--------|
-| Dev mock | `npm run dev-mock` | ✅ |
-| Dev híbrido | `npm run dev-hybrid` | ⏳ Postgres OK · API falta — [checklist](./docs/ENVIRONMENTS.md#dev-híbrido--checklist-de-prontidão) |
-| Prod local / VPS | `npm run prod-local` | ⏳ pós API |
+| Dev mock | `npm run dev-mock` | ✅ in-memory |
+| Dev híbrido | `npm run dev-hybrid` | ✅ Postgres + API · login `demo12345` |
+| Prod local / VPS | `npm run prod-local` | ⏳ smoke Docker app |
 
 ```bash
 npm install && npm run dev-mock && npm run check:routes

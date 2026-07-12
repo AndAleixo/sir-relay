@@ -1,4 +1,5 @@
 import type { Services } from "@/services/contracts";
+import { createApiServices } from "@/services/api";
 import { mockOperatorAlertService } from "@/services/mock/alerts.mock";
 import { mockAuthService } from "@/services/mock/auth.mock";
 import { mockExportService } from "@/services/mock/export.mock";
@@ -31,8 +32,12 @@ export function getServices(): Services {
     };
   }
 
+  if (mode === "api") {
+    return createApiServices();
+  }
+
   throw new Error(
-    "API services not implemented. Set NEXT_PUBLIC_SERVICE_MODE=mock",
+    `Unknown NEXT_PUBLIC_SERVICE_MODE=${mode}. Use mock or api.`,
   );
 }
 

@@ -10,8 +10,8 @@ src/
 ├── services/
 │   ├── contracts.ts      # AuthService, GroupService, …
 │   ├── index.ts          # getServices() — mock | api
-│   ├── mock/             # ✅ activo
-│   └── api/              # ❌ Phase 1 — implementar para dev-hybrid
+│   ├── mock/             # ✅ dev-mock
+│   └── api/              # ✅ dev-hybrid (Prisma)
 ├── lib/
 │   ├── entry-route.ts    # Post-auth redirects
 │   └── session-hydrate.ts # Role + auto-pick (login only; readSession não auto-pick)
@@ -92,7 +92,9 @@ Passos:
 3. Ramo `api` em `getServices()` + `GET /api/v1/health`.
 4. `NEXT_PUBLIC_SERVICE_MODE=api` em `.env.local` · `npm run dev-hybrid`.
 
-Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#dev-híbrido--checklist-de-prontidão).
+Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina).
+
+**API layer:** `src/services/api/` — Prisma-backed implementations of `contracts.ts`. Health: `GET /api/v1/health`.
 
 ## Session sync (mock only)
 

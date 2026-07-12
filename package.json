@@ -15,17 +15,29 @@
     "prod-local": "bash scripts/env/prod-local.sh",
     "prod-local-down": "docker compose down",
     "prod-local-logs": "docker compose logs -f app caddy",
-    "prod-vps": "bash scripts/env/prod-vps.sh"
+    "prod-vps": "bash scripts/env/prod-vps.sh",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/client": "6.19.3",
+    "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
+    "dotenv": "^17.4.2",
+    "jose": "^6.2.3",
     "next": "^14.2.18",
     "next-intl": "^3.23.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwind-merge": "^2.5.4"
+    "tailwind-merge": "^2.5.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20.17.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
@@ -33,7 +45,9 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.18",
     "postcss": "^8.4.49",
+    "prisma": "6.19.3",
     "tailwindcss": "^3.4.15",
+    "tsx": "^4.23.0",
     "typescript": "^5.6.3"
   }
 }

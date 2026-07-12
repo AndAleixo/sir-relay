@@ -581,7 +581,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 ├── public/              # brand assets · demo.webm (+ CSS fallback)
 ├── docker-compose.yml
 ├── Dockerfile
-├── prisma/              # ❌ Phase 1 — schema + seed
+├── prisma/              # schema + migrations + seed
 ├── scripts/
 │   ├── env/             # dev-mock · dev-hybrid · prod-local · prod-vps
 │   ├── backup-db.sh     # ❌ Phase 1
@@ -595,8 +595,8 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
     ├── services/
     │   ├── contracts.ts
     │   ├── index.ts            # getServices()
-    │   ├── mock/               # ✅
-    │   └── api/                # ❌ Phase 1
+│   ├── mock/               # ✅
+│   └── api/                # ✅ Phase 1 (auth, groups, tasks, …)
     └── messages/
 ```
 
@@ -608,8 +608,9 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | `UserGroup` + `GroupService.listForUser` com roles | ✅ |
 | `app/actions/groups.ts` (thin layer) | ✅ |
 | `services/mock/*` | ✅ |
-| Prisma + `services/api/*` + `/api/v1` | ❌ |
-| Dev híbrido smoke | ❌ — ver [ENVIRONMENTS.md §2 checklist](./ENVIRONMENTS.md#dev-híbrido--checklist-de-prontidão) |
+| Prisma + `services/api/*` + `/api/v1/health` | ✅ |
+| Dev híbrido smoke | ✅ com Postgres — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina) |
+| Telegram webhook | ⏳ |
 
 ---
 

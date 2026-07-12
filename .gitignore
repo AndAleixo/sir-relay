@@ -33,3 +33,5 @@ yarn-error.log*
 # IDE
 .idea
 .vscode
+
+/src/generated/prisma

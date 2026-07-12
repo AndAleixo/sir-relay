@@ -1,0 +1,82 @@
+import type {
+  AccountStatus,
+  Locale,
+  Role,
+  Session,
+  Task,
+  TaskStatus,
+  Teammate,
+  User,
+  UserGroup,
+} from "@/domain/types";
+import type {
+  AccountStatus as DbAccountStatus,
+  Locale as DbLocale,
+  Role as DbRole,
+  Task as DbTask,
+  TaskStatus as DbTaskStatus,
+  User as DbUser,
+} from "@prisma/client";
+
+export function toLocale(value: DbLocale): Locale {
+  return value;
+}
+
+export function toRole(value: DbRole): Role {
+  return value;
+}
+
+export function toAccountStatus(value: DbAccountStatus): AccountStatus {
+  return value;
+}
+
+export function toTaskStatus(value: DbTaskStatus): TaskStatus {
+  return value;
+}
+
+export function telegramStatus(user: DbUser): "linked" | "pending" {
+  return user.telegramChatId ? "linked" : "pending";
+}
+
+export function toUser(user: DbUser, role: Role = "operator"): User {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role,
+    locale: toLocale(user.locale),
+    active: user.active,
+    mustChangePassword: user.mustChangePassword,
+    telegramStatus: telegramStatus(user),
+  };
+}
+
+export function toTeammate(user: DbUser, role: Role = "teammate"): Teammate {
+  return {
+    ...toUser(user, role),
+    role: "teammate",
+    accountStatus: toAccountStatus(user.accountStatus),
+    telegramStatus: telegramStatus(user),
+  };
+}
+
+export function toTask(row: DbTask, assigneeName: string): Task {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    assigneeId: row.assigneeId,
+    assigneeName,
+    status: toTaskStatus(row.status),
+    dueDate: row.dueDate ? row.dueDate.toISOString().slice(0, 10) : null,
+    telegramNotifyFailed: false,
+    updatedAt: row.updatedAt.toISOString(),
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+export function toUserGroup(group: { id: string; name: string }, role: Role): UserGroup {
+  return { id: group.id, name: group.name, role };
+}
+
+export type HydratedSession = Session;

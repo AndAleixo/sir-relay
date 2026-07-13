@@ -193,7 +193,7 @@ Internet → Caddy (:443) → app (:3000) → postgres (rede interna)
 ```
 
 | Spec | 4 GB RAM · 2 vCPU · Ubuntu 24.04 · região EU (FRA1/AMS3) |
-| URL | `https://app.teudominio.com` |
+| URL | `https://app.sirrelay.com` |
 
 ```bash
 ssh deploy@SEU_IP
@@ -222,8 +222,8 @@ Troca sem alterar UI — [ARCHITECTURE.md §Mock → API](./ARCHITECTURE.md#mock
 
 | Variável | Prod local | Prod VPS |
 |----------|------------|----------|
-| `APP_URL` | `http://app.local` | `https://app.teudominio.com` |
-| `APP_DOMAIN` | `app.local` | `app.teudominio.com` |
+| `APP_URL` | `http://app.local` | `https://app.sirrelay.com` |
+| `APP_DOMAIN` | `app.local` | `app.sirrelay.com` |
 | `CADDY_EMAIL` | opcional | email real (Let's Encrypt) |
 | Resto | iguais | iguais |
 

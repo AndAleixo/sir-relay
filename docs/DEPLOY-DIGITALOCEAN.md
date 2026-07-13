@@ -2,7 +2,7 @@
 
 Guia para publicar o SirRelay como **aplicação web com domínio público** num **Droplet** — Docker Compose + Caddy + PostgreSQL.
 
-Visitantes acedem à **landing** (`https://app.teudominio.com/en-gb`); utilizadores autenticados entram na app. Stack alinhada com [REQUIREMENTS.md §4.1](./REQUIREMENTS.md#41-product-model--hosted-web-app-primary) e [§5.8](./REQUIREMENTS.md#58-deploy).
+Visitantes acedem à **landing** (`https://app.sirrelay.com/en-gb`); utilizadores autenticados entram na app. Stack alinhada com [REQUIREMENTS.md §4.1](./REQUIREMENTS.md#41-product-model--hosted-web-app-primary) e [§5.8](./REQUIREMENTS.md#58-deploy).
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [ENVIRONMENTS.md](./ENVIRONMENTS.md) · [README.md](../README.md)
 
@@ -63,10 +63,10 @@ No teu domínio (DO DNS ou Cloudflare):
 | A | `app` | IP do Droplet |
 | A | `www` | IP do Droplet (opcional) |
 
-Recomendado: subdomínio **`app`** (ex.: `app.teudominio.com`) para a aplicação; domínio raiz pode redireccionar para marketing ou site institucional Sir.
+Recomendado: subdomínio **`app`** (ex.: `app.sirrelay.com`) para a aplicação; domínio raiz (`sirrelay.com`) pode redireccionar para marketing ou site institucional Sir.
 
-`APP_URL` = `https://app.teudominio.com` (sem barra final).  
-`APP_DOMAIN` = `app.teudominio.com` (host only, para o Caddyfile).
+`APP_URL` = `https://app.sirrelay.com` (sem barra final).  
+`APP_DOMAIN` = `app.sirrelay.com` (host only, para o Caddyfile).
 
 Para analytics self-hosted (Fase 2, opcional): `A` → `analytics` → mesmo IP.
 
@@ -128,7 +128,7 @@ Alternativa: [Personal Access Token](https://github.com/settings/tokens) com `re
 
 ```bash
 cd ~/sir-relay
-# .env prod (APP_DOMAIN=app.srelay.com, etc.) — ver § exemplo abaixo
+# .env prod (APP_DOMAIN=app.sirrelay.com, etc.) — ver § exemplo abaixo
 chmod 600 .env
 bash scripts/env/prod-vps.sh
 ```
@@ -143,9 +143,9 @@ Exemplo `.env` produção:
 
 ```env
 NEXT_PUBLIC_SERVICE_MODE=api
-APP_URL=https://app.teudominio.com
-APP_DOMAIN=app.teudominio.com
-CADDY_EMAIL=admin@teudominio.com
+APP_URL=https://app.sirrelay.com
+APP_DOMAIN=app.sirrelay.com
+CADDY_EMAIL=admin@sirrelay.com
 POSTGRES_PASSWORD=senha_forte_gerada
 SESSION_SECRET=...
 ADMIN_EMAIL=...

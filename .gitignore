@@ -27,6 +27,9 @@ yarn-error.log*
 .env
 .env*.local
 
+# SQL backups (scripts/backup-db.sh)
+/backups/
+
 # typescript
 *.tsbuildinfo
 

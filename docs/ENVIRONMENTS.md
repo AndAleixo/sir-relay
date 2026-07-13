@@ -247,7 +247,7 @@ DATABASE_URL: postgresql://sirrelay:${POSTGRES_PASSWORD}@postgres:5432/sirrelay
 | `.env` | Local + prod (gitignored) |
 | `scripts/env/dev-*.sh` · `prod-*.sh` | Um script por ambiente — ver tabela abaixo |
 | `scripts/check-entry-routes.mjs` | Dev mock (CI) |
-| `scripts/backup-db.sh` | VPS *(a criar)* |
+| `scripts/backup-db.sh` | VPS |
 
 ---
 

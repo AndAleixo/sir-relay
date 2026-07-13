@@ -61,12 +61,14 @@ No teu domínio (DO DNS ou Cloudflare):
 | Tipo | Nome | Valor |
 |------|------|-------|
 | A | `app` | IP do Droplet |
-| A | `www` | IP do Droplet (opcional) |
+| A | `@` | IP do Droplet (apex — Caddy redirecciona para `app`) |
+| A | `www` | IP do Droplet (Caddy redirecciona para `app`) |
 
-Recomendado: subdomínio **`app`** (ex.: `app.sirrelay.com`) para a aplicação; domínio raiz (`sirrelay.com`) pode redireccionar para marketing ou site institucional Sir.
+Subdomínio **`app`** (`app.sirrelay.com`) serve a aplicação. **`sirrelay.com`** e **`www.sirrelay.com`** redireccionam para `app` (Caddy + `APP_ROOT_DOMAIN`).
 
 `APP_URL` = `https://app.sirrelay.com` (sem barra final).  
-`APP_DOMAIN` = `app.sirrelay.com` (host only, para o Caddyfile).
+`APP_DOMAIN` = `app.sirrelay.com` (host only, para o Caddyfile).  
+`APP_ROOT_DOMAIN` = `sirrelay.com` (apex + www redirect).
 
 Para analytics self-hosted (Fase 2, opcional): `A` → `analytics` → mesmo IP.
 

@@ -6,3 +6,8 @@
 	encode gzip
 	reverse_proxy app:3000
 }
+
+# Apex + www → app (requires APP_ROOT_DOMAIN in prod VPS .env + A records for @ and www)
+{$APP_ROOT_DOMAIN}, www.{$APP_ROOT_DOMAIN} {
+	redir https://{$APP_DOMAIN}{uri} permanent
+}

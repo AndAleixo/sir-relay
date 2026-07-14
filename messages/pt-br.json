@@ -247,9 +247,7 @@
     "passwordSection": "Senha",
     "openTelegramLink": "Abrir no Telegram",
     "regenerateTelegramLink": "Novo código",
-    "telegramActiveCodeHint": "Já existe um código activo — abra-o no Telegram ou gere um novo.",
-    "telegramOpenHintOperator": "Abra este link no Telegram para ligar alertas.",
-    "telegramOpenHintTeammate": "Abra este link no Telegram para receber tarefas atribuídas."
+    "telegramActiveCodeHint": "Já existe um código activo — abra-o no Telegram ou gere um novo."
   },
   "alerts": {
     "title": "Alertas",

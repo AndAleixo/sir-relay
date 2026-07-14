@@ -2,13 +2,13 @@ import { getTranslations } from "next-intl/server";
 import {
   profileChangePasswordForm,
   profileUpdateNameForm,
-  regenerateTelegramLinkAction,
 } from "@/app/actions/auth";
 import { PageHeader } from "@/components/layout/app-shell";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { ProfileAvatarEditor } from "@/components/profile/profile-avatar-editor";
 import { PasswordFormFields } from "@/components/auth/password-form-fields";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
+import { RegenerateTelegramLinkButton } from "@/components/profile/regenerate-telegram-link-button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -156,42 +156,33 @@ export default async function ProfilePage({
                         <code className="min-w-0 flex-1 break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
                           {telegramUrl}
                         </code>
+                        <RegenerateTelegramLinkButton
+                          locale={locale}
+                          label={t("profile.regenerateTelegramLink")}
+                        />
                         <CopyLinkButton
                           text={telegramUrl}
                           label={t("common.copy")}
                           copiedLabel={t("common.copied")}
                         />
                       </div>
-                      <p className="text-xs text-[var(--text-muted)]">
-                        {user.role === "operator"
-                          ? t("profile.telegramOpenHintOperator")
-                          : t("profile.telegramOpenHintTeammate")}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        <ButtonLink
-                          href={telegramUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {t("profile.openTelegramLink")}
-                        </ButtonLink>
-                        <form action={regenerateTelegramLinkAction.bind(null, locale)}>
-                          <Button type="submit" variant="secondary">
-                            {t("profile.regenerateTelegramLink")}
-                          </Button>
-                        </form>
-                      </div>
+                      <ButtonLink
+                        href={telegramUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t("profile.openTelegramLink")}
+                      </ButtonLink>
                     </>
                   ) : telegramCodePending ? (
                     <>
                       <p className="text-xs text-[var(--text-muted)]">
                         {t("profile.telegramActiveCodeHint")}
                       </p>
-                      <form action={regenerateTelegramLinkAction.bind(null, locale)}>
-                        <Button type="submit" variant="secondary">
-                          {t("profile.regenerateTelegramLink")}
-                        </Button>
-                      </form>
+                      <RegenerateTelegramLinkButton
+                        locale={locale}
+                        label={t("profile.regenerateTelegramLink")}
+                      />
                     </>
                   ) : null}
                 </div>

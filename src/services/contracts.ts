@@ -112,7 +112,6 @@ export interface UserService {
   updateName(userId: string, name: string): Promise<User>;
   regenerateTelegramLink(userId: string): Promise<string>;
   getTelegramLinkToken(userId: string): Promise<string | null>;
-  hasActiveTelegramLinkToken(userId: string): Promise<boolean>;
 }
 
 export interface Services {

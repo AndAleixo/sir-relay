@@ -44,10 +44,6 @@ export default async function ProfilePage({
   const telegramToken =
     telegramStatus === "pending" ? await users.getTelegramLinkToken(user.id) : null;
   const telegramUrl = telegramToken ? telegramBotUrl(telegramToken) : "";
-  const telegramCodePending =
-    telegramStatus === "pending" && !telegramUrl
-      ? await users.hasActiveTelegramLinkToken(user.id)
-      : false;
 
   const passwordErrorMessage =
     passwordError === "invalid"
@@ -148,43 +144,29 @@ export default async function ProfilePage({
                     ? t("profile.telegramOperatorPendingHint")
                     : t("profile.telegramTeammatePendingHint")}
               </p>
-              {telegramStatus === "pending" ? (
+              {telegramStatus === "pending" && telegramUrl ? (
                 <div className="space-y-3">
-                  {telegramUrl ? (
-                    <>
-                      <div className="flex items-start gap-2">
-                        <code className="min-w-0 flex-1 break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
-                          {telegramUrl}
-                        </code>
-                        <RegenerateTelegramLinkButton
-                          locale={locale}
-                          label={t("profile.regenerateTelegramLink")}
-                        />
-                        <CopyLinkButton
-                          text={telegramUrl}
-                          label={t("common.copy")}
-                          copiedLabel={t("common.copied")}
-                        />
-                      </div>
-                      <ButtonLink
-                        href={telegramUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {t("profile.openTelegramLink")}
-                      </ButtonLink>
-                    </>
-                  ) : telegramCodePending ? (
-                    <>
-                      <p className="text-xs text-[var(--text-muted)]">
-                        {t("profile.telegramActiveCodeHint")}
-                      </p>
-                      <RegenerateTelegramLinkButton
-                        locale={locale}
-                        label={t("profile.regenerateTelegramLink")}
-                      />
-                    </>
-                  ) : null}
+                  <div className="flex items-start gap-2">
+                    <code className="min-w-0 flex-1 break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
+                      {telegramUrl}
+                    </code>
+                    <RegenerateTelegramLinkButton
+                      locale={locale}
+                      label={t("profile.regenerateTelegramLink")}
+                    />
+                    <CopyLinkButton
+                      text={telegramUrl}
+                      label={t("common.copy")}
+                      copiedLabel={t("common.copied")}
+                    />
+                  </div>
+                  <ButtonLink
+                    href={telegramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t("profile.openTelegramLink")}
+                  </ButtonLink>
                 </div>
               ) : null}
             </CardBody>

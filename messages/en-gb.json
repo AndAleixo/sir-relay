@@ -246,8 +246,7 @@
     "telegramOperatorPendingHint": "Link Telegram here to receive alerts when teammates finish tasks or tasks become due.",
     "passwordSection": "Password",
     "openTelegramLink": "Open in Telegram",
-    "regenerateTelegramLink": "New link code",
-    "telegramActiveCodeHint": "A link code is already active — open it in Telegram, or generate a new one."
+    "regenerateTelegramLink": "New link code"
   },
   "alerts": {
     "title": "Alerts",

@@ -58,11 +58,3 @@ export async function linkTelegramChat(
     alreadyLinked,
   };
 }
-
-export async function hasActiveTelegramLinkToken(userId: string): Promise<boolean> {
-  const active = await prisma.telegramLinkToken.findFirst({
-    where: { userId, usedAt: null, expiresAt: { gt: new Date() } },
-    select: { id: true },
-  });
-  return Boolean(active);
-}

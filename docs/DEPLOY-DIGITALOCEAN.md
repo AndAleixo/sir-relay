@@ -197,8 +197,65 @@ curl -s "${APP_URL}/api/v1/health"
 |--------|---------|
 | Actualizar app | `git pull && docker compose up -d --build` |
 | Logs | `docker compose logs -f app caddy` |
-| Backup DB | `scripts/backup-db.sh` — [REQUIREMENTS.md §6.5.1](./REQUIREMENTS.md#651-sql-backup-ops) |
+| Backup DB | `scripts/db/backup.sh` — [REQUIREMENTS.md §6.5.1](./REQUIREMENTS.md#651-sql-backup-ops) |
+| Backup + Drive | `scripts/db/backup-offsite.sh` — §9.1 |
+| Restore DB | `scripts/db/restore.sh backups/….sql.gz` |
 | Reiniciar | `docker compose restart` |
+
+### 9.1 Backups off-VPS (Google Drive via rclone) — grátis
+
+Corre **no droplet** (não no Mac). Não depende de VPN nem do teu PC.
+
+**Instalar rclone:** já incluído em `scripts/bootstrap-droplet.sh`. Num droplet já criado:
+
+```bash
+# como root, se ainda não tiveres rclone
+curl -fsSL https://rclone.org/install.sh | bash
+```
+
+**Uma vez — ligar à conta Google (como `deploy`):**
+
+```bash
+rclone config
+```
+
+No wizard:
+
+1. `n` → nome: **`gdrive`**
+2. Storage: **`Google Drive`** (número da lista)
+3. `client_id` / `client_secret` → Enter (vazio)
+4. Scope: **`1`** (Full access) ou **`2`** (só Drive) — preferir **`2`** se aparecer
+5. `auto config` → **`n`** (headless no VPS)
+6. rclone imprime um URL → abre no **teu Mac/browser**, faz login Google, copias o `code` de volta para o servidor
+7. Team Drive? → **`n`**
+8. Confirm → `y` → `q`
+
+Cria pasta no Drive (no browser): `sirrelay-backups`.
+
+**Teste:**
+
+```bash
+cd ~/sir-relay
+RCLONE_REMOTE=gdrive:sirrelay-backups bash scripts/db/backup-offsite.sh
+rclone ls gdrive:sirrelay-backups
+```
+
+**Cron (substitui o backup local-only):**
+
+```bash
+crontab -e
+```
+
+```
+0 3 * * * cd /home/deploy/sir-relay && RCLONE_REMOTE=gdrive:sirrelay-backups bash scripts/db/backup-offsite.sh >>/home/deploy/sir-relay/backups/cron.log 2>&1
+```
+
+Retenção local: 7 dias (`BACKUP_RETAIN_DAYS`). No Drive os ficheiros acumulam — apaga manualmente ou:
+
+```
+# prune Drive older than 30d (opcional, num cron semanal)
+# rclone delete gdrive:sirrelay-backups --min-age 30d
+```
 
 ---
 
@@ -214,7 +271,7 @@ curl -s "${APP_URL}/api/v1/health"
 - [ ] Relay: 2 tarefas → só 1ª no TG → `done` → 2ª chega
 - [ ] Firewall SSH restrito ao teu IP
 - [ ] `.env` mode `600`
-- [ ] Backups: cron com `scripts/backup-db.sh` + cópia off-VPS (ou snapshots DO)
+- [ ] Backups: cron com `scripts/db/backup-offsite.sh` → Google Drive (rclone) + snapshot DO ocasional
 
 ---
 

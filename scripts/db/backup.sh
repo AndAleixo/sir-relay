@@ -2,7 +2,7 @@
 # pg_dump → backups/sirrelay-YYYYMMDD-HHMM.sql.gz — docs/REQUIREMENTS.md §6.5.1
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 # shellcheck disable=SC1091
 source "$ROOT/scripts/env/_common.sh"
@@ -24,5 +24,5 @@ fi
 "${COMPOSE[@]}" exec -T postgres pg_dump -U sirrelay -d sirrelay | gzip >"$out"
 echo "→ backup: ${out} ($(du -h "$out" | cut -f1))"
 
-# ponytail: naive retention by mtime; upgrade path: S3/rclone off-VPS (P2-BAK-03)
+# ponytail: naive retention by mtime; off-VPS: scripts/db/backup-offsite.sh + rclone
 find "$BACKUP_DIR" -maxdepth 1 -name 'sirrelay-*.sql.gz' -mtime +"${RETAIN_DAYS}" -delete

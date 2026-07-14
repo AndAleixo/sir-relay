@@ -247,7 +247,7 @@ DATABASE_URL: postgresql://sirrelay:${POSTGRES_PASSWORD}@postgres:5432/sirrelay
 | `.env` | Local + prod (gitignored) |
 | `scripts/env/dev-*.sh` · `prod-*.sh` | Um script por ambiente — ver tabela abaixo |
 | `scripts/check-entry-routes.mjs` | Dev mock (CI) |
-| `scripts/backup-db.sh` | VPS |
+| `scripts/db/backup.sh` · `backup-offsite.sh` · `restore.sh` | VPS |
 
 ---
 
@@ -334,7 +334,7 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) e 
 
 1. REST routes `/api/v1/*` (UI usa server actions)
 2. Telegram webhook (grammy)
-3. `scripts/backup-db.sh`
+3. `scripts/db/backup.sh` / `backup-offsite.sh`
 
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*` — UI igual em mock e API.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time VPS bootstrap — run as root on a fresh Ubuntu 24.04 Droplet.
+# One-time VPS bootstrap — run as root on a fresh Ubuntu 24.04+ Droplet.
 # docs/DEPLOY-DIGITALOCEAN.md §5
 #
 #   curl -fsSL https://raw.githubusercontent.com/AndAleixo/sir-relay/main/scripts/bootstrap-droplet.sh | bash
@@ -11,7 +11,7 @@ if [[ $(id -u) -ne 0 ]]; then
   exit 1
 fi
 
-echo "→ bootstrap-droplet · user deploy + Docker"
+echo "→ bootstrap-droplet · user deploy + Docker + rclone"
 
 if ! id deploy &>/dev/null; then
   adduser --disabled-password --gecos "" deploy
@@ -30,9 +30,10 @@ if [[ -d /root/.ssh ]]; then
   fi
 fi
 
+apt-get update
+apt-get install -y ca-certificates curl git
+
 if ! command -v docker >/dev/null 2>&1; then
-  apt-get update
-  apt-get install -y ca-certificates curl git
   install -m 0755 -d /etc/apt/keyrings
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   chmod a+r /etc/apt/keyrings/docker.asc
@@ -47,12 +48,21 @@ fi
 
 usermod -aG docker deploy
 
+if ! command -v rclone >/dev/null 2>&1; then
+  curl -fsSL https://rclone.org/install.sh | bash
+  echo "→ rclone installed"
+else
+  echo "→ rclone already installed"
+fi
+
 echo ""
 echo "→ bootstrap done"
 echo "  1. su - deploy"
 echo "  2. git clone git@github.com:AndAleixo/sir-relay.git && cd sir-relay"
 echo "     (repo privado — ver docs/DEPLOY-DIGITALOCEAN.md § deploy key)"
 echo "  3. nano .env  (prod VPS — chmod 600 .env)"
-echo "  4. npm run prod-vps   # or: bash scripts/env/prod-vps.sh"
+echo "  4. bash scripts/env/prod-vps.sh"
+echo "  5. rclone config  (uma vez — Google Drive; ver DEPLOY §9.1)"
+echo "  6. crontab: RCLONE_REMOTE=gdrive:sirrelay-backups bash scripts/db/backup-offsite.sh"
 echo ""
 echo "  Do not run day-to-day commands as root."

@@ -425,7 +425,7 @@ audit_logs
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-BAK-01 | Scripts | `scripts/backup-db.sh` (`pg_dump` → gzip `backups/sirrelay-YYYYMMDD-HHMM.sql.gz`) · `scripts/restore-db.sh` (stop app → restore → restart); documented in README |
+| P2-BAK-01 | Scripts | `scripts/db/backup.sh` (`pg_dump` → gzip `backups/sirrelay-YYYYMMDD-HHMM.sql.gz`) · `scripts/db/restore.sh` (stop app → restore → restart) · `scripts/db/backup-offsite.sh` (rclone); documented in README |
 | P2-BAK-02 | Schedule & retention | Daily cron on host; prune local copies older than 7 days (configurable) |
 | P2-BAK-03 | Off-VPS copy | Backups stored outside VPS (e.g. `rclone`, snapshots) |
 | P2-BAK-04 | Restore tested | Run restore once in test environment before production reliance |
@@ -593,7 +593,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 ├── prisma/              # schema + migrations + seed
 ├── scripts/
 │   ├── env/             # dev-mock · dev-hybrid · prod-local · prod-vps
-│   ├── backup-db.sh     # Phase 2
+│   ├── db/              # backup.sh · backup-offsite.sh · restore.sh
 │   └── check-entry-routes.mjs
 └── src/
     ├── app/

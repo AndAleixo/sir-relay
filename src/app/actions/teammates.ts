@@ -81,15 +81,3 @@ export async function regenerateInviteForm(locale: string, teammateId: string) {
   revalidatePath(`/${locale}/teammates/${teammateId}`);
   redirect(`/${locale}/teammates/${teammateId}`);
 }
-
-export async function regenerateTeammateTelegramLinkForm(
-  locale: string,
-  teammateId: string,
-) {
-  const session = await requireOperatorSession(locale);
-  const { teammates } = getServices();
-
-  await teammates.regenerateTelegramLink(teammateId, { session });
-  revalidatePath(`/${locale}/teammates/${teammateId}`);
-  redirect(`/${locale}/teammates/${teammateId}`);
-}

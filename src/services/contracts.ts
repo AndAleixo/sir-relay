@@ -99,9 +99,7 @@ export interface TeammateService {
   deactivateTeammate(id: string, ctx: { session: Session }): Promise<Teammate>;
   promoteToOperator(id: string, ctx: { session: Session }): Promise<void>;
   regenerateInvite(id: string, ctx: { session: Session }): Promise<string>;
-  regenerateTelegramLink(id: string, ctx: { session: Session }): Promise<string>;
   getInviteToken(id: string, ctx: { session: Session }): Promise<string | null>;
-  getTelegramLinkToken(id: string, ctx: { session: Session }): Promise<string | null>;
 }
 
 export interface ExportService {

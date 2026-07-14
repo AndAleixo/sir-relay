@@ -126,7 +126,6 @@ export class ApiTeammateService implements TeammateService {
       data: { groupId, userId: id, role: "teammate" },
     });
     await latestInviteToken(id, groupId);
-    await createTelegramLinkTokenRecord(id);
     return toTeammate(user, "teammate");
   }
 
@@ -177,36 +176,9 @@ export class ApiTeammateService implements TeammateService {
     return latestInviteToken(id, requireGroupId(ctx.session));
   }
 
-  async regenerateTelegramLink(id: string, ctx: { session: Session }): Promise<string> {
-    await requireTeammateInGroup(ctx, id);
-    await prisma.user.update({
-      where: { id },
-      data: { telegramChatId: null },
-    });
-    await prisma.telegramLinkToken.updateMany({
-      where: { userId: id, usedAt: null },
-      data: { usedAt: new Date() },
-    });
-    return createTelegramLinkTokenRecord(id);
-  }
-
   async getInviteToken(id: string, ctx: { session: Session }): Promise<string | null> {
     if (!(await this.getTeammate(id, ctx))) return null;
     return latestInviteToken(id, requireGroupId(ctx.session));
-  }
-
-  async getTelegramLinkToken(id: string, ctx: { session: Session }): Promise<string | null> {
-    if (!(await this.getTeammate(id, ctx))) return null;
-    const active = await prisma.telegramLinkToken.findFirst({
-      where: { userId: id, usedAt: null, expiresAt: { gt: new Date() } },
-    });
-    if (active) {
-      await prisma.telegramLinkToken.updateMany({
-        where: { userId: id, usedAt: null },
-        data: { usedAt: new Date() },
-      });
-    }
-    return createTelegramLinkTokenRecord(id);
   }
 }
 
@@ -237,12 +209,7 @@ export class ApiUserService implements UserService {
 
   async regenerateTelegramLink(userId: string): Promise<string> {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new Error("User not found");
-
-    const isOperator = await prisma.groupMembership.findFirst({
-      where: { userId, role: "operator" },
-    });
-    if (!isOperator) throw new Error("User not found");
+    if (!user || !user.active) throw new Error("User not found");
 
     await prisma.user.update({
       where: { id: userId },

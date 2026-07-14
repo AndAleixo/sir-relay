@@ -45,6 +45,20 @@ export default async function SettingsPage({
         }
       />
       <div className="grid max-w-xl gap-4">
+        {session.user.telegramStatus === "pending" ? (
+          <Banner variant="warning">
+            {t(
+              isOperator ? "settings.linkTelegramOperator" : "settings.linkTelegramTeammate",
+            )}{" "}
+            <Link
+              href={`/${locale}/profile`}
+              className="font-medium underline underline-offset-2"
+            >
+              {t("common.account")}
+            </Link>
+          </Banner>
+        ) : null}
+
         {activeGroup ? (
           <Card>
             <CardHeader>
@@ -65,17 +79,6 @@ export default async function SettingsPage({
 
         {isOperator && alertPrefs ? (
           <>
-            {session.user.telegramStatus === "pending" ? (
-              <Banner variant="warning">
-                {t("settings.linkTelegram")}{" "}
-                <Link
-                  href={`/${locale}/profile`}
-                  className="font-medium underline underline-offset-2"
-                >
-                  {t("common.account")}
-                </Link>
-              </Banner>
-            ) : null}
             <Card>
               <CardHeader>
                 <h2 className="text-sm font-semibold">{t("settings.notifications")}</h2>

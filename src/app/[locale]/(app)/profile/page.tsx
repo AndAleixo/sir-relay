@@ -40,13 +40,10 @@ export default async function ProfilePage({
   const teammate =
     user.role === "teammate" ? await teammates.getTeammate(user.id, { session }) : null;
 
-  const telegramToken =
-    user.role === "operator" ? await users.getTelegramLinkToken(user.id) : null;
-  const telegramUrl =
-    user.role === "operator" && user.telegramStatus === "pending" && telegramToken
-      ? telegramBotUrl(telegramToken)
-      : "";
   const telegramStatus = teammate?.telegramStatus ?? user.telegramStatus;
+  const telegramToken =
+    telegramStatus === "pending" ? await users.getTelegramLinkToken(user.id) : null;
+  const telegramUrl = telegramToken ? telegramBotUrl(telegramToken) : "";
 
   const passwordErrorMessage =
     passwordError === "invalid"
@@ -140,12 +137,14 @@ export default async function ProfilePage({
             <CardBody className="space-y-3">
               <p className="text-sm text-[var(--text-muted)]">
                 {telegramStatus === "linked"
-                  ? t("profile.telegramLinkedHint")
+                  ? user.role === "operator"
+                    ? t("profile.telegramLinkedHintOperator")
+                    : t("profile.telegramLinkedHintTeammate")
                   : user.role === "operator"
                     ? t("profile.telegramOperatorPendingHint")
-                    : t("profile.telegramPendingHint")}
+                    : t("profile.telegramTeammatePendingHint")}
               </p>
-              {user.role === "operator" && user.telegramStatus === "pending" ? (
+              {telegramStatus === "pending" ? (
                 <div className="space-y-3">
                   {telegramUrl ? (
                     <>

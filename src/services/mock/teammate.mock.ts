@@ -94,7 +94,6 @@ export class MockTeammateService implements TeammateService {
     MOCK_TEAMMATES.push(teammate);
     addGroupMember(groupId, id, "teammate");
     createInviteToken(id, groupId);
-    createTelegramLinkToken(id);
     return teammate;
   }
 
@@ -140,20 +139,9 @@ export class MockTeammateService implements TeammateService {
     return createInviteToken(id, ctx.session.activeGroupId!);
   }
 
-  async regenerateTelegramLink(id: string, ctx: { session: Session }): Promise<string> {
-    const teammate = requireTeammateInGroup(ctx, id);
-    teammate.telegramStatus = "pending";
-    return createTelegramLinkToken(id);
-  }
-
   async getInviteToken(id: string, ctx: { session: Session }): Promise<string | null> {
     if (!(await this.getTeammate(id, ctx))) return null;
     return getInviteTokenForUser(id) ?? createInviteToken(id, ctx.session.activeGroupId!);
-  }
-
-  async getTelegramLinkToken(id: string, ctx: { session: Session }): Promise<string | null> {
-    if (!(await this.getTeammate(id, ctx))) return null;
-    return getTelegramLinkTokenForUser(id) ?? createTelegramLinkToken(id);
   }
 }
 
@@ -172,7 +160,7 @@ export class MockUserService implements UserService {
 
   async regenerateTelegramLink(userId: string): Promise<string> {
     const user = findMockUserById(userId);
-    if (!user || user.role !== "operator") {
+    if (!user || !user.active) {
       throw new Error("User not found");
     }
     patchMockUser(userId, { telegramStatus: "pending" });

@@ -170,6 +170,10 @@ export class MockUserService implements UserService {
   async getTelegramLinkToken(userId: string): Promise<string | null> {
     return getTelegramLinkTokenForUser(userId) ?? createTelegramLinkToken(userId);
   }
+
+  async hasActiveTelegramLinkToken(userId: string): Promise<boolean> {
+    return getTelegramLinkTokenForUser(userId) !== null;
+  }
 }
 
 export const mockTeammateService = new MockTeammateService();

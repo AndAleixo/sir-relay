@@ -44,6 +44,10 @@ export default async function ProfilePage({
   const telegramToken =
     telegramStatus === "pending" ? await users.getTelegramLinkToken(user.id) : null;
   const telegramUrl = telegramToken ? telegramBotUrl(telegramToken) : "";
+  const telegramCodePending =
+    telegramStatus === "pending" && !telegramUrl
+      ? await users.hasActiveTelegramLinkToken(user.id)
+      : false;
 
   const passwordErrorMessage =
     passwordError === "invalid"
@@ -177,6 +181,17 @@ export default async function ProfilePage({
                           </Button>
                         </form>
                       </div>
+                    </>
+                  ) : telegramCodePending ? (
+                    <>
+                      <p className="text-xs text-[var(--text-muted)]">
+                        {t("profile.telegramActiveCodeHint")}
+                      </p>
+                      <form action={regenerateTelegramLinkAction.bind(null, locale)}>
+                        <Button type="submit" variant="secondary">
+                          {t("profile.regenerateTelegramLink")}
+                        </Button>
+                      </form>
                     </>
                   ) : null}
                 </div>

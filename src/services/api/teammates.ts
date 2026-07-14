@@ -11,6 +11,7 @@ import {
   createInviteTokenRecord,
   createTelegramLinkTokenRecord,
 } from "@/services/api/groups";
+import { hasActiveTelegramLinkToken } from "@/lib/telegram/link";
 import { fromLocale, toRole, toTeammate, toUser } from "@/services/api/mappers";
 
 function requireGroupId(session: Session): string {
@@ -225,14 +226,14 @@ export class ApiUserService implements UserService {
   async getTelegramLinkToken(userId: string): Promise<string | null> {
     const active = await prisma.telegramLinkToken.findFirst({
       where: { userId, usedAt: null, expiresAt: { gt: new Date() } },
+      select: { id: true },
     });
-    if (active) {
-      await prisma.telegramLinkToken.updateMany({
-        where: { userId, usedAt: null },
-        data: { usedAt: new Date() },
-      });
-    }
+    if (active) return null;
     return createTelegramLinkTokenRecord(userId);
+  }
+
+  async hasActiveTelegramLinkToken(userId: string): Promise<boolean> {
+    return hasActiveTelegramLinkToken(userId);
   }
 }
 

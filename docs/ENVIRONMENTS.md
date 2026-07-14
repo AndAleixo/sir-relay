@@ -130,7 +130,7 @@ O script `scripts/env/dev-hybrid.sh` faz: validar env · subir Postgres · `pris
 | 12 | Auth API + cookie jose | Done | Cookie `sirrelay_session` |
 | 13 | Actions mode-agnostic | Done | `auth`, `groups`, `teammates`, `tasks`, `export`, `settings` |
 | 14 | Sync bar → API tasks | Done | `apiTaskService` |
-| 15 | Telegram webhook | Pending | Opcional — tunnel ou prod local |
+| 15 | Telegram webhook (link) | Done | `POST /api/v1/telegram/webhook` · P1-TG-01/06 · task relay pending |
 
 **Smoke mínimo:**
 
@@ -333,7 +333,7 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) e 
 **Pendente:**
 
 1. REST routes `/api/v1/*` (UI usa server actions)
-2. Telegram webhook (grammy)
+2. Telegram task relay + replies (P1-TG-02–05, 08–10)
 3. `scripts/db/backup.sh` / `backup-offsite.sh`
 
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*` — UI igual em mock e API.

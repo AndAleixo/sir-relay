@@ -644,7 +644,8 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | `services/mock/*` | Done |
 | Prisma + `services/api/*` + `/api/v1/health` | Done |
 | Dev híbrido smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina) |
-| Telegram webhook | Pending |
+| Telegram webhook (link) | Done — P1-TG-01, P1-TG-06 |
+| Telegram task relay | Pending — P1-TG-02–05, 08–10 |
 
 ---
 

@@ -158,7 +158,7 @@ export async function profileUpdateNameForm(locale: string, formData: FormData) 
   redirect(`/${locale}/profile?nameSaved=1`);
 }
 
-export async function generateTelegramLinkAction(locale: string) {
+export async function regenerateTelegramLinkAction(locale: string) {
   const { auth, users } = getServices();
   const session = await auth.getSession();
   if (!session) {

@@ -34,13 +34,15 @@ src/
 | Switcher + panel open | `group-switcher.tsx` | Desktop dropdown · mobile popover (só um painel visível por breakpoint) |
 | Lista + forms | `group-panel-menu.tsx` | Create/join only · leave/delete in `group-danger-settings.tsx` |
 | Server actions | `app/actions/groups.ts` | `selectGroup`, `createGroupForm`, `redeemInviteForm`, `acceptInvite`, `leaveGroupForm`, `deleteGroupForm` |
-| Teammate actions | `app/actions/teammates.ts` | create/update/deactivate/promote/regenerate |
+| Teammate actions | `app/actions/teammates.ts` | pre-create/update/deactivate/promote/regenerate-invite |
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` |
 | Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete |
 | Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |
 | Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |
 
 Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookies flash).
+
+**Pre-create + activation:** `teammates.createTeammate` → `users` row `account_status: invited` + membership. Activation paths (spec §5.1.2): `auth.joinWithToken` (`/join/[token]`) **or** `auth.signup` merge when email matches `invited` (planned — P1-AUTH-13). Today signup rejects taken email even when `invited`; implementation pending.
 
 ## Routes
 

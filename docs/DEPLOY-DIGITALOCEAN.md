@@ -137,7 +137,7 @@ chmod 600 .env
 bash scripts/env/prod-vps.sh
 ```
 
-(`npm run prod-vps` = mesmo script; **não** precisas de Node/npm no host — o deploy é Docker.)
+(`bash scripts/env/prod-vps.sh` — **não** precisas de Node/npm no host; o deploy é Docker.)
 
 Gerar `SESSION_SECRET`:
 

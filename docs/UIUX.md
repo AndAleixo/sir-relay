@@ -98,9 +98,9 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 
 | Page | Route | Header | Purpose |
 |------|-------|--------|---------|
-| Sign up | `/signup` | Yes `AuthPageHeader` | New account → `/groups` (no group yet) |
+| Sign up | `/signup` | Yes `AuthPageHeader` | New email → `/groups` (no group) · **invited email match** → merge, activate, auto-join group → `/tasks` |
 | Log in | `/login` | Yes `AuthPageHeader` | Existing account → role home or `/groups` |
-| Join group | `/join/[token]` | Yes `AuthPageHeader` | New teammate: set password · existing account → accept |
+| Join group | `/join/[token]` | Yes `AuthPageHeader` | Pre-created teammate: set password · existing **active** account → accept |
 | Privacy / Terms | `/privacy`, `/terms` | Yes `AuthPageHeader` | Legal stubs |
 | No active group | `/groups` | App shell | Placeholder copy; **group panel opens** automatically |
 
@@ -122,8 +122,9 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 - **Invite errors:** inline no formulário (sem reload); link inválido / email mismatch
 - **Mobile panel:** dropdown ancorado abaixo do trigger (não bottom sheet)
 - **Invite:** adds membership if missing (same email as invite)
-- **Join (new account):** `/join/[token]` — set password
-- **Existing account added by operator (same email):** membership added; group appears in switcher
+- **Join (pre-created, path A):** `/join/[token]` — set password → `active`
+- **Join (pre-created, path B):** `/signup` with **same email** — merge `invited` row, set password → `active` + group already in switcher → `/tasks`
+- **Existing active account added by operator (same email):** membership added; group appears in switcher
 
 ---
 
@@ -383,16 +384,16 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 
 Table: name, email, role, account status, Telegram status, view link. Operators link to **Profile**; teammates to detail.
 
-**Add teammate** — header button → `/teammates/new` (name, email); on save → detail page with invite + Telegram links (copy buttons).
+**Add teammate** — header button → `/teammates/new` (name, email); on save → detail page with **invite link** only (copy · regenerate). Operator sees Telegram **status**, not the teammate’s link.
 
 **Export (Phase 2)** — toolbar **Export all** · per-row **Export** on the list. Spec: [REQUIREMENTS.md §6.5.2](./REQUIREMENTS.md#652-json-export-app).
 
 ### Detail `/teammates/[id]`
 
-- Name, email, account + Telegram badges
-- Edit name (+ email before first login), **promote to operator** (active account), deactivate
+- Name, email, account + Telegram **status** badges
+- Edit name (+ email while `invited`), **promote to operator** (active account), deactivate
 - **Invite link** — `/join/{token}` · copy · regenerate
-- **Telegram link** — `t.me/...?start=code` · copy · regenerate
+- Teammate links Telegram on **Profile** after activation (operator has no Telegram link field here)
 
 ---
 
@@ -410,7 +411,7 @@ All users. Access: avatar (header / mobile), sidebar footer, account menu.
 | **Account** | Editable display name; email read-only | Yes |
 | **Language** | Locale picker; persisted on account | Yes |
 | **Password** | Change password form | Yes |
-| **Telegram** | Link status; operators generate alert link + copy | Yes |
+| **Telegram** | Link status; pending: copy · **Open in Telegram** · **New link code** on **Profile** (operators: alerts · teammates: task relay) | Yes |
 | **Log out** | Button (mobile primary exit; desktop also in account menu) | Yes |
 
 Group and role live in the **group switcher** only — not on Profile.
@@ -436,7 +437,7 @@ Operator only. Access: sidebar / mobile tabs.
 | Content | Phase 1 |
 |---------|---------|
 | Feed of teammate **task done** and **due/overdue** events | Yes mock |
-| Delivery badge: Telegram vs web-only (depends on Operator Telegram link) | Yes mock |
+| Delivery badge: Telegram vs web-only (operator alert prefs + linked Telegram) | Yes mock |
 | Preferences | **Settings** → Operator alerts toggles |
 
 Teammates do not have this route (redirect to `/tasks`).
@@ -567,9 +568,10 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-06-28 | App shell: collapsible sidebar, mobile tab nav, header locale + avatar menu |
 | 2026-06-28 | Teammates: `/teammates/new` create flow (mock) |
 | 2026-06-28 | Legacy cleanup: removed stub routes, mock banner, non-functional task/teammate actions; Alerts page |
-| 2026-07-12 | Profile/Settings UX: editable name, copy Telegram link, settings subtitle, alerts link, join locale |
+| 2026-07-12 | Profile/Settings UX: editable name, Telegram link (copy · open · new code), settings subtitle, alerts link, join locale |
 | 2026-07-12 | Removed export from teammate detail; legacy routes removed |
 | 2026-07-11 | User → group → role model (§1.1); groups hub UX (§2.1); AuthPageHeader; membership-scoped nav and Profile badge |
 | 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
+| 2026-07-14 | Pre-create + sign-up merge (§2.1); teammate Telegram on Profile only (§7, §8.1) |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

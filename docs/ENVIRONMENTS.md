@@ -198,7 +198,7 @@ Internet → Caddy (:443) → app (:3000) → postgres (rede interna)
 ```bash
 ssh deploy@SEU_IP
 cd sir-relay
-npm run prod-vps    # git pull + docker compose up --build
+bash scripts/env/prod-vps.sh    # git pull + migrate + docker compose up --build
 ```
 
 Checklist: [DEPLOY-DIGITALOCEAN.md §10](./DEPLOY-DIGITALOCEAN.md#10-checklist-pós-deploy).
@@ -307,7 +307,7 @@ Registo webhook: [DEPLOY-DIGITALOCEAN.md §7](./DEPLOY-DIGITALOCEAN.md#7-telegra
 | `npm run prod-local` | Prod local | `docker compose up --build` |
 | `npm run prod-local-down` | Prod local | Para stack |
 | `npm run prod-local-logs` | Prod local | Logs app + caddy |
-| `npm run prod-vps` | Prod VPS | `git pull` + compose (correr no servidor) |
+| `npm run prod-vps` | Prod VPS (local) | Atalho → `scripts/env/prod-vps.sh` |
 
 Fonte: `scripts/env/dev-mock.sh` · `dev-hybrid.sh` · `prod-local.sh` · `prod-vps.sh`
 
@@ -320,7 +320,7 @@ Fonte: `scripts/env/dev-mock.sh` · `dev-hybrid.sh` · `prod-local.sh` · `prod-
 | Polir UI / demo | **Dev mock** | `npm run dev-mock` |
 | Desenvolver API | **Dev híbrido** | `npm run dev-hybrid` |
 | Testar deploy | **Prod local** | `npm run prod-local` |
-| Publicar | **Prod VPS** | `npm run prod-vps` no servidor |
+| Publicar | **Prod VPS** | `bash scripts/env/prod-vps.sh` no servidor (sem npm no host) |
 
 ---
 

@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import {
-  generateTelegramLinkAction,
   profileChangePasswordForm,
   profileUpdateNameForm,
+  regenerateTelegramLinkAction,
 } from "@/app/actions/auth";
 import { PageHeader } from "@/components/layout/app-shell";
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -11,7 +11,7 @@ import { PasswordFormFields } from "@/components/auth/password-form-fields";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { SettingsLocaleField } from "@/components/settings/settings-locale-field";
 import { Input, Label } from "@/components/ui/input";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -159,15 +159,26 @@ export default async function ProfilePage({
                         />
                       </div>
                       <p className="text-xs text-[var(--text-muted)]">
-                        {t("profile.telegramLinkCode")}
+                        {user.role === "operator"
+                          ? t("profile.telegramOpenHintOperator")
+                          : t("profile.telegramOpenHintTeammate")}
                       </p>
+                      <div className="flex flex-wrap gap-2">
+                        <ButtonLink
+                          href={telegramUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {t("profile.openTelegramLink")}
+                        </ButtonLink>
+                        <form action={regenerateTelegramLinkAction.bind(null, locale)}>
+                          <Button type="submit" variant="secondary">
+                            {t("profile.regenerateTelegramLink")}
+                          </Button>
+                        </form>
+                      </div>
                     </>
                   ) : null}
-                  <form action={generateTelegramLinkAction.bind(null, locale)}>
-                    <Button type="submit" variant="secondary">
-                      {t("profile.generateTelegramLink")}
-                    </Button>
-                  </form>
                 </div>
               ) : null}
             </CardBody>

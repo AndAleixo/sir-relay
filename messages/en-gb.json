@@ -120,7 +120,7 @@
     "inviteLink": "Invite link",
     "inviteLinkHint": "Share this URL so the teammate can sign in once their account is active.",
     "addTeammate": "Add teammate",
-    "createTeammate": "Create teammate",
+    "createTeammate": "Pre-create teammate",
     "name": "Name",
     "namePlaceholder": "Full name",
     "newSubtitle": "They will receive an invite link to activate their account.",
@@ -245,8 +245,10 @@
     "telegramTeammatePendingHint": "Generate a link below and open it in Telegram to receive assigned tasks.",
     "telegramOperatorPendingHint": "Generate a link below and open it in Telegram to receive operator alerts.",
     "passwordSection": "Password",
-    "generateTelegramLink": "Generate Telegram link",
-    "telegramLinkCode": "Open this link in Telegram to connect your account."
+    "openTelegramLink": "Open in Telegram",
+    "regenerateTelegramLink": "New link code",
+    "telegramOpenHintOperator": "Open this link in Telegram to connect alerts.",
+    "telegramOpenHintTeammate": "Open this link in Telegram to receive assigned tasks."
   },
   "alerts": {
     "title": "Alerts",

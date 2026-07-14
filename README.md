@@ -64,8 +64,8 @@ Distributes operational tasks and tracks progress in one place — web for the f
 
 ### Relay flow
 
-1. Operator creates a teammate and sends invite + Telegram link  
-2. Teammate activates the account and links Telegram  
+1. Operator **pre-creates** a teammate (name + email) and sends the **invite link**  
+2. Teammate **activates** via invite **or** sign-up with the same email → links Telegram on **Profile**  
 3. Operator creates tasks assigned to the teammate — **only the first** is sent on Telegram (queue)  
 4. Teammate **replies** to the message (e.g. `done`, `feito`) → task becomes `done` → **next task arrives on Telegram**  
 5. Operator and Teammate see the same state on the web  

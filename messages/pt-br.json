@@ -120,7 +120,7 @@
     "inviteLink": "Link de convite",
     "inviteLinkHint": "Partilhe este URL para o colega entrar quando a conta estiver activa.",
     "addTeammate": "Adicionar colega",
-    "createTeammate": "Criar colega",
+    "createTeammate": "Pré-criar colega",
     "name": "Nome",
     "namePlaceholder": "Nome completo",
     "newSubtitle": "Receberão um link de convite para activar a conta.",
@@ -245,8 +245,10 @@
     "telegramTeammatePendingHint": "Gere um link abaixo e abra-o no Telegram para receber tarefas atribuídas.",
     "telegramOperatorPendingHint": "Gere um link abaixo e abra-o no Telegram para receber alertas de operador.",
     "passwordSection": "Senha",
-    "generateTelegramLink": "Gerar link Telegram",
-    "telegramLinkCode": "Abra este link no Telegram para ligar a sua conta."
+    "openTelegramLink": "Abrir no Telegram",
+    "regenerateTelegramLink": "Novo código",
+    "telegramOpenHintOperator": "Abra este link no Telegram para ligar alertas.",
+    "telegramOpenHintTeammate": "Abra este link no Telegram para receber tarefas atribuídas."
   },
   "alerts": {
     "title": "Alertas",

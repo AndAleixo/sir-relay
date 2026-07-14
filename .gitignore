@@ -1,5 +1,8 @@
 # dependencies
 /node_modules
+prisma/node_modules/
+prisma/package.json
+prisma/package-lock.json
 /.pnp
 .pnp.js
 .yarn/install-state.gz

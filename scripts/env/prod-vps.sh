@@ -16,7 +16,7 @@ if [[ -z "${POSTGRES_PASSWORD:-}" ]]; then
 fi
 
 if [[ $(id -u) -eq 0 ]]; then
-  echo "warn: running as root — prefer: su - deploy && cd sir-relay && npm run prod-vps" >&2
+  echo "warn: running as root — prefer: su - deploy && cd ~/sir-relay && bash scripts/env/prod-vps.sh" >&2
 fi
 
 echo "→ prod-vps · git pull"

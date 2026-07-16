@@ -164,6 +164,9 @@ export class ApiTeammateService implements TeammateService {
     await requireTeammateInGroup(ctx, id);
     const groupId = requireGroupId(ctx.session);
     await prisma.$transaction(async (tx) => {
+      await tx.task.deleteMany({
+        where: { groupId, assigneeId: id },
+      });
       await tx.teammateInviteToken.updateMany({
         where: { userId: id, groupId, usedAt: null },
         data: { usedAt: new Date() },

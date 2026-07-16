@@ -50,6 +50,15 @@ function resolveAssignee(
 export class MockTaskService implements TaskService {
   private tasks = [...MOCK_TASKS];
 
+  removeAssignedTasks(assigneeId: string): void {
+    // ponytail: mock tasks have no groupId; production deletion is group-scoped.
+    this.tasks = this.tasks.filter((task) => task.assigneeId !== assigneeId);
+  }
+
+  countAssignedTasks(assigneeId: string): number {
+    return this.tasks.filter((task) => task.assigneeId === assigneeId).length;
+  }
+
   async listTasks(ctx: { session: Session }): Promise<Task[]> {
     return filterTasksForSession(this.tasks, ctx.session);
   }
@@ -182,3 +191,11 @@ export class MockTaskService implements TaskService {
 }
 
 export const mockTaskService = new MockTaskService();
+
+export function removeMockTasksAssignedTo(assigneeId: string): void {
+  mockTaskService.removeAssignedTasks(assigneeId);
+}
+
+export function countMockTasksAssignedTo(assigneeId: string): number {
+  return mockTaskService.countAssignedTasks(assigneeId);
+}

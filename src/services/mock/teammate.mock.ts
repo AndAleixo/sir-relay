@@ -26,6 +26,7 @@ import {
   getTelegramLinkTokenForUser,
   invalidateInviteTokens,
 } from "@/services/mock/tokens.mock";
+import { removeMockTasksAssignedTo } from "@/services/mock/task.mock";
 
 function requireTeammateInGroup(
   ctx: { session: Session },
@@ -138,6 +139,7 @@ export class MockTeammateService implements TeammateService {
 
   async removeTeammate(id: string, ctx: { session: Session }): Promise<void> {
     requireTeammateInGroup(ctx, id);
+    removeMockTasksAssignedTo(id);
     removeGroupMember(ctx.session.activeGroupId!, id);
   }
 

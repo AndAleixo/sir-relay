@@ -268,7 +268,7 @@ First column: **Me** (tasks assigned to the logged-in Operator). Then one column
 - To do + In progress: full task cards, section labels in normal weight
 - Done: collapsed accordion; muted label (`--text-muted`); yellow **not** used in Done section
 
-**Removed teammates:** hidden from the team board after their membership is removed; existing tasks remain in the list view.
+**Removed teammates:** membership and tasks assigned to them in that group are permanently deleted after explicit confirmation; their global account remains.
 
 **Horizontal scroll:** drag left/right on the board; native scrollbar at bottom when columns overflow.
 
@@ -503,7 +503,7 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `GroupSwitcher` + `GroupPanelMenu` | Header panel — switch · create · join |
 | `GroupDangerSettings` | Settings page — leave / delete active group |
 | `PromoteTeammateButton` | Teammate detail — promote to operator (confirm) |
-| `RemoveTeammateButton` | Teammate detail — remove membership from active group; account/tasks remain |
+| `RemoveTeammateButton` | Teammate detail — confirm permanent deletion of assigned group tasks, then remove membership; account remains |
 | `AppShell` | Sidebar + collapse + role-based nav (when group active) + profile footer |
 | `AppHeader` | Desktop group switcher + locale picker + account menu |
 | `MobileTopBar` | Compact logo, group switcher, locale, avatar, tab nav |

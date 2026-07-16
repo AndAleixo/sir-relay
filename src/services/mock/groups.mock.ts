@@ -292,6 +292,8 @@ export class MockGroupService implements GroupService {
       throw new Error("last_operator");
     }
 
+    const { removeMockTasksAssignedTo } = await import("@/services/mock/task.mock");
+    removeMockTasksAssignedTo(userId);
     removedMembershipKeys().add(membershipKey(groupId, userId));
     const { extraMemberships } = mockGroupExtras();
     const idx = extraMemberships.findIndex(

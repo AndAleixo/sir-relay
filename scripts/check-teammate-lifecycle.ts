@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import type { Session } from "../src/domain/types";
 import { mockTeammateService } from "../src/services/mock/teammate.mock";
+import { countMockTasksAssignedTo } from "../src/services/mock/task.mock";
 import { resolveInvite } from "../src/services/mock/tokens.mock";
 import { findAnyMockUserByEmail } from "../src/services/mock/users.mock";
 
@@ -22,9 +23,11 @@ const ctx = { session };
 async function main() {
   const original = await mockTeammateService.getTeammate("user-bruno", ctx);
   assert(original);
+  assert(countMockTasksAssignedTo(original.id) > 0);
 
   await mockTeammateService.removeTeammate(original.id, ctx);
   assert.equal(await mockTeammateService.getTeammate(original.id, ctx), null);
+  assert.equal(countMockTasksAssignedTo(original.id), 0);
 
   const readded = await mockTeammateService.createTeammate(
     { name: original.name, email: original.email },

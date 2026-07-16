@@ -164,6 +164,9 @@ export class ApiGroupService implements GroupService {
     }
 
     await prisma.$transaction(async (tx) => {
+      await tx.task.deleteMany({
+        where: { groupId, assigneeId: userId },
+      });
       await tx.groupMembership.delete({
         where: { groupId_userId: { groupId, userId } },
       });

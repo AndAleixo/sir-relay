@@ -34,7 +34,7 @@ src/
 | Switcher + panel open | `group-switcher.tsx` | Desktop dropdown · mobile popover (só um painel visível por breakpoint) |
 | Lista + forms | `group-panel-menu.tsx` | Create/join only · leave/delete in `group-danger-settings.tsx` |
 | Server actions | `app/actions/groups.ts` | `selectGroup`, `createGroupForm`, `redeemInviteForm`, `acceptInvite`, `leaveGroupForm`, `deleteGroupForm` |
-| Teammate actions | `app/actions/teammates.ts` | pre-create/update/remove-membership/promote/regenerate-invite |
+| Teammate actions | `app/actions/teammates.ts` | pre-create/update/remove (assigned group tasks + membership)/promote/regenerate-invite |
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` |
 | Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete |
 | Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |

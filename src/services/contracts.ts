@@ -29,6 +29,10 @@ export interface CreateTeammateInput {
   email: string;
 }
 
+export type CreateTeammateResult =
+  | { ok: true; teammate: Teammate }
+  | { ok: false; reason: "already_in_group" | "account_inactive" };
+
 export interface AuthService {
   getSession(): Promise<Session | null>;
   login(email: string, password: string): Promise<Session>;
@@ -90,15 +94,15 @@ export interface TeammateService {
   createTeammate(
     input: CreateTeammateInput,
     ctx: { session: Session },
-  ): Promise<Teammate>;
+  ): Promise<CreateTeammateResult>;
   updateTeammate(
     id: string,
     input: { name?: string; email?: string },
     ctx: { session: Session },
   ): Promise<Teammate>;
-  deactivateTeammate(id: string, ctx: { session: Session }): Promise<Teammate>;
+  removeTeammate(id: string, ctx: { session: Session }): Promise<void>;
   promoteToOperator(id: string, ctx: { session: Session }): Promise<void>;
-  regenerateInvite(id: string, ctx: { session: Session }): Promise<string>;
+  regenerateInvite(id: string, ctx: { session: Session }): Promise<void>;
   getInviteToken(id: string, ctx: { session: Session }): Promise<string | null>;
 }
 

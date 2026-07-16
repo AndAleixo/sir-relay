@@ -39,6 +39,11 @@ export function findMockUserByEmail(email: string): User | null {
   return null;
 }
 
+export function findAnyMockUserByEmail(email: string): User | null {
+  const normalized = email.trim().toLowerCase();
+  return allMockUsers().find((user) => user.email.toLowerCase() === normalized) ?? null;
+}
+
 export function patchMockUser(userId: string, patch: Partial<User>): User | null {
   const lists = [MOCK_OPERATORS, MOCK_TEAMMATES, dynamicUsers()];
   for (const list of lists) {

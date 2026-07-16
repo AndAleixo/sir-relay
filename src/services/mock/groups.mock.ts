@@ -168,7 +168,19 @@ export function addGroupMember(
   role: Role,
 ): void {
   if (getMembership(userId, groupId)) return;
+  removedMembershipKeys().delete(membershipKey(groupId, userId));
   mockGroupExtras().extraMemberships.push({ groupId, userId, role });
+}
+
+export function removeGroupMember(groupId: string, userId: string): void {
+  if (!getMembership(userId, groupId)) return;
+  removedMembershipKeys().add(membershipKey(groupId, userId));
+  const { extraMemberships } = mockGroupExtras();
+  const index = extraMemberships.findIndex(
+    (row) => row.groupId === groupId && row.userId === userId,
+  );
+  if (index >= 0) extraMemberships.splice(index, 1);
+  clearMockLastActiveGroup(userId, groupId);
 }
 
 export function userIdsInGroup(groupId: string): Set<string> {

@@ -1,6 +1,8 @@
 import type { Locale, Session, Teammate } from "@/domain/types";
+import { Prisma } from "@prisma/client";
 import type {
   CreateTeammateInput,
+  CreateTeammateResult,
   OrganizationUser,
   TeammateService,
   UserService,
@@ -13,18 +15,17 @@ import {
 } from "@/services/api/groups";
 import { fromLocale, toRole, toTeammate, toUser } from "@/services/api/mappers";
 
+function isUniqueConstraintError(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  );
+}
+
 function requireGroupId(session: Session): string {
   const groupId = session.activeGroupId;
   if (!groupId) throw new Error("No active group");
   return groupId;
-}
-
-async function memberIds(groupId: string): Promise<Set<string>> {
-  const rows = await prisma.groupMembership.findMany({
-    where: { groupId },
-    select: { userId: true },
-  });
-  return new Set(rows.map((row) => row.userId));
 }
 
 async function requireTeammateInGroup(
@@ -32,27 +33,14 @@ async function requireTeammateInGroup(
   id: string,
 ): Promise<Teammate> {
   const groupId = requireGroupId(ctx.session);
-  const ids = await memberIds(groupId);
-  if (!ids.has(id)) throw new Error("Teammate not found");
-
-  const row = await prisma.user.findUnique({ where: { id } });
-  if (!row) throw new Error("Teammate not found");
-
   const membership = await prisma.groupMembership.findUnique({
     where: { groupId_userId: { groupId, userId: id } },
+    include: { user: true },
   });
   if (!membership || membership.role !== "teammate") {
     throw new Error("Teammate not found");
   }
-  return toTeammate(row, toRole(membership.role));
-}
-
-async function latestInviteToken(userId: string, groupId: string): Promise<string> {
-  await prisma.teammateInviteToken.updateMany({
-    where: { userId, groupId, usedAt: null },
-    data: { usedAt: new Date() },
-  });
-  return createInviteTokenRecord(userId, groupId);
+  return toTeammate(membership.user, toRole(membership.role));
 }
 
 export class ApiTeammateService implements TeammateService {
@@ -94,7 +82,7 @@ export class ApiTeammateService implements TeammateService {
   async createTeammate(
     input: CreateTeammateInput,
     ctx: { session: Session },
-  ): Promise<Teammate> {
+  ): Promise<CreateTeammateResult> {
     const groupId = requireGroupId(ctx.session);
     const email = input.email.trim().toLowerCase();
     const existing = await prisma.user.findUnique({ where: { email } });
@@ -103,30 +91,53 @@ export class ApiTeammateService implements TeammateService {
       const member = await prisma.groupMembership.findUnique({
         where: { groupId_userId: { groupId, userId: existing.id } },
       });
-      if (member) throw new Error("Already in group");
+      if (member) {
+        return { ok: false as const, reason: "already_in_group" as const };
+      }
+      if (!existing.active) {
+        return { ok: false, reason: "account_inactive" };
+      }
 
-      await prisma.groupMembership.create({
-        data: { groupId, userId: existing.id, role: "teammate" },
-      });
-      return toTeammate(existing, "teammate");
+      try {
+        await prisma.$transaction(async (tx) => {
+          await tx.groupMembership.create({
+            data: { groupId, userId: existing.id, role: "teammate" },
+          });
+        });
+        return { ok: true as const, teammate: toTeammate(existing, "teammate") };
+      } catch (error) {
+        if (isUniqueConstraintError(error)) {
+          return { ok: false, reason: "already_in_group" };
+        }
+        throw error;
+      }
     }
 
     const id = `user-${Date.now().toString(36)}`;
-    const user = await prisma.user.create({
-      data: {
-        id,
-        name: input.name.trim(),
-        email,
-        locale: fromLocale(defaultLocale),
-        accountStatus: "invited",
-        active: true,
-      },
-    });
-    await prisma.groupMembership.create({
-      data: { groupId, userId: id, role: "teammate" },
-    });
-    await latestInviteToken(id, groupId);
-    return toTeammate(user, "teammate");
+    try {
+      const user = await prisma.$transaction(async (tx) => {
+        const created = await tx.user.create({
+          data: {
+            id,
+            name: input.name.trim(),
+            email,
+            locale: fromLocale(defaultLocale),
+            accountStatus: "invited",
+            active: true,
+          },
+        });
+        await tx.groupMembership.create({
+          data: { groupId, userId: id, role: "teammate" },
+        });
+        return created;
+      });
+      return { ok: true as const, teammate: toTeammate(user, "teammate") };
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        return this.createTeammate(input, ctx);
+      }
+      throw error;
+    }
   }
 
   async updateTeammate(
@@ -149,13 +160,22 @@ export class ApiTeammateService implements TeammateService {
     return toTeammate(updated, "teammate");
   }
 
-  async deactivateTeammate(id: string, ctx: { session: Session }): Promise<Teammate> {
+  async removeTeammate(id: string, ctx: { session: Session }): Promise<void> {
     await requireTeammateInGroup(ctx, id);
-    const updated = await prisma.user.update({
-      where: { id },
-      data: { active: false },
+    const groupId = requireGroupId(ctx.session);
+    await prisma.$transaction(async (tx) => {
+      await tx.teammateInviteToken.updateMany({
+        where: { userId: id, groupId, usedAt: null },
+        data: { usedAt: new Date() },
+      });
+      await tx.groupMembership.delete({
+        where: { groupId_userId: { groupId, userId: id } },
+      });
+      await tx.user.updateMany({
+        where: { id, lastActiveGroupId: groupId },
+        data: { lastActiveGroupId: null },
+      });
     });
-    return toTeammate(updated, "teammate");
   }
 
   async promoteToOperator(id: string, ctx: { session: Session }): Promise<void> {
@@ -171,14 +191,30 @@ export class ApiTeammateService implements TeammateService {
     });
   }
 
-  async regenerateInvite(id: string, ctx: { session: Session }): Promise<string> {
-    await requireTeammateInGroup(ctx, id);
-    return latestInviteToken(id, requireGroupId(ctx.session));
+  async regenerateInvite(id: string, ctx: { session: Session }): Promise<void> {
+    const teammate = await requireTeammateInGroup(ctx, id);
+    if (teammate.accountStatus !== "invited") {
+      throw new Error("account_active");
+    }
+    await prisma.teammateInviteToken.updateMany({
+      where: {
+        userId: id,
+        groupId: requireGroupId(ctx.session),
+        usedAt: null,
+      },
+      data: { usedAt: new Date() },
+    });
   }
 
   async getInviteToken(id: string, ctx: { session: Session }): Promise<string | null> {
-    if (!(await this.getTeammate(id, ctx))) return null;
-    return latestInviteToken(id, requireGroupId(ctx.session));
+    const teammate = await this.getTeammate(id, ctx);
+    if (!teammate || teammate.accountStatus !== "invited") return null;
+    const groupId = requireGroupId(ctx.session);
+    const active = await prisma.teammateInviteToken.findFirst({
+      where: { userId: id, groupId, usedAt: null, expiresAt: { gt: new Date() } },
+      select: { id: true },
+    });
+    return active ? null : createInviteTokenRecord(id, groupId);
   }
 }
 

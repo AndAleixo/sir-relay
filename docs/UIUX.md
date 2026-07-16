@@ -268,7 +268,7 @@ First column: **Me** (tasks assigned to the logged-in Operator). Then one column
 - To do + In progress: full task cards, section labels in normal weight
 - Done: collapsed accordion; muted label (`--text-muted`); yellow **not** used in Done section
 
-**Unassigned / deactivated teammates:** hidden from board in mock; list view shows all assignees.
+**Removed teammates:** hidden from the team board after their membership is removed; existing tasks remain in the list view.
 
 **Horizontal scroll:** drag left/right on the board; native scrollbar at bottom when columns overflow.
 
@@ -391,7 +391,7 @@ Table: name, email, role, account status, Telegram status, view link. Operators 
 ### Detail `/teammates/[id]`
 
 - Name, email, account + Telegram **status** badges
-- Edit name (+ email while `invited`), **promote to operator** (active account), deactivate
+- Edit name (+ email while `invited`), **promote to operator** (active account), remove from group
 - **Invite link** — `/join/{token}` · copy · regenerate
 - Teammate links Telegram on **Profile** after activation (operator has no Telegram link field here)
 
@@ -503,7 +503,7 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `GroupSwitcher` + `GroupPanelMenu` | Header panel — switch · create · join |
 | `GroupDangerSettings` | Settings page — leave / delete active group |
 | `PromoteTeammateButton` | Teammate detail — promote to operator (confirm) |
-| `DeactivateTeammateButton` | Teammate detail — deactivate |
+| `RemoveTeammateButton` | Teammate detail — remove membership from active group; account/tasks remain |
 | `AppShell` | Sidebar + collapse + role-based nav (when group active) + profile footer |
 | `AppHeader` | Desktop group switcher + locale picker + account menu |
 | `MobileTopBar` | Compact logo, group switcher, locale, avatar, tab nav |

@@ -4,8 +4,8 @@ import { regenerateInviteForm, updateTeammateForm } from "@/app/actions/teammate
 import { Banner } from "@/components/ui/banner";
 import { PageHeader } from "@/components/layout/app-shell";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
-import { DeactivateTeammateButton } from "@/components/teammates/deactivate-teammate-button";
 import { PromoteTeammateButton } from "@/components/teammates/promote-teammate-button";
+import { RemoveTeammateButton } from "@/components/teammates/remove-teammate-button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -32,7 +32,10 @@ export default async function TeammateDetailPage({
   const teammate = await teammates.getTeammate(id, { session });
   if (!teammate) redirect(`/${locale}/teammates`);
 
-  const inviteToken = await teammates.getInviteToken(id, { session });
+  const inviteToken =
+    teammate.accountStatus === "invited"
+      ? await teammates.getInviteToken(id, { session })
+      : null;
   const inviteUrl = inviteToken ? joinInviteUrl(locale, inviteToken) : "";
 
   return (
@@ -46,6 +49,16 @@ export default async function TeammateDetailPage({
       {error === "edit" ? (
         <Banner variant="danger" className="mb-4">
           {t("teammate.editFailed")}
+        </Banner>
+      ) : null}
+      {error === "remove" ? (
+        <Banner variant="danger" className="mb-4">
+          {t("teammate.removeFailed")}
+        </Banner>
+      ) : null}
+      {error === "invite" ? (
+        <Banner variant="danger" className="mb-4">
+          {t("teammate.inviteFailed")}
         </Banner>
       ) : null}
       <div className="grid max-w-2xl gap-4">
@@ -62,9 +75,6 @@ export default async function TeammateDetailPage({
                   ? t("teammate.active")
                   : t("teammate.invited")}
               </ToneBadge>
-              {!teammate.active ? (
-                <ToneBadge tone="neutral">{t("teammate.deactivated")}</ToneBadge>
-              ) : null}
             </div>
           </CardHeader>
           <CardBody className="space-y-2 text-sm">
@@ -102,29 +112,41 @@ export default async function TeammateDetailPage({
           </CardBody>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <h2 className="text-sm font-semibold">{t("teammate.inviteLink")}</h2>
-          </CardHeader>
-          <CardBody className="space-y-3">
-            <div className="flex items-start gap-2">
-              <code className="min-w-0 flex-1 break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
-                {inviteUrl}
-              </code>
-              <CopyLinkButton
-                text={inviteUrl}
-                label={t("common.copy")}
-                copiedLabel={t("common.copied")}
-              />
-            </div>
-            <p className="text-xs text-[var(--text-muted)]">{t("teammate.inviteLinkHint")}</p>
-            <form action={regenerateInviteForm.bind(null, locale, id)}>
-              <Button type="submit" variant="secondary">
-                {t("teammate.regenerateInvite")}
-              </Button>
-            </form>
-          </CardBody>
-        </Card>
+        {teammate.accountStatus === "invited" ? (
+          <Card>
+            <CardHeader>
+              <h2 className="text-sm font-semibold">{t("teammate.inviteLink")}</h2>
+            </CardHeader>
+            <CardBody className="space-y-3">
+              {inviteUrl ? (
+                <>
+                  <div className="flex items-start gap-2">
+                    <code className="min-w-0 flex-1 break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs">
+                      {inviteUrl}
+                    </code>
+                    <CopyLinkButton
+                      text={inviteUrl}
+                      label={t("common.copy")}
+                      copiedLabel={t("common.copied")}
+                    />
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {t("teammate.inviteLinkHint")}
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs text-[var(--text-muted)]">
+                  {t("teammate.inviteActiveHint")}
+                </p>
+              )}
+              <form action={regenerateInviteForm.bind(null, locale, id)}>
+                <Button type="submit" variant="secondary">
+                  {t("teammate.regenerateInvite")}
+                </Button>
+              </form>
+            </CardBody>
+          </Card>
+        ) : null}
 
         {teammate.active && teammate.accountStatus === "active" ? (
           <PromoteTeammateButton
@@ -135,14 +157,12 @@ export default async function TeammateDetailPage({
           />
         ) : null}
 
-        {teammate.active ? (
-          <DeactivateTeammateButton
-            locale={locale}
-            teammateId={id}
-            label={t("teammate.deactivate")}
-            confirmMessage={t("teammate.deactivateConfirm")}
-          />
-        ) : null}
+        <RemoveTeammateButton
+          locale={locale}
+          teammateId={id}
+          label={t("teammate.remove")}
+          confirmMessage={t("teammate.removeConfirm")}
+        />
       </div>
     </>
   );

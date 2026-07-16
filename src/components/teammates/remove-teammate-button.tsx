@@ -1,28 +1,28 @@
 "use client";
 
-import { deactivateTeammate } from "@/app/actions/teammates";
+import { removeTeammate } from "@/app/actions/teammates";
 import { Button } from "@/components/ui/button";
 
-type DeactivateTeammateButtonProps = {
+type RemoveTeammateButtonProps = {
   locale: string;
   teammateId: string;
   label: string;
   confirmMessage: string;
 };
 
-export function DeactivateTeammateButton({
+export function RemoveTeammateButton({
   locale,
   teammateId,
   label,
   confirmMessage,
-}: DeactivateTeammateButtonProps) {
+}: RemoveTeammateButtonProps) {
   return (
     <Button
       type="button"
       variant="danger"
       onClick={() => {
         if (!window.confirm(confirmMessage)) return;
-        void deactivateTeammate(locale, teammateId);
+        void removeTeammate(locale, teammateId);
       }}
     >
       {label}

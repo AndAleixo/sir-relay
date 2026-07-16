@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "check:routes": "node scripts/check-entry-routes.mjs",
+    "check:teammates": "tsx scripts/check-teammate-lifecycle.ts",
     "check:telegram": "node scripts/check-telegram-link.mjs",
     "dev-mock": "bash scripts/env/dev-mock.sh",
     "dev-hybrid": "bash scripts/env/dev-hybrid.sh",

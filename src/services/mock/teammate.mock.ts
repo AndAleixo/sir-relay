@@ -2,18 +2,29 @@ import { defaultLocale } from "@/i18n/config";
 import type { Locale, Session, Teammate, User } from "@/domain/types";
 import type {
   CreateTeammateInput,
+  CreateTeammateResult,
   OrganizationUser,
   TeammateService,
   UserService,
 } from "@/services/contracts";
-import { patchMockUser, findMockUserById, findMockUserByEmail } from "@/services/mock/users.mock";
+import {
+  findAnyMockUserByEmail,
+  findMockUserById,
+  patchMockUser,
+} from "@/services/mock/users.mock";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
-import { addGroupMember, setMemberRole, userIdsInGroup } from "@/services/mock/groups.mock";
+import {
+  addGroupMember,
+  removeGroupMember,
+  setMemberRole,
+  userIdsInGroup,
+} from "@/services/mock/groups.mock";
 import {
   createInviteToken,
   createTelegramLinkToken,
   getInviteTokenForUser,
   getTelegramLinkTokenForUser,
+  invalidateInviteTokens,
 } from "@/services/mock/tokens.mock";
 
 function requireTeammateInGroup(
@@ -61,22 +72,30 @@ export class MockTeammateService implements TeammateService {
   async createTeammate(
     input: CreateTeammateInput,
     ctx: { session: Session },
-  ): Promise<Teammate> {
+  ): Promise<CreateTeammateResult> {
     const groupId = ctx.session.activeGroupId;
     if (!groupId) throw new Error("No active group");
 
     const email = input.email.trim().toLowerCase();
-    const existing = findMockUserByEmail(email);
+    const existing = findAnyMockUserByEmail(email);
     if (existing) {
       if (userIdsInGroup(groupId).has(existing.id)) {
-        throw new Error("Already in group");
+        return { ok: false, reason: "already_in_group" };
       }
+      if (!existing.active) return { ok: false, reason: "account_inactive" };
+
       addGroupMember(groupId, existing.id, "teammate");
       return {
-        ...existing,
-        role: "teammate",
-        accountStatus: "active",
-        telegramStatus: existing.telegramStatus ?? "pending",
+        ok: true,
+        teammate: {
+          ...existing,
+          role: "teammate",
+          accountStatus:
+            "accountStatus" in existing && existing.accountStatus === "invited"
+              ? "invited"
+              : "active",
+          telegramStatus: existing.telegramStatus ?? "pending",
+        },
       };
     }
 
@@ -93,8 +112,7 @@ export class MockTeammateService implements TeammateService {
     };
     MOCK_TEAMMATES.push(teammate);
     addGroupMember(groupId, id, "teammate");
-    createInviteToken(id, groupId);
-    return teammate;
+    return { ok: true, teammate };
   }
 
   async updateTeammate(
@@ -118,10 +136,9 @@ export class MockTeammateService implements TeammateService {
     return { ...teammate };
   }
 
-  async deactivateTeammate(id: string, ctx: { session: Session }): Promise<Teammate> {
-    const teammate = requireTeammateInGroup(ctx, id);
-    teammate.active = false;
-    return { ...teammate };
+  async removeTeammate(id: string, ctx: { session: Session }): Promise<void> {
+    requireTeammateInGroup(ctx, id);
+    removeGroupMember(ctx.session.activeGroupId!, id);
   }
 
   async promoteToOperator(id: string, ctx: { session: Session }): Promise<void> {
@@ -134,14 +151,17 @@ export class MockTeammateService implements TeammateService {
     setMemberRole(groupId, id, "operator");
   }
 
-  async regenerateInvite(id: string, ctx: { session: Session }): Promise<string> {
-    requireTeammateInGroup(ctx, id);
-    return createInviteToken(id, ctx.session.activeGroupId!);
+  async regenerateInvite(id: string, ctx: { session: Session }): Promise<void> {
+    const teammate = requireTeammateInGroup(ctx, id);
+    if (teammate.accountStatus !== "invited") throw new Error("account_active");
+    invalidateInviteTokens(id, ctx.session.activeGroupId!);
   }
 
   async getInviteToken(id: string, ctx: { session: Session }): Promise<string | null> {
-    if (!(await this.getTeammate(id, ctx))) return null;
-    return getInviteTokenForUser(id) ?? createInviteToken(id, ctx.session.activeGroupId!);
+    const teammate = await this.getTeammate(id, ctx);
+    if (!teammate || teammate.accountStatus !== "invited") return null;
+    const groupId = ctx.session.activeGroupId!;
+    return getInviteTokenForUser(id, groupId) ? null : createInviteToken(id, groupId);
   }
 }
 

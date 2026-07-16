@@ -2,23 +2,44 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import { requireOperatorSession } from "@/lib/require-session";
 import { getServices } from "@/services";
+import type { CreateTeammateResult } from "@/services/contracts";
+
+const createTeammateSchema = z.object({
+  name: z.string().trim().min(2).max(100),
+  email: z.string().trim().email().max(254),
+});
 
 export async function createTeammateForm(locale: string, formData: FormData) {
-  const name = String(formData.get("name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-
-  if (!name || !email) {
-    redirect(`/${locale}/teammates/new`);
+  const parsed = createTeammateSchema.safeParse({
+    name: String(formData.get("name") ?? ""),
+    email: String(formData.get("email") ?? ""),
+  });
+  if (!parsed.success) {
+    redirect(`/${locale}/teammates/new?error=invalid`);
   }
 
   const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
-  const teammate = await teammates.createTeammate({ name, email }, { session });
+
+  let result: CreateTeammateResult;
+  try {
+    result = await teammates.createTeammate(parsed.data, { session });
+  } catch {
+    redirect(`/${locale}/teammates/new?error=create`);
+  }
+  if (!result.ok) {
+    redirect(
+      `/${locale}/teammates/new?error=${
+        result.reason === "account_inactive" ? "inactive" : "exists"
+      }`,
+    );
+  }
 
   revalidatePath(`/${locale}/teammates`);
-  redirect(`/${locale}/teammates/${teammate.id}`);
+  redirect(`/${locale}/teammates/${result.teammate.id}`);
 }
 
 export async function updateTeammateForm(
@@ -49,11 +70,15 @@ export async function updateTeammateForm(
   redirect(`/${locale}/teammates/${teammateId}`);
 }
 
-export async function deactivateTeammate(locale: string, teammateId: string) {
+export async function removeTeammate(locale: string, teammateId: string) {
   const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
 
-  await teammates.deactivateTeammate(teammateId, { session });
+  try {
+    await teammates.removeTeammate(teammateId, { session });
+  } catch {
+    redirect(`/${locale}/teammates/${teammateId}?error=remove`);
+  }
   revalidatePath(`/${locale}/teammates`);
   redirect(`/${locale}/teammates`);
 }
@@ -77,7 +102,11 @@ export async function regenerateInviteForm(locale: string, teammateId: string) {
   const session = await requireOperatorSession(locale);
   const { teammates } = getServices();
 
-  await teammates.regenerateInvite(teammateId, { session });
+  try {
+    await teammates.regenerateInvite(teammateId, { session });
+  } catch {
+    redirect(`/${locale}/teammates/${teammateId}?error=invite`);
+  }
   revalidatePath(`/${locale}/teammates/${teammateId}`);
   redirect(`/${locale}/teammates/${teammateId}`);
 }

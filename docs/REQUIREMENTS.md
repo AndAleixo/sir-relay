@@ -187,8 +187,8 @@ Operator-only management **within the active group**.
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-TM-01 | Pre-create | Display name + email required; creates **`invited`** user (no password) + teammate membership — **not** an operator-created login |
-| P1-TM-02 | List | Name, email, account (`invited` / `active`), Telegram (`linked` / `pending`), active flag |
-| P1-TM-03 | Deactivate | `active: false`; excluded from assignee picker; cannot log in; existing tasks unchanged |
+| P1-TM-02 | List | Name, email, account (`invited` / `active`), Telegram (`linked` / `pending`) |
+| P1-TM-03 | Remove from group | Delete only the active-group membership; preserve the account and existing tasks. The same email can be added again. Never disable the global account from group-scoped management. |
 | P1-TM-04 | Edit | Rename; change email (only while `invited` — before first activation) |
 | P1-TM-05 | Invite | One-time token (72h); share link; activation via `/join/<token>` **or** sign-up email match (§5.1.2) |
 | P1-TM-06 | Regenerate invite | New token if expired and account still `invited` |

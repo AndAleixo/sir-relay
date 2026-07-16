@@ -1,3 +1,5 @@
+import { randomBytes } from "crypto";
+
 type InviteRecord = { userId: string; groupId: string; expiresAt: number };
 type TokenRecord = { userId: string; expiresAt: number };
 
@@ -53,7 +55,7 @@ export function initMockTokens() {
 }
 
 export function createInviteToken(userId: string, groupId: string): string {
-  const token = `mock-invite-${userId}-${Date.now().toString(36).slice(-6)}`;
+  const token = `mock-invite-${userId}-${randomBytes(6).toString("base64url")}`;
   tokenStore().inviteTokens.set(token, {
     userId,
     groupId,
@@ -63,7 +65,7 @@ export function createInviteToken(userId: string, groupId: string): string {
 }
 
 export function createTelegramLinkToken(userId: string): string {
-  const token = `mock-tg-${userId}-${Date.now().toString(36).slice(-6)}`;
+  const token = `mock-tg-${userId}-${randomBytes(6).toString("base64url")}`;
   tokenStore().telegramLinkTokens.set(token, {
     userId,
     expiresAt: Date.now() + MS_72H,
@@ -102,13 +104,26 @@ export function consumeInvite(token: string): InviteRecord | null {
   return record;
 }
 
-export function getInviteTokenForUser(userId: string): string | null {
+export function getInviteTokenForUser(userId: string, groupId?: string): string | null {
   for (const [token, record] of Array.from(tokenStore().inviteTokens.entries())) {
-    if (record.userId === userId && record.expiresAt >= Date.now()) {
+    if (
+      record.userId === userId &&
+      (!groupId || record.groupId === groupId) &&
+      record.expiresAt >= Date.now()
+    ) {
       return token;
     }
   }
   return null;
+}
+
+export function invalidateInviteTokens(userId: string, groupId: string): void {
+  const store = tokenStore();
+  for (const [token, record] of Array.from(store.inviteTokens.entries())) {
+    if (record.userId === userId && record.groupId === groupId) {
+      store.inviteTokens.delete(token);
+    }
+  }
 }
 
 export function getTelegramLinkTokenForUser(userId: string): string | null {

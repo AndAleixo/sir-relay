@@ -383,7 +383,7 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 
 ### List `/teammates`
 
-Table: name, email, role, account status, Telegram status, view link. Operators link to **Profile**; teammates to detail.
+Table: name, email, role, account status, Telegram status, view link. **You** → **Settings**; **any other member** (teammate or operator) → `/teammates/[id]`.
 
 **Add teammate** — header button → `/teammates/new` (**email only**). New/invited account → teammate detail with activation link; list shows **email + Pending** until the person sets their account name. Existing active account → pending request, no membership until acceptance (opaque success; do not surface account name on lookup).
 
@@ -393,10 +393,11 @@ Table: name, email, role, account status, Telegram status, view link. Operators 
 
 ### Detail `/teammates/[id]`
 
-- Group label (`display_name ?? name`), email, account + Telegram **status** badges
-- Edit **group fantasy name** (`display_name`); email only while `invited`; **promote to operator** (active account), remove from group
+- Group label (`display_name ?? name`), email, role, account + Telegram **status** badges
+- Edit **group fantasy name** (`display_name`); email only while `invited`; **promote to operator** (active teammate only), remove from group (not yourself)
 - **Never** edit another user’s global account name — that lives on **Profile**
-- **Invite link** — `/join/{token}` · copy · regenerate
+- Works for both teammates and other operators in the active group
+- **Invite link** — `/join/{token}` · copy · regenerate (invited teammates only)
 - Teammate links Telegram on **Profile** after activation (operator has no Telegram link field here)
 
 Member may also edit their own fantasy name for the active group on **Profile** (same field operators edit on teammate detail).

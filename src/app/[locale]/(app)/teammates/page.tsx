@@ -127,9 +127,10 @@ export default async function TeammatesPage({
           </thead>
           <tbody>
             {users.map((user) => {
-              const detailHref = isTeammate(user)
-                ? `/${locale}/teammates/${user.id}`
-                : `/${locale}/profile`;
+              const detailHref =
+                user.id === session.user.id
+                  ? `/${locale}/settings`
+                  : `/${locale}/teammates/${user.id}`;
 
               return (
                 <tr key={user.id} className={teamListStyles.trHover}>
@@ -154,7 +155,7 @@ export default async function TeammatesPage({
                     )}
                   </td>
                   <td className={teamListStyles.td}>
-                    {isTeammate(user) ? (
+                    {user.telegramStatus ? (
                       <ToneBadge tone={user.telegramStatus === "linked" ? "success" : "warning"}>
                         {user.telegramStatus === "linked"
                           ? t("teammate.linked")

@@ -29,23 +29,33 @@ function requireGroupId(session: Session): string {
   return groupId;
 }
 
-async function requireTeammateInGroup(
+async function requireMemberInGroup(
   ctx: { session: Session },
   id: string,
-): Promise<Teammate> {
+): Promise<OrganizationUser> {
   const groupId = requireGroupId(ctx.session);
   const membership = await prisma.groupMembership.findUnique({
     where: { groupId_userId: { groupId, userId: id } },
     include: { user: true },
   });
-  if (!membership || membership.role !== "teammate") {
+  if (!membership || !membership.user.active) {
+    throw new Error("Member not found");
+  }
+  const role = toRole(membership.role);
+  return role === "teammate"
+    ? toTeammate(membership.user, role, membership.displayName)
+    : (toUser(membership.user, role, membership.displayName) as OrganizationUser);
+}
+
+async function requireTeammateInGroup(
+  ctx: { session: Session },
+  id: string,
+): Promise<Teammate> {
+  const member = await requireMemberInGroup(ctx, id);
+  if (member.role !== "teammate") {
     throw new Error("Teammate not found");
   }
-  return toTeammate(
-    membership.user,
-    toRole(membership.role),
-    membership.displayName,
-  );
+  return member;
 }
 
 export class ApiTeammateService implements TeammateService {
@@ -79,6 +89,17 @@ export class ApiTeammateService implements TeammateService {
   async getTeammate(id: string, ctx: { session: Session }): Promise<Teammate | null> {
     try {
       return await requireTeammateInGroup(ctx, id);
+    } catch {
+      return null;
+    }
+  }
+
+  async getOrganizationUser(
+    id: string,
+    ctx: { session: Session },
+  ): Promise<OrganizationUser | null> {
+    try {
+      return await requireMemberInGroup(ctx, id);
     } catch {
       return null;
     }
@@ -166,12 +187,12 @@ export class ApiTeammateService implements TeammateService {
     id: string,
     input: { displayName?: string | null; email?: string },
     ctx: { session: Session },
-  ): Promise<Teammate> {
+  ): Promise<OrganizationUser> {
     if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
-    const teammate = await requireTeammateInGroup(ctx, id);
+    const member = await requireMemberInGroup(ctx, id);
 
     if (input.email?.trim()) {
-      if (teammate.accountStatus !== "invited") {
+      if (member.role !== "teammate" || member.accountStatus !== "invited") {
         throw new Error("Email can only change before first login");
       }
       await prisma.user.update({
@@ -184,7 +205,7 @@ export class ApiTeammateService implements TeammateService {
       await this.updateMembershipDisplayName(id, input.displayName, ctx);
     }
 
-    return requireTeammateInGroup(ctx, id);
+    return requireMemberInGroup(ctx, id);
   }
 
   async updateMembershipDisplayName(
@@ -209,7 +230,9 @@ export class ApiTeammateService implements TeammateService {
   }
 
   async removeTeammate(id: string, ctx: { session: Session }): Promise<void> {
-    await requireTeammateInGroup(ctx, id);
+    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
+    if (id === ctx.session.user.id) throw new Error("Cannot remove yourself");
+    await requireMemberInGroup(ctx, id);
     const groupId = requireGroupId(ctx.session);
     await prisma.$transaction(async (tx) => {
       await tx.task.deleteMany({

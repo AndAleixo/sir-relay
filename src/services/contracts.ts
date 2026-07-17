@@ -97,6 +97,11 @@ export interface TeammateService {
   listTeammates(ctx: { session: Session }): Promise<Teammate[]>;
   listOrganizationUsers(ctx: { session: Session }): Promise<OrganizationUser[]>;
   getTeammate(id: string, ctx: { session: Session }): Promise<Teammate | null>;
+  /** Any member in the active group (teammate or operator). */
+  getOrganizationUser(
+    id: string,
+    ctx: { session: Session },
+  ): Promise<OrganizationUser | null>;
   createTeammate(
     input: CreateTeammateInput,
     ctx: { session: Session },
@@ -105,7 +110,7 @@ export interface TeammateService {
     id: string,
     input: { displayName?: string | null; email?: string },
     ctx: { session: Session },
-  ): Promise<Teammate>;
+  ): Promise<OrganizationUser>;
   /** Operator or self: set/clear fantasy name on active-group membership. */
   updateMembershipDisplayName(
     userId: string,

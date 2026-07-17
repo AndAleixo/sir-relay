@@ -15,6 +15,12 @@ import { groupMemberLabel } from "@/lib/group-member-label";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/require-session";
 
+function isTeammateMember(
+  member: { role: string; accountStatus?: string },
+): member is { role: "teammate"; accountStatus: "invited" | "active" } {
+  return member.role === "teammate";
+}
+
 export default async function TeammateDetailPage({
   params,
   searchParams,
@@ -30,12 +36,17 @@ export default async function TeammateDetailPage({
   if (!session) return null;
   requireRole(session, "operator", locale);
 
-  const teammate = await teammates.getTeammate(id, { session });
-  if (!teammate) redirect(`/${locale}/teammates`);
+  if (id === session.user.id) {
+    redirect(`/${locale}/settings`);
+  }
 
-  const label = groupMemberLabel(teammate);
+  const member = await teammates.getOrganizationUser(id, { session });
+  if (!member) redirect(`/${locale}/teammates`);
+
+  const label = groupMemberLabel(member);
+  const teammate = isTeammateMember(member) ? member : null;
   const inviteToken =
-    teammate.accountStatus === "invited"
+    teammate?.accountStatus === "invited"
       ? await teammates.getInviteToken(id, { session })
       : null;
   const inviteUrl = inviteToken ? joinInviteUrl(locale, inviteToken) : "";
@@ -67,27 +78,36 @@ export default async function TeammateDetailPage({
         <Card>
           <CardHeader>
             <div className="flex flex-wrap gap-2">
-              <ToneBadge tone={teammate.telegramStatus === "linked" ? "success" : "warning"}>
-                {teammate.telegramStatus === "linked"
-                  ? t("teammate.linked")
-                  : t("teammate.pending")}
+              <ToneBadge tone={member.role === "operator" ? "accent" : "neutral"}>
+                {t(`roles.${member.role}`)}
               </ToneBadge>
-              <ToneBadge tone="neutral">
-                {teammate.accountStatus === "active"
-                  ? t("teammate.active")
-                  : t("teammate.invited")}
-              </ToneBadge>
+              {member.telegramStatus ? (
+                <ToneBadge
+                  tone={member.telegramStatus === "linked" ? "success" : "warning"}
+                >
+                  {member.telegramStatus === "linked"
+                    ? t("teammate.linked")
+                    : t("teammate.pending")}
+                </ToneBadge>
+              ) : null}
+              {teammate ? (
+                <ToneBadge tone="neutral">
+                  {teammate.accountStatus === "active"
+                    ? t("teammate.active")
+                    : t("teammate.invited")}
+                </ToneBadge>
+              ) : null}
             </div>
           </CardHeader>
           <CardBody className="space-y-2 text-sm">
             <p>
               <span className="text-[var(--text-muted)]">{t("auth.email")}:</span>{" "}
-              {teammate.email}
+              {member.email}
             </p>
-            {teammate.name.trim() ? (
+            {member.name.trim() ? (
               <p>
                 <span className="text-[var(--text-muted)]">{t("profile.accountName")}:</span>{" "}
-                {teammate.name}
+                {member.name}
               </p>
             ) : null}
           </CardBody>
@@ -104,21 +124,21 @@ export default async function TeammateDetailPage({
                 <Input
                   id="displayName"
                   name="displayName"
-                  defaultValue={teammate.displayName ?? ""}
+                  defaultValue={member.displayName ?? ""}
                   placeholder={t("teammate.fantasyNamePlaceholder")}
                 />
                 <p className="mt-1 text-xs text-[var(--text-muted)]">
                   {t("teammate.fantasyNameHint")}
                 </p>
               </div>
-              {teammate.accountStatus === "invited" ? (
+              {teammate?.accountStatus === "invited" ? (
                 <div>
                   <Label htmlFor="email">{t("auth.email")}</Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
-                    defaultValue={teammate.email}
+                    defaultValue={member.email}
                     required
                   />
                 </div>
@@ -128,7 +148,7 @@ export default async function TeammateDetailPage({
           </CardBody>
         </Card>
 
-        {teammate.accountStatus === "invited" ? (
+        {teammate?.accountStatus === "invited" ? (
           <Card>
             <CardHeader>
               <h2 className="text-sm font-semibold">{t("teammate.inviteLink")}</h2>
@@ -164,7 +184,7 @@ export default async function TeammateDetailPage({
           </Card>
         ) : null}
 
-        {teammate.active && teammate.accountStatus === "active" ? (
+        {teammate?.active && teammate.accountStatus === "active" ? (
           <PromoteTeammateButton
             locale={locale}
             teammateId={id}

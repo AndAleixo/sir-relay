@@ -210,6 +210,13 @@ export function removeGroupMember(groupId: string, userId: string): void {
   clearMockLastActiveGroup(userId, groupId);
 }
 
+export function getMembershipRole(
+  groupId: string,
+  userId: string,
+): Role | null {
+  return roleInGroup(userId, groupId);
+}
+
 export function userIdsInGroup(groupId: string): Set<string> {
   return new Set(
     allMemberships()

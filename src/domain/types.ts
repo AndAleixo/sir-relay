@@ -34,6 +34,8 @@ export interface GroupMembership {
   groupId: string;
   userId: string;
   role: Role;
+  /** Optional per-group fantasy label; UI prefers this over account name. */
+  displayName?: string | null;
 }
 
 /** Public invite metadata — no secrets. */
@@ -56,6 +58,8 @@ export interface User {
   active: boolean;
   mustChangePassword?: boolean;
   telegramStatus?: TelegramLinkStatus;
+  /** Populated for group-scoped views from `group_memberships.display_name`. */
+  displayName?: string | null;
 }
 
 export type OperatorAlertType = "task_done" | "task_due";

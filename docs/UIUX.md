@@ -385,7 +385,7 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 
 Table: name, email, role, account status, Telegram status, view link. Operators link to **Profile**; teammates to detail.
 
-**Add teammate** — header button → `/teammates/new` (name, email). New/invited account → teammate detail with activation link. Existing active account → pending request, no membership until acceptance.
+**Add teammate** — header button → `/teammates/new` (**email only**). New/invited account → teammate detail with activation link; list shows **email + Pending** until the person sets their account name. Existing active account → pending request, no membership until acceptance (opaque success; do not surface account name on lookup).
 
 **Pending requests** — operator list shows pending/declined/expired requests and **Resend**. Existing members remain in the main table only.
 
@@ -393,10 +393,13 @@ Table: name, email, role, account status, Telegram status, view link. Operators 
 
 ### Detail `/teammates/[id]`
 
-- Name, email, account + Telegram **status** badges
-- Edit name (+ email while `invited`), **promote to operator** (active account), remove from group
+- Group label (`display_name ?? name`), email, account + Telegram **status** badges
+- Edit **group fantasy name** (`display_name`); email only while `invited`; **promote to operator** (active account), remove from group
+- **Never** edit another user’s global account name — that lives on **Profile**
 - **Invite link** — `/join/{token}` · copy · regenerate
 - Teammate links Telegram on **Profile** after activation (operator has no Telegram link field here)
+
+Member may also edit their own fantasy name for the active group on **Profile** (same field operators edit on teammate detail).
 
 ---
 
@@ -411,7 +414,7 @@ All users. Access: avatar (header / mobile), sidebar footer, account menu.
 | Section | Content | Phase 1 |
 |---------|---------|---------|
 | **Photo** | Upload / change / remove profile photo | Mock: browser storage · production: server upload |
-| **Account** | Editable display name; email read-only | Yes |
+| **Account** | Editable **own** account name; email read-only. Optional **fantasy name** for the active group (same field operators edit on teammate detail) | Yes |
 | **Language** | Locale picker; persisted on account | Yes |
 | **Password** | Change password form | Yes |
 | **Telegram** | Link status; pending: copy · **Open in Telegram** · **New link code** on **Profile** (operators: alerts · teammates: task relay) | Yes |

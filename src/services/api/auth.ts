@@ -157,8 +157,11 @@ export class ApiAuthService implements AuthService {
     token: string,
     password: string,
     locale: Locale = defaultLocale,
+    name?: string,
   ): Promise<Session> {
     if (password.length < 8) throw new Error("Invalid password");
+    const trimmedName = name?.trim() ?? "";
+    if (trimmedName.length < 2) throw new Error("Invalid name");
 
     const tokenHash = hashToken(token);
     const passwordHash = await hashPassword(password);
@@ -189,6 +192,7 @@ export class ApiAuthService implements AuthService {
       await tx.user.update({
         where: { id: candidate.userId },
         data: {
+          name: trimmedName,
           passwordHash,
           accountStatus: "active",
           mustChangePassword: false,

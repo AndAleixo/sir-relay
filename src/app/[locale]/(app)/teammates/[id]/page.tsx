@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { joinInviteUrl } from "@/lib/app-url";
+import { groupMemberLabel } from "@/lib/group-member-label";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/require-session";
 
@@ -32,6 +33,7 @@ export default async function TeammateDetailPage({
   const teammate = await teammates.getTeammate(id, { session });
   if (!teammate) redirect(`/${locale}/teammates`);
 
+  const label = groupMemberLabel(teammate);
   const inviteToken =
     teammate.accountStatus === "invited"
       ? await teammates.getInviteToken(id, { session })
@@ -40,7 +42,7 @@ export default async function TeammateDetailPage({
 
   return (
     <>
-      <PageHeader title={teammate.name} />
+      <PageHeader title={label} />
       {error === "promote" ? (
         <Banner variant="danger" className="mb-4">
           {t("teammate.promoteFailed")}
@@ -82,6 +84,12 @@ export default async function TeammateDetailPage({
               <span className="text-[var(--text-muted)]">{t("auth.email")}:</span>{" "}
               {teammate.email}
             </p>
+            {teammate.name.trim() ? (
+              <p>
+                <span className="text-[var(--text-muted)]">{t("profile.accountName")}:</span>{" "}
+                {teammate.name}
+              </p>
+            ) : null}
           </CardBody>
         </Card>
 
@@ -92,8 +100,16 @@ export default async function TeammateDetailPage({
           <CardBody>
             <form action={updateTeammateForm.bind(null, locale, id)} className="space-y-4">
               <div>
-                <Label htmlFor="name">{t("teammate.name")}</Label>
-                <Input id="name" name="name" defaultValue={teammate.name} required />
+                <Label htmlFor="displayName">{t("teammate.fantasyName")}</Label>
+                <Input
+                  id="displayName"
+                  name="displayName"
+                  defaultValue={teammate.displayName ?? ""}
+                  placeholder={t("teammate.fantasyNamePlaceholder")}
+                />
+                <p className="mt-1 text-xs text-[var(--text-muted)]">
+                  {t("teammate.fantasyNameHint")}
+                </p>
               </div>
               {teammate.accountStatus === "invited" ? (
                 <div>
@@ -153,7 +169,7 @@ export default async function TeammateDetailPage({
             locale={locale}
             teammateId={id}
             label={t("teammate.promoteToOperator")}
-            confirmMessage={t("teammate.promoteConfirm", { name: teammate.name })}
+            confirmMessage={t("teammate.promoteConfirm", { name: label })}
           />
         ) : null}
 

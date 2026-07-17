@@ -82,10 +82,11 @@ model Group {
 }
 
 model GroupMembership {
-  groupId   String   @map("group_id")
-  userId    String   @map("user_id")
-  role      Role
-  createdAt DateTime @default(now()) @map("created_at")
+  groupId     String   @map("group_id")
+  userId      String   @map("user_id")
+  role        Role
+  displayName String?  @map("display_name")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -9,6 +9,7 @@ import { PasswordFormFields } from "@/components/auth/password-form-fields";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
+import { Input, Label } from "@/components/ui/input";
 import { resolveEntryPath } from "@/lib/entry-route";
 import { getServices } from "@/services";
 
@@ -17,6 +18,7 @@ const errorKeys = {
   mismatch: "passwordMismatch",
   invalid: "invalidToken",
   email_mismatch: "emailMismatch",
+  name: "nameRequired",
 } as const;
 
 export default async function JoinPage({
@@ -79,7 +81,9 @@ export default async function JoinPage({
 
             {errorKey ? (
               <p className="rounded-button border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-700">
-                {errorKey === "invalidToken" || errorKey === "emailMismatch"
+                {errorKey === "invalidToken" ||
+                errorKey === "emailMismatch" ||
+                errorKey === "nameRequired"
                   ? t(`join.${errorKey}`)
                   : t(`auth.${errorKey}`)}
               </p>
@@ -106,6 +110,17 @@ export default async function JoinPage({
                     {t("join.accountEmail", { email: preview.email })}
                   </p>
                 ) : null}
+                <div>
+                  <Label htmlFor="name">{t("join.yourName")}</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    required
+                    minLength={2}
+                    autoComplete="name"
+                    placeholder={t("join.yourNamePlaceholder")}
+                  />
+                </div>
                 <PasswordFormFields
                   requireCurrent={false}
                   labels={{

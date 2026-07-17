@@ -1,5 +1,6 @@
 import type { Session, Task, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
+import { groupMemberLabel } from "@/lib/group-member-label";
 import { prisma } from "@/lib/prisma";
 import { toTask } from "@/services/api/mappers";
 
@@ -9,12 +10,17 @@ function requireGroupId(session: Session): string {
   return groupId;
 }
 
-async function assigneeName(assigneeId: string): Promise<string> {
-  const user = await prisma.user.findUnique({
-    where: { id: assigneeId },
-    select: { name: true },
+async function assigneeName(groupId: string, assigneeId: string): Promise<string> {
+  const membership = await prisma.groupMembership.findUnique({
+    where: { groupId_userId: { groupId, userId: assigneeId } },
+    include: { user: { select: { name: true, email: true } } },
   });
-  return user?.name ?? "Unknown";
+  if (!membership?.user) return "Unknown";
+  return groupMemberLabel({
+    name: membership.user.name,
+    email: membership.user.email,
+    displayName: membership.displayName,
+  });
 }
 
 async function assertAssigneeInGroup(groupId: string, assigneeId: string) {
@@ -40,7 +46,7 @@ export class ApiTaskService implements TaskService {
     const names = new Map<string, string>();
     for (const row of rows) {
       if (!names.has(row.assigneeId)) {
-        names.set(row.assigneeId, await assigneeName(row.assigneeId));
+        names.set(row.assigneeId, await assigneeName(groupId, row.assigneeId));
       }
     }
     return rows.map((row) => toTask(row, names.get(row.assigneeId)!));
@@ -63,7 +69,7 @@ export class ApiTaskService implements TaskService {
     if (!title) throw new Error("Title required");
 
     await assertAssigneeInGroup(groupId, input.assigneeId);
-    const name = await assigneeName(input.assigneeId);
+    const name = await assigneeName(groupId, input.assigneeId);
     const id = `task-${Date.now()}`;
 
     const row = await prisma.task.create({

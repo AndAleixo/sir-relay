@@ -26,7 +26,6 @@ export interface CreateTaskInput {
 }
 
 export interface CreateTeammateInput {
-  name: string;
   email: string;
 }
 
@@ -45,7 +44,12 @@ export interface AuthService {
     currentPassword: string,
     newPassword: string,
   ): Promise<User>;
-  joinWithToken(token: string, password: string, locale?: Locale): Promise<Session>;
+  joinWithToken(
+    token: string,
+    password: string,
+    locale?: Locale,
+    name?: string,
+  ): Promise<Session>;
   setActiveGroup(userId: string, groupId: string | null): Promise<Session>;
   refreshSessionUser(user: User): Promise<void>;
   isInviteTokenValid(token: string): Promise<boolean>;
@@ -99,9 +103,15 @@ export interface TeammateService {
   ): Promise<CreateTeammateResult>;
   updateTeammate(
     id: string,
-    input: { name?: string; email?: string },
+    input: { displayName?: string | null; email?: string },
     ctx: { session: Session },
   ): Promise<Teammate>;
+  /** Operator or self: set/clear fantasy name on active-group membership. */
+  updateMembershipDisplayName(
+    userId: string,
+    displayName: string | null,
+    ctx: { session: Session },
+  ): Promise<void>;
   removeTeammate(id: string, ctx: { session: Session }): Promise<void>;
   promoteToOperator(id: string, ctx: { session: Session }): Promise<void>;
   regenerateInvite(id: string, ctx: { session: Session }): Promise<void>;

@@ -170,10 +170,33 @@ export function addGroupMember(
   groupId: string,
   userId: string,
   role: Role,
+  displayName: string | null = null,
 ): void {
   if (getMembership(userId, groupId)) return;
   removedMembershipKeys().delete(membershipKey(groupId, userId));
-  mockGroupExtras().extraMemberships.push({ groupId, userId, role });
+  mockGroupExtras().extraMemberships.push({
+    groupId,
+    userId,
+    role,
+    displayName,
+  });
+}
+
+export function setMembershipDisplayName(
+  groupId: string,
+  userId: string,
+  displayName: string | null,
+): void {
+  const membership = getMembership(userId, groupId);
+  if (!membership) throw new Error("Membership not found");
+  membership.displayName = displayName?.trim() || null;
+}
+
+export function getMembershipDisplayName(
+  groupId: string,
+  userId: string,
+): string | null {
+  return getMembership(userId, groupId)?.displayName ?? null;
 }
 
 export function removeGroupMember(groupId: string, userId: string): void {

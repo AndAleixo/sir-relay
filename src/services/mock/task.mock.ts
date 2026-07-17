@@ -5,7 +5,11 @@ import {
   MOCK_TASKS,
   MOCK_TEAMMATES,
 } from "@/services/mock/data";
-import { userIdsInGroup } from "@/services/mock/groups.mock";
+import { groupMemberLabel } from "@/lib/group-member-label";
+import {
+  getMembershipDisplayName,
+  userIdsInGroup,
+} from "@/services/mock/groups.mock";
 
 function tasksInGroup(tasks: Task[], session: Session): Task[] {
   const groupId = session.activeGroupId;
@@ -30,18 +34,32 @@ function resolveAssignee(
   const ids = userIdsInGroup(groupId);
   if (!ids.has(assigneeId)) throw new Error("Invalid assignee");
 
+  const displayName = getMembershipDisplayName(groupId, assigneeId);
+
   if (assigneeId === session.user.id && session.user.role === "operator") {
-    return { assigneeId: session.user.id, assigneeName: session.user.name };
+    return {
+      assigneeId: session.user.id,
+      assigneeName: groupMemberLabel({
+        ...session.user,
+        displayName,
+      }),
+    };
   }
 
   const teammate = MOCK_TEAMMATES.find((t) => t.id === assigneeId && t.active);
   if (teammate) {
-    return { assigneeId: teammate.id, assigneeName: teammate.name };
+    return {
+      assigneeId: teammate.id,
+      assigneeName: groupMemberLabel({ ...teammate, displayName }),
+    };
   }
 
   const operator = MOCK_OPERATORS.find((op) => op.id === assigneeId && op.active);
   if (operator) {
-    return { assigneeId: operator.id, assigneeName: operator.name };
+    return {
+      assigneeId: operator.id,
+      assigneeName: groupMemberLabel({ ...operator, displayName }),
+    };
   }
 
   throw new Error("Invalid assignee");

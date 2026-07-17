@@ -44,10 +44,6 @@ export default async function NewTeammatePage({
           {errorMessage ? <Banner variant="danger">{errorMessage}</Banner> : null}
           <form action={createTeammateForm.bind(null, locale)} className="space-y-4">
             <div>
-              <Label htmlFor="name">{t("teammate.name")}</Label>
-              <Input id="name" name="name" required placeholder={t("teammate.namePlaceholder")} />
-            </div>
-            <div>
               <Label htmlFor="email">{t("auth.email")}</Label>
               <Input
                 id="email"

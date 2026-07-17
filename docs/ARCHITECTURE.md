@@ -76,7 +76,9 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 
 Unauthenticated access to app routes → `/login?session=expired`.
 
-**User model:** one **account** per person → zero or more **groups** → **role per membership** (`operator` / `teammate`). Session: `{ user, activeGroupId }`; effective role from `hydrateSession()` + `group_memberships`. `UserGroup` in `domain/types.ts` matches `GET /groups` (id, name, role).
+**User model:** one **account** per person → zero or more **groups** → **role per membership** (`operator` / `teammate`) + optional per-membership **`display_name`** (fantasy label). Session: `{ user, activeGroupId }`; effective role from `hydrateSession()` + `group_memberships`. Account `users.name` is owner-only; operators must not mutate it. Group UI label: `display_name ?? users.name` (invited pending → show email). `UserGroup` in `domain/types.ts` matches `GET /groups` (id, name, role).
+
+**Add teammate:** email-only pre-create / consent invitation; person sets account name on join/signup.
 
 ## Landing demo
 

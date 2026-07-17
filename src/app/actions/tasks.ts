@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { Task, TaskStatus } from "@/domain/types";
 import type { SyncActionOptions, TaskActionResult } from "@/domain/sync";
 import { requireOperatorSession } from "@/lib/require-session";
+import { groupMemberLabel } from "@/lib/group-member-label";
 import { isGroupTimezone } from "@/lib/group-timezones";
 import { getServices, serviceMode } from "@/services";
 import {
@@ -282,11 +283,18 @@ export async function saveTaskDetailAction(
     assigneeId &&
     assigneeId !== existing.assigneeId
   ) {
-    let assigneeName = session.user.name;
+    let assigneeName = groupMemberLabel(session.user);
     if (assigneeId !== session.user.id) {
       const teammate = await teammates.getTeammate(assigneeId, { session });
       if (!teammate) return;
-      assigneeName = teammate.name;
+      assigneeName = groupMemberLabel(teammate);
+    } else {
+      const orgUsers = await teammates.listOrganizationUsers({ session });
+      const me = orgUsers.find((user) => user.id === session.user.id);
+      assigneeName = groupMemberLabel({
+        ...session.user,
+        displayName: me?.displayName,
+      });
     }
     await tasks.reassignTask(taskId, assigneeId, assigneeName, { session });
   }

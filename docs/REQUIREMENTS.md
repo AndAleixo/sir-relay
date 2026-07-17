@@ -22,7 +22,7 @@ Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../R
 
 **Account model:** Anyone can **sign up**. After login they **create a group** (becoming **operator** there) or **join a group** as **teammate** — via **invite link**, **group panel paste**, or **sign-up email match** (see §5.1.2). The **same user** can be operator in one group and teammate in another — switch active group via the **header group switcher panel** or `/groups` when no group is active.
 
-**Pre-created teammate (operator):** The operator **does not create a login** for someone else. They **pre-register** a future member: display name + email → placeholder user (`account_status: invited`, no password) + **teammate** membership in the active group → **invite link** to share. The person activates the account themselves — either via that link **or** via **Sign up** with the **same email** (system merges and joins the group automatically).
+**Pre-created teammate (operator):** The operator **does not create a login** for someone else. They **pre-register** by **email only** → placeholder user (`account_status: invited`, no password, no operator-chosen name) + **teammate** membership in the active group → **invite link** to share. The person sets their own **account name** on activation (invite link or **Sign up** with the same email).
 
 **Positioning:** Simple team coordination — **no performance dashboards, leaderboards, or surveillance-style metrics.**
 
@@ -141,8 +141,8 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-05 | First-login password change | **Bootstrap user only** (`must_change_password`); normal sign-ups skip forced change |
 | P1-AUTH-06 | Password storage | bcrypt; minimum 8 characters |
 | P1-AUTH-07 | Change password | Available on **Profile** (all users); optional forced flow via `/change-password` |
-| P1-AUTH-08 | Update profile | `PATCH /me` — update `name`, `locale` (`en-gb` \| `es-es` \| `pt-br`); avatar in later phase |
-| P1-AUTH-09 | Group invite | Operator pre-creates teammate → invite link (72h) → `/join/<token>` → set password **or** sign up with same email (§5.1.2) |
+| P1-AUTH-08 | Update profile | `PATCH /me` — update own `name`, `locale` (`en-gb` \| `es-es` \| `pt-br`); avatar in later phase. **Only the account owner** may change `users.name` |
+| P1-AUTH-09 | Group invite | Operator pre-creates by **email** → invite link (72h) → `/join/<token>` → set password + name **or** sign up with same email (§5.1.2) |
 | P1-AUTH-10 | Post-login routing | No group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` |
 | P1-AUTH-11 | Sign up | `/signup` — name, email, password; **new email** → user with **no group** until create or join · **invited email match** → merge + activate (§5.1.2) |
 | P1-AUTH-12 | Active group | Session holds `activeGroupId`; all app data (tasks, teammates, alerts) scoped to active group |
@@ -170,34 +170,47 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 
 ### 5.1.2 Pre-created teammate activation
 
-Operator **pre-create** ≠ operator-owned login. The operator reserves **name + email + group role**; the **person** chooses how to activate.
+Operator **pre-create** ≠ operator-owned login. The operator reserves **email + group role only**; the **person** chooses name and how to activate.
 
 | Path | Who | Result |
 |------|-----|--------|
-| **A — Invite link** | Person opens `/join/<token>` | Set password (if `invited`) or accept (if already logged in with matching email) → `active` → already in group |
+| **A — Invite link** | Person opens `/join/<token>` | Set **name + password** (if `invited`) or accept (if already logged in with matching email) → `active` → already in group |
 | **B — Sign up (email match)** | Person uses `/signup` with **same email** as pre-create | Merge into existing `invited` row: signup **name + password** win, memberships kept, `active`, pending invite tokens consumed → **auto-join** group(s) per P1-AUTH-14 |
-| **C — Already active account** | Person already signed up elsewhere | Operator creates a pending request; person accepts in the group switcher before membership is created (P1-GRP-08/13/14) |
+| **C — Already active account** | Person already signed up elsewhere | Operator creates a pending request (email only; opaque success); person accepts in the group switcher before membership is created (P1-GRP-08/13/14) |
 
 **Sign-up must not fail** with “email taken” when the only existing row is **`invited`** from operator pre-create (P1-AUTH-13). **Sign-up must fail** when email belongs to an **`active`** user — they should log in instead.
 
-**Operator visibility:** invite link + account/Telegram **status** on teammate detail; **no** operator access to the teammate’s Telegram link (self-service on **Profile** — P1-TG-11 / P1-TM-07).
+**Operator visibility:** invite link + account/Telegram **status** on teammate detail; **no** operator access to the teammate’s Telegram link (self-service on **Profile** — P1-TG-11 / P1-TM-07). Create-by-email must not reveal whether the address already exists beyond group-scoped outcomes (`already_in_group` / pending invite created).
+
+### 5.1.3 Identity & display names
+
+| Field | Owner | Scope |
+|-------|--------|--------|
+| `users.name` (account name) | **Account owner only** (Profile / signup / join) | Global |
+| `group_memberships.display_name` (fantasy / group label) | **Operator in that group** or **the member themselves** | Per membership |
+| Email | Owner; operator may change only while `invited` | Global unique |
+
+**Group UI label:** `display_name ?? users.name`; if account name is empty (invited pending), show **email**. Lists also show account status **Pending** / **Invited**.
+
+Operators **must not** write `users.name` for another person (closes the teammate “Edit name” hole that mutated global identity).
 
 ### 5.2 Teammates
 
-Operator-only management **within the active group**.
+Operator-only management **within the active group** (except fantasy name, which the member may also edit).
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-TM-01 | Pre-create | Display name + email required; creates **`invited`** user (no password) + teammate membership — **not** an operator-created login |
-| P1-TM-02 | List | Name, email, account (`invited` / `active`), Telegram (`linked` / `pending`) |
+| P1-TM-01 | Pre-create | **Email only**; creates **`invited`** user (no password; account name unset until activation) + teammate membership — **not** an operator-created login |
+| P1-TM-02 | List | Group label (`display_name ?? name`, or email while pending), email, account (`invited` / `active`), Telegram (`linked` / `pending`) |
 | P1-TM-03 | Remove from group | In one transaction, permanently delete tasks assigned to that user in the active group, invalidate open group invites, and delete the membership. Preserve the global account and tasks assigned to other users. The same email can be added again. |
-| P1-TM-04 | Edit | Rename; change email (only while `invited` — before first activation) |
+| P1-TM-04 | Edit (operator) | Set/clear **group `display_name`**; change email only while `invited`. **Never** patch another user’s `users.name` |
 | P1-TM-05 | Invite | One-time token (72h); share link; activation via `/join/<token>` **or** sign-up email match (§5.1.2) |
 | P1-TM-06 | Regenerate invite | New token if expired and account still `invited` |
 | P1-TM-07 | Link Telegram | Teammate self-service on **Profile** — one-time code (72h); `t.me/<bot>?start=<code>` |
 | P1-TM-08 | Regenerate Telegram link | **Profile** — new code if expired (operators + teammates) |
 | P1-TM-09 | One chat per teammate | `telegram_chat_id` unique across users |
 | P1-TM-10 | Promote to operator | Operator promotes **active** teammate in group → `group_memberships.role = operator`; appears as operator in team list |
+| P1-TM-11 | Fantasy name | Optional `group_memberships.display_name`; editable by operator **or** the member; empty → fall back to account name |
 
 ### 5.3 Tasks & relay queue
 
@@ -312,7 +325,7 @@ groups
   id, name, created_at, updated_at
 
 group_memberships
-  group_id, user_id, role (operator|teammate), created_at
+  group_id, user_id, role (operator|teammate), display_name (nullable), created_at
   UNIQUE (group_id, user_id)
 
 group_invitations
@@ -674,7 +687,8 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Relay queue | One active Telegram task per teammate; next sent on `done` |
 | Task status | Code: `todo` · `doing` · `done`. UI (en): To do · In progress · Done — see [UIUX.md](./UIUX.md#status-naming) |
 | Account status | `invited` (operator pre-create; no password yet) · `active` (can log in) |
-| Pre-create | Operator reserves name + email + group membership before the person activates |
+| Pre-create | Operator reserves email + group membership; person sets account name on activation |
+| Fantasy name | Optional per-membership label (`display_name`); operator or member may edit; UI uses it over account name when set |
 | Sign-up merge | Sign-up with same email as `invited` row activates account and keeps group memberships |
 | Telegram status | `linked` · `pending` |
 | Phase | Delivery milestone — not a version number |

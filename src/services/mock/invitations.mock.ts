@@ -94,7 +94,7 @@ export function createOrRefreshMockGroupInvitation(input: {
     groupId: group.id,
     groupName: group.name,
     invitedUserId: user.id,
-    invitedUserName: user.name,
+    invitedUserName: user.name.trim() || user.email,
     invitedUserEmail: user.email,
     invitedByUserId: input.invitedByUserId,
     role: "teammate",

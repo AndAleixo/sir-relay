@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
 import { cn } from "@/lib/cn";
+import { groupMemberLabel } from "@/lib/group-member-label";
 import { resendGroupInvitation } from "@/app/actions/invitations";
 
 function isTeammate(user: OrganizationUser): user is OrganizationUser & { role: "teammate" } {
@@ -132,7 +133,9 @@ export default async function TeammatesPage({
 
               return (
                 <tr key={user.id} className={teamListStyles.trHover}>
-                  <td className={cn(teamListStyles.td, teamListStyles.userCell)}>{user.name}</td>
+                  <td className={cn(teamListStyles.td, teamListStyles.userCell)}>
+                    {groupMemberLabel(user)}
+                  </td>
                   <td className={teamListStyles.td}>{user.email}</td>
                   <td className={teamListStyles.td}>
                     <ToneBadge tone={user.role === "operator" ? "accent" : "neutral"}>

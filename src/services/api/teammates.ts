@@ -41,7 +41,11 @@ async function requireTeammateInGroup(
   if (!membership || membership.role !== "teammate") {
     throw new Error("Teammate not found");
   }
-  return toTeammate(membership.user, toRole(membership.role));
+  return toTeammate(
+    membership.user,
+    toRole(membership.role),
+    membership.displayName,
+  );
 }
 
 export class ApiTeammateService implements TeammateService {
@@ -53,7 +57,7 @@ export class ApiTeammateService implements TeammateService {
     });
     return rows
       .filter((row) => row.user.active)
-      .map((row) => toTeammate(row.user, "teammate"));
+      .map((row) => toTeammate(row.user, "teammate", row.displayName));
   }
 
   async listOrganizationUsers(ctx: { session: Session }): Promise<OrganizationUser[]> {
@@ -67,8 +71,8 @@ export class ApiTeammateService implements TeammateService {
       .map((row) => {
         const role = toRole(row.role);
         return role === "teammate"
-          ? toTeammate(row.user, role)
-          : (toUser(row.user, role) as OrganizationUser);
+          ? toTeammate(row.user, role, row.displayName)
+          : (toUser(row.user, role, row.displayName) as OrganizationUser);
       });
   }
 
@@ -117,7 +121,7 @@ export class ApiTeammateService implements TeammateService {
         return {
           ok: true as const,
           kind: "membership" as const,
-          teammate: toTeammate(existing, "teammate"),
+          teammate: toTeammate(existing, "teammate", null),
         };
       } catch (error) {
         if (isUniqueConstraintError(error)) {
@@ -133,7 +137,7 @@ export class ApiTeammateService implements TeammateService {
         const created = await tx.user.create({
           data: {
             id,
-            name: input.name.trim(),
+            name: "",
             email,
             locale: fromLocale(defaultLocale),
             accountStatus: "invited",
@@ -148,7 +152,7 @@ export class ApiTeammateService implements TeammateService {
       return {
         ok: true as const,
         kind: "membership" as const,
-        teammate: toTeammate(user, "teammate"),
+        teammate: toTeammate(user, "teammate", null),
       };
     } catch (error) {
       if (isUniqueConstraintError(error)) {
@@ -160,22 +164,48 @@ export class ApiTeammateService implements TeammateService {
 
   async updateTeammate(
     id: string,
-    input: { name?: string; email?: string },
+    input: { displayName?: string | null; email?: string },
     ctx: { session: Session },
   ): Promise<Teammate> {
+    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
     const teammate = await requireTeammateInGroup(ctx, id);
-    const data: { name?: string; email?: string } = {};
 
-    if (input.name?.trim()) data.name = input.name.trim();
     if (input.email?.trim()) {
       if (teammate.accountStatus !== "invited") {
         throw new Error("Email can only change before first login");
       }
-      data.email = input.email.trim().toLowerCase();
+      await prisma.user.update({
+        where: { id },
+        data: { email: input.email.trim().toLowerCase() },
+      });
     }
 
-    const updated = await prisma.user.update({ where: { id }, data });
-    return toTeammate(updated, "teammate");
+    if (input.displayName !== undefined) {
+      await this.updateMembershipDisplayName(id, input.displayName, ctx);
+    }
+
+    return requireTeammateInGroup(ctx, id);
+  }
+
+  async updateMembershipDisplayName(
+    userId: string,
+    displayName: string | null,
+    ctx: { session: Session },
+  ): Promise<void> {
+    const groupId = requireGroupId(ctx.session);
+    const isSelf = ctx.session.user.id === userId;
+    const isOperator = ctx.session.user.role === "operator";
+    if (!isSelf && !isOperator) throw new Error("Forbidden");
+
+    const membership = await prisma.groupMembership.findUnique({
+      where: { groupId_userId: { groupId, userId } },
+    });
+    if (!membership) throw new Error("Membership not found");
+
+    await prisma.groupMembership.update({
+      where: { groupId_userId: { groupId, userId } },
+      data: { displayName: displayName?.trim() || null },
+    });
   }
 
   async removeTeammate(id: string, ctx: { session: Session }): Promise<void> {

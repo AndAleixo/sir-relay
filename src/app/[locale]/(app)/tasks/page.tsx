@@ -17,6 +17,10 @@ export default async function TasksPage({
   const isOperator = session.user.role === "operator";
   const taskList = await tasks.listTasks({ session });
   const teammateList = isOperator ? await teammates.listTeammates({ session }) : [];
+  const orgUsers = isOperator
+    ? await teammates.listOrganizationUsers({ session })
+    : [];
+  const operatorMember = orgUsers.find((user) => user.id === session.user.id);
 
   if (isOperator) {
     await alerts.syncDueAlerts(taskList, { session });
@@ -31,7 +35,12 @@ export default async function TasksPage({
       showNewTask={isOperator}
       operator={
           isOperator
-            ? { id: session.user.id, name: session.user.name }
+            ? {
+                id: session.user.id,
+                name: session.user.name,
+                email: session.user.email,
+                displayName: operatorMember?.displayName ?? null,
+              }
             : undefined
         }
         tasks={taskList}

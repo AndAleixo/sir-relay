@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Task, Teammate } from "@/domain/types";
+import { groupMemberLabel } from "@/lib/group-member-label";
 import { useSync } from "@/components/sync";
 import { Button } from "@/components/ui/button";
 import { StatusKanban } from "@/components/tasks/status-kanban";
@@ -14,7 +15,7 @@ import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.sty
 interface TasksPageClientProps {
   locale: string;
   role: "operator" | "teammate";
-  operator?: { id: string; name: string };
+  operator?: { id: string; name: string; email?: string; displayName?: string | null };
   tasks: Task[];
   teammates: Teammate[];
   showNewTask?: boolean;
@@ -141,7 +142,7 @@ export function TasksPageClient({
             { id: operator.id, label: labels.meColumn },
             ...teammates.map((teammate) => ({
               id: teammate.id,
-              label: teammate.name,
+              label: groupMemberLabel(teammate),
             })),
           ]}
           labels={{

@@ -15,8 +15,10 @@ import {
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
 import {
   addGroupMember,
+  getMembershipDisplayName,
   removeGroupMember,
   setMemberRole,
+  setMembershipDisplayName,
   userIdsInGroup,
 } from "@/services/mock/groups.mock";
 import {
@@ -29,6 +31,17 @@ import {
 import { removeMockTasksAssignedTo } from "@/services/mock/task.mock";
 import { createOrRefreshMockGroupInvitation } from "@/services/mock/invitations.mock";
 
+function withDisplayName<T extends User>(
+  user: T,
+  groupId: string | null | undefined,
+): T {
+  if (!groupId) return { ...user, displayName: null };
+  return {
+    ...user,
+    displayName: getMembershipDisplayName(groupId, user.id),
+  };
+}
+
 function requireTeammateInGroup(
   ctx: { session: Session },
   id: string,
@@ -39,7 +52,7 @@ function requireTeammateInGroup(
   }
   const teammate = MOCK_TEAMMATES.find((t) => t.id === id);
   if (!teammate) throw new Error("Teammate not found");
-  return teammate;
+  return withDisplayName(teammate, groupId);
 }
 
 export class MockTeammateService implements TeammateService {
@@ -47,7 +60,9 @@ export class MockTeammateService implements TeammateService {
     const groupId = ctx.session.activeGroupId;
     if (!groupId) return [];
     const ids = userIdsInGroup(groupId);
-    return MOCK_TEAMMATES.filter((t) => t.active && ids.has(t.id));
+    return MOCK_TEAMMATES.filter((t) => t.active && ids.has(t.id)).map((t) =>
+      withDisplayName(t, groupId),
+    );
   }
 
   async listOrganizationUsers(ctx: { session: Session }): Promise<OrganizationUser[]> {
@@ -56,10 +71,10 @@ export class MockTeammateService implements TeammateService {
     const ids = userIdsInGroup(groupId);
     const operators = MOCK_OPERATORS.filter(
       (user) => user.active && ids.has(user.id),
-    ) as OrganizationUser[];
+    ).map((user) => withDisplayName(user, groupId)) as OrganizationUser[];
     const teammates = MOCK_TEAMMATES.filter(
       (user) => user.active && ids.has(user.id),
-    );
+    ).map((user) => withDisplayName(user, groupId));
     return [...operators, ...teammates];
   }
 
@@ -102,28 +117,32 @@ export class MockTeammateService implements TeammateService {
       return {
         ok: true,
         kind: "membership",
-        teammate: {
-          ...existing,
-          role: "teammate",
-          accountStatus:
-            "accountStatus" in existing && existing.accountStatus === "invited"
-              ? "invited"
-              : "active",
-          telegramStatus: existing.telegramStatus ?? "pending",
-        },
+        teammate: withDisplayName(
+          {
+            ...existing,
+            role: "teammate",
+            accountStatus:
+              "accountStatus" in existing && existing.accountStatus === "invited"
+                ? "invited"
+                : "active",
+            telegramStatus: existing.telegramStatus ?? "pending",
+          } as Teammate,
+          groupId,
+        ),
       };
     }
 
     const id = `user-${Date.now()}`;
     const teammate: Teammate = {
       id,
-      name: input.name,
+      name: "",
       email,
       role: "teammate",
       locale: defaultLocale,
       active: true,
       accountStatus: "invited",
       telegramStatus: "pending",
+      displayName: null,
     };
     MOCK_TEAMMATES.push(teammate);
     addGroupMember(groupId, id, "teammate");
@@ -132,23 +151,40 @@ export class MockTeammateService implements TeammateService {
 
   async updateTeammate(
     id: string,
-    input: { name?: string; email?: string },
+    input: { displayName?: string | null; email?: string },
     ctx: { session: Session },
   ): Promise<Teammate> {
+    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
     const teammate = requireTeammateInGroup(ctx, id);
-
-    if (input.name?.trim()) {
-      teammate.name = input.name.trim();
-    }
 
     if (input.email?.trim()) {
       if (teammate.accountStatus !== "invited") {
         throw new Error("Email can only change before first login");
       }
       teammate.email = input.email.trim().toLowerCase();
+      const stored = MOCK_TEAMMATES.find((row) => row.id === id);
+      if (stored) stored.email = teammate.email;
     }
 
-    return { ...teammate };
+    if (input.displayName !== undefined) {
+      await this.updateMembershipDisplayName(id, input.displayName, ctx);
+    }
+
+    return requireTeammateInGroup(ctx, id);
+  }
+
+  async updateMembershipDisplayName(
+    userId: string,
+    displayName: string | null,
+    ctx: { session: Session },
+  ): Promise<void> {
+    const groupId = ctx.session.activeGroupId;
+    if (!groupId) throw new Error("No active group");
+    const isSelf = ctx.session.user.id === userId;
+    const isOperator = ctx.session.user.role === "operator";
+    if (!isSelf && !isOperator) throw new Error("Forbidden");
+    if (!userIdsInGroup(groupId).has(userId)) throw new Error("Membership not found");
+    setMembershipDisplayName(groupId, userId, displayName);
   }
 
   async removeTeammate(id: string, ctx: { session: Session }): Promise<void> {

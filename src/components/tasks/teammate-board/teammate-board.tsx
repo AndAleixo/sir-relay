@@ -6,6 +6,7 @@ import type { DragEvent } from "react";
 import type { Task, TaskStatus, Teammate } from "@/domain/types";
 import { groupTasksByStatus } from "@/lib/dates";
 import { cn } from "@/lib/cn";
+import { groupMemberLabel } from "@/lib/group-member-label";
 import {
   dropTargetKey,
   getTaskIdFromDragEvent,
@@ -28,6 +29,8 @@ import { teamBoardStyles } from "./teammate-board.styles";
 interface BoardOperator {
   id: string;
   name: string;
+  email?: string;
+  displayName?: string | null;
 }
 
 interface TeammateBoardProps {
@@ -369,7 +372,7 @@ function TeammateColumnHeader({
         href={`/${locale}/teammates/${teammate.id}`}
         className={teamBoardStyles.teammateName}
       >
-        {teammate.name}
+        {groupMemberLabel(teammate)}
       </Link>
       <div className={teamBoardStyles.badges}>
         <ToneBadge tone={teammate.telegramStatus === "linked" ? "success" : "warning"}>
@@ -400,7 +403,13 @@ function SelfColumnHeader({
       <Link href={`/${locale}/profile`} className={teamBoardStyles.teammateName}>
         {labels.meColumn}
       </Link>
-      <p className="text-xs text-[var(--text-muted)]">{operator.name}</p>
+      <p className="text-xs text-[var(--text-muted)]">
+        {groupMemberLabel({
+          name: operator.name,
+          email: operator.email ?? "",
+          displayName: operator.displayName,
+        })}
+      </p>
       <div className={teamBoardStyles.badges}>
         <ToneBadge tone="neutral">{labels.webOnly}</ToneBadge>
       </div>
@@ -534,7 +543,11 @@ export function TeammateBoard({
       >
         <TaskColumn
           assigneeId={operator.id}
-          assigneeName={operator.name}
+          assigneeName={groupMemberLabel({
+            name: operator.name,
+            email: operator.email ?? "",
+            displayName: operator.displayName,
+          })}
           header={
             <SelfColumnHeader
               operator={operator}
@@ -565,7 +578,7 @@ export function TeammateBoard({
             <TaskColumn
               key={teammate.id}
               assigneeId={teammate.id}
-              assigneeName={teammate.name}
+              assigneeName={groupMemberLabel(teammate)}
               header={
                 <TeammateColumnHeader
                   teammate={teammate}

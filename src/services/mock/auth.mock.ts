@@ -156,10 +156,13 @@ export class MockAuthService implements AuthService {
     token: string,
     password: string,
     locale: Locale = defaultLocale,
+    name?: string,
   ): Promise<Session> {
     if (password.length < 8) {
       throw new Error("Invalid password");
     }
+    const trimmedName = name?.trim() ?? "";
+    if (trimmedName.length < 2) throw new Error("Invalid name");
 
     const invite = resolveInvite(token);
     if (!invite) {
@@ -178,6 +181,7 @@ export class MockAuthService implements AuthService {
 
     consumeInvite(token);
     (user as { accountStatus: string }).accountStatus = "active";
+    user.name = trimmedName;
     user.locale = locale;
 
     const session = buildSession(

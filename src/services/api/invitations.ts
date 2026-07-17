@@ -21,7 +21,7 @@ function toInvitation(row: InvitationRow): GroupInvitation {
     groupId: row.groupId,
     groupName: row.group.name,
     invitedUserId: row.invitedUserId,
-    invitedUserName: row.invitedUser.name,
+    invitedUserName: row.invitedUser.name.trim() || row.invitedUser.email,
     invitedUserEmail: row.invitedUser.email,
     role: "teammate",
     status:

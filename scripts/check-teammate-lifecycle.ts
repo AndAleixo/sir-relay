@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import type { Session } from "../src/domain/types";
+import { groupMemberLabel } from "../src/lib/group-member-label";
 import { mockTeammateService } from "../src/services/mock/teammate.mock";
 import { countMockTasksAssignedTo } from "../src/services/mock/task.mock";
 import { mockGroupInvitationService } from "../src/services/mock/invitations.mock";
@@ -22,6 +23,15 @@ const session: Session = {
 const ctx = { session };
 
 async function main() {
+  assert.equal(
+    groupMemberLabel({ name: "", email: "a@b.com", displayName: null }),
+    "a@b.com",
+  );
+  assert.equal(
+    groupMemberLabel({ name: "Ana", email: "a@b.com", displayName: "Line 1" }),
+    "Line 1",
+  );
+
   const original = await mockTeammateService.getTeammate("user-bruno", ctx);
   assert(original);
   assert(countMockTasksAssignedTo(original.id) > 0);
@@ -31,7 +41,7 @@ async function main() {
   assert.equal(countMockTasksAssignedTo(original.id), 0);
 
   const readded = await mockTeammateService.createTeammate(
-    { name: original.name, email: original.email },
+    { email: original.email },
     ctx,
   );
   assert(readded.ok && readded.kind === "invitation");
@@ -41,7 +51,7 @@ async function main() {
     1,
   );
   const duplicateRequest = await mockTeammateService.createTeammate(
-    { name: original.name, email: original.email },
+    { email: original.email },
     ctx,
   );
   assert(duplicateRequest.ok && duplicateRequest.kind === "invitation");
@@ -62,16 +72,23 @@ async function main() {
   assert(await mockTeammateService.getTeammate(original.id, ctx));
 
   assert.deepEqual(
-    await mockTeammateService.createTeammate(
-      { name: original.name, email: original.email },
-      ctx,
-    ),
+    await mockTeammateService.createTeammate({ email: original.email }, ctx),
     { ok: false, reason: "already_in_group" },
   );
 
+  await mockTeammateService.updateTeammate(
+    original.id,
+    { displayName: "Bruno Fantasy" },
+    ctx,
+  );
+  const labeled = await mockTeammateService.getTeammate(original.id, ctx);
+  assert(labeled);
+  assert.equal(groupMemberLabel(labeled), "Bruno Fantasy");
+  assert.equal(labeled.name, original.name);
+
   await mockTeammateService.removeTeammate(original.id, ctx);
   const declinedRequest = await mockTeammateService.createTeammate(
-    { name: original.name, email: original.email },
+    { email: original.email },
     ctx,
   );
   assert(declinedRequest.ok && declinedRequest.kind === "invitation");
@@ -90,11 +107,10 @@ async function main() {
   );
 
   const email = `lifecycle-${Date.now()}@example.com`;
-  const created = await mockTeammateService.createTeammate(
-    { name: "Lifecycle Check", email },
-    ctx,
-  );
+  const created = await mockTeammateService.createTeammate({ email }, ctx);
   assert(created.ok && created.kind === "membership");
+  assert.equal(created.teammate.name, "");
+  assert.equal(groupMemberLabel(created.teammate), email);
 
   const firstInvite = await mockTeammateService.getInviteToken(created.teammate.id, ctx);
   assert(firstInvite);

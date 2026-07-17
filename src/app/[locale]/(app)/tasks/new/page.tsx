@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
 import { requireRole } from "@/lib/require-session";
+import { groupMemberLabel } from "@/lib/group-member-label";
 import { PageHeader } from "@/components/layout/app-shell";
 import { CreateTaskForm } from "@/components/tasks/task-form";
 import { Button } from "@/components/ui/button";
@@ -20,14 +21,21 @@ export default async function NewTaskPage({
   requireRole(session, "operator", locale);
 
   const teammateList = await teammates.listTeammates({ session });
+  const orgUsers = await teammates.listOrganizationUsers({ session });
+  const me = orgUsers.find((user) => user.id === session.user.id);
   const assigneeOptions = [
     {
       id: session.user.id,
-      label: t("tasks.assignToMe", { name: session.user.name }),
+      label: t("tasks.assignToMe", {
+        name: groupMemberLabel({
+          ...session.user,
+          displayName: me?.displayName,
+        }),
+      }),
     },
     ...teammateList.map((teammate) => ({
       id: teammate.id,
-      label: teammate.name,
+      label: groupMemberLabel(teammate),
     })),
   ];
 

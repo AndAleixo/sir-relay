@@ -43,7 +43,11 @@ export function telegramStatus(user: DbUser): "linked" | "pending" {
   return user.telegramChatId ? "linked" : "pending";
 }
 
-export function toUser(user: DbUser, role: Role = "operator"): User {
+export function toUser(
+  user: DbUser,
+  role: Role = "operator",
+  displayName: string | null = null,
+): User {
   return {
     id: user.id,
     name: user.name,
@@ -53,12 +57,17 @@ export function toUser(user: DbUser, role: Role = "operator"): User {
     active: user.active,
     mustChangePassword: user.mustChangePassword,
     telegramStatus: telegramStatus(user),
+    displayName,
   };
 }
 
-export function toTeammate(user: DbUser, role: Role = "teammate"): Teammate {
+export function toTeammate(
+  user: DbUser,
+  role: Role = "teammate",
+  displayName: string | null = null,
+): Teammate {
   return {
-    ...toUser(user, role),
+    ...toUser(user, role, displayName),
     role: "teammate",
     accountStatus: toAccountStatus(user.accountStatus),
     telegramStatus: telegramStatus(user),

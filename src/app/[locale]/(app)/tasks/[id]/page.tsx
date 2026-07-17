@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { renotifyTaskAction } from "@/app/actions/tasks";
 import { requireAppSession } from "@/lib/require-session";
+import { groupMemberLabel } from "@/lib/group-member-label";
 import { getServices } from "@/services";
 import { isOverdue } from "@/lib/dates";
 import { PageHeader } from "@/components/layout/app-shell";
@@ -31,10 +32,16 @@ export default async function TaskDetailPage({
   const overdue = isOverdue(task.dueDate);
   const isOperator = session.user.role === "operator";
 
+  const teammateList = isOperator
+    ? await teammates.listTeammates({ session })
+    : [];
+  const orgUsers = isOperator
+    ? await teammates.listOrganizationUsers({ session })
+    : [];
+  const me = orgUsers.find((user) => user.id === session.user.id);
+
   const assigneeTeammate = isOperator
-    ? (await teammates.listTeammates({ session })).find(
-        (teammate) => teammate.id === task.assigneeId,
-      )
+    ? teammateList.find((teammate) => teammate.id === task.assigneeId)
     : null;
   const assigneeTelegramPending =
     isOperator &&
@@ -46,11 +53,16 @@ export default async function TaskDetailPage({
     ? [
         {
           id: session.user.id,
-          label: t("tasks.assignToMe", { name: session.user.name }),
+          label: t("tasks.assignToMe", {
+            name: groupMemberLabel({
+              ...session.user,
+              displayName: me?.displayName,
+            }),
+          }),
         },
-        ...(await teammates.listTeammates({ session })).map((teammate) => ({
+        ...teammateList.map((teammate) => ({
           id: teammate.id,
-          label: teammate.name,
+          label: groupMemberLabel(teammate),
         })),
       ]
     : [];

@@ -88,9 +88,13 @@ export async function changePasswordForm(locale: string, formData: FormData) {
 }
 
 export async function joinAccountForm(locale: string, token: string, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
   const newPassword = String(formData.get("newPassword") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
+  if (name.length < 2) {
+    redirect(`/${locale}/join/${token}?error=name`);
+  }
   if (newPassword.length < 8) {
     redirect(`/${locale}/join/${token}?error=short`);
   }
@@ -103,7 +107,12 @@ export async function joinAccountForm(locale: string, token: string, formData: F
     const joinLocale = locales.includes(locale as Locale)
       ? (locale as Locale)
       : defaultLocale;
-    session = await getServices().auth.joinWithToken(token, newPassword, joinLocale);
+    session = await getServices().auth.joinWithToken(
+      token,
+      newPassword,
+      joinLocale,
+      name,
+    );
   } catch {
     redirect(`/${locale}/join/${token}?error=invalid`);
   }

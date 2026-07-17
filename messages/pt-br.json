@@ -175,7 +175,7 @@
     "allTasks": "Todas as tarefas",
     "assignee": "Responsável",
     "assignToMe": "Eu ({name})",
-    "assigneeHint": "Operadores ficam só na web (sem Telegram). Colegas com Telegram ligado recebem relay.",
+    "assigneeHint": "Responsáveis com Telegram ligado recebem relay (uma tarefa de cada vez). Sem ligação, ficam na web.",
     "meColumn": "Eu",
     "webOnly": "Só web",
     "titleLabel": "Título",
@@ -224,7 +224,7 @@
     "promoteBeforeLeave": "É o único operador. Promova outro colega antes de sair — abra",
     "notifications": "Notificações",
     "teammateNotificationsHint": "As preferências de alertas são configuradas pelos operadores deste grupo.",
-    "linkTelegramOperator": "Ligue o Telegram em Conta para receber notificações de alertas.",
+    "linkTelegramOperator": "Ligue o Telegram em Conta para receber tarefas atribuídas e notificações de alertas.",
     "linkTelegramTeammate": "Ligue o Telegram em Conta para receber tarefas atribuídas.",
     "viewAlertHistory": "Ver histórico de alertas",
     "operatorAlerts": "Alertas do operador",
@@ -269,10 +269,10 @@
     "language": "Idioma",
     "languageHint": "Aplica-se a todos os seus grupos.",
     "telegramSection": "Telegram",
-    "telegramLinkedHintOperator": "Telegram ligado — recebe alertas de operador quando colegas concluem tarefas ou prazos vencem.",
+    "telegramLinkedHintOperator": "Telegram ligado — tarefas atribuídas chegam uma de cada vez, e recebe alertas quando colegas concluem trabalho ou prazos vencem.",
     "telegramLinkedHintTeammate": "Telegram ligado — tarefas atribuídas são enviadas uma de cada vez.",
     "telegramTeammatePendingHint": "Ligue o Telegram aqui para receber tarefas atribuídas uma de cada vez.",
-    "telegramOperatorPendingHint": "Ligue o Telegram aqui para receber alertas quando colegas concluem tarefas ou prazos vencem.",
+    "telegramOperatorPendingHint": "Ligue o Telegram aqui para receber tarefas atribuídas uma de cada vez, e também alertas quando colegas concluem trabalho ou prazos vencem.",
     "passwordSection": "Senha",
     "openTelegramLink": "Abrir no Telegram",
     "regenerateTelegramLink": "Novo código"
@@ -343,7 +343,7 @@
       },
       "telegram": {
         "q": "O Telegram é obrigatório?",
-        "a": "Não para admins. Membros trabalham melhor com Telegram para o relay de uma tarefa; a web mostra o mesmo estado."
+        "a": "Opcional, mas útil para todos. Membros ligados recebem uma tarefa de cada vez no Telegram; operadores também recebem alertas. A web mostra sempre o mesmo estado."
       },
       "data": {
         "q": "Onde ficam os meus dados?",

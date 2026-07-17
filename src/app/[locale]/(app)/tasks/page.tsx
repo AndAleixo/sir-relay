@@ -40,6 +40,8 @@ export default async function TasksPage({
                 name: session.user.name,
                 email: session.user.email,
                 displayName: operatorMember?.displayName ?? null,
+                telegramStatus:
+                  operatorMember?.telegramStatus ?? session.user.telegramStatus,
               }
             : undefined
         }
@@ -66,7 +68,6 @@ export default async function TasksPage({
           viewAll: t("common.viewAll"),
           dragHandle: t("common.dragHandle"),
           meColumn: t("tasks.meColumn"),
-          webOnly: t("tasks.webOnly"),
           openTask: t("tasks.openTask"),
           addTask: t("tasks.addTask"),
           addDueDate: t("tasks.addDueDate"),

@@ -32,6 +32,7 @@ interface BoardOperator {
   name: string;
   email?: string;
   displayName?: string | null;
+  telegramStatus?: "linked" | "pending";
 }
 
 interface TeammateBoardProps {
@@ -53,7 +54,6 @@ interface TeammateBoardProps {
     emptyBoard: string;
     dragHandle: string;
     meColumn: string;
-    webOnly: string;
     openTask: string;
     addTask: string;
     addDueDate: string;
@@ -389,8 +389,6 @@ function MemberColumnHeader({
           <ToneBadge tone={telegramStatus === "linked" ? "success" : "warning"}>
             {telegramStatus === "linked" ? labels.linked : labels.pending}
           </ToneBadge>
-        ) : member.role === "operator" ? (
-          <ToneBadge tone="neutral">{labels.webOnly}</ToneBadge>
         ) : null}
         {accountStatus ? (
           <ToneBadge tone="neutral">
@@ -427,7 +425,13 @@ function SelfColumnHeader({
         })}
       </p>
       <div className={teamBoardStyles.badges}>
-        <ToneBadge tone="neutral">{labels.webOnly}</ToneBadge>
+        {operator.telegramStatus ? (
+          <ToneBadge
+            tone={operator.telegramStatus === "linked" ? "success" : "warning"}
+          >
+            {operator.telegramStatus === "linked" ? labels.linked : labels.pending}
+          </ToneBadge>
+        ) : null}
       </div>
       <p className={teamBoardStyles.activeCount}>{activeCount} active</p>
     </>

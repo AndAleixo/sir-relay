@@ -175,7 +175,7 @@
     "allTasks": "Todas las tareas",
     "assignee": "Asignado",
     "assignToMe": "Yo ({name})",
-    "assigneeHint": "Los operadores se quedan en la web (sin Telegram). Los compañeros con Telegram vinculado reciben relay.",
+    "assigneeHint": "Los asignados vinculados reciben relay de Telegram (una tarea a la vez). Sin vínculo, quedan en la web.",
     "meColumn": "Yo",
     "webOnly": "Solo web",
     "titleLabel": "Título",
@@ -224,7 +224,7 @@
     "promoteBeforeLeave": "Eres el único operador. Promueve a otro compañero antes de salir — abre",
     "notifications": "Notificaciones",
     "teammateNotificationsHint": "Las preferencias de alertas las configuran los operadores de este grupo.",
-    "linkTelegramOperator": "Vincula Telegram en Cuenta para recibir notificaciones de alertas.",
+    "linkTelegramOperator": "Vincula Telegram en Cuenta para recibir tareas asignadas y notificaciones de alertas.",
     "linkTelegramTeammate": "Vincula Telegram en Cuenta para recibir tareas asignadas.",
     "viewAlertHistory": "Ver historial de alertas",
     "operatorAlerts": "Alertas del operador",
@@ -269,10 +269,10 @@
     "language": "Idioma",
     "languageHint": "Se aplica en todos tus grupos.",
     "telegramSection": "Telegram",
-    "telegramLinkedHintOperator": "Telegram vinculado — recibes alertas de operador cuando los compañeros terminan tareas o vencen plazos.",
+    "telegramLinkedHintOperator": "Telegram vinculado — las tareas asignadas se envían de una en una, y recibes alertas cuando los compañeros terminan trabajo o vencen plazos.",
     "telegramLinkedHintTeammate": "Telegram vinculado — las tareas asignadas se envían de una en una.",
     "telegramTeammatePendingHint": "Vincula Telegram aquí para recibir tareas asignadas una a una.",
-    "telegramOperatorPendingHint": "Vincula Telegram aquí para recibir alertas cuando los compañeros terminan tareas o vencen plazos.",
+    "telegramOperatorPendingHint": "Vincula Telegram aquí para recibir tareas asignadas una a una, y también alertas cuando los compañeros terminan trabajo o vencen plazos.",
     "passwordSection": "Contraseña",
     "openTelegramLink": "Abrir en Telegram",
     "regenerateTelegramLink": "Nuevo código"
@@ -343,7 +343,7 @@
       },
       "telegram": {
         "q": "¿Telegram es obligatorio?",
-        "a": "No para admins. Los miembros trabajan mejor con Telegram para el relay de una tarea; la web muestra el mismo estado."
+        "a": "Opcional pero útil para todos. Los miembros vinculados reciben una tarea a la vez en Telegram; los operadores también reciben alertas. La web siempre muestra el mismo estado."
       },
       "data": {
         "q": "¿Dónde se guardan mis datos?",

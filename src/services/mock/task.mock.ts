@@ -189,8 +189,8 @@ export class MockTaskService implements TaskService {
     if (!task) throw new Error("Task not found");
 
     const groupId = ctx.session.activeGroupId;
-    if (!groupId || getMembershipRole(groupId, task.assigneeId) !== "teammate") {
-      throw new Error("Renotify only for teammate assignees");
+    if (!groupId || !getMembershipRole(groupId, task.assigneeId)) {
+      throw new Error("Assignee not in group");
     }
 
     const updated = {

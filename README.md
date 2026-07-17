@@ -59,16 +59,16 @@ Distributes operational tasks and tracks progress in one place — web for the f
 | Role | How they use it |
 |------|-----------------|
 | **User** | Creates an account, then **creates a group** or **joins one by invite** |
-| **Operator** (in a group) | Web: manage members, create tasks, view Kanban/list · optional Telegram for **alerts** |
+| **Operator** (in a group) | Web: manage members, create tasks, view Kanban/list · Telegram: **task relay** when assigned + **alerts** |
 | **Teammate** (in a group) | **Telegram** (primary): one task at a time · **Web**: view and update **only their** tasks |
 
 ### Relay flow
 
-1. Operator **pre-creates** a teammate (name + email) and sends the **invite link**  
+1. Operator **pre-creates** a teammate (email) and sends the **invite link**  
 2. Teammate **activates** via invite **or** sign-up with the same email → links Telegram on **Profile**  
-3. Operator creates tasks assigned to the teammate — **only the first** is sent on Telegram (queue)  
-4. Teammate **replies** to the message (e.g. `done`, `feito`) → task becomes `done` → **next task arrives on Telegram**  
-5. Operator and Teammate see the same state on the web  
+3. Operator creates tasks — **any linked assignee** (teammate or operator) gets **at most one** active Telegram task (queue)  
+4. Assignee **replies** to the message (e.g. `done`, `feito`) → task becomes `done` → **next task arrives on Telegram**  
+5. Everyone sees the same state on the web  
 
 Hosting: **DigitalOcean Droplet** (EU) with a **public domain** — Docker Compose, PostgreSQL, Caddy (HTTPS). Visitors land on a marketing page; signed-in users get the app. See [docs/DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md).
 

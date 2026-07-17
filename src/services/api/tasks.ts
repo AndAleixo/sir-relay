@@ -163,8 +163,8 @@ export class ApiTaskService implements TaskService {
         groupId_userId: { groupId, userId: existing.assigneeId },
       },
     });
-    if (!membership || membership.role !== "teammate") {
-      throw new Error("Renotify only for teammate assignees");
+    if (!membership) {
+      throw new Error("Assignee not in group");
     }
 
     const row = await prisma.task.update({

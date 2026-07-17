@@ -16,7 +16,13 @@ import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.sty
 interface TasksPageClientProps {
   locale: string;
   role: "operator" | "teammate";
-  operator?: { id: string; name: string; email?: string; displayName?: string | null };
+  operator?: {
+    id: string;
+    name: string;
+    email?: string;
+    displayName?: string | null;
+    telegramStatus?: "linked" | "pending";
+  };
   tasks: Task[];
   members: OrganizationUser[];
   showNewTask?: boolean;
@@ -41,7 +47,6 @@ interface TasksPageClientProps {
     viewAll: string;
     dragHandle: string;
     meColumn: string;
-    webOnly: string;
     openTask: string;
     addTask: string;
     addDueDate: string;
@@ -114,7 +119,6 @@ export function TasksPageClient({
               emptyBoard: labels.emptyBoard,
               dragHandle: labels.dragHandle,
               meColumn: labels.meColumn,
-              webOnly: labels.webOnly,
               openTask: labels.openTask,
               addTask: labels.addTask,
               addDueDate: labels.addDueDate,

@@ -39,13 +39,10 @@ export default async function TaskDetailPage({
   const assigneeMember = isOperator
     ? orgUsers.find((user) => user.id === task.assigneeId) ?? null
     : null;
-  const assigneeTeammate =
-    assigneeMember?.role === "teammate" ? assigneeMember : null;
   const assigneeTelegramPending =
     isOperator &&
-    assigneeTeammate &&
-    assigneeTeammate.telegramStatus === "pending" &&
-    task.assigneeId !== session.user.id;
+    assigneeMember &&
+    assigneeMember.telegramStatus === "pending";
 
   const assigneeOptions = isOperator
     ? [
@@ -79,7 +76,7 @@ export default async function TaskDetailPage({
         title={t("tasks.editTask")}
         action={
           <div className="flex flex-wrap gap-2">
-            {isOperator && assigneeTeammate ? (
+            {isOperator && assigneeMember ? (
               <form action={renotifyTaskAction.bind(null, locale, id)}>
                 <Button type="submit" variant="secondary">
                   {t("tasks.renotify")}
@@ -113,7 +110,7 @@ export default async function TaskDetailPage({
 
       <Card className="max-w-xl">
         <CardBody className="space-y-4">
-          {isOperator && assigneeTeammate ? (
+          {isOperator && assigneeMember ? (
             <p className="text-xs text-[var(--text-muted)]">{t("tasks.renotifyHint")}</p>
           ) : null}
           <EditTaskForm

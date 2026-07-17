@@ -17,7 +17,7 @@ Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../R
 |-------|-------------|
 | **Marketing site** | Public landing at `/[locale]` — product story, demo, Sign up / Log in |
 | **Web app** | One account per person; work happens inside a **group**. **Role** (`operator` / `teammate`) is **per group**, not a global account type |
-| **Telegram bot** | Delivers tasks one at a time; teammates reply to report progress |
+| **Telegram bot** | Delivers tasks one at a time to linked assignees; they reply to report progress |
 | **Relay queue** | When a task is marked `done`, the next `todo` task is sent automatically |
 
 **Account model:** Anyone can **sign up**. After login they **create a group** (becoming **operator** there) or **join a group** as **teammate** — via **invite link**, **group panel paste**, or **sign-up email match** (see §5.1.2). The **same user** can be operator in one group and teammate in another — switch active group via the **header group switcher panel** or `/groups` when no group is active.
@@ -26,7 +26,7 @@ Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../R
 
 **Positioning:** Simple team coordination — **no performance dashboards, leaderboards, or surveillance-style metrics.**
 
-**Operator (in a group)** creates teammates and tasks (including self-assigned tasks), monitors activity on the web.
+**Operator (in a group)** creates teammates and tasks (including self-assigned), monitors on the web, and can use Telegram for **task relay** plus **alerts**.
 
 **Teammate (in a group)** works via Telegram (primary) or web (optional): sees assigned tasks and updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
 
@@ -68,12 +68,12 @@ sequenceDiagram
 
 **Relay queue rules:**
 
-1. Each teammate receives **at most one** active Telegram notification (`todo` or `doing`).
-2. On task **create**: notify only if the teammate’s queue is empty (no other `todo`/`doing` task).
-3. On task **`done`**: send the next `todo` (order: `due_date ASC`, then `created_at ASC`).
+1. Each **assignee** (teammate or operator) receives **at most one** active Telegram notification (`todo` or `doing`) for their own queue.
+2. On task **create**: notify only if that assignee’s queue is empty (no other `todo`/`doing` task assigned to them).
+3. On task **`done`**: send the next `todo` for that assignee (order: `due_date ASC`, then `created_at ASC`).
 4. If no tasks remain: send a short “all caught up” message.
 
-**Relay applies to teammates only.** Tasks assigned to an Operator (self) are web-only — no Telegram queue or dispatch.
+**Relay applies to any linked group member** — teammates and operators (including self-assigned tasks). Unlinked assignees stay on the web until they link Telegram on Profile.
 
 ---
 
@@ -100,7 +100,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | Bootstrap (deploy) | On empty DB, seed one **user** from `ADMIN_EMAIL` + `ADMIN_PASSWORD` (may create first group manually) |
 | Joining a group | **Create group** → creator is operator · **Invite link** or **sign-up email match** → join as teammate (membership may already exist from operator pre-create) |
 | Task assignee | One user per task — any **active member** of the same group (teammate or operator, including other operators) |
-| Relay scope | Telegram relay queue applies **only** to tasks assigned to linked teammates |
+| Relay scope | Telegram relay queue applies to **any linked assignee** in the group (teammate or operator, including self) |
 | Operator alerts | Optional Telegram on Profile; notify on teammate **task done** and **due/overdue** (§5.6) |
 | Task statuses | `todo` · `doing` · `done` |
 | Relay | One Telegram notification per teammate at a time (§2) |
@@ -206,7 +206,7 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TM-04 | Edit (operator) | Set/clear **group `display_name`**; change email only while `invited`. **Never** patch another user’s `users.name` |
 | P1-TM-05 | Invite | One-time token (72h); share link; activation via `/join/<token>` **or** sign-up email match (§5.1.2) |
 | P1-TM-06 | Regenerate invite | New token if expired and account still `invited` |
-| P1-TM-07 | Link Telegram | Teammate self-service on **Profile** — one-time code (72h); `t.me/<bot>?start=<code>` |
+| P1-TM-07 | Link Telegram | Self-service on **Profile** — one-time code (72h); `t.me/<bot>?start=<code>`. Linked users get **task relay** when assigned; operators **also** get **alert** DMs |
 | P1-TM-08 | Regenerate Telegram link | **Profile** — new code if expired (operators + teammates) |
 | P1-TM-09 | One chat per teammate | `telegram_chat_id` unique across users |
 | P1-TM-10 | Promote to operator | Operator promotes **active** teammate in group → `group_memberships.role = operator`; appears as operator in team list |
@@ -217,7 +217,7 @@ Operator-only management **within the active group** (except fantasy name, which
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-TASK-01 | Create | Operator only; title + assignee (any active group member, including self and other operators); optional description, due_date |
-| P1-TASK-02 | Notify on create | Send Telegram if assignee is a **linked teammate** **and** queue is empty (§2); **no Telegram** for Operator self-tasks |
+| P1-TASK-02 | Notify on create | Send Telegram if assignee is **linked** **and** their queue is empty (§2) |
 | P1-TASK-03 | Re-notify | Operator only; resend Telegram; update `telegram_message_id` (replies bind to latest message) |
 | P1-TASK-04 | List / Kanban | Operator: all tasks · Teammate: assigned to me; 3 status columns |
 | P1-TASK-05 | Update / delete | Operator: any field on any task · Teammate: edit + delete own tasks (title, status, due, description) |
@@ -227,8 +227,8 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TASK-09 | Reply threading | Store `telegram_message_id` + `telegram_chat_id` on each notify; replies must reference latest message |
 | P1-TASK-10 | Status sync | Telegram keyword or web update persists immediately for both roles |
 | P1-TASK-11 | Queue order | Next task: `todo`, `due_date ASC NULLS LAST`, `created_at ASC` |
-| P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or Teammate web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). **Skip relay** when assignee is Operator. |
-| P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves; visible on web board in **Me** column and in list view; status updates on web only (no Telegram relay) |
+| P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). Same for teammate **and** operator assignees. |
+| P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves (or other operators); visible on web board in **Me** / member columns; **Telegram relay** when linked (same queue rules as teammates) |
 
 ### 5.4 Telegram activity (no web comment UI)
 
@@ -272,7 +272,7 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | P1-TG-08 | Queue empty | Localized short message when no next `todo` (e.g. “All caught up — no more tasks.”) |
 | P1-TG-09 | Operator alert — task done | When a teammate marks a task `done` (Telegram keyword or web), send a Telegram message to **each Operator** with linked Telegram: task title, teammate name, timestamp |
 | P1-TG-10 | Operator alert — due / overdue | Daily job (UTC): for each teammate task with `due_date` ≤ today and status ≠ `done`, notify linked Operators once per task per due day (dedupe); message includes title, assignee, due date, overdue flag |
-| P1-TG-11 | Telegram link (self) | **Profile** for operators (alerts) and teammates (task relay); operator **does not** generate teammate Telegram links |
+| P1-TG-11 | Telegram link (self) | **Profile** for all roles — **task relay** when assigned + **operator alerts** when role is operator; operator **does not** generate another user’s Telegram link |
 
 ### 5.7 Security (minimum to ship)
 
@@ -564,7 +564,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Change status | Yes | Own tasks (`done` → relay) | Keywords (`done` → relay) |
 | Telegram reply log | — | — | Reply (stored server-side) |
 | Re-notify | Yes | — | — |
-| Link Telegram | Self-link on **Profile** (operators: alerts · teammates: task relay) | Self-link on **Profile** | `/start <code>` |
+| Link Telegram | Self-link on **Profile** (relay + alerts if operator) | Self-link on **Profile** (relay) | `/start <code>` |
 | Audit log | Yes (Phase 2) | — | — |
 | Export data (JSON) | Yes (Phase 2) | — | — |
 

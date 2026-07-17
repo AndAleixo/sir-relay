@@ -325,7 +325,7 @@ export async function renotifyTaskAction(locale: string, taskId: string) {
     redirect(`/${locale}/tasks`);
   }
   const assignee = await teammates.getOrganizationUser(task.assigneeId, { session });
-  if (!assignee || assignee.role !== "teammate") {
+  if (!assignee) {
     redirect(`/${locale}/tasks/${taskId}`);
   }
 

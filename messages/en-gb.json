@@ -175,7 +175,7 @@
     "allTasks": "All tasks",
     "assignee": "Assignee",
     "assignToMe": "Me ({name})",
-    "assigneeHint": "Operators stay on the web (no Telegram). Linked teammates get Telegram relay.",
+    "assigneeHint": "Linked assignees get Telegram relay (one task at a time). Unlinked stay on the web.",
     "meColumn": "Me",
     "webOnly": "Web only",
     "titleLabel": "Title",
@@ -224,7 +224,7 @@
     "promoteBeforeLeave": "You are the only operator. Promote another teammate before leaving — open",
     "notifications": "Notifications",
     "teammateNotificationsHint": "Alert preferences are configured by operators in this group.",
-    "linkTelegramOperator": "Link Telegram in Account to receive alert notifications.",
+    "linkTelegramOperator": "Link Telegram in Account to receive assigned tasks and alert notifications.",
     "linkTelegramTeammate": "Link Telegram in Account to receive assigned tasks.",
     "viewAlertHistory": "View alert history",
     "operatorAlerts": "Operator alerts",
@@ -269,10 +269,10 @@
     "language": "Language",
     "languageHint": "Applies across all groups on your account.",
     "telegramSection": "Telegram",
-    "telegramLinkedHintOperator": "Telegram is linked — you receive operator alerts when teammates finish tasks or tasks become due.",
+    "telegramLinkedHintOperator": "Telegram is linked — assigned tasks are relayed one at a time, and you receive alerts when teammates finish work or tasks become due.",
     "telegramLinkedHintTeammate": "Telegram is linked — assigned tasks are relayed to you one at a time.",
     "telegramTeammatePendingHint": "Link Telegram here to receive assigned tasks one at a time.",
-    "telegramOperatorPendingHint": "Link Telegram here to receive alerts when teammates finish tasks or tasks become due.",
+    "telegramOperatorPendingHint": "Link Telegram here to receive assigned tasks one at a time, plus alerts when teammates finish work or tasks become due.",
     "passwordSection": "Password",
     "openTelegramLink": "Open in Telegram",
     "regenerateTelegramLink": "New link code"
@@ -343,7 +343,7 @@
       },
       "telegram": {
         "q": "Is Telegram required?",
-        "a": "No for admins. Members work best with Telegram for the one-task-at-a-time relay; web always shows the same state."
+        "a": "Optional but useful for everyone. Linked members get one task at a time on Telegram; operators also get alert DMs. The web always shows the same state."
       },
       "data": {
         "q": "Where is my data stored?",

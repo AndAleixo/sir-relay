@@ -9,9 +9,9 @@ function pick(locale: DbLocale, copy: Copy): string {
 export function welcomeLinked(name: string, locale: DbLocale, operator: boolean): string {
   if (operator) {
     return pick(locale, {
-      en: `Welcome to SirRelay, ${name}!\nYour Telegram is linked — you'll receive operator alerts here.`,
-      es: `Bienvenido a SirRelay, ${name}.\nTelegram vinculado — recibirás alertas de operador aquí.`,
-      pt: `Bem-vindo ao SirRelay, ${name}!\nTelegram ligado — receberá alertas de operador aqui.`,
+      en: `Welcome to SirRelay, ${name}!\nYour Telegram is linked — you'll receive assigned tasks here one at a time, plus operator alerts.`,
+      es: `Bienvenido a SirRelay, ${name}.\nTelegram vinculado — recibirás tareas asignadas de una en una, más alertas de operador.`,
+      pt: `Bem-vindo ao SirRelay, ${name}!\nTelegram ligado — receberá tarefas atribuídas uma de cada vez, e também alertas de operador.`,
     });
   }
   return pick(locale, {

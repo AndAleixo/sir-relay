@@ -248,7 +248,7 @@ First column: **Me** (tasks assigned to the logged-in Operator). Then one column
 └─────────────────┴─────────────────┴─────────────────┴─────────────────┘
 ```
 
-**Me column:** Operator self-assigned tasks; web-only (no Telegram relay). Label shows Operator display name or “Me” per locale.
+**Me column:** Operator self-assigned tasks; **Telegram task relay** when the operator’s account is linked (same one-at-a-time queue as teammates). Operators also receive **alert** notifications on Telegram. Label shows Operator display name or “Me” per locale.
 
 #### Column header (member)
 
@@ -406,7 +406,9 @@ Member may also edit their own fantasy name for the active group on **Settings**
 
 ## 8. Profile & Settings
 
-Two distinct pages — **Profile** is who you are across SirRelay; **Settings** is the **active group**. No cross-links between them; use the account menu or sidebar to switch.
+Two distinct pages — **Profile** is who you are across SirRelay; **Settings** is the **active group**.
+
+**Telegram is account-scoped on Profile** (one bot link per user). **Any linked member** gets **task relay** when assigned work. Operators **also** receive **alert** notifications (teammate done / due). Settings may deep-link to Profile when Telegram is unlinked — that is the intended cross-link; otherwise navigate via account menu or sidebar.
 
 ### 8.1 Profile (`/profile`)
 
@@ -418,7 +420,7 @@ All users. Access: avatar (header / mobile), sidebar footer, account menu.
 | **Account** | Editable **own** account name; email read-only. **No** group fantasy name here | Yes |
 | **Language** | Locale picker; persisted on account | Yes |
 | **Password** | Change password form | Yes |
-| **Telegram** | Link status; pending: copy · **Open in Telegram** · **New link code** on **Profile** (operators: alerts · teammates: task relay) | Yes |
+| **Telegram** | Link once for the account. **Task relay** for assigned work (all roles). Operators **also** get **alerts**. Pending: copy · **Open in Telegram** · **New link code** | Yes |
 | **Log out** | Button (mobile primary exit; desktop also in account menu) | Yes |
 
 Group and role live in the **group switcher** only — not on Profile. Fantasy / group display name lives on **Settings**.
@@ -430,13 +432,13 @@ All users with an active group. Access: sidebar / mobile tabs only (not account 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
 | **General** | Group name (operator rename); **your fantasy name** for this group only | Yes |
-| **Operator alerts** | Toggles + link to Alerts history; Telegram banner if unlinked | Yes |
-| **Notifications** | Teammate empty state (operators configure alerts) | Yes |
+| **Operator alerts** | Toggles + link to Alerts history; banner → **Profile** if Telegram unlinked | Yes |
+| **Notifications** | Teammate empty state (operators configure alerts); banner → **Profile** if unlinked | Yes |
 | **Membership** | Leave group; delete group (operator) | Yes |
 
-Language lives on **Profile**; group switching on the header **Group switcher**.
+Language and Telegram live on **Profile**; group switching on the header **Group switcher**.
 
-**Profile** has no role — account only. **Settings** is group-scoped (fantasy name, alerts, leave/delete). Group and role appear in the **group switcher** only.
+**Profile** = account (incl. Telegram). **Settings** = group-scoped (fantasy name, which alerts to send, leave/delete). Group and role appear in the **group switcher** only.
 
 ### 8.3 Alerts (`/alerts`)
 
@@ -582,5 +584,6 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
 | 2026-07-14 | Pre-create + sign-up merge (§2.1); teammate Telegram on Profile only (§7, §8.1) |
 | 2026-07-18 | Fantasy name only on Settings / member detail (not Profile); operator board columns = all other members |
+| 2026-07-18 | Telegram locked to Profile (account); Settings deep-links when unlinked; linked members (incl. operators) get task relay; operators also get alerts |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

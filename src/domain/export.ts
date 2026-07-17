@@ -10,6 +10,8 @@ export interface ExportUser {
   role: Role;
   locale: Locale;
   active: boolean;
+  /** Per-group fantasy label when set; UI prefers this over `name`. */
+  displayName?: string | null;
   accountStatus?: "invited" | "active";
   telegramStatus?: "linked" | "pending";
 }

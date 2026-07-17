@@ -17,6 +17,7 @@ function toExportUser(user: User | Teammate): ExportUser {
       role: teammate.role,
       locale: teammate.locale,
       active: teammate.active,
+      displayName: teammate.displayName ?? null,
       accountStatus: teammate.accountStatus,
       telegramStatus: teammate.telegramStatus,
     };
@@ -28,6 +29,7 @@ function toExportUser(user: User | Teammate): ExportUser {
     role: user.role,
     locale: user.locale,
     active: user.active,
+    displayName: user.displayName ?? null,
     telegramStatus: user.telegramStatus,
   };
 }
@@ -49,8 +51,8 @@ export class ApiExportService implements ExportService {
       .map((row) => {
         const role = toRole(row.role);
         return role === "teammate"
-          ? toTeammate(row.user, role)
-          : toUser(row.user, role);
+          ? toTeammate(row.user, role, row.displayName)
+          : toUser(row.user, role, row.displayName);
       });
 
     const tasks = await apiTaskService.listTasks(ctx);

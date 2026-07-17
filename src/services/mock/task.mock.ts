@@ -1,15 +1,13 @@
 import type { Session, Task, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
-import {
-  MOCK_OPERATORS,
-  MOCK_TASKS,
-  MOCK_TEAMMATES,
-} from "@/services/mock/data";
+import { MOCK_TASKS } from "@/services/mock/data";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
   getMembershipDisplayName,
+  getMembershipRole,
   userIdsInGroup,
 } from "@/services/mock/groups.mock";
+import { findMockUserById } from "@/services/mock/users.mock";
 
 function tasksInGroup(tasks: Task[], session: Session): Task[] {
   const groupId = session.activeGroupId;
@@ -24,6 +22,20 @@ function filterTasksForSession(tasks: Task[], session: Session): Task[] {
   return scoped.filter((t) => t.assigneeId === session.user.id);
 }
 
+function liveAssigneeName(groupId: string, assigneeId: string): string {
+  const displayName = getMembershipDisplayName(groupId, assigneeId);
+  const user = findMockUserById(assigneeId);
+  if (!user) return displayName?.trim() || assigneeId;
+  return groupMemberLabel({ ...user, displayName });
+}
+
+function withLiveAssigneeName(task: Task, session: Session): Task {
+  const groupId = session.activeGroupId;
+  if (!groupId) return task;
+  const assigneeName = liveAssigneeName(groupId, task.assigneeId);
+  return assigneeName === task.assigneeName ? task : { ...task, assigneeName };
+}
+
 function resolveAssignee(
   assigneeId: string,
   session: Session,
@@ -34,35 +46,10 @@ function resolveAssignee(
   const ids = userIdsInGroup(groupId);
   if (!ids.has(assigneeId)) throw new Error("Invalid assignee");
 
-  const displayName = getMembershipDisplayName(groupId, assigneeId);
-
-  if (assigneeId === session.user.id && session.user.role === "operator") {
-    return {
-      assigneeId: session.user.id,
-      assigneeName: groupMemberLabel({
-        ...session.user,
-        displayName,
-      }),
-    };
-  }
-
-  const teammate = MOCK_TEAMMATES.find((t) => t.id === assigneeId && t.active);
-  if (teammate) {
-    return {
-      assigneeId: teammate.id,
-      assigneeName: groupMemberLabel({ ...teammate, displayName }),
-    };
-  }
-
-  const operator = MOCK_OPERATORS.find((op) => op.id === assigneeId && op.active);
-  if (operator) {
-    return {
-      assigneeId: operator.id,
-      assigneeName: groupMemberLabel({ ...operator, displayName }),
-    };
-  }
-
-  throw new Error("Invalid assignee");
+  return {
+    assigneeId,
+    assigneeName: liveAssigneeName(groupId, assigneeId),
+  };
 }
 
 export class MockTaskService implements TaskService {
@@ -78,14 +65,17 @@ export class MockTaskService implements TaskService {
   }
 
   async listTasks(ctx: { session: Session }): Promise<Task[]> {
-    return filterTasksForSession(this.tasks, ctx.session);
+    return filterTasksForSession(this.tasks, ctx.session).map((task) =>
+      withLiveAssigneeName(task, ctx.session),
+    );
   }
 
   async getTask(id: string, ctx: { session: Session }): Promise<Task | null> {
     const task = this.tasks.find((t) => t.id === id);
     if (!task) return null;
     const visible = filterTasksForSession([task], ctx.session);
-    return visible[0] ?? null;
+    const found = visible[0];
+    return found ? withLiveAssigneeName(found, ctx.session) : null;
   }
 
   async createTask(input: CreateTaskInput, ctx: { session: Session }): Promise<Task> {
@@ -197,6 +187,11 @@ export class MockTaskService implements TaskService {
     }
     const task = await this.getTask(id, ctx);
     if (!task) throw new Error("Task not found");
+
+    const groupId = ctx.session.activeGroupId;
+    if (!groupId || getMembershipRole(groupId, task.assigneeId) !== "teammate") {
+      throw new Error("Renotify only for teammate assignees");
+    }
 
     const updated = {
       ...task,

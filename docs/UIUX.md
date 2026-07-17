@@ -460,7 +460,7 @@ Operator-only system settings (audit, org config) remain Phase 2+.
 |---------|----------------------|-----|
 | No groups | “You are not in any group yet.” | Create group |
 | No tasks (Teammate) | “No tasks assigned to you yet.” | — |
-| No teammates (Operator board) | “Add teammates to start relaying work.” | Add teammate |
+| No members (Operator board) | “Add members to start coordinating work.” | Add teammate |
 | No alerts (Operator) | “No alerts yet…” | — |
 | Empty todo column | Light placeholder in column | — |
 | Login failed | “Invalid email or password.” | — |

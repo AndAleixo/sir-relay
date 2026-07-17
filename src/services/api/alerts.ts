@@ -28,10 +28,13 @@ async function defaultPrefs(groupId: string): Promise<OperatorAlertPrefs> {
 
 async function hasLinkedOperator(groupId: string): Promise<boolean> {
   const row = await prisma.groupMembership.findFirst({
-    where: { groupId, role: "operator" },
-    include: { user: true },
+    where: {
+      groupId,
+      role: "operator",
+      user: { telegramChatId: { not: null } },
+    },
   });
-  return Boolean(row?.user.telegramChatId);
+  return Boolean(row);
 }
 
 export class ApiOperatorAlertService implements OperatorAlertService {

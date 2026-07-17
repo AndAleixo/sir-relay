@@ -318,7 +318,16 @@ export async function deleteTaskAction(locale: string, taskId: string): Promise<
 
 export async function renotifyTaskAction(locale: string, taskId: string) {
   const session = await requireOperatorSession(locale);
-  const { tasks } = getServices();
+  const { tasks, teammates } = getServices();
+
+  const task = await tasks.getTask(taskId, { session });
+  if (!task) {
+    redirect(`/${locale}/tasks`);
+  }
+  const assignee = await teammates.getOrganizationUser(task.assigneeId, { session });
+  if (!assignee || assignee.role !== "teammate") {
+    redirect(`/${locale}/tasks/${taskId}`);
+  }
 
   await tasks.renotifyTask(taskId, { session });
   revalidatePath(`/${locale}/tasks/${taskId}`);

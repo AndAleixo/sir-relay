@@ -8,10 +8,12 @@ import type {
   OperatorAlertService,
 } from "@/services/alert.types";
 import { telegramDeliveryAllowed } from "@/services/alert-prefs";
-import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
+import {
+  getMembershipRole,
+  userIdsInGroup,
+} from "@/services/mock/groups.mock";
+import { findMockUserById } from "@/services/mock/users.mock";
 import { mockTaskService } from "@/services/mock/task.mock";
-
-const teammateIds = new Set(MOCK_TEAMMATES.map((t) => t.id));
 
 const prefsByGroup = new Map<string, OperatorAlertPrefs>();
 const alerts: OperatorAlert[] = [];
@@ -40,10 +42,17 @@ function dueDayKey(groupId: string, timezone: string): string {
   return `${groupId}:${calendarDateInTimezone(new Date(), timezone)}`;
 }
 
-function hasLinkedOperator(): boolean {
-  return MOCK_OPERATORS.some(
-    (op) => op.active && op.telegramStatus === "linked",
-  );
+function isTeammateAssignee(groupId: string, assigneeId: string): boolean {
+  return getMembershipRole(groupId, assigneeId) === "teammate";
+}
+
+function hasLinkedOperator(groupId: string): boolean {
+  for (const userId of Array.from(userIdsInGroup(groupId))) {
+    if (getMembershipRole(groupId, userId) !== "operator") continue;
+    const user = findMockUserById(userId);
+    if (user?.active && user.telegramStatus === "linked") return true;
+  }
+  return false;
 }
 
 function pushAlert(
@@ -61,7 +70,7 @@ function pushAlert(
     ...input,
     id: `alert-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     createdAt: now.toISOString(),
-    sentToTelegram: hasLinkedOperator() && telegramDeliveryAllowed(prefs, now),
+    sentToTelegram: hasLinkedOperator(groupId) && telegramDeliveryAllowed(prefs, now),
   });
 
   if (alerts.length > 50) {
@@ -101,9 +110,10 @@ export class MockOperatorAlertService implements OperatorAlertService {
   }
 
   async notifyTaskDone(task: Task, ctx: { session: Session }): Promise<void> {
-    if (!teammateIds.has(task.assigneeId)) return;
+    const groupId = requireGroupId(ctx);
+    if (!isTeammateAssignee(groupId, task.assigneeId)) return;
 
-    pushAlert(requireGroupId(ctx), {
+    pushAlert(groupId, {
       type: "task_done",
       taskId: task.id,
       taskTitle: task.title,
@@ -120,7 +130,7 @@ export class MockOperatorAlertService implements OperatorAlertService {
 
     for (const task of tasks) {
       if (task.status === "done") continue;
-      if (!teammateIds.has(task.assigneeId)) continue;
+      if (!isTeammateAssignee(groupId, task.assigneeId)) continue;
       if (!task.dueDate || !isDueOnOrBeforeTodayInTimezone(task.dueDate, prefs.timezone, now)) {
         continue;
       }

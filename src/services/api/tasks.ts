@@ -156,6 +156,17 @@ export class ApiTaskService implements TaskService {
     if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
     const existing = await this.getTask(id, ctx);
     if (!existing) throw new Error("Not found");
+
+    const groupId = requireGroupId(ctx.session);
+    const membership = await prisma.groupMembership.findUnique({
+      where: {
+        groupId_userId: { groupId, userId: existing.assigneeId },
+      },
+    });
+    if (!membership || membership.role !== "teammate") {
+      throw new Error("Renotify only for teammate assignees");
+    }
+
     const row = await prisma.task.update({
       where: { id },
       data: { telegramNotifiedAt: new Date() },

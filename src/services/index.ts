@@ -5,6 +5,7 @@ import { mockAuthService } from "@/services/mock/auth.mock";
 import { mockExportService } from "@/services/mock/export.mock";
 import { mockGroupService } from "@/services/mock/groups.mock";
 import { mockTaskService } from "@/services/mock/task.mock";
+import { mockGroupInvitationService } from "@/services/mock/invitations.mock";
 import {
   mockTeammateService,
   mockUserService,
@@ -33,6 +34,7 @@ export function getServices(): Services {
       groups: mockGroupService,
       tasks: mockTaskService,
       teammates: mockTeammateService,
+      invitations: mockGroupInvitationService,
       users: mockUserService,
       alerts: mockOperatorAlertService,
       export: mockExportService,

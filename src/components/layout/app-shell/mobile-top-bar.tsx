@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { User, UserGroup } from "@/domain/types";
+import type { GroupInvitation, User, UserGroup } from "@/domain/types";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
 import { isPrimaryNavActive } from "@/lib/navigation";
@@ -26,6 +26,7 @@ interface MobileTopBarProps {
   appName: string;
   user: User;
   groups: UserGroup[];
+  invitations: GroupInvitation[];
   activeGroupId: string | null;
   items: MobileNavItem[];
 }
@@ -39,6 +40,7 @@ export function MobileTopBar({
   appName,
   user,
   groups,
+  invitations,
   activeGroupId,
   items,
 }: MobileTopBarProps) {
@@ -64,6 +66,7 @@ export function MobileTopBar({
           <GroupSwitcher
             locale={locale}
             groups={groups}
+            invitations={invitations}
             activeGroupId={activeGroupId}
             compact
           />

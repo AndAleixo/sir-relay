@@ -161,19 +161,23 @@ export class MockAuthService implements AuthService {
       throw new Error("Invalid password");
     }
 
-    const invite = consumeInvite(token);
+    const invite = resolveInvite(token);
     if (!invite) {
       throw new Error("Invalid token");
     }
 
     const user = findMockUserById(invite.userId);
-    if (!user || !user.active) {
+    if (
+      !user ||
+      !user.active ||
+      !("accountStatus" in user) ||
+      user.accountStatus !== "invited"
+    ) {
       throw new Error("Invalid token");
     }
 
-    if ("accountStatus" in user) {
-      (user as { accountStatus: string }).accountStatus = "active";
-    }
+    consumeInvite(token);
+    (user as { accountStatus: string }).accountStatus = "active";
     user.locale = locale;
 
     const session = buildSession(

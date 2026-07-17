@@ -160,11 +160,13 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-GRP-05 | Manage | **Group switcher panel** — switch, create, join · **Settings** — leave (active group), delete (operator, active group) |
 | P1-GRP-06 | Join via invite | `/join/<token>` (set password if `invited`) **or** sign-up email match (§5.1.2) **or** paste in group panel (signed in, same email) |
 | P1-GRP-07 | Join from panel | Paste invite in group panel → accept when signed in; adds membership if missing |
-| P1-GRP-08 | Existing active email | Operator adds teammate email that already has an **`active`** account → membership added immediately; group appears in switcher (no invite needed) |
+| P1-GRP-08 | Existing active email | Operator adds teammate email that already has an **`active`** account → create/refresh one pending `group_invitation`; **do not** create membership until the user accepts |
 | P1-GRP-09 | Leave group | Any member may leave **active** group; sole operator with other members blocked — promote or delete first |
 | P1-GRP-10 | Delete group | Operator only; cascade tasks/teammates/alerts; session picks next group or `/groups` |
 | P1-GRP-11 | Resume last group | `users.last_active_group_id` + session cookie; login with 2+ groups opens last valid group (not picker) |
 | P1-GRP-12 | Invited email at operator add | Operator adds email with existing **`invited`** pre-create (same or other group) → add membership only; do not create duplicate user row |
+| P1-GRP-13 | Invitation consent | Existing active user sees pending requests in the group switcher and may accept or decline; accept creates teammate membership transactionally, decline does not |
+| P1-GRP-14 | Invitation lifecycle | One row per group/user; 72h expiry; operator sees pending/declined/expired and may resend; accepted requests are retained as history |
 
 ### 5.1.2 Pre-created teammate activation
 
@@ -174,7 +176,7 @@ Operator **pre-create** ≠ operator-owned login. The operator reserves **name +
 |------|-----|--------|
 | **A — Invite link** | Person opens `/join/<token>` | Set password (if `invited`) or accept (if already logged in with matching email) → `active` → already in group |
 | **B — Sign up (email match)** | Person uses `/signup` with **same email** as pre-create | Merge into existing `invited` row: signup **name + password** win, memberships kept, `active`, pending invite tokens consumed → **auto-join** group(s) per P1-AUTH-14 |
-| **C — Already active account** | Person already signed up elsewhere | Operator add (P1-GRP-08) or invite accept while logged in (P1-GRP-06/07) |
+| **C — Already active account** | Person already signed up elsewhere | Operator creates a pending request; person accepts in the group switcher before membership is created (P1-GRP-08/13/14) |
 
 **Sign-up must not fail** with “email taken” when the only existing row is **`invited`** from operator pre-create (P1-AUTH-13). **Sign-up must fail** when email belongs to an **`active`** user — they should log in instead.
 
@@ -312,6 +314,12 @@ groups
 group_memberships
   group_id, user_id, role (operator|teammate), created_at
   UNIQUE (group_id, user_id)
+
+group_invitations
+  id, group_id, invited_user_id, invited_by_user_id,
+  role (teammate), status (pending|accepted|declined),
+  expires_at, responded_at, created_at, updated_at
+  UNIQUE (group_id, invited_user_id)
 
 teammate_invite_tokens
   id, user_id, token_hash, expires_at, used_at, created_at
@@ -566,6 +574,10 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | GET | `/groups` | 1 | Session — groups for current user + role per group |
 | POST | `/groups` | 1 | Session `{ name }` — creator becomes operator |
 | POST | `/groups/join` | 1 | Session `{ token }` — accept invite for signed-in user |
+| GET | `/group-invitations` | 1 | Session — pending requests for current user |
+| POST | `/group-invitations/:id/accept` | 1 | Invited user — create teammate membership |
+| POST | `/group-invitations/:id/decline` | 1 | Invited user — decline without membership |
+| POST | `/group-invitations/:id/resend` | 1 | Operator in group — reset pending status + 72h expiry |
 | POST | `/groups/:id/leave` | 1 | Session — delete own assigned tasks in that group, then leave membership; empty group deleted |
 | DELETE | `/groups/:id` | 1 | Operator in group — delete group + cascade |
 | GET | `/groups/invites/:token` | 1 | Public preview — group name, email, needsPassword |

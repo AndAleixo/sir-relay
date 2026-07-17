@@ -27,6 +27,7 @@ import {
   invalidateInviteTokens,
 } from "@/services/mock/tokens.mock";
 import { removeMockTasksAssignedTo } from "@/services/mock/task.mock";
+import { createOrRefreshMockGroupInvitation } from "@/services/mock/invitations.mock";
 
 function requireTeammateInGroup(
   ctx: { session: Session },
@@ -74,6 +75,7 @@ export class MockTeammateService implements TeammateService {
     input: CreateTeammateInput,
     ctx: { session: Session },
   ): Promise<CreateTeammateResult> {
+    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
     const groupId = ctx.session.activeGroupId;
     if (!groupId) throw new Error("No active group");
 
@@ -84,10 +86,22 @@ export class MockTeammateService implements TeammateService {
         return { ok: false, reason: "already_in_group" };
       }
       if (!existing.active) return { ok: false, reason: "account_inactive" };
+      if (!("accountStatus" in existing) || existing.accountStatus === "active") {
+        return {
+          ok: true,
+          kind: "invitation",
+          invitation: createOrRefreshMockGroupInvitation({
+            groupId,
+            invitedUserId: existing.id,
+            invitedByUserId: ctx.session.user.id,
+          }),
+        };
+      }
 
       addGroupMember(groupId, existing.id, "teammate");
       return {
         ok: true,
+        kind: "membership",
         teammate: {
           ...existing,
           role: "teammate",
@@ -113,7 +127,7 @@ export class MockTeammateService implements TeammateService {
     };
     MOCK_TEAMMATES.push(teammate);
     addGroupMember(groupId, id, "teammate");
-    return { ok: true, teammate };
+    return { ok: true, kind: "membership", teammate };
   }
 
   async updateTeammate(

@@ -25,6 +25,7 @@ async function main() {
   await prisma.operatorAlert.deleteMany();
   await prisma.task.deleteMany();
   await prisma.teammateInviteToken.deleteMany();
+  await prisma.groupInvitation.deleteMany();
   await prisma.telegramLinkToken.deleteMany();
   await prisma.groupAlertPrefs.deleteMany();
   await prisma.groupMembership.deleteMany();
@@ -59,7 +60,8 @@ async function main() {
         id: teammate.id,
         name: teammate.name,
         email: teammate.email,
-        passwordHash,
+        passwordHash:
+          teammate.accountStatus === "invited" ? null : passwordHash,
         locale: fromLocale(teammate.locale),
         active: teammate.active,
         accountStatus: teammate.accountStatus,
@@ -98,9 +100,6 @@ async function main() {
   }
 
   const demoInvites: Array<[string, string, string]> = [
-    ["mock-invite-ana", "user-ana", "group-demo"],
-    ["mock-invite-ana-side", "user-ana", "group-side"],
-    ["mock-invite-bruno", "user-bruno", "group-demo"],
     ["mock-invite-carla", "user-carla", "group-demo"],
   ];
 

@@ -39,6 +39,9 @@ export async function createTeammateForm(locale: string, formData: FormData) {
   }
 
   revalidatePath(`/${locale}/teammates`);
+  if (result.kind === "invitation") {
+    redirect(`/${locale}/teammates?invited=1`);
+  }
   redirect(`/${locale}/teammates/${result.teammate.id}`);
 }
 

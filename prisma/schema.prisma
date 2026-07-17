@@ -34,6 +34,12 @@ enum OperatorAlertType {
   task_due
 }
 
+enum GroupInvitationStatus {
+  pending
+  accepted
+  declined
+}
+
 model User {
   id                 String        @id
   name               String
@@ -53,6 +59,8 @@ model User {
   createdTasks       Task[]            @relation("TaskCreator")
   inviteTokens       TeammateInviteToken[]
   telegramLinkTokens TelegramLinkToken[]
+  sentGroupInvitations     GroupInvitation[] @relation("GroupInvitationSender")
+  receivedGroupInvitations GroupInvitation[] @relation("GroupInvitationRecipient")
 
   @@map("users")
 }
@@ -68,6 +76,7 @@ model Group {
   alertPrefs  GroupAlertPrefs?
   alerts      OperatorAlert[]
   inviteTokens TeammateInviteToken[]
+  invitations  GroupInvitation[]
 
   @@map("groups")
 }
@@ -83,6 +92,27 @@ model GroupMembership {
 
   @@id([groupId, userId])
   @@map("group_memberships")
+}
+
+model GroupInvitation {
+  id              String                @id @default(cuid())
+  groupId         String                @map("group_id")
+  invitedUserId   String                @map("invited_user_id")
+  invitedByUserId String                @map("invited_by_user_id")
+  status          GroupInvitationStatus @default(pending)
+  expiresAt       DateTime              @map("expires_at")
+  respondedAt     DateTime?             @map("responded_at")
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
+
+  group       Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  invitedUser User  @relation("GroupInvitationRecipient", fields: [invitedUserId], references: [id], onDelete: Cascade)
+  invitedBy   User  @relation("GroupInvitationSender", fields: [invitedByUserId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, invitedUserId])
+  @@index([invitedUserId, status])
+  @@index([groupId, status])
+  @@map("group_invitations")
 }
 
 model Task {

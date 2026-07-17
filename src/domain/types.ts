@@ -8,6 +8,20 @@ export type AccountStatus = "invited" | "active";
 
 export type TelegramLinkStatus = "linked" | "pending";
 
+export type GroupInvitationStatus = "pending" | "declined" | "expired";
+
+export interface GroupInvitation {
+  id: string;
+  groupId: string;
+  groupName: string;
+  invitedUserId: string;
+  invitedUserName: string;
+  invitedUserEmail: string;
+  role: "teammate";
+  status: GroupInvitationStatus;
+  expiresAt: string;
+}
+
 export interface Group {
   id: string;
   name: string;

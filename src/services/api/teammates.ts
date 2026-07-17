@@ -13,6 +13,7 @@ import {
   createInviteTokenRecord,
   createTelegramLinkTokenRecord,
 } from "@/services/api/groups";
+import { createOrRefreshGroupInvitation } from "@/services/api/invitations";
 import { fromLocale, toRole, toTeammate, toUser } from "@/services/api/mappers";
 
 function isUniqueConstraintError(error: unknown): boolean {
@@ -83,6 +84,7 @@ export class ApiTeammateService implements TeammateService {
     input: CreateTeammateInput,
     ctx: { session: Session },
   ): Promise<CreateTeammateResult> {
+    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
     const groupId = requireGroupId(ctx.session);
     const email = input.email.trim().toLowerCase();
     const existing = await prisma.user.findUnique({ where: { email } });
@@ -97,6 +99,14 @@ export class ApiTeammateService implements TeammateService {
       if (!existing.active) {
         return { ok: false, reason: "account_inactive" };
       }
+      if (existing.accountStatus === "active") {
+        const invitation = await createOrRefreshGroupInvitation({
+          groupId,
+          invitedUserId: existing.id,
+          invitedByUserId: ctx.session.user.id,
+        });
+        return { ok: true, kind: "invitation", invitation };
+      }
 
       try {
         await prisma.$transaction(async (tx) => {
@@ -104,7 +114,11 @@ export class ApiTeammateService implements TeammateService {
             data: { groupId, userId: existing.id, role: "teammate" },
           });
         });
-        return { ok: true as const, teammate: toTeammate(existing, "teammate") };
+        return {
+          ok: true as const,
+          kind: "membership" as const,
+          teammate: toTeammate(existing, "teammate"),
+        };
       } catch (error) {
         if (isUniqueConstraintError(error)) {
           return { ok: false, reason: "already_in_group" };
@@ -131,7 +145,11 @@ export class ApiTeammateService implements TeammateService {
         });
         return created;
       });
-      return { ok: true as const, teammate: toTeammate(user, "teammate") };
+      return {
+        ok: true as const,
+        kind: "membership" as const,
+        teammate: toTeammate(user, "teammate"),
+      };
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         return this.createTeammate(input, ctx);

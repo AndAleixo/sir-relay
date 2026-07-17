@@ -124,7 +124,8 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 - **Invite:** adds membership if missing (same email as invite)
 - **Join (pre-created, path A):** `/join/[token]` — set password → `active`
 - **Join (pre-created, path B):** `/signup` with **same email** — merge `invited` row, set password → `active` + group already in switcher → `/tasks`
-- **Existing active account added by operator (same email):** membership added; group appears in switcher
+- **Existing active account added by operator (same email):** pending request appears in the user’s switcher; Accept creates membership · Decline dismisses it
+- **Request badge:** switcher trigger shows pending count; requests expire after 72h
 
 ---
 
@@ -384,7 +385,9 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 
 Table: name, email, role, account status, Telegram status, view link. Operators link to **Profile**; teammates to detail.
 
-**Add teammate** — header button → `/teammates/new` (name, email); on save → detail page with **invite link** only (copy · regenerate). Operator sees Telegram **status**, not the teammate’s link.
+**Add teammate** — header button → `/teammates/new` (name, email). New/invited account → teammate detail with activation link. Existing active account → pending request, no membership until acceptance.
+
+**Pending requests** — operator list shows pending/declined/expired requests and **Resend**. Existing members remain in the main table only.
 
 **Export (Phase 2)** — toolbar **Export all** · per-row **Export** on the list. Spec: [REQUIREMENTS.md §6.5.2](./REQUIREMENTS.md#652-json-export-app).
 

@@ -1,6 +1,7 @@
 import type { SirRelayExport } from "@/domain/export";
 import type {
   Group,
+  GroupInvitation,
   GroupInvitePreview,
   Locale,
   Role,
@@ -30,7 +31,8 @@ export interface CreateTeammateInput {
 }
 
 export type CreateTeammateResult =
-  | { ok: true; teammate: Teammate }
+  | { ok: true; kind: "membership"; teammate: Teammate }
+  | { ok: true; kind: "invitation"; invitation: GroupInvitation }
   | { ok: false; reason: "already_in_group" | "account_inactive" };
 
 export interface AuthService {
@@ -106,6 +108,14 @@ export interface TeammateService {
   getInviteToken(id: string, ctx: { session: Session }): Promise<string | null>;
 }
 
+export interface GroupInvitationService {
+  listForUser(userId: string): Promise<GroupInvitation[]>;
+  listForGroup(ctx: { session: Session }): Promise<GroupInvitation[]>;
+  accept(invitationId: string, userId: string): Promise<Group>;
+  decline(invitationId: string, userId: string): Promise<void>;
+  resend(invitationId: string, ctx: { session: Session }): Promise<GroupInvitation>;
+}
+
 export interface ExportService {
   buildExport(ctx: { session: Session }, userId?: string): Promise<SirRelayExport>;
   filename(userId?: string): string;
@@ -123,6 +133,7 @@ export interface Services {
   groups: GroupService;
   tasks: TaskService;
   teammates: TeammateService;
+  invitations: GroupInvitationService;
   users: UserService;
   alerts: OperatorAlertService;
   export: ExportService;

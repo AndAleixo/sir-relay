@@ -60,7 +60,7 @@ npm run check:routes
 | Item | Valor |
 |------|-------|
 | URL | `http://localhost:3000` |
-| Login demo | `sam@example.com` → `/groups` (2 grupos, painel abre) · `ana@example.com` → `/tasks` · invite: `mock-invite-ana-side` como ana |
+| Login demo | `sam@example.com` → `/groups` (2 grupos, painel abre) · `ana@example.com` → `/tasks` · activation: `mock-invite-carla` como Carla |
 | Password demo | qualquer (mock ignora) |
 
 **Usar para:** polish visual, roteiro de demo, fluxos user→group→role, gravação de vídeo.

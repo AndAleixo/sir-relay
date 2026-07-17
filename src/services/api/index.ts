@@ -5,6 +5,7 @@ import { apiTaskService } from "@/services/api/tasks";
 import { apiTeammateService, apiUserService } from "@/services/api/teammates";
 import { apiOperatorAlertService } from "@/services/api/alerts";
 import { apiExportService } from "@/services/api/export";
+import { apiGroupInvitationService } from "@/services/api/invitations";
 
 export function createApiServices(): Services {
   return {
@@ -12,6 +13,7 @@ export function createApiServices(): Services {
     groups: apiGroupService,
     tasks: apiTaskService,
     teammates: apiTeammateService,
+    invitations: apiGroupInvitationService,
     users: apiUserService,
     alerts: apiOperatorAlertService,
     export: apiExportService,

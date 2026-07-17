@@ -161,33 +161,42 @@ export class ApiAuthService implements AuthService {
     if (password.length < 8) throw new Error("Invalid password");
 
     const tokenHash = hashToken(token);
-    const invite = await prisma.teammateInviteToken.findFirst({
-      where: {
-        tokenHash,
-        usedAt: null,
-        expiresAt: { gt: new Date() },
-      },
-    });
-    if (!invite) throw new Error("Invalid token");
+    const passwordHash = await hashPassword(password);
+    const invite = await prisma.$transaction(async (tx) => {
+      const candidate = await tx.teammateInviteToken.findFirst({
+        where: { tokenHash },
+      });
+      if (!candidate) throw new Error("Invalid token");
 
-    const row = await loadDbUser(invite.userId);
-    if (!row || !row.active) throw new Error("Invalid token");
+      const claimed = await tx.teammateInviteToken.updateMany({
+        where: {
+          id: candidate.id,
+          usedAt: null,
+          expiresAt: { gt: new Date() },
+        },
+        data: { usedAt: new Date() },
+      });
+      if (claimed.count !== 1) throw new Error("Invalid token");
 
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: invite.userId },
+      const user = await tx.user.findUnique({
+        where: { id: candidate.userId },
+        select: { active: true, accountStatus: true },
+      });
+      if (!user?.active || user.accountStatus !== "invited") {
+        throw new Error("Invalid token");
+      }
+
+      await tx.user.update({
+        where: { id: candidate.userId },
         data: {
-          passwordHash: await hashPassword(password),
+          passwordHash,
           accountStatus: "active",
           mustChangePassword: false,
           locale: fromLocale(locale),
         },
-      }),
-      prisma.teammateInviteToken.update({
-        where: { id: invite.id },
-        data: { usedAt: new Date() },
-      }),
-    ]);
+      });
+      return candidate;
+    });
 
     return persistSession(
       { userId: invite.userId, activeGroupId: invite.groupId },

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
 import { cn } from "@/lib/cn";
+import { resendGroupInvitation } from "@/app/actions/invitations";
 
 function isTeammate(user: OrganizationUser): user is OrganizationUser & { role: "teammate" } {
   return user.role === "teammate";
@@ -21,17 +22,25 @@ export default async function TeammatesPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ promoted?: string }>;
+  searchParams: Promise<{
+    promoted?: string;
+    invited?: string;
+    resent?: string;
+    invitationError?: string;
+  }>;
 }) {
   const { locale } = await params;
-  const { promoted } = await searchParams;
+  const { promoted, invited, resent, invitationError } = await searchParams;
   const t = await getTranslations();
-  const { auth, teammates } = getServices();
+  const { auth, teammates, invitations } = getServices();
   const session = await auth.getSession();
   if (!session) return null;
   requireRole(session, "operator", locale);
 
-  const users = await teammates.listOrganizationUsers({ session });
+  const [users, groupInvitations] = await Promise.all([
+    teammates.listOrganizationUsers({ session }),
+    invitations.listForGroup({ session }),
+  ]);
 
   return (
     <>
@@ -39,6 +48,21 @@ export default async function TeammatesPage({
       {promoted === "1" ? (
         <Banner variant="info" className="mb-4">
           {t("teammate.promoted")}
+        </Banner>
+      ) : null}
+      {invited === "1" ? (
+        <Banner variant="info" className="mb-4">
+          {t("teammate.invitationCreated")}
+        </Banner>
+      ) : null}
+      {resent === "1" ? (
+        <Banner variant="info" className="mb-4">
+          {t("teammate.invitationResent")}
+        </Banner>
+      ) : null}
+      {invitationError === "1" ? (
+        <Banner variant="danger" className="mb-4">
+          {t("teammate.invitationActionFailed")}
         </Banner>
       ) : null}
       <div className={viewToggleStyles.toolbar}>
@@ -54,6 +78,39 @@ export default async function TeammatesPage({
         {t("teammate.userCount", { count: users.length })}
       </p>
       <p className="mb-4 text-xs text-[var(--text-muted)]">{t("teammate.exportHint")}</p>
+
+      {groupInvitations.length > 0 ? (
+        <section className="mb-4 rounded-card border border-[var(--border)] bg-surface-card p-4">
+          <h2 className="text-sm font-semibold">{t("teammate.pendingInvitations")}</h2>
+          <div className="mt-3 divide-y divide-[var(--border)]">
+            {groupInvitations.map((invitation) => (
+              <div
+                key={invitation.id}
+                className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+              >
+                <div>
+                  <p className="text-sm font-medium">{invitation.invitedUserName}</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {invitation.invitedUserEmail}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ToneBadge
+                    tone={invitation.status === "pending" ? "warning" : "neutral"}
+                  >
+                    {t(`teammate.invitationStatus.${invitation.status}`)}
+                  </ToneBadge>
+                  <form action={resendGroupInvitation.bind(null, locale, invitation.id)}>
+                    <Button type="submit" variant="secondary">
+                      {t("teammate.resendInvitation")}
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <div className={teamListStyles.tableWrap}>
         <table className={teamListStyles.table}>

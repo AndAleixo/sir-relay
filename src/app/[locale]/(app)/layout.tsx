@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import type { UserGroup } from "@/domain/types";
 import { AppLayoutClient } from "@/components/layout/app-layout-client";
 import { requireSession } from "@/lib/require-session";
 import { getServices } from "@/services";
@@ -16,14 +15,18 @@ export default async function AppLayout({
   if (session.user.mustChangePassword) {
     redirect(`/${locale}/change-password`);
   }
-  const { groups } = getServices();
-  const groupList = await groups.listForUser(session.user.id);
+  const { groups, invitations } = getServices();
+  const [groupList, pendingInvitations] = await Promise.all([
+    groups.listForUser(session.user.id),
+    invitations.listForUser(session.user.id),
+  ]);
 
   return (
     <AppLayoutClient
       locale={locale}
       user={session.user}
       groups={groupList}
+      invitations={pendingInvitations}
       activeGroupId={session.activeGroupId}
     >
       {children}

@@ -42,8 +42,8 @@ export const MOCK_TEAMMATES: Teammate[] = [
     role: "teammate",
     locale: "es-es",
     active: true,
-    accountStatus: "active",
-    telegramStatus: "linked",
+    accountStatus: "invited",
+    telegramStatus: "pending",
   },
 ];
 

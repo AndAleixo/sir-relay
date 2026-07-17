@@ -3,7 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { useFormState } from "react-dom";
 import { useTranslations } from "next-intl";
-import type { UserGroup } from "@/domain/types";
+import type { GroupInvitation, UserGroup } from "@/domain/types";
 import type { GroupFormState } from "@/app/actions/groups";
 import {
   createGroupForm,
@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
+import { GroupInvitationActions } from "@/components/groups/group-invitation-actions";
 import { shellStyles } from "./app-shell.styles";
 
 const emptyFormState: GroupFormState = { error: null };
@@ -160,6 +161,7 @@ function GroupPanelJoinForm({
 interface GroupPanelMenuProps {
   locale: string;
   groups: UserGroup[];
+  invitations: GroupInvitation[];
   activeGroupId: string | null;
   returnPath: string;
   panelOpen: boolean;
@@ -170,6 +172,7 @@ interface GroupPanelMenuProps {
 export function GroupPanelMenu({
   locale,
   groups,
+  invitations,
   activeGroupId,
   returnPath,
   panelOpen,
@@ -235,6 +238,25 @@ export function GroupPanelMenu({
           ))}
         </ul>
       )}
+
+      {invitations.length > 0 ? (
+        <div className={shellStyles.groupPanelSection}>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+            {t("groups.pendingInvitations")}
+          </p>
+          <div className="space-y-3">
+            {invitations.map((invitation) => (
+              <div key={invitation.id} className="space-y-2">
+                <p className="text-sm font-medium">{invitation.groupName}</p>
+                <GroupInvitationActions
+                  locale={locale}
+                  invitationId={invitation.id}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className={shellStyles.groupPanelSection}>
         {showCreate ? (

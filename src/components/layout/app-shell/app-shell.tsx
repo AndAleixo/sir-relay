@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { Role, User, UserGroup } from "@/domain/types";
+import type {
+  GroupInvitation,
+  Role,
+  User,
+  UserGroup,
+} from "@/domain/types";
 import { isPrimaryNavActive } from "@/lib/navigation";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
@@ -28,6 +33,7 @@ interface AppShellProps {
   locale: string;
   user: User;
   groups: UserGroup[];
+  invitations: GroupInvitation[];
   activeGroupId: string | null;
   children: React.ReactNode;
 }
@@ -36,6 +42,7 @@ export function AppShell({
   locale,
   user,
   groups,
+  invitations,
   activeGroupId,
   children,
 }: AppShellProps) {
@@ -188,6 +195,7 @@ export function AppShell({
           appName={t("common.appName")}
           user={user}
           groups={groups}
+          invitations={invitations}
           activeGroupId={activeGroupId}
           items={visibleNav}
         />
@@ -195,6 +203,7 @@ export function AppShell({
           locale={locale}
           user={user}
           groups={groups}
+          invitations={invitations}
           activeGroupId={activeGroupId}
         />
         <main className={cn(shellStyles.content, isOperator && shellStyles.contentWide)}>

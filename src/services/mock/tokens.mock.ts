@@ -49,9 +49,6 @@ export function initMockTokens() {
   store.seeded = true;
 
   seedInvite("mock-invite-carla", "user-carla", "group-demo");
-  seedInvite("mock-invite-ana", "user-ana", "group-demo");
-  seedInvite("mock-invite-ana-side", "user-ana", "group-side");
-  seedInvite("mock-invite-bruno", "user-bruno", "group-demo");
 }
 
 export function createInviteToken(userId: string, groupId: string): string {
@@ -73,24 +70,7 @@ export function createTelegramLinkToken(userId: string): string {
   return token;
 }
 
-/** Demo tokens — re-seed when consumed so panel testing keeps working. */
-function ensureDemoInvites() {
-  if (!tokenStore().inviteTokens.has("mock-invite-ana")) {
-    seedInvite("mock-invite-ana", "user-ana", "group-demo");
-  }
-  if (!tokenStore().inviteTokens.has("mock-invite-ana-side")) {
-    seedInvite("mock-invite-ana-side", "user-ana", "group-side");
-  }
-  if (!tokenStore().inviteTokens.has("mock-invite-bruno")) {
-    seedInvite("mock-invite-bruno", "user-bruno", "group-demo");
-  }
-  if (!tokenStore().inviteTokens.has("mock-invite-carla")) {
-    seedInvite("mock-invite-carla", "user-carla", "group-demo");
-  }
-}
-
 export function resolveInvite(token: string): InviteRecord | null {
-  ensureDemoInvites();
   const record = tokenStore().inviteTokens.get(token);
   if (!record || record.expiresAt < Date.now()) return null;
   return record;

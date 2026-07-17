@@ -1,6 +1,6 @@
 "use client";
 
-import type { User, UserGroup } from "@/domain/types";
+import type { GroupInvitation, User, UserGroup } from "@/domain/types";
 import { GroupSwitcher } from "./group-switcher";
 import { LocaleSwitcher } from "./locale-switcher";
 import { UserMenu } from "./user-menu";
@@ -10,16 +10,24 @@ interface AppHeaderProps {
   locale: string;
   user: User;
   groups: UserGroup[];
+  invitations: GroupInvitation[];
   activeGroupId: string | null;
 }
 
-export function AppHeader({ locale, user, groups, activeGroupId }: AppHeaderProps) {
+export function AppHeader({
+  locale,
+  user,
+  groups,
+  invitations,
+  activeGroupId,
+}: AppHeaderProps) {
   return (
     <header className={shellStyles.header}>
       <div className={shellStyles.headerGroup}>
         <GroupSwitcher
           locale={locale}
           groups={groups}
+          invitations={invitations}
           activeGroupId={activeGroupId}
         />
       </div>

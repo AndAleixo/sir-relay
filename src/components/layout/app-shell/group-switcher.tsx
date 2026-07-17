@@ -11,7 +11,7 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
-import type { UserGroup } from "@/domain/types";
+import type { GroupInvitation, UserGroup } from "@/domain/types";
 import { GroupPanelMenu } from "./group-panel-menu";
 
 import { shellStyles } from "./app-shell.styles";
@@ -19,6 +19,7 @@ import { shellStyles } from "./app-shell.styles";
 interface GroupSwitcherProps {
   locale: string;
   groups: UserGroup[];
+  invitations: GroupInvitation[];
   activeGroupId: string | null;
   compact?: boolean;
 }
@@ -65,6 +66,7 @@ function GroupIcon({ className }: { className?: string }) {
 export function GroupSwitcher({
   locale,
   groups,
+  invitations,
   activeGroupId,
   compact = false,
 }: GroupSwitcherProps) {
@@ -156,6 +158,7 @@ export function GroupSwitcher({
   const panelMenuProps = {
     locale,
     groups,
+    invitations,
     activeGroupId,
     returnPath,
     panelOpen: open,
@@ -228,6 +231,11 @@ export function GroupSwitcher({
         {compact ? (
           <>
             <span className={shellStyles.groupSwitcherNameCompact}>{triggerLabel}</span>
+            {invitations.length > 0 ? (
+              <span className="rounded-full bg-brand-accent px-1.5 text-xs font-semibold">
+                {invitations.length}
+              </span>
+            ) : null}
             <Chevron className={open ? "rotate-180" : undefined} />
           </>
         ) : (
@@ -241,6 +249,11 @@ export function GroupSwitcher({
                 </span>
               ) : null}
             </span>
+            {invitations.length > 0 ? (
+              <span className="rounded-full bg-brand-accent px-1.5 text-xs font-semibold">
+                {invitations.length}
+              </span>
+            ) : null}
             <Chevron className={open ? "rotate-180" : undefined} />
           </>
         )}

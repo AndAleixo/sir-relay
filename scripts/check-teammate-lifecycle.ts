@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import type { Session } from "../src/domain/types";
 import { mockTeammateService } from "../src/services/mock/teammate.mock";
 import { countMockTasksAssignedTo } from "../src/services/mock/task.mock";
+import { mockGroupInvitationService } from "../src/services/mock/invitations.mock";
 import { resolveInvite } from "../src/services/mock/tokens.mock";
 import { findAnyMockUserByEmail } from "../src/services/mock/users.mock";
 
@@ -33,9 +34,32 @@ async function main() {
     { name: original.name, email: original.email },
     ctx,
   );
-  assert(readded.ok);
-  assert.equal(readded.teammate.id, original.id);
-  assert.equal(readded.teammate.active, true);
+  assert(readded.ok && readded.kind === "invitation");
+  assert.equal(await mockTeammateService.getTeammate(original.id, ctx), null);
+  assert.equal(
+    (await mockGroupInvitationService.listForUser(original.id)).length,
+    1,
+  );
+  const duplicateRequest = await mockTeammateService.createTeammate(
+    { name: original.name, email: original.email },
+    ctx,
+  );
+  assert(duplicateRequest.ok && duplicateRequest.kind === "invitation");
+  assert.equal(duplicateRequest.invitation.id, readded.invitation.id);
+
+  await assert.rejects(
+    mockGroupInvitationService.accept(readded.invitation.id, "user-ana"),
+    /invitation_invalid/,
+  );
+  const concurrentAccepts = await Promise.allSettled([
+    mockGroupInvitationService.accept(readded.invitation.id, original.id),
+    mockGroupInvitationService.accept(readded.invitation.id, original.id),
+  ]);
+  assert.equal(
+    concurrentAccepts.filter(({ status }) => status === "fulfilled").length,
+    1,
+  );
+  assert(await mockTeammateService.getTeammate(original.id, ctx));
 
   assert.deepEqual(
     await mockTeammateService.createTeammate(
@@ -45,12 +69,32 @@ async function main() {
     { ok: false, reason: "already_in_group" },
   );
 
+  await mockTeammateService.removeTeammate(original.id, ctx);
+  const declinedRequest = await mockTeammateService.createTeammate(
+    { name: original.name, email: original.email },
+    ctx,
+  );
+  assert(declinedRequest.ok && declinedRequest.kind === "invitation");
+  await mockGroupInvitationService.decline(
+    declinedRequest.invitation.id,
+    original.id,
+  );
+  assert.equal(
+    (await mockGroupInvitationService.listForUser(original.id)).length,
+    0,
+  );
+  await mockGroupInvitationService.resend(declinedRequest.invitation.id, ctx);
+  assert.equal(
+    (await mockGroupInvitationService.listForUser(original.id)).length,
+    1,
+  );
+
   const email = `lifecycle-${Date.now()}@example.com`;
   const created = await mockTeammateService.createTeammate(
     { name: "Lifecycle Check", email },
     ctx,
   );
-  assert(created.ok);
+  assert(created.ok && created.kind === "membership");
 
   const firstInvite = await mockTeammateService.getInviteToken(created.teammate.id, ctx);
   assert(firstInvite);

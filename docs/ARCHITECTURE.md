@@ -32,17 +32,18 @@ src/
 | Peça | Ficheiro | Notas |
 |------|----------|-------|
 | Switcher + panel open | `group-switcher.tsx` | Desktop dropdown · mobile popover (só um painel visível por breakpoint) |
-| Lista + forms | `group-panel-menu.tsx` | Create/join only · leave/delete in `group-danger-settings.tsx` |
-| Server actions | `app/actions/groups.ts` | `selectGroup`, `createGroupForm`, `redeemInviteForm`, `acceptInvite`, `leaveGroupForm`, `deleteGroupForm` |
+| Lista + forms | `group-panel-menu.tsx` | Switch/create/join + accept/decline pending requests · leave/delete in `group-danger-settings.tsx` |
+| Server actions | `app/actions/groups.ts` + `invitations.ts` | Group lifecycle + consent-based invitation responses |
 | Teammate actions | `app/actions/teammates.ts` | pre-create/update/remove (assigned group tasks + membership)/promote/regenerate-invite |
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` |
 | Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete |
+| Invitation consent | `services/{api,mock}/invitations*` | Existing active account: pending → accept/decline; membership only on accept |
 | Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |
 | Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |
 
 Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookies flash).
 
-**Pre-create + activation:** `teammates.createTeammate` → `users` row `account_status: invited` + membership. Activation paths (spec §5.1.2): `auth.joinWithToken` (`/join/[token]`) **or** `auth.signup` merge when email matches `invited` (planned — P1-AUTH-13). Today signup rejects taken email even when `invited`; implementation pending.
+**Pre-create + activation:** new email → `users` row `account_status: invited` + membership + activation link. Existing active email → `group_invitations` request only; acceptance creates membership. Activation via signup email merge remains pending (P1-AUTH-13).
 
 ## Routes
 
@@ -79,7 +80,7 @@ Unauthenticated access to app routes → `/login?session=expired`.
 
 ## Landing demo
 
-Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `demo12345` (dev-hybrid) · 2 groups → login resume **Demo Shop** · `ana@example.com` (teammate → tasks) · invite: `mock-invite-ana-side` as ana joins Side Project.
+Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `demo12345` (dev-hybrid) · 2 groups → login resume **Demo Shop** · `ana@example.com` (active teammate → tasks) · activation: `mock-invite-carla` for invited Carla.
 
 ## Task forms
 
@@ -116,4 +117,4 @@ npm install && npm run dev-mock && npm run check:routes
 # dev-hybrid: npm run dev-hybrid   # Postgres + API · demo12345
 ```
 
-`http://localhost:3000` — landing · `/en-gb/login` — sign in · **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `demo12345` · invite: `mock-invite-ana-side` as ana@example.com
+`http://localhost:3000` — landing · `/en-gb/login` — sign in · **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `demo12345` · activation: `mock-invite-carla` as carla@example.com

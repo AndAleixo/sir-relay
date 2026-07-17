@@ -30,7 +30,7 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 | **Calm UI** | Gray/white surfaces; yellow accent for CTAs and In progress column |
 | **No metric pressure** | No velocity charts, leaderboards, or surveillance KPIs — tasks and due dates only |
 | **Small team scale** | 2–5 people per group; no enterprise density — readable cards, generous spacing |
-| **Account vs app config** | **Profile** = personal account (photo, name, language, Telegram, password) · **Settings** = group alerts, membership (leave/delete) |
+| **Account vs app config** | **Profile** = personal account (photo, account name, language, Telegram, password) · **Settings** = group details (incl. your fantasy name), alerts, membership (leave/delete) |
 | **Web first** | Responsive web is the primary client; landing and app share brand tokens; native apps reuse API later |
 
 ### 1.1 Users, groups, and roles
@@ -226,7 +226,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 ### 3.2 Operator — team board
 
-First column: **Me** (tasks assigned to the logged-in Operator). Then one column per **active teammate**. Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
+First column: **Me** (tasks assigned to the logged-in Operator). Then one column per **other active group member** (teammates **and** other operators, including promoted members). Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
@@ -250,10 +250,10 @@ First column: **Me** (tasks assigned to the logged-in Operator). Then one column
 
 **Me column:** Operator self-assigned tasks; web-only (no Telegram relay). Label shows Operator display name or “Me” per locale.
 
-#### Column header (teammate)
+#### Column header (member)
 
-- Teammate name (bold)
-- Status chips: Telegram `linked` / `pending`, account `active` / `invited`
+- Member label (fantasy name → account name → email)
+- Status chips: role when operator; Telegram `linked` / `pending` when known; account `active` / `invited` for teammates
 - Optional: count of `todo` + `doing` as summary badge
 
 #### Sections inside each column (top → bottom)
@@ -284,7 +284,7 @@ Toggle in toolbar: **Board** | **List** (icon + label).
 | Role | List content |
 |------|--------------|
 | Teammate | My tasks; sort by due date, status, updated_at |
-| Operator | All tasks; columns: title, assignee, status, due, updated; filter by assignee (**Me** + teammates), status |
+| Operator | All tasks; columns: title, assignee, status, due, updated; filter by assignee (**Me** + all other members), status |
 
 List is the fallback for narrow screens and power-user scanning.
 
@@ -400,13 +400,13 @@ Table: name, email, role, account status, Telegram status, view link. **You** �
 - **Invite link** — `/join/{token}` · copy · regenerate (invited teammates only)
 - Teammate links Telegram on **Profile** after activation (operator has no Telegram link field here)
 
-Member may also edit their own fantasy name for the active group on **Profile** (same field operators edit on teammate detail).
+Member may also edit their own fantasy name for the active group on **Settings** (same field operators edit on member detail).
 
 ---
 
 ## 8. Profile & Settings
 
-Two distinct pages — **Profile** is who you are; **Settings** is how the app behaves. No cross-links between them; use the account menu or sidebar to switch.
+Two distinct pages — **Profile** is who you are across SirRelay; **Settings** is the **active group**. No cross-links between them; use the account menu or sidebar to switch.
 
 ### 8.1 Profile (`/profile`)
 
@@ -415,13 +415,13 @@ All users. Access: avatar (header / mobile), sidebar footer, account menu.
 | Section | Content | Phase 1 |
 |---------|---------|---------|
 | **Photo** | Upload / change / remove profile photo | Mock: browser storage · production: server upload |
-| **Account** | Editable **own** account name; email read-only. Optional **fantasy name** for the active group (same field operators edit on teammate detail) | Yes |
+| **Account** | Editable **own** account name; email read-only. **No** group fantasy name here | Yes |
 | **Language** | Locale picker; persisted on account | Yes |
 | **Password** | Change password form | Yes |
 | **Telegram** | Link status; pending: copy · **Open in Telegram** · **New link code** on **Profile** (operators: alerts · teammates: task relay) | Yes |
 | **Log out** | Button (mobile primary exit; desktop also in account menu) | Yes |
 
-Group and role live in the **group switcher** only — not on Profile.
+Group and role live in the **group switcher** only — not on Profile. Fantasy / group display name lives on **Settings**.
 
 ### 8.2 Settings (`/settings`)
 
@@ -429,13 +429,14 @@ All users with an active group. Access: sidebar / mobile tabs only (not account 
 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
+| **General** | Group name (operator rename); **your fantasy name** for this group only | Yes |
 | **Operator alerts** | Toggles + link to Alerts history; Telegram banner if unlinked | Yes |
 | **Notifications** | Teammate empty state (operators configure alerts) | Yes |
 | **Membership** | Leave group; delete group (operator) | Yes |
 
-Language and group switching live on **Profile** and the header **Group switcher**, not here.
+Language lives on **Profile**; group switching on the header **Group switcher**.
 
-**Profile** has no role — account only. **Settings** is group-scoped alerts + leave/delete group. Group and role appear in the **group switcher** only.
+**Profile** has no role — account only. **Settings** is group-scoped (fantasy name, alerts, leave/delete). Group and role appear in the **group switcher** only.
 
 ### 8.3 Alerts (`/alerts`)
 
@@ -580,5 +581,6 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-11 | User → group → role model (§1.1); groups hub UX (§2.1); AuthPageHeader; membership-scoped nav and Profile badge |
 | 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
 | 2026-07-14 | Pre-create + sign-up merge (§2.1); teammate Telegram on Profile only (§7, §8.1) |
+| 2026-07-18 | Fantasy name only on Settings / member detail (not Profile); operator board columns = all other members |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

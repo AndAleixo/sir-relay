@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { DragEvent } from "react";
-import type { Task, TaskStatus, Teammate } from "@/domain/types";
+import type { Task, TaskStatus } from "@/domain/types";
+import type { OrganizationUser } from "@/services/contracts";
 import { groupTasksByStatus } from "@/lib/dates";
 import { cn } from "@/lib/cn";
 import { groupMemberLabel } from "@/lib/group-member-label";
@@ -35,7 +36,8 @@ interface BoardOperator {
 
 interface TeammateBoardProps {
   operator: BoardOperator;
-  teammates: Teammate[];
+  /** Other group members (teammates + other operators), excluding the logged-in operator. */
+  members: OrganizationUser[];
   tasks: Task[];
   locale: string;
   labels: TaskCardLabels & {
@@ -46,6 +48,7 @@ interface TeammateBoardProps {
     pending: string;
     invited: string;
     active: string;
+    operatorRole: string;
     viewAll: string;
     emptyBoard: string;
     dragHandle: string;
@@ -355,32 +358,45 @@ function TaskColumn({
   );
 }
 
-function TeammateColumnHeader({
-  teammate,
+function MemberColumnHeader({
+  member,
   locale,
   labels,
   activeCount,
 }: {
-  teammate: Teammate;
+  member: OrganizationUser;
   locale: string;
   labels: TeammateBoardProps["labels"];
   activeCount: number;
 }) {
+  const telegramStatus = member.telegramStatus;
+  const accountStatus =
+    member.role === "teammate" ? member.accountStatus : null;
+
   return (
     <>
       <Link
-        href={`/${locale}/teammates/${teammate.id}`}
+        href={`/${locale}/teammates/${member.id}`}
         className={teamBoardStyles.teammateName}
       >
-        {groupMemberLabel(teammate)}
+        {groupMemberLabel(member)}
       </Link>
       <div className={teamBoardStyles.badges}>
-        <ToneBadge tone={teammate.telegramStatus === "linked" ? "success" : "warning"}>
-          {teammate.telegramStatus === "linked" ? labels.linked : labels.pending}
-        </ToneBadge>
-        <ToneBadge tone="neutral">
-          {teammate.accountStatus === "active" ? labels.active : labels.invited}
-        </ToneBadge>
+        {member.role === "operator" ? (
+          <ToneBadge tone="neutral">{labels.operatorRole}</ToneBadge>
+        ) : null}
+        {telegramStatus ? (
+          <ToneBadge tone={telegramStatus === "linked" ? "success" : "warning"}>
+            {telegramStatus === "linked" ? labels.linked : labels.pending}
+          </ToneBadge>
+        ) : member.role === "operator" ? (
+          <ToneBadge tone="neutral">{labels.webOnly}</ToneBadge>
+        ) : null}
+        {accountStatus ? (
+          <ToneBadge tone="neutral">
+            {accountStatus === "active" ? labels.active : labels.invited}
+          </ToneBadge>
+        ) : null}
       </div>
       <p className={teamBoardStyles.activeCount}>{activeCount} active</p>
     </>
@@ -400,7 +416,7 @@ function SelfColumnHeader({
 }) {
   return (
     <>
-      <Link href={`/${locale}/profile`} className={teamBoardStyles.teammateName}>
+      <Link href={`/${locale}/settings`} className={teamBoardStyles.teammateName}>
         {labels.meColumn}
       </Link>
       <p className="text-xs text-[var(--text-muted)]">
@@ -420,7 +436,7 @@ function SelfColumnHeader({
 
 export function TeammateBoard({
   operator,
-  teammates,
+  members,
   tasks,
   locale,
   labels,
@@ -432,8 +448,20 @@ export function TeammateBoard({
   const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
 
   const assigneeById: Record<string, { id: string; name: string }> = {
-    [operator.id]: operator,
-    ...Object.fromEntries(teammates.map((t) => [t.id, t])),
+    [operator.id]: {
+      id: operator.id,
+      name: groupMemberLabel({
+        name: operator.name,
+        email: operator.email ?? "",
+        displayName: operator.displayName,
+      }),
+    },
+    ...Object.fromEntries(
+      members.map((member) => [
+        member.id,
+        { id: member.id, name: groupMemberLabel(member) },
+      ]),
+    ),
   };
 
   function handleDragStart(taskId: string) {
@@ -526,7 +554,7 @@ export function TeammateBoard({
   const selfActive =
     selfTasks.filter((t) => t.status === "todo" || t.status === "doing").length;
 
-  if (teammates.length === 0 && selfTasks.length === 0) {
+  if (members.length === 0 && selfTasks.length === 0) {
     return (
       <p className="rounded-card border border-dashed border-[var(--border)] bg-surface-card p-8 text-center text-sm text-[var(--text-muted)]">
         {labels.emptyBoard}
@@ -569,19 +597,19 @@ export function TeammateBoard({
           onQuickCreate={handleQuickCreate}
           sectionScrollAfter={sectionScrollAfter}
         />
-        {teammates.map((teammate) => {
-          const columnTasks = tasks.filter((t) => t.assigneeId === teammate.id);
+        {members.map((member) => {
+          const columnTasks = tasks.filter((t) => t.assigneeId === member.id);
           const activeCount =
             columnTasks.filter((t) => t.status === "todo" || t.status === "doing").length;
 
           return (
             <TaskColumn
-              key={teammate.id}
-              assigneeId={teammate.id}
-              assigneeName={groupMemberLabel(teammate)}
+              key={member.id}
+              assigneeId={member.id}
+              assigneeName={groupMemberLabel(member)}
               header={
-                <TeammateColumnHeader
-                  teammate={teammate}
+                <MemberColumnHeader
+                  member={member}
                   locale={locale}
                   labels={labels}
                   activeCount={activeCount}

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { Task, Teammate } from "@/domain/types";
+import type { Task } from "@/domain/types";
+import type { OrganizationUser } from "@/services/contracts";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { useSync } from "@/components/sync";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ interface TasksPageClientProps {
   role: "operator" | "teammate";
   operator?: { id: string; name: string; email?: string; displayName?: string | null };
   tasks: Task[];
-  teammates: Teammate[];
+  members: OrganizationUser[];
   showNewTask?: boolean;
   labels: {
     board: string;
@@ -36,6 +37,7 @@ interface TasksPageClientProps {
     pending: string;
     invited: string;
     active: string;
+    operatorRole: string;
     viewAll: string;
     dragHandle: string;
     meColumn: string;
@@ -61,7 +63,7 @@ export function TasksPageClient({
   role,
   operator,
   tasks: serverTasks,
-  teammates,
+  members,
   showNewTask = false,
   labels,
 }: TasksPageClientProps) {
@@ -93,7 +95,7 @@ export function TasksPageClient({
         isOperator && operator ? (
           <TeammateBoard
             operator={operator}
-            teammates={teammates}
+            members={members}
             tasks={tasks}
             locale={locale}
             labels={{
@@ -104,6 +106,7 @@ export function TasksPageClient({
               pending: labels.pending,
               invited: labels.invited,
               active: labels.active,
+              operatorRole: labels.operatorRole,
               dueDate: labels.dueDate,
               updated: labels.updated,
               overdue: labels.overdue,
@@ -140,9 +143,9 @@ export function TasksPageClient({
           locale={locale}
           assigneeOptions={[
             { id: operator.id, label: labels.meColumn },
-            ...teammates.map((teammate) => ({
-              id: teammate.id,
-              label: groupMemberLabel(teammate),
+            ...members.map((member) => ({
+              id: member.id,
+              label: groupMemberLabel(member),
             })),
           ]}
           labels={{

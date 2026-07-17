@@ -32,17 +32,15 @@ export default async function TaskDetailPage({
   const overdue = isOverdue(task.dueDate);
   const isOperator = session.user.role === "operator";
 
-  const teammateList = isOperator
-    ? await teammates.listTeammates({ session })
-    : [];
   const orgUsers = isOperator
     ? await teammates.listOrganizationUsers({ session })
     : [];
   const me = orgUsers.find((user) => user.id === session.user.id);
-
-  const assigneeTeammate = isOperator
-    ? teammateList.find((teammate) => teammate.id === task.assigneeId)
+  const assigneeMember = isOperator
+    ? orgUsers.find((user) => user.id === task.assigneeId) ?? null
     : null;
+  const assigneeTeammate =
+    assigneeMember?.role === "teammate" ? assigneeMember : null;
   const assigneeTelegramPending =
     isOperator &&
     assigneeTeammate &&
@@ -60,10 +58,12 @@ export default async function TaskDetailPage({
             }),
           }),
         },
-        ...teammateList.map((teammate) => ({
-          id: teammate.id,
-          label: groupMemberLabel(teammate),
-        })),
+        ...orgUsers
+          .filter((user) => user.id !== session.user.id)
+          .map((user) => ({
+            id: user.id,
+            label: groupMemberLabel(user),
+          })),
       ]
     : [];
 

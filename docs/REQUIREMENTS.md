@@ -99,7 +99,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | Roles | **Operator** — full access in that group · **Teammate** — own tasks only in that group |
 | Bootstrap (deploy) | On empty DB, seed one **user** from `ADMIN_EMAIL` + `ADMIN_PASSWORD` (may create first group manually) |
 | Joining a group | **Create group** → creator is operator · **Invite link** or **sign-up email match** → join as teammate (membership may already exist from operator pre-create) |
-| Task assignee | One user per task — **active teammate** or **operator (self)** in the same group |
+| Task assignee | One user per task — any **active member** of the same group (teammate or operator, including other operators) |
 | Relay scope | Telegram relay queue applies **only** to tasks assigned to linked teammates |
 | Operator alerts | Optional Telegram on Profile; notify on teammate **task done** and **due/overdue** (§5.6) |
 | Task statuses | `todo` · `doing` · `done` |
@@ -210,13 +210,13 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TM-08 | Regenerate Telegram link | **Profile** — new code if expired (operators + teammates) |
 | P1-TM-09 | One chat per teammate | `telegram_chat_id` unique across users |
 | P1-TM-10 | Promote to operator | Operator promotes **active** teammate in group → `group_memberships.role = operator`; appears as operator in team list |
-| P1-TM-11 | Fantasy name | Optional `group_memberships.display_name`; editable by operator **or** the member; empty → fall back to account name |
+| P1-TM-11 | Fantasy name | Optional `group_memberships.display_name`; editable by operator on member detail **or** by the member on **Settings**; empty → fall back to account name |
 
 ### 5.3 Tasks & relay queue
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-TASK-01 | Create | Operator only; title + assignee (active teammate **or self**); optional description, due_date |
+| P1-TASK-01 | Create | Operator only; title + assignee (any active group member, including self and other operators); optional description, due_date |
 | P1-TASK-02 | Notify on create | Send Telegram if assignee is a **linked teammate** **and** queue is empty (§2); **no Telegram** for Operator self-tasks |
 | P1-TASK-03 | Re-notify | Operator only; resend Telegram; update `telegram_message_id` (replies bind to latest message) |
 | P1-TASK-04 | List / Kanban | Operator: all tasks · Teammate: assigned to me; 3 status columns |
@@ -251,7 +251,7 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | P1-UI-06 | No metric UI | No velocity charts, leaderboards, or employee KPI dashboards in Phase 1–2 |
 | P1-UI-07 | App store links | **None** in Phase 1 — web only; native store badges → P3-13 |
 | P1-VIEW-01 | List sort | By due date, status, updated_at |
-| P1-VIEW-02 | Task boards | Teammate: 3-column Kanban (To do · In progress · Done). Operator: **Me** column (self-assigned tasks) + one column per active teammate — To do + In progress expanded, Done collapsed — [UIUX.md §3](./UIUX.md#3-task-boards--two-layouts) |
+| P1-VIEW-02 | Task boards | Teammate: 3-column Kanban (To do · In progress · Done). Operator: **Me** column (self-assigned tasks) + one column per **other active member** (teammates and other operators) — To do + In progress expanded, Done collapsed — [UIUX.md §3](./UIUX.md#3-task-boards--two-layouts) |
 | P1-VIEW-03 | List view | Both roles; sort/filter; mobile fallback for Operator board |
 | P1-VIEW-04 | Responsive | Usable at 375px; Operator board → list on mobile per UIUX.md |
 | P1-I18N-01 | Locales | Full UI in `en`, `es`, `pt` via next-intl |
@@ -688,7 +688,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Task status | Code: `todo` · `doing` · `done`. UI (en): To do · In progress · Done — see [UIUX.md](./UIUX.md#status-naming) |
 | Account status | `invited` (operator pre-create; no password yet) · `active` (can log in) |
 | Pre-create | Operator reserves email + group membership; person sets account name on activation |
-| Fantasy name | Optional per-membership label (`display_name`); operator or member may edit; UI uses it over account name when set |
+| Fantasy name | Optional per-membership label (`display_name`); operator edits on member detail; member edits own on **Settings**; UI uses it over account name when set |
 | Sign-up merge | Sign-up with same email as `invited` row activates account and keeps group memberships |
 | Telegram status | `linked` · `pending` |
 | Phase | Delivery milestone — not a version number |

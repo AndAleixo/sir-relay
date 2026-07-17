@@ -249,7 +249,10 @@
     "alertTaskDone": "Colega concluiu uma tarefa",
     "alertTaskDoneHint": "Quando um colega marca uma tarefa como concluída (web ou Telegram).",
     "alertTaskDue": "Tarefa de colega vencida ou a vencer",
-    "alertTaskDueHint": "Uma vez por dia por tarefa quando o prazo é hoje ou já passou."
+    "alertTaskDueHint": "Uma vez por dia por tarefa quando o prazo é hoje ou já passou.",
+    "fantasyNameSaved": "Nome neste grupo actualizado.",
+    "fantasyNameFailed": "Não foi possível actualizar o nome neste grupo.",
+    "saveFantasyName": "Guardar nome neste grupo"
   },
   "profile": {
     "accountScopeHint": "Estas configurações aplicam-se à sua conta em todos os grupos.",
@@ -261,9 +264,6 @@
     "accountInfo": "Conta",
     "accountName": "Nome da conta",
     "accountNameHint": "O seu nome no SirRelay. Só você pode alterá-lo.",
-    "fantasyNameSaved": "Nome no grupo actualizado.",
-    "fantasyNameFailed": "Não foi possível actualizar o nome no grupo.",
-    "saveFantasyName": "Guardar nome no grupo",
     "nameSaved": "Nome atualizado.",
     "nameTooShort": "O nome deve ter pelo menos 2 caracteres.",
     "language": "Idioma",

@@ -285,9 +285,9 @@ export async function saveTaskDetailAction(
   ) {
     let assigneeName = groupMemberLabel(session.user);
     if (assigneeId !== session.user.id) {
-      const teammate = await teammates.getTeammate(assigneeId, { session });
-      if (!teammate) return;
-      assigneeName = groupMemberLabel(teammate);
+      const member = await teammates.getOrganizationUser(assigneeId, { session });
+      if (!member) return;
+      assigneeName = groupMemberLabel(member);
     } else {
       const orgUsers = await teammates.listOrganizationUsers({ session });
       const me = orgUsers.find((user) => user.id === session.user.id);

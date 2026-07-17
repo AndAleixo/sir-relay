@@ -16,11 +16,11 @@ export default async function TasksPage({
 
   const isOperator = session.user.role === "operator";
   const taskList = await tasks.listTasks({ session });
-  const teammateList = isOperator ? await teammates.listTeammates({ session }) : [];
   const orgUsers = isOperator
     ? await teammates.listOrganizationUsers({ session })
     : [];
   const operatorMember = orgUsers.find((user) => user.id === session.user.id);
+  const otherMembers = orgUsers.filter((user) => user.id !== session.user.id);
 
   if (isOperator) {
     await alerts.syncDueAlerts(taskList, { session });
@@ -44,7 +44,7 @@ export default async function TasksPage({
             : undefined
         }
         tasks={taskList}
-        teammates={teammateList}
+        members={otherMembers}
         labels={{
           board: t("common.board"),
           list: t("common.list"),
@@ -62,6 +62,7 @@ export default async function TasksPage({
           pending: t("teammate.pending"),
           invited: t("teammate.invited"),
           active: t("teammate.active"),
+          operatorRole: t("roles.operator"),
           viewAll: t("common.viewAll"),
           dragHandle: t("common.dragHandle"),
           meColumn: t("tasks.meColumn"),

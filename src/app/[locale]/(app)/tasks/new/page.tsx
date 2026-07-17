@@ -20,7 +20,6 @@ export default async function NewTaskPage({
   if (!session) return null;
   requireRole(session, "operator", locale);
 
-  const teammateList = await teammates.listTeammates({ session });
   const orgUsers = await teammates.listOrganizationUsers({ session });
   const me = orgUsers.find((user) => user.id === session.user.id);
   const assigneeOptions = [
@@ -33,10 +32,12 @@ export default async function NewTaskPage({
         }),
       }),
     },
-    ...teammateList.map((teammate) => ({
-      id: teammate.id,
-      label: groupMemberLabel(teammate),
-    })),
+    ...orgUsers
+      .filter((user) => user.id !== session.user.id)
+      .map((user) => ({
+        id: user.id,
+        label: groupMemberLabel(user),
+      })),
   ];
 
   return (

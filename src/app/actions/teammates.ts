@@ -85,12 +85,12 @@ export async function updateOwnDisplayNameForm(locale: string, formData: FormDat
       session,
     });
   } catch {
-    redirect(`/${locale}/profile?displayNameError=1`);
+    redirect(`/${locale}/settings?displayNameError=1`);
   }
-  revalidatePath(`/${locale}/profile`);
+  revalidatePath(`/${locale}/settings`);
   revalidatePath(`/${locale}/teammates`);
   revalidatePath(`/${locale}/tasks`);
-  redirect(`/${locale}/profile?displayNameSaved=1`);
+  redirect(`/${locale}/settings?displayNameSaved=1`);
 }
 
 export async function removeTeammate(locale: string, teammateId: string) {

@@ -3,7 +3,6 @@ import {
   profileChangePasswordForm,
   profileUpdateNameForm,
 } from "@/app/actions/auth";
-import { updateOwnDisplayNameForm } from "@/app/actions/teammates";
 import { PageHeader } from "@/components/layout/app-shell";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { ProfileAvatarEditor } from "@/components/profile/profile-avatar-editor";
@@ -30,29 +29,16 @@ export default async function ProfilePage({
     passwordChanged?: string;
     nameError?: string;
     nameSaved?: string;
-    displayNameSaved?: string;
-    displayNameError?: string;
   }>;
 }) {
   const { locale } = await params;
-  const {
-    passwordError,
-    passwordChanged,
-    nameError,
-    nameSaved,
-    displayNameSaved,
-    displayNameError,
-  } = await searchParams;
+  const { passwordError, passwordChanged, nameError, nameSaved } = await searchParams;
   const t = await getTranslations();
   const session = await requireSession(locale);
   const { teammates, users } = getServices();
   const { user } = session;
   const teammate =
     user.role === "teammate" ? await teammates.getTeammate(user.id, { session }) : null;
-  const orgUsers = session.activeGroupId
-    ? await teammates.listOrganizationUsers({ session })
-    : [];
-  const membershipSelf = orgUsers.find((row) => row.id === user.id);
 
   const telegramStatus = teammate?.telegramStatus ?? user.telegramStatus;
   const telegramToken =
@@ -80,9 +66,6 @@ export default async function ProfilePage({
         {nameSaved === "1" ? (
           <Banner variant="info">{t("profile.nameSaved")}</Banner>
         ) : null}
-        {displayNameSaved === "1" ? (
-          <Banner variant="info">{t("profile.fantasyNameSaved")}</Banner>
-        ) : null}
 
         <Card>
           <CardHeader>
@@ -109,31 +92,6 @@ export default async function ProfilePage({
               ) : null}
               <Button type="submit">{t("common.save")}</Button>
             </form>
-            {session.activeGroupId ? (
-              <form
-                action={updateOwnDisplayNameForm.bind(null, locale)}
-                className="space-y-3 border-t border-[var(--border)] pt-4"
-              >
-                <div>
-                <Label htmlFor="displayName">{t("teammate.fantasyName")}</Label>
-                <Input
-                  id="displayName"
-                  name="displayName"
-                  defaultValue={membershipSelf?.displayName ?? ""}
-                  placeholder={t("teammate.fantasyNamePlaceholder")}
-                />
-                <p className="mt-1 text-xs text-[var(--text-muted)]">
-                  {t("teammate.fantasyNameHint")}
-                </p>
-              </div>
-              {displayNameError === "1" ? (
-                <Banner variant="danger">{t("profile.fantasyNameFailed")}</Banner>
-              ) : null}
-              <Button type="submit" variant="secondary">
-                {t("profile.saveFantasyName")}
-              </Button>
-              </form>
-            ) : null}
           </CardBody>
         </Card>
 

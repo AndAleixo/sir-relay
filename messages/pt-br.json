@@ -275,7 +275,8 @@
     "telegramOperatorPendingHint": "Ligue o Telegram aqui para receber tarefas atribuídas uma de cada vez, e também alertas quando colegas concluem trabalho ou prazos vencem.",
     "passwordSection": "Senha",
     "openTelegramLink": "Abrir no Telegram",
-    "regenerateTelegramLink": "Novo código"
+    "regenerateTelegramLink": "Novo código",
+    "unlinkTelegram": "Desvincular Telegram"
   },
   "alerts": {
     "title": "Alertas",

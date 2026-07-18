@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import {
   profileChangePasswordForm,
   profileUpdateNameForm,
+  regenerateTelegramLinkAction,
 } from "@/app/actions/auth";
 import { PageHeader } from "@/components/layout/app-shell";
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -147,6 +148,13 @@ export default async function ProfilePage({
                     ? t("profile.telegramOperatorPendingHint")
                     : t("profile.telegramTeammatePendingHint")}
               </p>
+              {telegramStatus === "linked" ? (
+                <form action={regenerateTelegramLinkAction.bind(null, locale)}>
+                  <Button type="submit" variant="secondary">
+                    {t("profile.unlinkTelegram")}
+                  </Button>
+                </form>
+              ) : null}
               {telegramStatus === "pending" && telegramUrl ? (
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">

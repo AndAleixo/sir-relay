@@ -420,7 +420,7 @@ All users. Access: avatar (header / mobile), sidebar footer, account menu.
 | **Account** | Editable **own** account name; email read-only. **No** group fantasy name here | Yes |
 | **Language** | Locale picker; persisted on account | Yes |
 | **Password** | Change password form | Yes |
-| **Telegram** | Link once for the account. **Task relay** for assigned work (all roles). Operators **also** get **alerts**. Pending: copy · **Open in Telegram** · **New link code** | Yes |
+| **Telegram** | Account-scoped. **Task relay** for assigned work (all roles). Operators **also** get **alerts**. Linked: **Unlink Telegram**. Pending: copy · **Open in Telegram** · **New link code** | Yes |
 | **Log out** | Button (mobile primary exit; desktop also in account menu) | Yes |
 
 Group and role live in the **group switcher** only — not on Profile. Fantasy / group display name lives on **Settings**.

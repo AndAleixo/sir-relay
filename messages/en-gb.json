@@ -275,7 +275,8 @@
     "telegramOperatorPendingHint": "Link Telegram here to receive assigned tasks one at a time, plus alerts when teammates finish work or tasks become due.",
     "passwordSection": "Password",
     "openTelegramLink": "Open in Telegram",
-    "regenerateTelegramLink": "New link code"
+    "regenerateTelegramLink": "New link code",
+    "unlinkTelegram": "Unlink Telegram"
   },
   "alerts": {
     "title": "Alerts",

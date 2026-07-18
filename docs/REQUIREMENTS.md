@@ -69,9 +69,10 @@ sequenceDiagram
 **Relay queue rules:**
 
 1. Each **assignee** (teammate or operator) receives **at most one** active Telegram notification (`todo` or `doing`) for their own queue.
-2. On task **create**: notify only if that assignee’s queue is empty (no other `todo`/`doing` task assigned to them).
-3. On task **`done`**: send the next `todo` for that assignee (order: `due_date ASC`, then `created_at ASC`).
-4. If no tasks remain: send a short “all caught up” message.
+2. On task **create**: notify only if that assignee’s queue is empty (no other `todo`/`doing` task assigned to them). New tasks append to the **bottom** of that assignee’s To do queue (`sort_order`).
+3. Queue order: **`sort_order ASC`**, then `due_date ASC`, then `created_at ASC`. Web: operators can **drag to place/reorder** in any member’s To do; teammates reorder their own To do. Dropping onto another member’s To do (operator) places the task at that position.
+4. Queue **head** (what Telegram should show): any `doing` first (by order above), else the top `todo`. Reordering or status changes that change the head re-sync Telegram to that task.
+5. On task **`done`**: send the next `todo` for that assignee (same order). If none remain: send a short “all caught up” message.
 
 **Relay applies to any linked group member** — teammates and operators (including self-assigned tasks). Unlinked assignees stay on the web until they link Telegram on Profile.
 
@@ -226,7 +227,7 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TASK-08 | Limits | Title ≤ 200 · description ≤ 10 000 |
 | P1-TASK-09 | Reply threading | Store `telegram_message_id` + `telegram_chat_id` on each notify; replies must reference latest message |
 | P1-TASK-10 | Status sync | Telegram keyword or web update persists immediately for both roles |
-| P1-TASK-11 | Queue order | Next task: `todo`, `due_date ASC NULLS LAST`, `created_at ASC` |
+| P1-TASK-11 | Queue order | Next / head: `sort_order ASC`, then `due_date ASC NULLS LAST`, then `created_at ASC`. Web: drag to place/reorder in any member To do (operator) or own To do (teammate); Telegram follows queue head |
 | P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). Same for teammate **and** operator assignees. |
 | P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves (or other operators); visible on web board in **Me** / member columns; **Telegram relay** when linked (same queue rules as teammates) |
 
@@ -342,8 +343,8 @@ telegram_link_tokens
 
 tasks
   id, group_id, title, description, assignee_id, created_by_id,
-  status (todo|doing|done), due_date,
-  telegram_message_id, telegram_chat_id, telegram_notified_at,
+  status (todo|doing|done), due_date, sort_order,
+  telegram_message_id, telegram_chat_id, telegram_notified_at, telegram_notify_failed,
   created_at, updated_at
 
 telegram_activity   -- optional audit log for Telegram replies (not shown on web)
@@ -684,7 +685,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | **Active group** | Group selected in session; UI and API operate in this context. |
 | **Operator** | Full-access role **in a group**; UI: Operator / Operador |
 | **Teammate** | Limited role **in a group** + Telegram relay; UI: Teammate / Compañero / Colega |
-| Relay queue | One active Telegram task per teammate; next sent on `done` |
+| Relay queue | One active Telegram task per assignee; order = To do visual priority (`sort_order`); next sent on `done` or head sync |
 | Task status | Code: `todo` · `doing` · `done`. UI (en): To do · In progress · Done — see [UIUX.md](./UIUX.md#status-naming) |
 | Account status | `invited` (operator pre-create; no password yet) · `active` (can log in) |
 | Pre-create | Operator reserves email + group membership; person sets account name on activation |
@@ -711,6 +712,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Date | Change |
 |------|--------|
 | 2026-07-18 | Telegram task relay + operator alert DMs (P1-TG-02–05, 08–10) |
+| 2026-07-18 | Task queue priority: `sort_order` + To do drag place/reorder; Telegram follows queue head (P1-TASK-11) |
 | 2026-07-18 | SQL backups ops done on prod VPS: daily cron 05:00 → Drive; restore tested (P2-BAK-01–04) |
 | 2026-06-25 | Initial spec; 3-phase structure; Sir brand |
 | 2026-06-28 | Operator self-tasks (P1-TASK-13); Operator Telegram alerts on teammate done + due/overdue (P1-TG-09–11) |

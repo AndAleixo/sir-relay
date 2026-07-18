@@ -89,6 +89,12 @@ export class MockTaskService implements TaskService {
     const { assigneeId, assigneeName } = resolveAssignee(input.assigneeId, ctx.session);
     const now = new Date().toISOString();
 
+    const sameAssignee = this.tasks.filter(
+      (t) => t.assigneeId === input.assigneeId && t.status !== "done",
+    );
+    const sortOrder =
+      sameAssignee.reduce((max, t) => Math.max(max, t.sortOrder), -1) + 1;
+
     const task: Task = {
       id: `task-${Date.now()}`,
       title: title.slice(0, 200),
@@ -98,6 +104,7 @@ export class MockTaskService implements TaskService {
       status: "todo",
       dueDate: input.dueDate ?? null,
       telegramNotifyFailed: false,
+      sortOrder,
       updatedAt: now,
       createdAt: now,
     };
@@ -113,9 +120,19 @@ export class MockTaskService implements TaskService {
   ): Promise<Task> {
     const task = await this.getTask(id, ctx);
     if (!task) throw new Error("Task not found");
+
+    let sortOrder = task.sortOrder;
+    if (task.status === "done" && status !== "done") {
+      const peers = this.tasks.filter(
+        (t) => t.assigneeId === task.assigneeId && t.status !== "done",
+      );
+      sortOrder = peers.reduce((max, t) => Math.max(max, t.sortOrder), -1) + 1;
+    }
+
     const updated = {
       ...task,
       status,
+      sortOrder,
       updatedAt: new Date().toISOString(),
     };
     this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
@@ -134,10 +151,20 @@ export class MockTaskService implements TaskService {
     resolveAssignee(assigneeId, ctx.session);
     const task = await this.getTask(id, ctx);
     if (!task) throw new Error("Task not found");
+
+    let sortOrder = task.sortOrder;
+    if (task.status !== "done") {
+      const peers = this.tasks.filter(
+        (t) => t.assigneeId === assigneeId && t.status !== "done" && t.id !== id,
+      );
+      sortOrder = peers.reduce((max, t) => Math.max(max, t.sortOrder), -1) + 1;
+    }
+
     const updated = {
       ...task,
       assigneeId,
       assigneeName,
+      sortOrder,
       updatedAt: new Date().toISOString(),
     };
     this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
@@ -200,6 +227,70 @@ export class MockTaskService implements TaskService {
     };
     this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
     return updated;
+  }
+
+  async placeInTodoQueue(
+    taskId: string,
+    assigneeId: string,
+    orderedTodoIds: string[],
+    ctx: { session: Session },
+  ): Promise<Task[]> {
+    if (
+      ctx.session.user.role !== "operator" &&
+      assigneeId !== ctx.session.user.id
+    ) {
+      throw new Error("Forbidden");
+    }
+
+    resolveAssignee(assigneeId, ctx.session);
+    const task = await this.getTask(taskId, ctx);
+    if (!task) throw new Error("Not found");
+    if (
+      ctx.session.user.role !== "operator" &&
+      task.assigneeId !== ctx.session.user.id
+    ) {
+      throw new Error("Forbidden");
+    }
+
+    const uniqueIds = Array.from(new Set(orderedTodoIds));
+    if (!uniqueIds.includes(taskId)) throw new Error("Task missing from queue");
+
+    const now = new Date().toISOString();
+    const { assigneeName } = resolveAssignee(assigneeId, ctx.session);
+
+    this.tasks = this.tasks.map((t) => {
+      if (t.id === taskId) {
+        return {
+          ...t,
+          assigneeId,
+          assigneeName,
+          status: "todo" as const,
+          updatedAt: now,
+        };
+      }
+      return t;
+    });
+
+    const todos = this.tasks.filter(
+      (t) => t.assigneeId === assigneeId && t.status === "todo",
+    );
+    if (
+      uniqueIds.length !== todos.length ||
+      !todos.every((t) => uniqueIds.includes(t.id))
+    ) {
+      throw new Error("Invalid todo queue");
+    }
+
+    const order = new Map(uniqueIds.map((id, i) => [id, i]));
+    this.tasks = this.tasks.map((t) => {
+      const sortOrder = order.get(t.id);
+      if (sortOrder === undefined) return t;
+      return { ...t, sortOrder, updatedAt: now };
+    });
+
+    return filterTasksForSession(this.tasks, ctx.session).map((row) =>
+      withLiveAssigneeName(row, ctx.session),
+    );
   }
 }
 

@@ -204,6 +204,34 @@ export async function quickCreateTaskAction(
   return { ok: true, task };
 }
 
+export async function placeInTodoQueueAction(
+  taskId: string,
+  assigneeId: string,
+  orderedTodoIds: string[],
+): Promise<
+  | { ok: true; tasks: Task[] }
+  | { ok: false; error: "unauthorized" | "invalid" }
+> {
+  const { auth, tasks } = getServices();
+  const session = await auth.getSession();
+  if (!session) {
+    return { ok: false, error: "unauthorized" };
+  }
+
+  try {
+    const updated = await tasks.placeInTodoQueue(
+      taskId,
+      assigneeId,
+      orderedTodoIds,
+      { session },
+    );
+    maybeRevalidate();
+    return { ok: true, tasks: updated };
+  } catch {
+    return { ok: false, error: "invalid" };
+  }
+}
+
 export async function updateTaskFieldsAction(
   taskId: string,
   fields: { title?: string; dueDate?: string | null; description?: string },

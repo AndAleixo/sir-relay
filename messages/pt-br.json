@@ -208,7 +208,8 @@
     "addDueDate": "Adicionar prazo",
     "sectionTodo": "A fazer",
     "sectionDoing": "Em progresso",
-    "sectionDone": "Concluído"
+    "sectionDone": "Concluído",
+    "todoPriorityHint": "Mais acima = mais cedo. Arraste em A fazer para ordenar a fila."
   },
   "settings": {
     "title": "Configurações",

@@ -135,6 +135,7 @@ model Task {
   telegramChatId       String?    @map("telegram_chat_id")
   telegramNotifiedAt   DateTime?  @map("telegram_notified_at")
   telegramNotifyFailed Boolean    @default(false) @map("telegram_notify_failed")
+  sortOrder            Int        @default(0) @map("sort_order")
   createdAt            DateTime   @default(now()) @map("created_at")
   updatedAt            DateTime   @updatedAt @map("updated_at")
 
@@ -145,6 +146,7 @@ model Task {
 
   @@index([groupId])
   @@index([assigneeId])
+  @@index([groupId, assigneeId, sortOrder])
   @@map("tasks")
 }
 

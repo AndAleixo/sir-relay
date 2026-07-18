@@ -208,7 +208,8 @@
     "addDueDate": "Añadir fecha límite",
     "sectionTodo": "Por hacer",
     "sectionDoing": "En progreso",
-    "sectionDone": "Hecho"
+    "sectionDone": "Hecho",
+    "todoPriorityHint": "Más arriba = antes. Arrastra en Por hacer para ordenar la cola."
   },
   "settings": {
     "title": "Ajustes",

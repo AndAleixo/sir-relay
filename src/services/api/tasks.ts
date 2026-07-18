@@ -6,6 +6,7 @@ import {
   dispatchAfterDone,
   notifyTaskIfEligible,
   renotifyTaskTelegram,
+  syncAssigneeTelegramHead,
 } from "@/lib/telegram/relay";
 import { toTask } from "@/services/api/mappers";
 
@@ -35,6 +36,14 @@ async function assertAssigneeInGroup(groupId: string, assigneeId: string) {
   if (!member) throw new Error("Invalid assignee");
 }
 
+async function nextSortOrder(groupId: string, assigneeId: string): Promise<number> {
+  const agg = await prisma.task.aggregate({
+    where: { groupId, assigneeId, status: { not: "done" } },
+    _max: { sortOrder: true },
+  });
+  return (agg._max.sortOrder ?? -1) + 1;
+}
+
 async function loadTask(id: string, session: Session): Promise<Task | null> {
   const groupId = requireGroupId(session);
   const row = await prisma.task.findFirst({
@@ -58,6 +67,7 @@ export class ApiTaskService implements TaskService {
 
     const rows = await prisma.task.findMany({
       where,
+      // List/export order — boards re-sort To do via sortByQueueOrder.
       orderBy: { updatedAt: "desc" },
     });
 
@@ -88,6 +98,7 @@ export class ApiTaskService implements TaskService {
     await assertAssigneeInGroup(groupId, input.assigneeId);
     const name = await assigneeName(groupId, input.assigneeId);
     const id = `task-${Date.now()}`;
+    const sortOrder = await nextSortOrder(groupId, input.assigneeId);
 
     const row = await prisma.task.create({
       data: {
@@ -99,6 +110,7 @@ export class ApiTaskService implements TaskService {
         createdById: ctx.session.user.id,
         status: "todo",
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
+        sortOrder,
       },
     });
 
@@ -115,13 +127,23 @@ export class ApiTaskService implements TaskService {
     const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
 
+    const sortOrder =
+      existing.status === "done" && status !== "done"
+        ? await nextSortOrder(requireGroupId(ctx.session), existing.assigneeId)
+        : undefined;
+
     const row = await prisma.task.update({
       where: { id },
-      data: { status: status as "todo" | "doing" | "done" },
+      data: {
+        status: status as "todo" | "doing" | "done",
+        ...(sortOrder !== undefined ? { sortOrder } : {}),
+      },
     });
 
     if (existing.status !== "done" && status === "done") {
       await dispatchAfterDone(row.groupId, row.assigneeId);
+    } else if (status !== "done") {
+      await syncAssigneeTelegramHead(row.groupId, row.assigneeId);
     }
 
     return toTask(row, existing.assigneeName);
@@ -140,10 +162,16 @@ export class ApiTaskService implements TaskService {
     const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
 
+    const sortOrder =
+      existing.status !== "done"
+        ? await nextSortOrder(groupId, assigneeId)
+        : existing.sortOrder;
+
     const row = await prisma.task.update({
       where: { id },
       data: {
         assigneeId,
+        sortOrder,
         telegramMessageId: null,
         telegramChatId: null,
         telegramNotifiedAt: null,
@@ -153,6 +181,9 @@ export class ApiTaskService implements TaskService {
 
     if (row.status !== "done") {
       await notifyTaskIfEligible(id);
+      if (existing.assigneeId !== assigneeId) {
+        await syncAssigneeTelegramHead(groupId, existing.assigneeId);
+      }
     }
 
     const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
@@ -186,7 +217,11 @@ export class ApiTaskService implements TaskService {
   async deleteTask(id: string, ctx: { session: Session }): Promise<void> {
     const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
+    const groupId = requireGroupId(ctx.session);
     await prisma.task.delete({ where: { id } });
+    if (existing.status !== "done") {
+      await syncAssigneeTelegramHead(groupId, existing.assigneeId);
+    }
   }
 
   async renotifyTask(id: string, ctx: { session: Session }): Promise<Task> {
@@ -207,6 +242,92 @@ export class ApiTaskService implements TaskService {
     await renotifyTaskTelegram(id);
     const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
     return toTask(refreshed, existing.assigneeName);
+  }
+
+  async placeInTodoQueue(
+    taskId: string,
+    assigneeId: string,
+    orderedTodoIds: string[],
+    ctx: { session: Session },
+  ): Promise<Task[]> {
+    const groupId = requireGroupId(ctx.session);
+    const isOperator = ctx.session.user.role === "operator";
+
+    if (!isOperator && assigneeId !== ctx.session.user.id) {
+      throw new Error("Forbidden");
+    }
+
+    await assertAssigneeInGroup(groupId, assigneeId);
+
+    const uniqueIds = Array.from(new Set(orderedTodoIds));
+    if (uniqueIds.length !== orderedTodoIds.length) {
+      throw new Error("Duplicate task ids");
+    }
+    if (!uniqueIds.includes(taskId)) {
+      throw new Error("Task missing from queue");
+    }
+
+    const task = await prisma.task.findFirst({
+      where: isOperator
+        ? { id: taskId, groupId }
+        : { id: taskId, groupId, assigneeId: ctx.session.user.id },
+    });
+    if (!task) throw new Error("Not found");
+
+    const previousAssigneeId = task.assigneeId;
+
+    await prisma.task.update({
+      where: { id: taskId },
+      data: {
+        assigneeId,
+        status: "todo",
+        ...(previousAssigneeId !== assigneeId
+          ? {
+              telegramMessageId: null,
+              telegramChatId: null,
+              telegramNotifiedAt: null,
+              telegramNotifyFailed: false,
+            }
+          : {}),
+      },
+    });
+
+    const rows = await prisma.task.findMany({
+      where: {
+        groupId,
+        assigneeId,
+        status: "todo",
+        id: { in: uniqueIds },
+      },
+      select: { id: true },
+    });
+    if (rows.length !== uniqueIds.length) {
+      throw new Error("Invalid todo queue");
+    }
+
+    const allTodos = await prisma.task.findMany({
+      where: { groupId, assigneeId, status: "todo" },
+      select: { id: true },
+    });
+    if (allTodos.length !== uniqueIds.length) {
+      throw new Error("Must include all todos");
+    }
+
+    await prisma.$transaction(
+      uniqueIds.map((id, sortOrder) =>
+        prisma.task.update({
+          where: { id },
+          data: { sortOrder },
+        }),
+      ),
+    );
+
+    await syncAssigneeTelegramHead(groupId, assigneeId);
+    if (previousAssigneeId !== assigneeId) {
+      await syncAssigneeTelegramHead(groupId, previousAssigneeId);
+    }
+
+    return this.visibleTasks(ctx.session);
   }
 }
 

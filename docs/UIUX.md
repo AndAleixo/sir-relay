@@ -218,6 +218,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 - ↗ on card → task detail (edit form)
 - Drag between columns to change status (mock implemented; §P3-03)
+- **Drag within To do** (any member column on the operator board, or own Kanban for teammates) to set priority / place a task; higher = sooner on Telegram when that person has no In progress task
 - Setting status to `done` triggers relay (P1-TASK-12) same as Telegram
 
 **Mobile (375px):** columns stack vertically: To do → In progress → Done.
@@ -248,7 +249,7 @@ First column: **Me** (tasks assigned to the logged-in Operator). Then one column
 └─────────────────┴─────────────────┴─────────────────┴─────────────────┘
 ```
 
-**Me column:** Operator self-assigned tasks; **Telegram task relay** when the operator’s account is linked (same one-at-a-time queue as teammates). Operators also receive **alert** notifications on Telegram. Label shows Operator display name or “Me” per locale.
+**Me column:** Operator self-assigned tasks; **Telegram task relay** when the operator’s account is linked (same one-at-a-time queue as teammates). Operators also receive **alert** notifications on Telegram. Label shows Operator display name or “Me” per locale. **Drag within any member’s To do** (including Me) reorders that queue; drop onto another member’s To do reassigns and places at that position.
 
 #### Column header (member)
 
@@ -260,7 +261,7 @@ First column: **Me** (tasks assigned to the logged-in Operator). Then one column
 
 | Section | Status | Priority | Default state | Max visible |
 |---------|--------|----------|---------------|-------------|
-| **To do** | `todo` | High | Expanded | All cards |
+| **To do** | `todo` | High — **visual order = queue priority** (top first) | Expanded | All cards |
 | **In progress** | `doing` | High | Expanded | All cards |
 | **Done** | `done` | Low | **Collapsed** | Count in header; expand shows last **5** cards + “View all” link |
 
@@ -589,5 +590,6 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | Fantasy name only on Settings / member detail (not Profile); operator board columns = all other members |
 | 2026-07-18 | Landing copy: product-first hero (one task at a time); anti-metrics only in FAQ |
 | 2026-07-18 | Telegram locked to Profile (account); Settings deep-links when unlinked; linked members (incl. operators) get task relay; operators also get alerts |
+| 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

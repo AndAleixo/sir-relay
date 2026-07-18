@@ -91,6 +91,16 @@ export interface TaskService {
   ): Promise<Task>;
   deleteTask(id: string, ctx: { session: Session }): Promise<void>;
   renotifyTask(id: string, ctx: { session: Session }): Promise<Task>;
+  /**
+   * Place task in an assignee's To do queue at the given order (ids top → bottom).
+   * May reassign + set status todo. Operator: any member; teammate: own queue only.
+   */
+  placeInTodoQueue(
+    taskId: string,
+    assigneeId: string,
+    orderedTodoIds: string[],
+    ctx: { session: Session },
+  ): Promise<Task[]>;
 }
 
 export interface TeammateService {

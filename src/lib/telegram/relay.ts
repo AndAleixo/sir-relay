@@ -8,6 +8,12 @@ import type { Locale as DbLocale } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { toLocale } from "@/services/api/mappers";
 
+const QUEUE_ORDER_BY = [
+  { sortOrder: "asc" as const },
+  { dueDate: "asc" as const },
+  { createdAt: "asc" as const },
+];
+
 function dueDateLabel(dueDate: Date | null): string | null {
   if (!dueDate) return null;
   return dueDate.toISOString().slice(0, 10);
@@ -82,6 +88,50 @@ async function sendAndPersistTaskNotify(taskId: string): Promise<boolean> {
   }
 }
 
+async function findQueueHead(groupId: string, assigneeId: string) {
+  const doing = await prisma.task.findFirst({
+    where: { groupId, assigneeId, status: "doing" },
+    orderBy: QUEUE_ORDER_BY,
+  });
+  if (doing) return doing;
+  return prisma.task.findFirst({
+    where: { groupId, assigneeId, status: "todo" },
+    orderBy: QUEUE_ORDER_BY,
+  });
+}
+
+/**
+ * Ensure Telegram shows the queue head (doing, else top todo).
+ * Clears active notify flags on other todo/doing tasks for this assignee.
+ */
+export async function syncAssigneeTelegramHead(
+  groupId: string,
+  assigneeId: string,
+): Promise<void> {
+  if (!telegramConfigured()) return;
+
+  const head = await findQueueHead(groupId, assigneeId);
+  if (!head) return;
+
+  await prisma.task.updateMany({
+    where: {
+      groupId,
+      assigneeId,
+      status: { in: ["todo", "doing"] },
+      id: { not: head.id },
+      telegramNotifiedAt: { not: null },
+    },
+    data: {
+      telegramMessageId: null,
+      telegramChatId: null,
+      telegramNotifiedAt: null,
+    },
+  });
+
+  if (head.telegramNotifiedAt) return;
+  await sendAndPersistTaskNotify(head.id);
+}
+
 /** Notify assignee if linked and their Telegram queue is empty. */
 export async function notifyTaskIfEligible(taskId: string): Promise<void> {
   const task = await prisma.task.findUnique({
@@ -117,7 +167,7 @@ export async function dispatchAfterDone(
       assigneeId,
       status: "todo",
     },
-    orderBy: [{ dueDate: "asc" }, { createdAt: "asc" }],
+    orderBy: QUEUE_ORDER_BY,
   });
 
   if (next) {

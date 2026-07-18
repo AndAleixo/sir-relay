@@ -5,10 +5,15 @@ import Link from "next/link";
 import type { DragEvent } from "react";
 import type { Task, TaskStatus } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
-import { groupTasksByStatus } from "@/lib/dates";
 import { cn } from "@/lib/cn";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
+  buildTodoQueueOrder,
+  groupTasksByStatusOrdered,
+  TODO_QUEUE_APPEND,
+} from "@/lib/task-queue";
+import {
+  clearTaskDragData,
   dropTargetKey,
   getTaskIdFromDragEvent,
 } from "@/lib/task-drag";
@@ -20,6 +25,7 @@ import {
   OperatorBoardTaskCard,
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
+import { TodoReorderList } from "@/components/tasks/todo-reorder-list";
 import { BoardQuickAddTask } from "./board-quick-add-task";
 import {
   DEFAULT_BOARD_SECTION_SCROLL_AFTER,
@@ -45,6 +51,7 @@ interface TeammateBoardProps {
     sectionTodo: string;
     sectionDoing: string;
     sectionDone: string;
+    todoPriorityHint: string;
     linked: string;
     pending: string;
     invited: string;
@@ -66,10 +73,13 @@ interface TeammateBoardProps {
 function SectionCardList({
   itemCount,
   scrollAfter,
+  todoScroll,
   children,
 }: {
   itemCount: number;
   scrollAfter: number;
+  /** Edge auto-scroll target for TodoReorderList only. */
+  todoScroll?: boolean;
   children: React.ReactNode;
 }) {
   const maxHeight = sectionListMaxHeight(itemCount, scrollAfter);
@@ -77,6 +87,7 @@ function SectionCardList({
   return (
     <div
       data-no-drag-scroll
+      data-todo-scroll={todoScroll ? "" : undefined}
       className={cn(
         teamBoardStyles.cardList,
         maxHeight !== undefined && teamBoardStyles.cardListScrollable,
@@ -137,6 +148,7 @@ function BoardTaskItem({
 
 function DroppableSection({
   title,
+  hint,
   accent,
   assigneeId,
   status,
@@ -149,6 +161,7 @@ function DroppableSection({
   children,
 }: {
   title: string;
+  hint?: string;
   accent?: boolean;
   assigneeId: string;
   status: TaskStatus;
@@ -187,7 +200,14 @@ function DroppableSection({
       <h3 className={accent ? teamBoardStyles.sectionTitleAccent : teamBoardStyles.sectionTitle}>
         {title}
       </h3>
-      <SectionCardList itemCount={itemCount} scrollAfter={scrollAfter}>
+      {hint ? (
+        <p className="mb-2 text-xs text-[var(--text-muted)]">{hint}</p>
+      ) : null}
+      <SectionCardList
+        itemCount={itemCount}
+        scrollAfter={scrollAfter}
+        todoScroll={status === "todo"}
+      >
         {children}
       </SectionCardList>
       {footer}
@@ -208,6 +228,8 @@ function TaskColumn({
   onDragEnd,
   onSectionDragOver,
   onDrop,
+  onPlaceInTodo,
+  onAssignToColumn,
   onUpdateFields,
   onQuickCreate,
   sectionScrollAfter,
@@ -228,6 +250,12 @@ function TaskColumn({
     status: TaskStatus,
     event: DragEvent<HTMLElement>,
   ) => void;
+  onPlaceInTodo: (assigneeId: string, taskId: string, toIndex: number) => void;
+  onAssignToColumn: (
+    assigneeId: string,
+    status: TaskStatus,
+    taskId: string,
+  ) => void;
   onUpdateFields: (
     taskId: string,
     fields: { title?: string; dueDate?: string | null },
@@ -240,7 +268,7 @@ function TaskColumn({
   sectionScrollAfter: number;
 }) {
   const [doneOpen, setDoneOpen] = useState(false);
-  const grouped = groupTasksByStatus(tasks);
+  const grouped = groupTasksByStatusOrdered(tasks);
   const donePreview = grouped.done.slice(-5);
   const doneKey = dropTargetKey(assigneeId, "done");
 
@@ -250,6 +278,7 @@ function TaskColumn({
 
       <DroppableSection
         title={`${labels.sectionTodo} (${grouped.todo.length})`}
+        hint={labels.todoPriorityHint}
         assigneeId={assigneeId}
         status="todo"
         activeDropTarget={activeDropTarget}
@@ -267,18 +296,26 @@ function TaskColumn({
           />
         }
       >
-        {grouped.todo.map((task) => (
-          <BoardTaskItem
-            key={task.id}
-            task={task}
-            locale={locale}
-            labels={labels}
-            draggingTaskId={draggingTaskId}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            onUpdateFields={onUpdateFields}
-          />
-        ))}
+        <TodoReorderList
+          draggingTaskId={draggingTaskId}
+          onPlace={(taskId, toIndex) =>
+            onPlaceInTodo(assigneeId, taskId, toIndex)
+          }
+          items={grouped.todo.map((task) => ({
+            id: task.id,
+            node: (
+              <BoardTaskItem
+                task={task}
+                locale={locale}
+                labels={labels}
+                draggingTaskId={draggingTaskId}
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+                onUpdateFields={onUpdateFields}
+              />
+            ),
+          }))}
+        />
       </DroppableSection>
 
       <DroppableSection
@@ -320,7 +357,9 @@ function TaskColumn({
         onDrop={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          onDrop(assigneeId, "done", event);
+          const taskId = getTaskIdFromDragEvent(event);
+          onDragEnd();
+          if (taskId) void onAssignToColumn(assigneeId, "done", taskId);
         }}
       >
         <button
@@ -446,7 +485,7 @@ export function TeammateBoard({
   labels,
   sectionScrollAfter = DEFAULT_BOARD_SECTION_SCROLL_AFTER,
 }: TeammateBoardProps) {
-  const { applyTaskUpdate, createTaskQuick } = useSync();
+  const { applyTaskUpdate, createTaskQuick, placeInTodoQueue } = useSync();
   const { scrollRef, scrollHandlers } = useHorizontalDragScroll();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
@@ -475,21 +514,35 @@ export function TeammateBoard({
   function handleDragEnd() {
     setDraggingTaskId(null);
     setActiveDropTarget(null);
+    clearTaskDragData();
   }
 
-  async function handleSectionDrop(
+  async function placeInTodo(
+    assigneeId: string,
+    taskId: string,
+    toIndex: number,
+  ) {
+    handleDragEnd();
+    await placeInTodoQueue(
+      taskId,
+      assigneeId,
+      buildTodoQueueOrder(tasks, assigneeId, taskId, toIndex),
+    );
+  }
+
+  async function assignToColumn(
     targetAssigneeId: string,
     targetStatus: TaskStatus,
-    event: DragEvent<HTMLElement>,
+    taskId: string,
   ) {
-    const taskId = getTaskIdFromDragEvent(event);
-    handleDragEnd();
-
-    if (!taskId) return;
-
     const task = tasks.find((t) => t.id === taskId);
     const target = assigneeById[targetAssigneeId];
     if (!task || !target) return;
+
+    if (targetStatus === "todo") {
+      await placeInTodo(targetAssigneeId, taskId, TODO_QUEUE_APPEND);
+      return;
+    }
 
     const needsReassign = task.assigneeId !== targetAssigneeId;
     const needsStatus = task.status !== targetStatus;
@@ -521,6 +574,17 @@ export function TeammateBoard({
       },
       mutations,
     );
+  }
+
+  async function handleSectionDrop(
+    targetAssigneeId: string,
+    targetStatus: TaskStatus,
+    event: DragEvent<HTMLElement>,
+  ) {
+    const taskId = getTaskIdFromDragEvent(event);
+    handleDragEnd();
+    if (!taskId) return;
+    await assignToColumn(targetAssigneeId, targetStatus, taskId);
   }
 
   async function handleUpdateFields(
@@ -597,6 +661,8 @@ export function TeammateBoard({
           onDragEnd={handleDragEnd}
           onSectionDragOver={setActiveDropTarget}
           onDrop={handleSectionDrop}
+          onPlaceInTodo={placeInTodo}
+          onAssignToColumn={assignToColumn}
           onUpdateFields={handleUpdateFields}
           onQuickCreate={handleQuickCreate}
           sectionScrollAfter={sectionScrollAfter}
@@ -628,6 +694,8 @@ export function TeammateBoard({
               onDragEnd={handleDragEnd}
               onSectionDragOver={setActiveDropTarget}
               onDrop={handleSectionDrop}
+              onPlaceInTodo={placeInTodo}
+              onAssignToColumn={assignToColumn}
               onUpdateFields={handleUpdateFields}
               onQuickCreate={handleQuickCreate}
               sectionScrollAfter={sectionScrollAfter}

@@ -208,7 +208,8 @@
     "addDueDate": "Add due date",
     "sectionTodo": "To do",
     "sectionDoing": "In progress",
-    "sectionDone": "Done"
+    "sectionDone": "Done",
+    "todoPriorityHint": "Higher = sooner. Drag within To do to set queue order."
   },
   "settings": {
     "title": "Settings",

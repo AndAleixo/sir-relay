@@ -149,6 +149,7 @@ function createBot(token: string): Bot {
         status: "done",
         dueDate: taskRow.dueDate ? taskRow.dueDate.toISOString().slice(0, 10) : null,
         telegramNotifyFailed: taskRow.telegramNotifyFailed,
+        sortOrder: taskRow.sortOrder,
         updatedAt: new Date().toISOString(),
         createdAt: taskRow.createdAt.toISOString(),
       };

@@ -46,14 +46,4 @@ export function formatDueDate(dueDate: string | null, locale: string): string {
   });
 }
 
-export function groupTasksByStatus<T extends { status: string }>(
-  tasks: T[],
-): Record<"todo" | "doing" | "done", T[]> {
-  return {
-    todo: tasks.filter((t) => t.status === "todo"),
-    doing: tasks.filter((t) => t.status === "doing"),
-    done: tasks.filter((t) => t.status === "done"),
-  };
-}
-
 export { DAY_MS };

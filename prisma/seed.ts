@@ -93,6 +93,7 @@ async function main() {
         createdById: operatorId,
         status: task.status,
         dueDate: task.dueDate ? new Date(task.dueDate) : null,
+        sortOrder: task.sortOrder,
         createdAt: new Date(task.createdAt),
         updatedAt: new Date(task.updatedAt),
       },

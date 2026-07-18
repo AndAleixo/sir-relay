@@ -90,6 +90,8 @@ export interface Task {
   status: TaskStatus;
   dueDate: string | null;
   telegramNotifyFailed: boolean;
+  /** Lower = higher priority in the assignee To do queue. */
+  sortOrder: number;
   updatedAt: string;
   createdAt: string;
 }

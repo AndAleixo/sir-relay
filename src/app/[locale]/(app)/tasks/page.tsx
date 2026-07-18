@@ -60,6 +60,7 @@ export default async function TasksPage({
           sectionTodo: t("tasks.sectionTodo"),
           sectionDoing: t("tasks.sectionDoing"),
           sectionDone: t("tasks.sectionDone"),
+          todoPriorityHint: t("tasks.todoPriorityHint"),
           linked: t("teammate.linked"),
           pending: t("teammate.pending"),
           invited: t("teammate.invited"),

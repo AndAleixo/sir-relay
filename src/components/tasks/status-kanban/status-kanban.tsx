@@ -3,15 +3,23 @@
 import { useState } from "react";
 import type { DragEvent } from "react";
 import type { Task, TaskStatus } from "@/domain/types";
-import { groupTasksByStatus } from "@/lib/dates";
 import { cn } from "@/lib/cn";
-import { getTaskIdFromDragEvent } from "@/lib/task-drag";
+import {
+  clearTaskDragData,
+  getTaskIdFromDragEvent,
+} from "@/lib/task-drag";
+import {
+  buildTodoQueueOrder,
+  groupTasksByStatusOrdered,
+  TODO_QUEUE_APPEND,
+} from "@/lib/task-queue";
 import type { MutationInput } from "@/domain/sync";
 import { useSync } from "@/components/sync";
 import {
   DraggableTaskCard,
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
+import { TodoReorderList } from "@/components/tasks/todo-reorder-list";
 import { kanbanStyles } from "./status-kanban.styles";
 
 interface StatusKanbanProps {
@@ -23,6 +31,7 @@ interface StatusKanbanProps {
     done: string;
     emptyMine: string;
     dragHandle: string;
+    todoPriorityHint: string;
   };
 }
 
@@ -33,14 +42,15 @@ export function StatusKanban({
   locale,
   labels,
 }: StatusKanbanProps) {
-  const { applyTaskUpdate } = useSync();
+  const { applyTaskUpdate, placeInTodoQueue } = useSync();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<TaskStatus | null>(
     null,
   );
 
-  const grouped = groupTasksByStatus(tasks);
+  const grouped = groupTasksByStatusOrdered(tasks);
   const labelMap = { todo: labels.todo, doing: labels.doing, done: labels.done };
+  const selfId = tasks[0]?.assigneeId;
 
   function handleDragStart(taskId: string) {
     setDraggingTaskId(taskId);
@@ -49,6 +59,42 @@ export function StatusKanban({
   function handleDragEnd() {
     setDraggingTaskId(null);
     setActiveDropTarget(null);
+    clearTaskDragData();
+  }
+
+  async function placeInTodo(taskId: string, toIndex: number) {
+    handleDragEnd();
+    const assigneeId =
+      tasks.find((t) => t.id === taskId)?.assigneeId ?? selfId;
+    if (!assigneeId) return;
+
+    await placeInTodoQueue(
+      taskId,
+      assigneeId,
+      buildTodoQueueOrder(tasks, assigneeId, taskId, toIndex),
+    );
+  }
+
+  async function assignStatus(taskId: string, targetStatus: TaskStatus) {
+    if (targetStatus === "todo") {
+      await placeInTodo(taskId, TODO_QUEUE_APPEND);
+      return;
+    }
+
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task || task.status === targetStatus) return;
+
+    await applyTaskUpdate(
+      taskId,
+      { status: targetStatus },
+      [
+        {
+          type: "update_status",
+          taskId,
+          payload: { status: targetStatus },
+        } satisfies MutationInput,
+      ],
+    );
   }
 
   async function handleColumnDrop(
@@ -57,21 +103,8 @@ export function StatusKanban({
   ) {
     const taskId = getTaskIdFromDragEvent(event);
     handleDragEnd();
-
     if (!taskId) return;
-
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task || task.status === targetStatus) return;
-
-    const mutations: MutationInput[] = [
-      {
-        type: "update_status",
-        taskId,
-        payload: { status: targetStatus },
-      },
-    ];
-
-    await applyTaskUpdate(taskId, { status: targetStatus }, mutations);
+    await assignStatus(taskId, targetStatus);
   }
 
   if (tasks.length === 0) {
@@ -112,20 +145,50 @@ export function StatusKanban({
             <h2 className={kanbanStyles.columnTitle}>{labelMap[status]}</h2>
             <span className={kanbanStyles.count}>{grouped[status].length}</span>
           </header>
-          <div className={kanbanStyles.cardList}>
-            {grouped[status].map((task) => (
-              <DraggableTaskCard
-                key={task.id}
-                task={task}
-                locale={locale}
-                href={`/${locale}/tasks/${task.id}`}
-                labels={cardLabels}
-                dragHandleLabel={labels.dragHandle}
-                isDragging={draggingTaskId === task.id}
-                onDragHandleStart={() => handleDragStart(task.id)}
-                onDragHandleEnd={handleDragEnd}
+          {status === "todo" ? (
+            <p className="mb-2 px-1 text-xs text-[var(--text-muted)]">
+              {labels.todoPriorityHint}
+            </p>
+          ) : null}
+          <div
+            className={cn(kanbanStyles.cardList, "min-h-0 flex-1 overflow-y-auto")}
+            data-todo-scroll={status === "todo" ? "" : undefined}
+          >
+            {status === "todo" ? (
+              <TodoReorderList
+                draggingTaskId={draggingTaskId}
+                onPlace={placeInTodo}
+                items={grouped.todo.map((task) => ({
+                  id: task.id,
+                  node: (
+                    <DraggableTaskCard
+                      task={task}
+                      locale={locale}
+                      href={`/${locale}/tasks/${task.id}`}
+                      labels={cardLabels}
+                      dragHandleLabel={labels.dragHandle}
+                      isDragging={draggingTaskId === task.id}
+                      onDragHandleStart={() => handleDragStart(task.id)}
+                      onDragHandleEnd={handleDragEnd}
+                    />
+                  ),
+                }))}
               />
-            ))}
+            ) : (
+              grouped[status].map((task) => (
+                <DraggableTaskCard
+                  key={task.id}
+                  task={task}
+                  locale={locale}
+                  href={`/${locale}/tasks/${task.id}`}
+                  labels={cardLabels}
+                  dragHandleLabel={labels.dragHandle}
+                  isDragging={draggingTaskId === task.id}
+                  onDragHandleStart={() => handleDragStart(task.id)}
+                  onDragHandleEnd={handleDragEnd}
+                />
+              ))
+            )}
           </div>
         </section>
       ))}

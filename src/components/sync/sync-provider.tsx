@@ -18,7 +18,7 @@ import type {
   SyncState,
 } from "@/domain/sync";
 import { executePendingMutation } from "@/lib/sync/execute-mutation";
-import { quickCreateTaskAction } from "@/app/actions/tasks";
+import { quickCreateTaskAction, placeInTodoQueueAction } from "@/app/actions/tasks";
 import {
   syncRetryConfig,
   syncRetryDelayMs,
@@ -41,6 +41,11 @@ interface SyncContextValue {
   createTaskQuick: (
     locale: string,
     input: { title: string; assigneeId: string; assigneeName: string },
+  ) => Promise<boolean>;
+  placeInTodoQueue: (
+    taskId: string,
+    assigneeId: string,
+    orderedTodoIds: string[],
   ) => Promise<boolean>;
   syncNow: () => Promise<void>;
   resolveConflict: (keepLocal: boolean) => Promise<void>;
@@ -298,6 +303,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
         status: "todo",
         dueDate: null,
         telegramNotifyFailed: false,
+        sortOrder: Number.MAX_SAFE_INTEGER,
         updatedAt: now,
         createdAt: now,
       };
@@ -317,6 +323,47 @@ export function SyncProvider({ children }: SyncProviderProps) {
       }
 
       setTasks((prev) => prev.filter((t) => t.id !== tempId));
+      return false;
+    },
+    [],
+  );
+
+  const placeInTodoQueue = useCallback(
+    async (taskId: string, assigneeId: string, orderedTodoIds: string[]) => {
+      const order = new Map(orderedTodoIds.map((id, i) => [id, i]));
+      const snapshot = tasksRef.current;
+      const now = new Date().toISOString();
+
+      setTasks((prev) =>
+        prev.map((t) => {
+          if (t.id === taskId) {
+            const assigneeName =
+              prev.find((x) => x.assigneeId === assigneeId)?.assigneeName ??
+              t.assigneeName;
+            return {
+              ...t,
+              assigneeId,
+              assigneeName,
+              status: "todo" as const,
+              sortOrder: order.get(taskId) ?? t.sortOrder,
+              updatedAt: now,
+            };
+          }
+          const sortOrder = order.get(t.id);
+          return sortOrder === undefined ? t : { ...t, sortOrder, updatedAt: now };
+        }),
+      );
+
+      const result = await placeInTodoQueueAction(
+        taskId,
+        assigneeId,
+        orderedTodoIds,
+      );
+      if (result.ok) {
+        setTasks(result.tasks);
+        return true;
+      }
+      setTasks(snapshot);
       return false;
     },
     [],
@@ -385,6 +432,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
       syncFromServer,
       applyTaskUpdate,
       createTaskQuick,
+      placeInTodoQueue,
       syncNow,
       resolveConflict,
     }),
@@ -397,6 +445,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
       syncFromServer,
       applyTaskUpdate,
       createTaskQuick,
+      placeInTodoQueue,
       syncNow,
       resolveConflict,
     ],

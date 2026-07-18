@@ -228,7 +228,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 ### 3.2 Operator — team board
 
-First column: the **logged-in operator** (same header as other members: name, role, Telegram). Then one column per **other active group member** (teammates **and** other operators, including promoted members). Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
+First column: the **logged-in operator**. Then other members ordered by **To do count** (highest first; name as tiebreak). Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
@@ -530,7 +530,7 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `OperatorBoardTaskCard` | Operator board: inline edit, open detail, drag handle |
 | `DraggableTaskCard` | Teammate Kanban card |
 | `BoardQuickAddTask` | Per-column quick add in To do section |
-| `TeammateBoard` | Operator team board (§3.2) — first column is self, then other members |
+| `TeammateBoard` | Operator team board (§3.2) — self first, then members by To do load |
 | `OperatorAlertsList` | Operator alert feed (§8.3) |
 | `StatusKanban` | Teammate 3-column board (§3.1) |
 | `TaskList` | Table list view |

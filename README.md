@@ -70,7 +70,7 @@ Distributes operational tasks and tracks progress in one place — web for the f
 4. Assignee **replies** to the message (e.g. `done`, `feito`) → task becomes `done` → **next task arrives on Telegram**  
 5. Everyone sees the same state on the web  
 
-Hosting: **DigitalOcean Droplet** (EU) with a **public domain** — Docker Compose, PostgreSQL, Caddy (HTTPS). Visitors land on a marketing page; signed-in users get the app. See [docs/DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md).
+Hosting: **DigitalOcean Droplet** (EU) with a **public domain** — Docker Compose, PostgreSQL, Caddy (HTTPS). Daily DB backup to Google Drive (`scripts/db/backup-offsite.sh`, cron 05:00). See [docs/DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md) (§9.1 backups).
 
 **Future:** native iOS/Android apps (Phase 3) will use the same API — web is the primary client for now.
 

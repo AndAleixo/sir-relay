@@ -8,7 +8,7 @@ Visitantes acedem à **landing** (`https://app.sirrelay.com/en-gb`); utilizadore
 
 **Ambientes (4):** dev mock · dev híbrido · prod local · prod VPS — [ENVIRONMENTS.md](./ENVIRONMENTS.md). Este guia cobre **prod VPS**.
 
-**Estado (2026-07):** prod VPS em `app.sirrelay.com` — Docker + Caddy + Postgres; backups `scripts/db/*` → Google Drive (rclone); DNS na Network Solutions.
+**Estado (2026-07):** prod VPS em `app.sirrelay.com` — Docker + Caddy + Postgres; backups diários 05:00 → Google Drive (rclone); restore testado; DNS na Network Solutions.
 
 ---
 
@@ -218,22 +218,24 @@ Corre **no droplet** como **`deploy`**. Não depende do Mac ligado.
 
 Cria pasta no Drive: **`sirrelay-backups`**.
 
-**Teste:**
+**Teste (já feito em prod):**
 
 ```bash
 cd ~/sir-relay
 RCLONE_REMOTE=gdrive:sirrelay-backups bash scripts/db/backup-offsite.sh
 rclone ls gdrive:sirrelay-backups
+# restore dry-run / real: bash scripts/db/restore.sh backups/sirrelay-YYYYMMDD-HHMM.sql.gz
 ```
 
-**Cron:**
+**Cron (activo no VPS — 05:00 no relógio do Droplet):**
 
 ```
-0 3 * * * cd /home/deploy/sir-relay && RCLONE_REMOTE=gdrive:sirrelay-backups bash scripts/db/backup-offsite.sh >>/home/deploy/sir-relay/backups/cron.log 2>&1
+0 5 * * * cd /home/deploy/sir-relay && RCLONE_REMOTE=gdrive:sirrelay-backups bash scripts/db/backup-offsite.sh >>/home/deploy/sir-relay/backups/cron.log 2>&1
 ```
 
-(03:00 **UTC** no Droplet.) Retenção local 7 dias; no Drive limpa manualmente ou `rclone delete gdrive:sirrelay-backups --min-age 30d`.
+Retenção local 7 dias (`BACKUP_RETAIN_DAYS`); no Drive limpa manualmente ou `rclone delete gdrive:sirrelay-backups --min-age 30d`.
 
+**Estado:** P2-BAK-01–04 cumpridos — scripts · cron diário · offsite Drive · restore testado.
 ---
 
 

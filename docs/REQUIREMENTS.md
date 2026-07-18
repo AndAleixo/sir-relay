@@ -471,10 +471,10 @@ audit_logs
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-BAK-01 | Scripts | `scripts/db/backup.sh` (`pg_dump` → gzip `backups/sirrelay-YYYYMMDD-HHMM.sql.gz`) · `scripts/db/restore.sh` (stop app → restore → restart) · `scripts/db/backup-offsite.sh` (rclone); documented in README |
-| P2-BAK-02 | Schedule & retention | Daily cron on host; prune local copies older than 7 days (configurable) |
-| P2-BAK-03 | Off-VPS copy | Backups stored outside VPS (e.g. `rclone`, snapshots) |
-| P2-BAK-04 | Restore tested | Run restore once in test environment before production reliance |
+| P2-BAK-01 | Scripts | `scripts/db/backup.sh` (`pg_dump` → gzip `backups/sirrelay-YYYYMMDD-HHMM.sql.gz`) · `scripts/db/restore.sh` (stop app → restore → restart) · `scripts/db/backup-offsite.sh` (rclone); documented in README + [DEPLOY-DIGITALOCEAN.md §9.1](./DEPLOY-DIGITALOCEAN.md) |
+| P2-BAK-02 | Schedule & retention | **Done (prod VPS):** daily cron `0 5 * * *` → `backup-offsite.sh`; prune local copies older than 7 days (`BACKUP_RETAIN_DAYS`) |
+| P2-BAK-03 | Off-VPS copy | **Done:** Google Drive via rclone (`gdrive:sirrelay-backups`) |
+| P2-BAK-04 | Restore tested | **Done:** restore exercised; rely on offsite + local `.sql.gz` for recovery |
 
 **Out of scope:** in-app SQL download · JSON import (Phase 3 P3-12).
 
@@ -710,6 +710,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-07-18 | SQL backups ops done on prod VPS: daily cron 05:00 → Drive; restore tested (P2-BAK-01–04) |
 | 2026-06-25 | Initial spec; 3-phase structure; Sir brand |
 | 2026-06-28 | Operator self-tasks (P1-TASK-13); Operator Telegram alerts on teammate done + due/overdue (P1-TG-09–11) |
 | 2026-06-27 | Operator + Teammate roles; relay queue; unified `users` model; spec cleanup; [UIUX.md](./UIUX.md); P3-07 offline web sync (§7.1) |

@@ -208,7 +208,7 @@
     "sectionTodo": "A fazer",
     "sectionDoing": "Em progresso",
     "sectionDone": "Concluído",
-    "todoPriorityHint": "Mais acima = mais cedo. Arraste em A fazer para ordenar a fila."
+    "startDoing": "Começar — mover para Em progresso"
   },
   "settings": {
     "title": "Configurações",

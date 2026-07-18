@@ -51,7 +51,7 @@ interface TeammateBoardProps {
     sectionTodo: string;
     sectionDoing: string;
     sectionDone: string;
-    todoPriorityHint: string;
+    startDoing: string;
     linked: string;
     pending: string;
     invited: string;
@@ -103,25 +103,30 @@ function BoardTaskItem({
   locale,
   labels,
   draggingTaskId,
+  isQueueHead,
   onDragStart,
   onDragEnd,
   onUpdateFields,
+  onStartDoing,
 }: {
   task: Task;
   locale: string;
   labels: TeammateBoardProps["labels"];
   draggingTaskId: string | null;
+  isQueueHead?: boolean;
   onDragStart: (taskId: string) => void;
   onDragEnd: () => void;
   onUpdateFields: (
     taskId: string,
     fields: { title?: string; dueDate?: string | null },
   ) => Promise<void>;
+  onStartDoing?: () => void;
 }) {
   const cardLabels: TaskCardLabels & {
     dragHandle: string;
     openTask: string;
     addDueDate: string;
+    startDoing: string;
   } = {
     dueDate: labels.dueDate,
     updated: labels.updated,
@@ -129,6 +134,7 @@ function BoardTaskItem({
     dragHandle: labels.dragHandle,
     openTask: labels.openTask,
     addDueDate: labels.addDueDate,
+    startDoing: labels.startDoing,
   };
 
   return (
@@ -138,16 +144,17 @@ function BoardTaskItem({
       href={`/${locale}/tasks/${task.id}`}
       labels={cardLabels}
       isDragging={draggingTaskId === task.id}
+      isQueueHead={isQueueHead}
       onDragHandleStart={() => onDragStart(task.id)}
       onDragHandleEnd={onDragEnd}
       onUpdateFields={(fields) => onUpdateFields(task.id, fields)}
+      onStartDoing={onStartDoing}
     />
   );
 }
 
 function DroppableSection({
   title,
-  hint,
   accent,
   assigneeId,
   status,
@@ -160,7 +167,6 @@ function DroppableSection({
   children,
 }: {
   title: string;
-  hint?: string;
   accent?: boolean;
   assigneeId: string;
   status: TaskStatus;
@@ -199,9 +205,6 @@ function DroppableSection({
       <h3 className={accent ? teamBoardStyles.sectionTitleAccent : teamBoardStyles.sectionTitle}>
         {title}
       </h3>
-      {hint ? (
-        <p className="mb-2 text-xs text-[var(--text-muted)]">{hint}</p>
-      ) : null}
       <SectionCardList
         itemCount={itemCount}
         scrollAfter={scrollAfter}
@@ -277,7 +280,6 @@ function TaskColumn({
 
       <DroppableSection
         title={`${labels.sectionTodo} (${grouped.todo.length})`}
-        hint={labels.todoPriorityHint}
         assigneeId={assigneeId}
         status="todo"
         activeDropTarget={activeDropTarget}
@@ -300,7 +302,7 @@ function TaskColumn({
           onPlace={(taskId, toIndex) =>
             onPlaceInTodo(assigneeId, taskId, toIndex)
           }
-          items={grouped.todo.map((task) => ({
+          items={grouped.todo.map((task, index) => ({
             id: task.id,
             node: (
               <BoardTaskItem
@@ -308,9 +310,15 @@ function TaskColumn({
                 locale={locale}
                 labels={labels}
                 draggingTaskId={draggingTaskId}
+                isQueueHead={index === 0}
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
                 onUpdateFields={onUpdateFields}
+                onStartDoing={
+                  index === 0
+                    ? () => onAssignToColumn(assigneeId, "doing", task.id)
+                    : undefined
+                }
               />
             ),
           }))}

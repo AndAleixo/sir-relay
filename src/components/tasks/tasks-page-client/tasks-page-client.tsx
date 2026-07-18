@@ -39,7 +39,7 @@ interface TasksPageClientProps {
     sectionTodo: string;
     sectionDoing: string;
     sectionDone: string;
-    todoPriorityHint: string;
+    startDoing: string;
     linked: string;
     pending: string;
     invited: string;
@@ -107,7 +107,7 @@ export function TasksPageClient({
               sectionTodo: labels.sectionTodo,
               sectionDoing: labels.sectionDoing,
               sectionDone: labels.sectionDone,
-              todoPriorityHint: labels.todoPriorityHint,
+              startDoing: labels.startDoing,
               linked: labels.linked,
               pending: labels.pending,
               invited: labels.invited,
@@ -138,7 +138,7 @@ export function TasksPageClient({
               overdue: labels.overdue,
               emptyMine: labels.emptyMine,
               dragHandle: labels.dragHandle,
-              todoPriorityHint: labels.todoPriorityHint,
+              startDoing: labels.startDoing,
             }}
           />
         )

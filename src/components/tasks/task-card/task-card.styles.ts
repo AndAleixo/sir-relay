@@ -19,6 +19,8 @@ export const taskCardStyles = {
   meta: "shrink-0 text-[11px] leading-tight text-[var(--text-muted)]",
   footer: "mt-0.5 flex items-center justify-between gap-2",
   overdue: "font-medium text-[var(--danger)]",
+  startDoing:
+    "shrink-0 rounded p-0.5 text-brand-accent hover:bg-brand-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3.5 [&_svg]:w-3.5",
   notifyDotCorner:
     "pointer-events-none absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-brand-accent",
 } as const;

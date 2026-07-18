@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useEffect, useState, type DragEvent } from "react";
 import type { Task } from "@/domain/types";
 import { cn } from "@/lib/cn";
-import { formatDueDate, formatRelativeTime, isOverdue } from "@/lib/dates";
+import { formatDueDate, isOverdue } from "@/lib/dates";
 import { setTaskDragData } from "@/lib/task-drag";
 import { Input } from "@/components/ui/input";
 import { taskCardStyles } from "./task-card.styles";
 import type { TaskCardLabels } from "./task-card";
+import { StartDoingIcon } from "./start-doing-icon";
 
 interface OperatorBoardTaskCardProps {
   task: Task;
@@ -18,13 +19,16 @@ interface OperatorBoardTaskCardProps {
     dragHandle: string;
     openTask: string;
     addDueDate: string;
+    startDoing?: string;
   };
   isDragging?: boolean;
+  isQueueHead?: boolean;
   onDragHandleStart: (event: DragEvent<HTMLButtonElement>) => void;
   onDragHandleEnd: () => void;
   onUpdateFields: (
     fields: { title?: string; dueDate?: string | null },
   ) => Promise<void>;
+  onStartDoing?: () => void;
 }
 
 function OpenTaskIcon() {
@@ -52,9 +56,11 @@ export function OperatorBoardTaskCard({
   href,
   labels,
   isDragging,
+  isQueueHead,
   onDragHandleStart,
   onDragHandleEnd,
   onUpdateFields,
+  onStartDoing,
 }: OperatorBoardTaskCardProps) {
   const overdue = isOverdue(task.dueDate);
   const [editingTitle, setEditingTitle] = useState(false);
@@ -216,9 +222,18 @@ export function OperatorBoardTaskCard({
               {overdue && task.dueDate && ` · ${labels.overdue}`}
             </button>
           )}
-          <span className={taskCardStyles.meta}>
-            {formatRelativeTime(task.updatedAt, locale)}
-          </span>
+          {isQueueHead && onStartDoing && labels.startDoing ? (
+            <button
+              type="button"
+              className={taskCardStyles.startDoing}
+              aria-label={labels.startDoing}
+              title={labels.startDoing}
+              disabled={saving}
+              onClick={() => onStartDoing()}
+            >
+              <StartDoingIcon />
+            </button>
+          ) : null}
         </div>
       </div>
 

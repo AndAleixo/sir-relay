@@ -208,7 +208,7 @@
     "sectionTodo": "Por hacer",
     "sectionDoing": "En progreso",
     "sectionDone": "Hecho",
-    "todoPriorityHint": "Más arriba = antes. Arrastra en Por hacer para ordenar la cola."
+    "startDoing": "Empezar — pasar a En progreso"
   },
   "settings": {
     "title": "Ajustes",

@@ -4,9 +4,10 @@ import Link from "next/link";
 import type { DragEvent } from "react";
 import type { Task } from "@/domain/types";
 import { cn } from "@/lib/cn";
-import { formatDueDate, formatRelativeTime, isOverdue } from "@/lib/dates";
+import { formatDueDate, isOverdue } from "@/lib/dates";
 import { setTaskDragData } from "@/lib/task-drag";
 import { taskCardStyles } from "./task-card.styles";
+import { StartDoingIcon } from "./start-doing-icon";
 
 export interface TaskCardLabels {
   dueDate: string;
@@ -42,9 +43,6 @@ export function TaskCardContent({
           {labels.dueDate}: {formatDueDate(task.dueDate, locale)}
           {overdue && ` · ${labels.overdue}`}
         </span>
-        <span className={taskCardStyles.meta}>
-          {formatRelativeTime(task.updatedAt, locale)}
-        </span>
       </div>
       {task.telegramNotifyFailed && (
         <span
@@ -60,6 +58,9 @@ interface DraggableTaskCardProps extends TaskCardContentProps {
   href: string;
   dragHandleLabel: string;
   isDragging?: boolean;
+  isQueueHead?: boolean;
+  startDoingLabel?: string;
+  onStartDoing?: () => void;
   onDragHandleStart: (event: DragEvent<HTMLButtonElement>) => void;
   onDragHandleEnd: () => void;
 }
@@ -68,6 +69,9 @@ export function DraggableTaskCard({
   href,
   dragHandleLabel,
   isDragging,
+  isQueueHead,
+  startDoingLabel,
+  onStartDoing,
   onDragHandleStart,
   onDragHandleEnd,
   ...contentProps
@@ -76,6 +80,8 @@ export function DraggableTaskCard({
     setTaskDragData(event, contentProps.task.id);
     onDragHandleStart(event);
   }
+
+  const overdue = isOverdue(contentProps.task.dueDate);
 
   return (
     <div
@@ -96,9 +102,57 @@ export function DraggableTaskCard({
       >
         ⠿
       </button>
-      <Link href={href} className={taskCardStyles.cardLink} draggable={false}>
-        <TaskCardContent {...contentProps} />
-      </Link>
+      <div className={taskCardStyles.boardBody}>
+        <Link href={href} className={taskCardStyles.cardLink} draggable={false}>
+          <div className={taskCardStyles.titleRow}>
+            <h3 className={cn(taskCardStyles.title, "min-w-0 flex-1")}>
+              {contentProps.task.title}
+            </h3>
+          </div>
+          {contentProps.showAssignee && (
+            <p className={cn(taskCardStyles.meta, "truncate")}>
+              {contentProps.task.assigneeName}
+            </p>
+          )}
+        </Link>
+        <div
+          className={cn(
+            taskCardStyles.footer,
+            contentProps.task.telegramNotifyFailed && "pr-3",
+          )}
+        >
+          <Link
+            href={href}
+            className={cn(
+              taskCardStyles.dueButton,
+              "min-w-0 flex-1",
+              overdue && taskCardStyles.overdue,
+            )}
+            draggable={false}
+          >
+            {contentProps.labels.dueDate}:{" "}
+            {formatDueDate(contentProps.task.dueDate, contentProps.locale)}
+            {overdue && ` · ${contentProps.labels.overdue}`}
+          </Link>
+          {isQueueHead && onStartDoing && startDoingLabel ? (
+            <button
+              type="button"
+              className={taskCardStyles.startDoing}
+              aria-label={startDoingLabel}
+              title={startDoingLabel}
+              onClick={onStartDoing}
+            >
+              <StartDoingIcon />
+            </button>
+          ) : null}
+        </div>
+        {contentProps.task.telegramNotifyFailed && (
+          <span
+            className={taskCardStyles.notifyDotCorner}
+            title="Telegram delivery failed"
+          />
+        )}
+      </div>
     </div>
   );
 }

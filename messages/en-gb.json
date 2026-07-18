@@ -208,7 +208,7 @@
     "sectionTodo": "To do",
     "sectionDoing": "In progress",
     "sectionDone": "Done",
-    "todoPriorityHint": "Higher = sooner. Drag within To do to set queue order."
+    "startDoing": "Start — move to In progress"
   },
   "settings": {
     "title": "Settings",

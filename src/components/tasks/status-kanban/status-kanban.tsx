@@ -31,7 +31,7 @@ interface StatusKanbanProps {
     done: string;
     emptyMine: string;
     dragHandle: string;
-    todoPriorityHint: string;
+    startDoing: string;
   };
 }
 
@@ -154,11 +154,6 @@ export function StatusKanban({
             <h2 className={kanbanStyles.columnTitle}>{labelMap[status]}</h2>
             <span className={kanbanStyles.count}>{grouped[status].length}</span>
           </header>
-          {status === "todo" ? (
-            <p className="mb-2 px-1 text-xs text-[var(--text-muted)]">
-              {labels.todoPriorityHint}
-            </p>
-          ) : null}
           <div
             className={cn(kanbanStyles.cardList, "min-h-0 flex-1 overflow-y-auto")}
             data-todo-scroll={status === "todo" ? "" : undefined}
@@ -167,7 +162,7 @@ export function StatusKanban({
               <TodoReorderList
                 draggingTaskId={draggingTaskId}
                 onPlace={placeInTodo}
-                items={grouped.todo.map((task) => ({
+                items={grouped.todo.map((task, index) => ({
                   id: task.id,
                   node: (
                     <DraggableTaskCard
@@ -177,6 +172,13 @@ export function StatusKanban({
                       labels={cardLabels}
                       dragHandleLabel={labels.dragHandle}
                       isDragging={draggingTaskId === task.id}
+                      isQueueHead={index === 0}
+                      startDoingLabel={labels.startDoing}
+                      onStartDoing={
+                        index === 0
+                          ? () => void assignStatus(task.id, "doing")
+                          : undefined
+                      }
                       onDragHandleStart={() => handleDragStart(task.id)}
                       onDragHandleEnd={handleDragEnd}
                     />

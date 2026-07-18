@@ -40,6 +40,10 @@ enum GroupInvitationStatus {
   declined
 }
 
+enum TelegramActivitySource {
+  telegram
+}
+
 model User {
   id                 String        @id
   name               String
@@ -61,6 +65,7 @@ model User {
   telegramLinkTokens TelegramLinkToken[]
   sentGroupInvitations     GroupInvitation[] @relation("GroupInvitationSender")
   receivedGroupInvitations GroupInvitation[] @relation("GroupInvitationRecipient")
+  telegramActivities       TelegramActivity[]
 
   @@map("users")
 }
@@ -77,6 +82,7 @@ model Group {
   alerts      OperatorAlert[]
   inviteTokens TeammateInviteToken[]
   invitations  GroupInvitation[]
+  telegramActivities TelegramActivity[]
 
   @@map("groups")
 }
@@ -128,12 +134,14 @@ model Task {
   telegramMessageId    String?    @map("telegram_message_id")
   telegramChatId       String?    @map("telegram_chat_id")
   telegramNotifiedAt   DateTime?  @map("telegram_notified_at")
+  telegramNotifyFailed Boolean    @default(false) @map("telegram_notify_failed")
   createdAt            DateTime   @default(now()) @map("created_at")
   updatedAt            DateTime   @updatedAt @map("updated_at")
 
   group    Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   assignee User  @relation("TaskAssignee", fields: [assigneeId], references: [id])
   creator  User  @relation("TaskCreator", fields: [createdById], references: [id])
+  telegramActivities TelegramActivity[]
 
   @@index([groupId])
   @@index([assigneeId])
@@ -198,4 +206,22 @@ model OperatorAlert {
 
   @@index([groupId, createdAt(sort: Desc)])
   @@map("operator_alerts")
+}
+
+model TelegramActivity {
+  id        String                  @id @default(cuid())
+  groupId   String                  @map("group_id")
+  taskId    String                  @map("task_id")
+  userId    String                  @map("user_id")
+  body      String
+  source    TelegramActivitySource  @default(telegram)
+  createdAt DateTime                @default(now()) @map("created_at")
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId, createdAt(sort: Desc)])
+  @@index([groupId])
+  @@map("telegram_activity")
 }

@@ -478,15 +478,18 @@ Not a web screen — copy and structure for bot messages.
 ### Task notification
 
 ```
-📋 Task title
+Task title
+Group: Demo Shop
 
 Description (truncated…)
 
 Due: 2026-03-15
+Open: https://app.example.com/en-gb/tasks/{id}
 
-Reply to this message with an update.
-Say "done" / "feito" when finished.
+Reply to THIS message with: done · in progress (or hecho / feito / working).
 ```
+
+If the user writes without replying to the task message (or replies to the wrong one), the bot answers with a short hint to use Reply on the task notification.
 
 ### Welcome (`/start` linked)
 

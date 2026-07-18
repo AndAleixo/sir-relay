@@ -1,5 +1,6 @@
 import type { OperatorAlert, Session, Task } from "@/domain/types";
 import type { OperatorAlertPrefs, OperatorAlertService } from "@/services/alert.types";
+import type { Locale as DbLocale } from "@prisma/client";
 import {
   calendarDateInTimezone,
   isDueOnOrBeforeTodayInTimezone,
@@ -9,7 +10,12 @@ import {
   telegramDeliveryAllowed,
   toOperatorAlertPrefs,
 } from "@/services/alert-prefs";
-import { apiTaskService } from "@/services/api/tasks";
+import { telegramConfigured } from "@/lib/telegram/config";
+import {
+  operatorAlertDone,
+  operatorAlertDue,
+} from "@/lib/telegram/copy";
+import { sendTelegramMessage } from "@/lib/telegram/send";
 
 function requireGroupId(ctx: { session: Session }): string {
   const groupId = ctx.session.activeGroupId;
@@ -26,15 +32,47 @@ async function defaultPrefs(groupId: string): Promise<OperatorAlertPrefs> {
   return toOperatorAlertPrefs(row);
 }
 
-async function hasLinkedOperator(groupId: string): Promise<boolean> {
-  const row = await prisma.groupMembership.findFirst({
+async function linkedOperatorChats(
+  groupId: string,
+): Promise<{ chatId: string; locale: DbLocale }[]> {
+  const rows = await prisma.groupMembership.findMany({
     where: {
       groupId,
       role: "operator",
       user: { telegramChatId: { not: null } },
     },
+    include: { user: { select: { telegramChatId: true, locale: true } } },
   });
-  return Boolean(row);
+  return rows
+    .filter((row) => row.user.telegramChatId)
+    .map((row) => ({
+      chatId: row.user.telegramChatId!,
+      locale: row.user.locale as DbLocale,
+    }));
+}
+
+async function deliverOperatorAlertDms(
+  groupId: string,
+  prefs: OperatorAlertPrefs,
+  textForLocale: (locale: DbLocale) => string,
+  now = new Date(),
+): Promise<boolean> {
+  if (!telegramConfigured()) return false;
+  if (!telegramDeliveryAllowed(prefs, now)) return false;
+
+  const operators = await linkedOperatorChats(groupId);
+  if (operators.length === 0) return false;
+
+  let anyOk = false;
+  for (const op of operators) {
+    try {
+      await sendTelegramMessage(op.chatId, textForLocale(op.locale));
+      anyOk = true;
+    } catch {
+      // continue other operators
+    }
+  }
+  return anyOk;
 }
 
 export class ApiOperatorAlertService implements OperatorAlertService {
@@ -68,9 +106,11 @@ export class ApiOperatorAlertService implements OperatorAlertService {
     limit = 8,
   ): Promise<OperatorAlert[]> {
     const groupId = requireGroupId(ctx);
-    const taskIds = new Set(
-      (await apiTaskService.listTasks(ctx)).map((task) => task.id),
-    );
+    const taskRows = await prisma.task.findMany({
+      where: { groupId },
+      select: { id: true },
+    });
+    const taskIds = new Set(taskRows.map((row) => row.id));
     const rows = await prisma.operatorAlert.findMany({
       where: { groupId },
       orderBy: { createdAt: "desc" },
@@ -103,7 +143,15 @@ export class ApiOperatorAlertService implements OperatorAlertService {
     });
     if (!membership || membership.role !== "teammate") return;
 
-    const linked = await hasLinkedOperator(groupId);
+    const at = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
+    const sent = await deliverOperatorAlertDms(groupId, prefs, (locale) =>
+      operatorAlertDone(locale, {
+        taskTitle: task.title,
+        assigneeName: task.assigneeName,
+        at,
+      }),
+    );
+
     await prisma.operatorAlert.create({
       data: {
         groupId,
@@ -112,7 +160,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
         taskTitle: task.title,
         assigneeName: task.assigneeName,
         dueDate: task.dueDate ? new Date(task.dueDate) : null,
-        sentToTelegram: linked && telegramDeliveryAllowed(prefs),
+        sentToTelegram: sent,
       },
     });
   }
@@ -149,7 +197,20 @@ export class ApiOperatorAlertService implements OperatorAlertService {
         continue;
       }
 
-      const linked = await hasLinkedOperator(groupId);
+      const overdue = task.dueDate < today;
+      const sent = await deliverOperatorAlertDms(
+        groupId,
+        prefs,
+        (locale) =>
+          operatorAlertDue(locale, {
+            taskTitle: task.title,
+            assigneeName: task.assigneeName,
+            dueDate: task.dueDate!,
+            overdue,
+          }),
+        now,
+      );
+
       await prisma.operatorAlert.create({
         data: {
           groupId,
@@ -158,7 +219,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
           taskTitle: task.title,
           assigneeName: task.assigneeName,
           dueDate: new Date(task.dueDate),
-          sentToTelegram: linked && telegramDeliveryAllowed(prefs, now),
+          sentToTelegram: sent,
         },
       });
     }

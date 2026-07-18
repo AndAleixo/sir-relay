@@ -2,6 +2,11 @@ import type { Session, Task, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { prisma } from "@/lib/prisma";
+import {
+  dispatchAfterDone,
+  notifyTaskIfEligible,
+  renotifyTaskTelegram,
+} from "@/lib/telegram/relay";
 import { toTask } from "@/services/api/mappers";
 
 function requireGroupId(session: Session): string {
@@ -28,6 +33,19 @@ async function assertAssigneeInGroup(groupId: string, assigneeId: string) {
     where: { groupId_userId: { groupId, userId: assigneeId } },
   });
   if (!member) throw new Error("Invalid assignee");
+}
+
+async function loadTask(id: string, session: Session): Promise<Task | null> {
+  const groupId = requireGroupId(session);
+  const row = await prisma.task.findFirst({
+    where:
+      session.user.role === "operator"
+        ? { id, groupId }
+        : { id, groupId, assigneeId: session.user.id },
+  });
+  if (!row) return null;
+  const name = await assigneeName(groupId, row.assigneeId);
+  return toTask(row, name);
 }
 
 export class ApiTaskService implements TaskService {
@@ -57,8 +75,7 @@ export class ApiTaskService implements TaskService {
   }
 
   async getTask(id: string, ctx: { session: Session }): Promise<Task | null> {
-    const tasks = await this.visibleTasks(ctx.session);
-    return tasks.find((task) => task.id === id) ?? null;
+    return loadTask(id, ctx.session);
   }
 
   async createTask(input: CreateTaskInput, ctx: { session: Session }): Promise<Task> {
@@ -84,7 +101,10 @@ export class ApiTaskService implements TaskService {
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
       },
     });
-    return toTask(row, name);
+
+    await notifyTaskIfEligible(id);
+    const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
+    return toTask(refreshed, name);
   }
 
   async updateTaskStatus(
@@ -92,13 +112,18 @@ export class ApiTaskService implements TaskService {
     status: TaskStatus,
     ctx: { session: Session },
   ): Promise<Task> {
-    const existing = await this.getTask(id, ctx);
+    const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
 
     const row = await prisma.task.update({
       where: { id },
       data: { status: status as "todo" | "doing" | "done" },
     });
+
+    if (existing.status !== "done" && status === "done") {
+      await dispatchAfterDone(row.groupId, row.assigneeId);
+    }
+
     return toTask(row, existing.assigneeName);
   }
 
@@ -112,14 +137,26 @@ export class ApiTaskService implements TaskService {
     const groupId = requireGroupId(ctx.session);
     await assertAssigneeInGroup(groupId, assigneeId);
 
-    const existing = await this.getTask(id, ctx);
+    const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
 
     const row = await prisma.task.update({
       where: { id },
-      data: { assigneeId },
+      data: {
+        assigneeId,
+        telegramMessageId: null,
+        telegramChatId: null,
+        telegramNotifiedAt: null,
+        telegramNotifyFailed: false,
+      },
     });
-    return toTask(row, assigneeName);
+
+    if (row.status !== "done") {
+      await notifyTaskIfEligible(id);
+    }
+
+    const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
+    return toTask(refreshed, assigneeName);
   }
 
   async updateTaskFields(
@@ -127,7 +164,7 @@ export class ApiTaskService implements TaskService {
     fields: { title?: string; dueDate?: string | null; description?: string },
     ctx: { session: Session },
   ): Promise<Task> {
-    const existing = await this.getTask(id, ctx);
+    const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
 
     const row = await prisma.task.update({
@@ -147,14 +184,14 @@ export class ApiTaskService implements TaskService {
   }
 
   async deleteTask(id: string, ctx: { session: Session }): Promise<void> {
-    const existing = await this.getTask(id, ctx);
+    const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
     await prisma.task.delete({ where: { id } });
   }
 
   async renotifyTask(id: string, ctx: { session: Session }): Promise<Task> {
     if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
-    const existing = await this.getTask(id, ctx);
+    const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
 
     const groupId = requireGroupId(ctx.session);
@@ -167,11 +204,9 @@ export class ApiTaskService implements TaskService {
       throw new Error("Assignee not in group");
     }
 
-    const row = await prisma.task.update({
-      where: { id },
-      data: { telegramNotifiedAt: new Date() },
-    });
-    return toTask(row, existing.assigneeName);
+    await renotifyTaskTelegram(id);
+    const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
+    return toTask(refreshed, existing.assigneeName);
   }
 }
 

@@ -83,7 +83,7 @@ export function toTask(row: DbTask, assigneeName: string): Task {
     assigneeName,
     status: toTaskStatus(row.status),
     dueDate: row.dueDate ? row.dueDate.toISOString().slice(0, 10) : null,
-    telegramNotifyFailed: false,
+    telegramNotifyFailed: row.telegramNotifyFailed,
     updatedAt: row.updatedAt.toISOString(),
     createdAt: row.createdAt.toISOString(),
   };

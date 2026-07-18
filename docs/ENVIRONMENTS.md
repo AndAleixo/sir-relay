@@ -130,7 +130,8 @@ O script `scripts/env/dev-hybrid.sh` faz: validar env · subir Postgres · `pris
 | 12 | Auth API + cookie jose | Done | Cookie `sirrelay_session` |
 | 13 | Actions mode-agnostic | Done | `auth`, `groups`, `teammates`, `tasks`, `export`, `settings` |
 | 14 | Sync bar → API tasks | Done | `apiTaskService` |
-| 15 | Telegram webhook (link) | Done | `POST /api/v1/telegram/webhook` · P1-TG-01/06 · task relay pending |
+| 15 | Telegram webhook (link) | Done | `POST /api/v1/telegram/webhook` · P1-TG-01/06 |
+| 16 | Telegram task relay + alert DMs | Done | P1-TG-02–05, 08–10 · `src/lib/telegram/relay.ts` |
 
 **Smoke mínimo:**
 
@@ -333,8 +334,12 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) e 
 **Pendente:**
 
 1. REST routes `/api/v1/*` (UI usa server actions)
-2. Telegram task relay + replies (P1-TG-02–05, 08–10)
 
+**Telegram (feito):** link webhook + **task relay** (create/done/renotify/replies) + **operator alert DMs** — P1-TG-02–05, 08–10. Due alerts enviam DM quando um operator abre Tasks/Alerts (`syncDueAlerts`).
+
+**Ops (feito no VPS):** `scripts/db/backup.sh` · `backup-offsite.sh` · `restore.sh` — cron diário **05:00** → Google Drive; restore já testado. Ver [DEPLOY-DIGITALOCEAN.md §9.1](./DEPLOY-DIGITALOCEAN.md).
+
+**Smoke Telegram (VPS):** Profile → link bot → criar tarefa para ti (fila vazia) → DM → reply `feito` → próxima ou “all caught up” → se assignee teammate, operators linked recebem alerta.
 
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*` — UI igual em mock e API.
 

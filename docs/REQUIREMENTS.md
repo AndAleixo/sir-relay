@@ -670,7 +670,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Prisma + `services/api/*` + `/api/v1/health` | Done |
 | Dev híbrido smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina) |
 | Telegram webhook (link) | Done — P1-TG-01, P1-TG-06 |
-| Telegram task relay | Pending — P1-TG-02–05, 08–10 |
+| Telegram task relay + alert DMs | Done — P1-TG-02–05, 08–10 · create/done/renotify · replies · operator DMs |
 
 ---
 
@@ -710,6 +710,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-07-18 | Telegram task relay + operator alert DMs (P1-TG-02–05, 08–10) |
 | 2026-07-18 | SQL backups ops done on prod VPS: daily cron 05:00 → Drive; restore tested (P2-BAK-01–04) |
 | 2026-06-25 | Initial spec; 3-phase structure; Sir brand |
 | 2026-06-28 | Operator self-tasks (P1-TASK-13); Operator Telegram alerts on teammate done + due/overdue (P1-TG-09–11) |

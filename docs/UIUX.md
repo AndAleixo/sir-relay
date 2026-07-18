@@ -263,8 +263,8 @@ First column: the **logged-in operator** (same header as other members: name, ro
 | Section | Status | Priority | Default state | Max visible |
 |---------|--------|----------|---------------|-------------|
 | **To do** | `todo` | High — **top card** has start control (→ In progress); order = queue | Expanded | All cards |
-| **In progress** | `doing` | High | Expanded | All cards |
-| **Done** | `done` | Low | **Collapsed** | Count in header; expand shows last **5** cards + “View all” link |
+| **In progress** | `doing` | High — each card has neutral ✓ → Done | Expanded | All cards |
+| **Done** | `done` | Low — green ✓ mark (not clickable; flow complete) | **Collapsed** | Count in header; expand shows last **5** cards + “View all” link |
 
 **Visual weight:**
 

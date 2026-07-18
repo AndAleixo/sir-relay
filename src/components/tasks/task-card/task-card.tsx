@@ -8,6 +8,7 @@ import { formatDueDate, isOverdue } from "@/lib/dates";
 import { setTaskDragData } from "@/lib/task-drag";
 import { taskCardStyles } from "./task-card.styles";
 import { StartDoingIcon } from "./start-doing-icon";
+import { MarkDoneIcon } from "./mark-done-icon";
 
 export interface TaskCardLabels {
   dueDate: string;
@@ -59,8 +60,12 @@ interface DraggableTaskCardProps extends TaskCardContentProps {
   dragHandleLabel: string;
   isDragging?: boolean;
   isQueueHead?: boolean;
+  showCompletedMark?: boolean;
   startDoingLabel?: string;
+  markDoneLabel?: string;
+  completedMarkLabel?: string;
   onStartDoing?: () => void;
+  onMarkDone?: () => void;
   onDragHandleStart: (event: DragEvent<HTMLButtonElement>) => void;
   onDragHandleEnd: () => void;
 }
@@ -70,8 +75,12 @@ export function DraggableTaskCard({
   dragHandleLabel,
   isDragging,
   isQueueHead,
+  showCompletedMark,
   startDoingLabel,
+  markDoneLabel,
+  completedMarkLabel,
   onStartDoing,
+  onMarkDone,
   onDragHandleStart,
   onDragHandleEnd,
   ...contentProps
@@ -144,6 +153,24 @@ export function DraggableTaskCard({
             >
               <StartDoingIcon />
             </button>
+          ) : onMarkDone && markDoneLabel ? (
+            <button
+              type="button"
+              className={taskCardStyles.markDone}
+              aria-label={markDoneLabel}
+              title={markDoneLabel}
+              onClick={onMarkDone}
+            >
+              <MarkDoneIcon />
+            </button>
+          ) : showCompletedMark ? (
+            <span
+              className={taskCardStyles.completedMark}
+              title={completedMarkLabel}
+              aria-label={completedMarkLabel}
+            >
+              <MarkDoneIcon />
+            </span>
           ) : null}
         </div>
         {contentProps.task.telegramNotifyFailed && (

@@ -40,6 +40,8 @@ interface TasksPageClientProps {
     sectionDoing: string;
     sectionDone: string;
     startDoing: string;
+    markDone: string;
+    completedMark: string;
     linked: string;
     pending: string;
     invited: string;
@@ -108,6 +110,8 @@ export function TasksPageClient({
               sectionDoing: labels.sectionDoing,
               sectionDone: labels.sectionDone,
               startDoing: labels.startDoing,
+              markDone: labels.markDone,
+              completedMark: labels.completedMark,
               linked: labels.linked,
               pending: labels.pending,
               invited: labels.invited,
@@ -139,6 +143,8 @@ export function TasksPageClient({
               emptyMine: labels.emptyMine,
               dragHandle: labels.dragHandle,
               startDoing: labels.startDoing,
+              markDone: labels.markDone,
+              completedMark: labels.completedMark,
             }}
           />
         )

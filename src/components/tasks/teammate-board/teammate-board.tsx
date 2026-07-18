@@ -52,6 +52,8 @@ interface TeammateBoardProps {
     sectionDoing: string;
     sectionDone: string;
     startDoing: string;
+    markDone: string;
+    completedMark: string;
     linked: string;
     pending: string;
     invited: string;
@@ -104,16 +106,19 @@ function BoardTaskItem({
   labels,
   draggingTaskId,
   isQueueHead,
+  showCompletedMark,
   onDragStart,
   onDragEnd,
   onUpdateFields,
   onStartDoing,
+  onMarkDone,
 }: {
   task: Task;
   locale: string;
   labels: TeammateBoardProps["labels"];
   draggingTaskId: string | null;
   isQueueHead?: boolean;
+  showCompletedMark?: boolean;
   onDragStart: (taskId: string) => void;
   onDragEnd: () => void;
   onUpdateFields: (
@@ -121,12 +126,15 @@ function BoardTaskItem({
     fields: { title?: string; dueDate?: string | null },
   ) => Promise<void>;
   onStartDoing?: () => void;
+  onMarkDone?: () => void;
 }) {
   const cardLabels: TaskCardLabels & {
     dragHandle: string;
     openTask: string;
     addDueDate: string;
     startDoing: string;
+    markDone: string;
+    completedMark: string;
   } = {
     dueDate: labels.dueDate,
     updated: labels.updated,
@@ -135,6 +143,8 @@ function BoardTaskItem({
     openTask: labels.openTask,
     addDueDate: labels.addDueDate,
     startDoing: labels.startDoing,
+    markDone: labels.markDone,
+    completedMark: labels.completedMark,
   };
 
   return (
@@ -145,10 +155,12 @@ function BoardTaskItem({
       labels={cardLabels}
       isDragging={draggingTaskId === task.id}
       isQueueHead={isQueueHead}
+      showCompletedMark={showCompletedMark}
       onDragHandleStart={() => onDragStart(task.id)}
       onDragHandleEnd={onDragEnd}
       onUpdateFields={(fields) => onUpdateFields(task.id, fields)}
       onStartDoing={onStartDoing}
+      onMarkDone={onMarkDone}
     />
   );
 }
@@ -346,6 +358,7 @@ function TaskColumn({
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
             onUpdateFields={onUpdateFields}
+            onMarkDone={() => onAssignToColumn(assigneeId, "done", task.id)}
           />
         ))}
       </DroppableSection>
@@ -389,6 +402,7 @@ function TaskColumn({
                 locale={locale}
                 labels={labels}
                 draggingTaskId={draggingTaskId}
+                showCompletedMark
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
                 onUpdateFields={onUpdateFields}

@@ -32,6 +32,8 @@ interface StatusKanbanProps {
     emptyMine: string;
     dragHandle: string;
     startDoing: string;
+    markDone: string;
+    completedMark: string;
   };
 }
 
@@ -195,6 +197,18 @@ export function StatusKanban({
                   labels={cardLabels}
                   dragHandleLabel={labels.dragHandle}
                   isDragging={draggingTaskId === task.id}
+                  markDoneLabel={
+                    status === "doing" ? labels.markDone : undefined
+                  }
+                  onMarkDone={
+                    status === "doing"
+                      ? () => void assignStatus(task.id, "done")
+                      : undefined
+                  }
+                  showCompletedMark={status === "done"}
+                  completedMarkLabel={
+                    status === "done" ? labels.completedMark : undefined
+                  }
                   onDragHandleStart={() => handleDragStart(task.id)}
                   onDragHandleEnd={handleDragEnd}
                 />

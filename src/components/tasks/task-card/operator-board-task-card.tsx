@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { taskCardStyles } from "./task-card.styles";
 import type { TaskCardLabels } from "./task-card";
 import { StartDoingIcon } from "./start-doing-icon";
+import { MarkDoneIcon } from "./mark-done-icon";
 
 interface OperatorBoardTaskCardProps {
   task: Task;
@@ -20,15 +21,19 @@ interface OperatorBoardTaskCardProps {
     openTask: string;
     addDueDate: string;
     startDoing?: string;
+    markDone?: string;
+    completedMark?: string;
   };
   isDragging?: boolean;
   isQueueHead?: boolean;
+  showCompletedMark?: boolean;
   onDragHandleStart: (event: DragEvent<HTMLButtonElement>) => void;
   onDragHandleEnd: () => void;
   onUpdateFields: (
     fields: { title?: string; dueDate?: string | null },
   ) => Promise<void>;
   onStartDoing?: () => void;
+  onMarkDone?: () => void;
 }
 
 function OpenTaskIcon() {
@@ -57,10 +62,12 @@ export function OperatorBoardTaskCard({
   labels,
   isDragging,
   isQueueHead,
+  showCompletedMark,
   onDragHandleStart,
   onDragHandleEnd,
   onUpdateFields,
   onStartDoing,
+  onMarkDone,
 }: OperatorBoardTaskCardProps) {
   const overdue = isOverdue(task.dueDate);
   const [editingTitle, setEditingTitle] = useState(false);
@@ -233,6 +240,25 @@ export function OperatorBoardTaskCard({
             >
               <StartDoingIcon />
             </button>
+          ) : onMarkDone && labels.markDone ? (
+            <button
+              type="button"
+              className={taskCardStyles.markDone}
+              aria-label={labels.markDone}
+              title={labels.markDone}
+              disabled={saving}
+              onClick={() => onMarkDone()}
+            >
+              <MarkDoneIcon />
+            </button>
+          ) : showCompletedMark ? (
+            <span
+              className={taskCardStyles.completedMark}
+              title={labels.completedMark}
+              aria-label={labels.completedMark}
+            >
+              <MarkDoneIcon />
+            </span>
           ) : null}
         </div>
       </div>

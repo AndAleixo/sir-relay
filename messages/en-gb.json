@@ -208,7 +208,9 @@
     "sectionTodo": "To do",
     "sectionDoing": "In progress",
     "sectionDone": "Done",
-    "startDoing": "Start — move to In progress"
+    "startDoing": "Start — move to In progress",
+    "markDone": "Complete — move to Done",
+    "completedMark": "Completed"
   },
   "settings": {
     "title": "Settings",

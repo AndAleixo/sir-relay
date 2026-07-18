@@ -61,6 +61,8 @@ export default async function TasksPage({
           sectionDoing: t("tasks.sectionDoing"),
           sectionDone: t("tasks.sectionDone"),
           startDoing: t("tasks.startDoing"),
+          markDone: t("tasks.markDone"),
+          completedMark: t("tasks.completedMark"),
           linked: t("teammate.linked"),
           pending: t("teammate.pending"),
           invited: t("teammate.invited"),

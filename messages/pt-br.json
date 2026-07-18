@@ -208,7 +208,9 @@
     "sectionTodo": "A fazer",
     "sectionDoing": "Em progresso",
     "sectionDone": "Concluído",
-    "startDoing": "Começar — mover para Em progresso"
+    "startDoing": "Começar — mover para Em progresso",
+    "markDone": "Concluir — mover para Concluído",
+    "completedMark": "Concluída"
   },
   "settings": {
     "title": "Configurações",

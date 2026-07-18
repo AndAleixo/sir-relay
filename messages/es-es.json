@@ -208,7 +208,9 @@
     "sectionTodo": "Por hacer",
     "sectionDoing": "En progreso",
     "sectionDone": "Hecho",
-    "startDoing": "Empezar — pasar a En progreso"
+    "startDoing": "Empezar — pasar a En progreso",
+    "markDone": "Completar — pasar a Hecho",
+    "completedMark": "Completada"
   },
   "settings": {
     "title": "Ajustes",

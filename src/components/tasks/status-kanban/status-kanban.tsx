@@ -78,11 +78,6 @@ export function StatusKanban({
   }
 
   async function assignStatus(taskId: string, targetStatus: TaskStatus) {
-    if (targetStatus === "todo") {
-      await placeInTodo(taskId, TODO_QUEUE_APPEND);
-      return;
-    }
-
     const task = tasks.find((t) => t.id === taskId);
     if (!task || task.status === targetStatus) return;
 
@@ -128,7 +123,6 @@ export function StatusKanban({
 
   const cardLabels: TaskCardLabels & { dragHandle: string } = {
     dueDate: labels.dueDate,
-    updated: labels.updated,
     overdue: labels.overdue,
     dragHandle: labels.dragHandle,
   };

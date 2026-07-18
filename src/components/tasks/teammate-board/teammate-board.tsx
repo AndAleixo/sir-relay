@@ -137,7 +137,6 @@ function BoardTaskItem({
     completedMark: string;
   } = {
     dueDate: labels.dueDate,
-    updated: labels.updated,
     overdue: labels.overdue,
     dragHandle: labels.dragHandle,
     openTask: labels.openTask,
@@ -530,11 +529,6 @@ export function TeammateBoard({
     const task = tasks.find((t) => t.id === taskId);
     const target = assigneeById[targetAssigneeId];
     if (!task || !target) return;
-
-    if (targetStatus === "todo") {
-      await placeInTodo(targetAssigneeId, taskId, TODO_QUEUE_APPEND);
-      return;
-    }
 
     const needsReassign = task.assigneeId !== targetAssigneeId;
     const needsStatus = task.status !== targetStatus;

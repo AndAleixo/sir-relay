@@ -212,13 +212,14 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 | In progress | `doing` | `--status-progress` | In progress / En progreso / Em progresso |
 | Done | `done` | `--status-done` | Done / Hecho / Concluído |
 
-**Card contents:** title (truncate 2 lines), due date (overdue in red), last activity time.
+**Card contents:** title (truncate 2 lines), due date (overdue in red). Queue head (top To do) has → In progress; In progress cards have ✓ → Done; Done shows a green ✓ mark (not clickable).
 
 **Interactions:**
 
 - ↗ on card → task detail (edit form)
 - Drag between columns to change status (mock implemented; §P3-03)
-- **Drag within To do** (any member column on the operator board, or own Kanban for teammates) to set priority / place a task; higher = sooner on Telegram when that person has no In progress task
+- **Drag within To do** (any member column on the operator board, or own Kanban for teammates) to set queue order; Telegram follows the queue head when that person has no In progress task
+- Start / complete controls on cards (same status changes as drag)
 - Setting status to `done` triggers relay (P1-TASK-12) same as Telegram
 
 **Mobile (375px):** columns stack vertically: To do → In progress → Done.
@@ -593,5 +594,6 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | Telegram locked to Profile (account); Settings deep-links when unlinked; linked members (incl. operators) get task relay; operators also get alerts |
 | 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
+| 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

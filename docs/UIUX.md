@@ -3,7 +3,7 @@
 **Purpose:** Layout, interaction, and visual behavior for the **public landing**, signed-in web app, and Telegram experience.  
 **Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) (what must work) · [BRAND.md](./BRAND.md) (colors, logos, tokens) · [ARCHITECTURE.md](./ARCHITECTURE.md) (code layout)
 
-**Last updated:** 2026-07-12
+**Last updated:** 2026-07-19
 
 ### Status naming
 
@@ -98,7 +98,7 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 
 | Page | Route | Header | Purpose |
 |------|-------|--------|---------|
-| Sign up | `/signup` | Yes `AuthPageHeader` | New email → `/groups` (no group) · **invited email match** → merge, activate, auto-join group → `/tasks` |
+| Sign up | `/signup` | Yes `AuthPageHeader` | New email → `/groups` (no group). Invited-email merge (P1-AUTH-13) **not shipped** — use `/join/<token>` to activate |
 | Log in | `/login` | Yes `AuthPageHeader` | Existing account → role home or `/groups` |
 | Join group | `/join/[token]` | Yes `AuthPageHeader` | Pre-created teammate: set password · existing **active** account → accept |
 | Privacy / Terms | `/privacy`, `/terms` | Yes `AuthPageHeader` | Legal stubs |
@@ -123,7 +123,7 @@ Pages outside the main app shell — centred card layout (`authShellStyles`), `S
 - **Mobile panel:** dropdown ancorado abaixo do trigger (não bottom sheet)
 - **Invite:** adds membership if missing (same email as invite)
 - **Join (pre-created, path A):** `/join/[token]` — set password → `active`
-- **Join (pre-created, path B):** `/signup` with **same email** — merge `invited` row, set password → `active` + group already in switcher → `/tasks`
+- **Join (pre-created, path B):** `/signup` same email — **not shipped** (P1-AUTH-13); today “Email taken” — use path A
 - **Existing active account added by operator (same email):** pending request appears in the user’s switcher; Accept creates membership · Decline dismisses it
 - **Request badge:** switcher trigger shows pending count; requests expire after 72h
 
@@ -159,7 +159,7 @@ Same chrome for everyone; **navigation and default view depend on role in the ac
 | Sidebar nav | Tasks · Teammates* · Alerts* · Settings — icons + labels (icons only when collapsed) |
 | Sidebar footer | Profile link (name + avatar) only |
 | Top header | **Group switcher** · locale picker · account menu (avatar + chevron) |
-| Account menu (`▾`) | Name · Account · Log out |
+| Account menu (`▾`) | Name · Profile · Log out |
 | Locale | Custom dropdown in header (same route, new locale prefix); also on login screen |
 | Primary CTA | “New task” — Operator only, yellow button per [BRAND.md](./BRAND.md) |
 
@@ -212,13 +212,13 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 | In progress | `doing` | `--status-progress` | In progress / En progreso / Em progresso |
 | Done | `done` | `--status-done` | Done / Hecho / Concluído |
 
-**Card contents:** title (truncate 2 lines), due date (overdue in red). Queue head (top To do) has → In progress; In progress cards have ✓ → Done; Done shows a green ✓ mark (not clickable).
+**Card contents:** title (truncate 2 lines), due date (overdue in red). No “updated” time on board cards. Queue head (top To do): accent **→ Start** → In progress; In progress: neutral **✓** → Done; Done: green **✓** mark (not clickable).
 
 **Interactions:**
 
 - ↗ on card → task detail (edit form)
-- Drag between columns to change status (mock implemented; §P3-03)
-- **Drag within To do** (any member column on the operator board, or own Kanban for teammates) to set queue order; Telegram follows the queue head when that person has no In progress task
+- Drag between columns to change status (Phase 1)
+- **Drag within To do** to set queue order; drop **inside** `[data-todo-scroll]` inserts by Y; drop on column chrome (header/footer) **appends**. Telegram follows the queue head when that person has no In progress task
 - Start / complete controls on cards (same status changes as drag)
 - Setting status to `done` triggers relay (P1-TASK-12) same as Telegram
 
@@ -251,7 +251,7 @@ First column: the **logged-in operator**. Then other members ordered by **To do 
 └─────────────────┴─────────────────┴─────────────────┴─────────────────┘
 ```
 
-**Self column (first):** Operator self-assigned tasks; **Telegram task relay** when the operator’s account is linked (same one-at-a-time queue as teammates). Operators also receive **alert** notifications on Telegram. Label uses the same member naming rules (fantasy → account name → email). **Drag within any member’s To do** (including self) reorders that queue; drop onto another member’s To do reassigns and places at that position.
+**Self column (first):** Operator self-assigned tasks; **Telegram task relay** when the operator’s account is linked (same one-at-a-time queue as teammates). Operators also receive **alert** notifications on Telegram. Label uses the same member naming rules (fantasy → account name → email) — **not** “Me / Eu / Yo”. **Drag within any member’s To do** (including self) reorders that queue; drop onto another member’s To do reassigns and places at that index (scroll list = by Y; section chrome = append).
 
 #### Column header (member)
 
@@ -265,7 +265,7 @@ First column: the **logged-in operator**. Then other members ordered by **To do 
 |---------|--------|----------|---------------|-------------|
 | **To do** | `todo` | High — **top card** has start control (→ In progress); order = queue | Expanded | All cards |
 | **In progress** | `doing` | High — each card has neutral ✓ → Done | Expanded | All cards |
-| **Done** | `done` | Low — green ✓ mark (not clickable; flow complete) | **Collapsed** | Count in header; expand shows last **5** cards + “View all” link |
+| **Done** | `done` | Low — green ✓ mark (not clickable; flow complete) | **Collapsed** | Count in header; expand shows last **5** cards + muted “View all” label (not a navigation link) |
 
 **Visual weight:**
 
@@ -300,7 +300,7 @@ Shared compact card on boards; list view uses a table row.
 ```
 ┌────────────────────────────────┐
 │ ⠿  Task title            [↗] │
-│    Due: Mar 12 · 2h ago      │
+│    Due: Mar 12               │
 │                         ●    │  ← Telegram fail dot (bottom-right)
 └────────────────────────────────┘
 ```
@@ -449,8 +449,8 @@ Operator only. Access: sidebar / mobile tabs.
 
 | Content | Phase 1 |
 |---------|---------|
-| Feed of teammate **task done** and **due/overdue** events | Yes mock |
-| Delivery badge: Telegram vs web-only (operator alert prefs + linked Telegram) | Yes mock |
+| Feed of teammate **task done** and **due/overdue** events | Shipped |
+| Delivery badge: Telegram vs web-only (operator alert prefs + linked Telegram) | Shipped |
 | Preferences | **Settings** → Operator alerts toggles |
 
 Teammates do not have this route (redirect to `/tasks`).
@@ -524,7 +524,7 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `AppHeader` | Desktop group switcher + locale picker + account menu |
 | `MobileTopBar` | Compact logo, group switcher, locale, avatar, tab nav |
 | `LocaleSwitcher` | Same-path locale change via URL prefix |
-| `UserMenu` | Account dropdown (Profile, Settings, Log out) |
+| `UserMenu` | Account dropdown (Profile, Log out) |
 | `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |
 | `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared create + edit forms (§5) |
 | `OperatorBoardTaskCard` | Operator board: inline edit, open detail, drag handle |
@@ -557,18 +557,19 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 
 ## 13. Phase mapping
 
-| UX item | Phase | Mock status |
-|---------|-------|-------------|
-| Marketing landing | 1 | Yes mock |
-| Team board + inline edit + quick add | 1 | Yes mock |
-| Task create + edit + delete forms | 1 | Yes mock |
-| Status Kanban + list toggle | 1 | Yes mock |
-| Profile vs Settings split | 1 | Yes mock |
-| Join + change-password + privacy | 1 | Yes mock |
-| Operator alerts + **Alerts** page | 1 | Yes mock |
-| Sidebar collapse + logo cross-fade | 3 (P3-11) | Yes in mock |
-| Drag-and-drop on Kanban | 3 (P3-03) | Yes in mock |
-| Locale persist via API | 1 | mock cookie only |
+| UX item | Phase | Status |
+|---------|-------|--------|
+| Marketing landing | 1 | Shipped (mock + API) |
+| Team board + inline edit + quick add | 1 | Shipped |
+| Task create + edit + delete forms | 1 | Shipped |
+| Status Kanban + list toggle | 1 | Shipped |
+| Profile vs Settings split | 1 | Shipped |
+| Join + change-password + privacy | 1 | Shipped |
+| Operator alerts + **Alerts** page | 1 | Shipped |
+| To do queue DnD + status/reassign drops | 1 | Shipped |
+| Sidebar collapse + logo cross-fade | 3 (P3-11) | Yes in UI |
+| Kanban DnD polish (touch / a11y) | 3 (P3-03) | Core shipped in Phase 1 |
+| Locale persist (Profile) | 1 | Shipped via `updateLocale`; header switcher changes URL path only |
 | Audit screen | 2 | — |
 | Native mobile apps | 3 (P3-13) | — |
 
@@ -588,12 +589,13 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-12 | Removed export from teammate detail; legacy routes removed |
 | 2026-07-11 | User → group → role model (§1.1); groups hub UX (§2.1); AuthPageHeader; membership-scoped nav and Profile badge |
 | 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
-| 2026-07-14 | Pre-create + sign-up merge (§2.1); teammate Telegram on Profile only (§7, §8.1) |
+| 2026-07-14 | Pre-create + invite activation (§2.1); teammate Telegram on Profile only (§7, §8.1); sign-up merge noted as intended |
 | 2026-07-18 | Fantasy name only on Settings / member detail (not Profile); operator board columns = all other members |
 | 2026-07-18 | Landing copy: product-first hero (one task at a time); anti-metrics only in FAQ |
 | 2026-07-18 | Telegram locked to Profile (account); Settings deep-links when unlinked; linked members (incl. operators) get task relay; operators also get alerts |
 | 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
+| 2026-07-19 | Phase 1 sync: live DnD (not P3-only); drop scroll vs append; View all not a link; UserMenu = Profile · Log out; column order by To do load |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

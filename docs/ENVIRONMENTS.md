@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** UI mock completa · **dev-híbrido activo** (Prisma + `services/api` + Postgres).
+**Estado actual:** UI + **dev-híbrido activo** (Prisma + `services/api` + Postgres) · Telegram relay · fila To do (`sort_order`) · convites com consentimento. Sign-up merge (P1-AUTH-13) ainda não.
 
 ---
 
@@ -261,18 +261,13 @@ Dev mock ──► Dev híbrido ──► Prod local ──► Prod VPS
  mock          api              api            api
 ```
 
-### Dia-a-dia hoje (Phase 1 UI)
+### Dia-a-dia (Phase 1)
 
-1. **Dev mock** — `npm run dev-mock`
-2. `npm run lint` + `npm run check:routes` antes de commit
-
-### Quando Phase 1 backend existir
-
-| Ordem | Ambiente | Quando |
-|-------|----------|--------|
-| 1 | Dev híbrido | Prisma + `services/api` — ver [checklist §2](./ENVIRONMENTS.md#dev-híbrido--checklist-de-prontidão) |
-| 2 | Prod local | Antes de merge grande ou release |
-| 3 | Prod VPS | Após smoke local OK |
+1. **Dev mock** — `npm run dev-mock` (UI rápida sem Docker)
+2. **Dev híbrido** — `npm run dev-hybrid` (API + Postgres) — ver [checklist §2](./ENVIRONMENTS.md#dev-híbrido--checklist-de-prontidão)
+3. `npm run lint` + `npm run check:routes` (+ `npm run check:queue` se mexeres na fila) antes de commit
+4. **Prod local** — antes de merge grande ou release
+5. **Prod VPS** — após smoke local OK
 
 ### Critérios para subir de degrau
 
@@ -325,15 +320,16 @@ Fonte: `scripts/env/dev-mock.sh` · `dev-hybrid.sh` · `prod-local.sh` · `prod-
 
 ---
 
-## Backend — pendente Phase 1
+## Backend — estado Phase 1
 
 Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) e [§9 API](./REQUIREMENTS.md#9-api-contract).
 
-**Feito:** Prisma + seed + `services/api/*` + actions mode-agnostic + dev-híbrido smoke.
+**Feito:** Prisma + seed + `services/api/*` + actions mode-agnostic + dev-híbrido smoke · fila To do (`sort_order` + DnD) · group invitations (consent) · Telegram link + task relay + operator alert DMs.
 
-**Pendente:**
+**Pendente / opcional:**
 
-1. REST routes `/api/v1/*` (UI usa server actions)
+1. REST routes `/api/v1/*` além de health + Telegram webhook (UI usa server actions)
+2. Sign-up merge com email `invited` (P1-AUTH-13/14)
 
 **Telegram (feito):** link webhook + **task relay** (create/done/renotify/replies) + **operator alert DMs** — P1-TG-02–05, 08–10. Due alerts enviam DM quando um operator abre Tasks/Alerts (`syncDueAlerts`).
 
@@ -341,8 +337,10 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) e 
 
 **Smoke Telegram (VPS):** Profile → link bot → criar tarefa para ti (fila vazia) → DM → reply `feito` → próxima ou “all caught up” → se assignee teammate, operators linked recebem alerta.
 
+**Smoke fila:** `npm run check:queue` · no board, arrastar To do (lista = insert por Y; chrome = append).
+
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*` — UI igual em mock e API.
 
 ---
 
-**Last updated:** 2026-07-18
+**Last updated:** 2026-07-19

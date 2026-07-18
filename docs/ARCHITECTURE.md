@@ -8,18 +8,20 @@ Presentation, domain types, and data access are separated so mock → API is a s
 src/
 ├── domain/types.ts       # UserGroup, Session, Task, …
 ├── services/
-│   ├── contracts.ts      # AuthService, GroupService, …
+│   ├── contracts.ts      # AuthService, GroupService, InvitationService, …
 │   ├── index.ts          # getServices() — mock | api
 │   ├── mock/             # dev-mock
 │   └── api/              # dev-hybrid (Prisma)
 ├── lib/
 │   ├── entry-route.ts    # Post-auth redirects
-│   └── session-hydrate.ts # Role + resume group on login
+│   ├── session-hydrate.ts # Role + resume group on login
+│   └── task-queue.ts     # To do order helpers (buildTodoQueueOrder, placeIdAtIndex, …)
 ├── app/actions/
 │   ├── auth.ts           # Login, signup, logout, password
 │   ├── groups.ts         # Group panel
+│   ├── invitations.ts    # Accept / decline pending group invites
 │   ├── teammates.ts      # Teammate CRUD + promote
-│   ├── tasks.ts          # Tasks + alert prefs
+│   ├── tasks.ts          # Tasks + alert prefs + placeInTodoQueue
 │   ├── export.ts         # JSON export
 │   └── settings.ts       # Locale preference
 └── app/[locale]/
@@ -43,7 +45,7 @@ src/
 
 Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookies flash).
 
-**Pre-create + activation:** new email → `users` row `account_status: invited` + membership + activation link. Existing active email → `group_invitations` request only; acceptance creates membership. Activation via signup email merge remains pending (P1-AUTH-13).
+**Pre-create + activation:** new email → `users` row `account_status: invited` + membership + activation link. Existing active email → `group_invitations` request only; acceptance creates membership. **Sign-up email merge (P1-AUTH-13) is not shipped** — signup rejects existing emails including `invited`.
 
 ## Routes
 
@@ -60,7 +62,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/alerts`, `/settings` | Session + group | private | Alerts · group alert prefs |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 
-**Backend (Phase 1+):** `/api/v1/*` · Prisma · Telegram webhook · **Phase 2:** `/audit`
+**Backend (Phase 1):** Prisma + server actions · `/api/v1/health` · Telegram webhook · (optional full REST) · **Phase 2:** `/audit`
 
 ## Entry redirects
 
@@ -78,11 +80,18 @@ Unauthenticated access to app routes → `/login?session=expired`.
 
 **User model:** one **account** per person → zero or more **groups** → **role per membership** (`operator` / `teammate`) + optional per-membership **`display_name`** (fantasy label; own edit on **Settings**, operator edit on member detail). Session: `{ user, activeGroupId }`; effective role from `hydrateSession()` + `group_memberships`. Account `users.name` is owner-only (Profile); operators must not mutate it. **Telegram** is account-scoped on Profile (`telegram_chat_id` on `users`) — **task relay** for any linked assignee; operators **also** get alert DMs. Group UI label: `display_name ?? users.name` (invited pending → show email). `UserGroup` in `domain/types.ts` matches `GET /groups` (id, name, role).
 
-**Add teammate:** email-only pre-create / consent invitation; person sets account name on join/signup.
+**Add teammate:** email-only pre-create / consent invitation; person sets account name on `/join/<token>` (not via signup merge until P1-AUTH-13).
 
 ## Landing demo
 
 Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `demo12345` (dev-hybrid) · 2 groups → login resume **Demo Shop** · `ana@example.com` (active teammate → tasks) · activation: `mock-invite-carla` for invited Carla.
+
+## Task queue & boards
+
+- Order helpers: `src/lib/task-queue.ts` · check: `npm run check:queue`
+- Persist queue: `placeInTodoQueue` (server action / sync layer)
+- UI: `TodoReorderList` + `resolveTodoDropIndex` — drop inside `[data-todo-scroll]` = insert by Y; outside = append
+- Operator board column order: self first, then members by To do count desc
 
 ## Task forms
 
@@ -106,11 +115,11 @@ Passos:
 
 Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina).
 
-**API layer:** `src/services/api/` — Prisma-backed implementations of `contracts.ts`. Health: `GET /api/v1/health` · Telegram link: `POST /api/v1/telegram/webhook`.
+**API layer:** `src/services/api/` — Prisma-backed implementations of `contracts.ts`. Health: `GET /api/v1/health` · Telegram link: `POST /api/v1/telegram/webhook`. Full REST `/api/v1/*` beyond those routes is optional — the UI uses server actions.
 
-## Session sync (mock only)
+## Session sync
 
-Edits live in `SyncProvider` until sync succeeds; sync bar on failure. Refresh discards unsent changes.
+`SyncProvider` wraps the signed-in app (mock and API). Optimistic UI + mutation queue; sync bar on failure. Full offline conflict UX remains Phase 3 (P3-07). Refresh discards unsent changes.
 
 ## Run
 

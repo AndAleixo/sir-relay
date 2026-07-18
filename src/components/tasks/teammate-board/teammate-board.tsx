@@ -25,7 +25,7 @@ import {
   OperatorBoardTaskCard,
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
-import { TodoReorderList } from "@/components/tasks/todo-reorder-list";
+import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
 import { BoardQuickAddTask } from "./board-quick-add-task";
 import {
   DEFAULT_BOARD_SECTION_SCROLL_AFTER,
@@ -584,6 +584,16 @@ export function TeammateBoard({
     const taskId = getTaskIdFromDragEvent(event);
     handleDragEnd();
     if (!taskId) return;
+
+    if (targetStatus === "todo") {
+      await placeInTodo(
+        targetAssigneeId,
+        taskId,
+        resolveTodoDropIndex(event, taskId, TODO_QUEUE_APPEND),
+      );
+      return;
+    }
+
     await assignToColumn(targetAssigneeId, targetStatus, taskId);
   }
 

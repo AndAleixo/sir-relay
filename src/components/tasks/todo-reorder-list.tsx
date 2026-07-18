@@ -39,7 +39,7 @@ function todoCards(listEl: HTMLElement, excludeTaskId: string | null) {
 }
 
 /** Insert index among other cards (excludes the dragged id from hit-test). */
-function insertIndexFromClientY(
+export function insertIndexFromClientY(
   listEl: HTMLElement,
   clientY: number,
   excludeTaskId: string | null,
@@ -50,6 +50,26 @@ function insertIndexFromClientY(
     if (clientY < rect.top + rect.height / 2) return i;
   }
   return cards.length;
+}
+
+/**
+ * Drop on the cards scroll area → insert index from Y.
+ * Drop outside that area (section header / hint / footer) → append.
+ */
+export function resolveTodoDropIndex(
+  event: Pick<DragEvent, "target" | "clientY">,
+  excludeTaskId: string | null,
+  appendIndex: number,
+): number {
+  const target = event.target;
+  if (!(target instanceof Element)) return appendIndex;
+  const scroll = target.closest("[data-todo-scroll]");
+  if (!scroll) return appendIndex;
+  const list =
+    scroll.querySelector<HTMLElement>("[data-todo-reorder-list]") ??
+    (scroll instanceof HTMLElement ? scroll : null);
+  if (!list) return appendIndex;
+  return insertIndexFromClientY(list, event.clientY, excludeTaskId);
 }
 
 /** Absolute drop line in content coords — must not reflow the list. */
@@ -179,7 +199,11 @@ export function TodoReorderList({
   return (
     <div
       ref={listRef}
-      className={cn("relative flex min-h-[2.5rem] flex-col gap-1.5", className)}
+      data-todo-reorder-list=""
+      className={cn(
+        "relative flex h-full min-h-[2.5rem] flex-col gap-1.5",
+        className,
+      )}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onDragLeave={(event) => {

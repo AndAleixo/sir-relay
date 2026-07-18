@@ -19,7 +19,7 @@ import {
   DraggableTaskCard,
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
-import { TodoReorderList } from "@/components/tasks/todo-reorder-list";
+import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
 import { kanbanStyles } from "./status-kanban.styles";
 
 interface StatusKanbanProps {
@@ -104,6 +104,15 @@ export function StatusKanban({
     const taskId = getTaskIdFromDragEvent(event);
     handleDragEnd();
     if (!taskId) return;
+
+    if (targetStatus === "todo") {
+      await placeInTodo(
+        taskId,
+        resolveTodoDropIndex(event, taskId, TODO_QUEUE_APPEND),
+      );
+      return;
+    }
+
     await assignStatus(taskId, targetStatus);
   }
 

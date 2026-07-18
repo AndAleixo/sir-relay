@@ -176,7 +176,6 @@
     "assignee": "Responsável",
     "assignToMe": "Eu ({name})",
     "assigneeHint": "Responsáveis com Telegram ligado recebem relay (uma tarefa de cada vez). Sem ligação, ficam na web.",
-    "meColumn": "Eu",
     "webOnly": "Só web",
     "titleLabel": "Título",
     "titlePlaceholder": "O que precisa ser feito?",

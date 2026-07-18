@@ -176,7 +176,6 @@
     "assignee": "Asignado",
     "assignToMe": "Yo ({name})",
     "assigneeHint": "Los asignados vinculados reciben relay de Telegram (una tarea a la vez). Sin vínculo, quedan en la web.",
-    "meColumn": "Yo",
     "webOnly": "Solo web",
     "titleLabel": "Título",
     "titlePlaceholder": "¿Qué hay que hacer?",

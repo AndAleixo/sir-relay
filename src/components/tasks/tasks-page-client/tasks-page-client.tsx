@@ -47,7 +47,6 @@ interface TasksPageClientProps {
     operatorRole: string;
     viewAll: string;
     dragHandle: string;
-    meColumn: string;
     openTask: string;
     addTask: string;
     addDueDate: string;
@@ -120,7 +119,6 @@ export function TasksPageClient({
               viewAll: labels.viewAll,
               emptyBoard: labels.emptyBoard,
               dragHandle: labels.dragHandle,
-              meColumn: labels.meColumn,
               openTask: labels.openTask,
               addTask: labels.addTask,
               addDueDate: labels.addDueDate,
@@ -149,7 +147,14 @@ export function TasksPageClient({
           tasks={tasks}
           locale={locale}
           assigneeOptions={[
-            { id: operator.id, label: labels.meColumn },
+            {
+              id: operator.id,
+              label: groupMemberLabel({
+                name: operator.name,
+                email: operator.email ?? "",
+                displayName: operator.displayName,
+              }),
+            },
             ...members.map((member) => ({
               id: member.id,
               label: groupMemberLabel(member),

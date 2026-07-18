@@ -60,7 +60,6 @@ interface TeammateBoardProps {
     viewAll: string;
     emptyBoard: string;
     dragHandle: string;
-    meColumn: string;
     openTask: string;
     addTask: string;
     addDueDate: string;
@@ -403,7 +402,15 @@ function MemberColumnHeader({
   labels,
   activeCount,
 }: {
-  member: OrganizationUser;
+  member: {
+    id: string;
+    name: string;
+    email: string;
+    displayName?: string | null;
+    role: "operator" | "teammate";
+    telegramStatus?: "linked" | "pending";
+    accountStatus?: "active" | "invited" | null;
+  };
   locale: string;
   labels: TeammateBoardProps["labels"];
   activeCount: number;
@@ -432,43 +439,6 @@ function MemberColumnHeader({
         {accountStatus ? (
           <ToneBadge tone="neutral">
             {accountStatus === "active" ? labels.active : labels.invited}
-          </ToneBadge>
-        ) : null}
-      </div>
-      <p className={teamBoardStyles.activeCount}>{activeCount} active</p>
-    </>
-  );
-}
-
-function SelfColumnHeader({
-  operator,
-  locale,
-  labels,
-  activeCount,
-}: {
-  operator: BoardOperator;
-  locale: string;
-  labels: TeammateBoardProps["labels"];
-  activeCount: number;
-}) {
-  return (
-    <>
-      <Link href={`/${locale}/settings`} className={teamBoardStyles.teammateName}>
-        {labels.meColumn}
-      </Link>
-      <p className="text-xs text-[var(--text-muted)]">
-        {groupMemberLabel({
-          name: operator.name,
-          email: operator.email ?? "",
-          displayName: operator.displayName,
-        })}
-      </p>
-      <div className={teamBoardStyles.badges}>
-        {operator.telegramStatus ? (
-          <ToneBadge
-            tone={operator.telegramStatus === "linked" ? "success" : "warning"}
-          >
-            {operator.telegramStatus === "linked" ? labels.linked : labels.pending}
           </ToneBadge>
         ) : null}
       </div>
@@ -655,8 +625,15 @@ export function TeammateBoard({
             displayName: operator.displayName,
           })}
           header={
-            <SelfColumnHeader
-              operator={operator}
+            <MemberColumnHeader
+              member={{
+                id: operator.id,
+                name: operator.name,
+                email: operator.email ?? "",
+                displayName: operator.displayName,
+                role: "operator",
+                telegramStatus: operator.telegramStatus,
+              }}
               locale={locale}
               labels={labels}
               activeCount={selfActive}

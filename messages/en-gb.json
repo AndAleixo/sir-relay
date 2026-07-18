@@ -176,7 +176,6 @@
     "assignee": "Assignee",
     "assignToMe": "Me ({name})",
     "assigneeHint": "Linked assignees get Telegram relay (one task at a time). Unlinked stay on the web.",
-    "meColumn": "Me",
     "webOnly": "Web only",
     "titleLabel": "Title",
     "titlePlaceholder": "What needs to be done?",

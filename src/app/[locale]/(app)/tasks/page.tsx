@@ -68,7 +68,6 @@ export default async function TasksPage({
           operatorRole: t("roles.operator"),
           viewAll: t("common.viewAll"),
           dragHandle: t("common.dragHandle"),
-          meColumn: t("tasks.meColumn"),
           openTask: t("tasks.openTask"),
           addTask: t("tasks.addTask"),
           addDueDate: t("tasks.addDueDate"),

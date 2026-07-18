@@ -227,12 +227,13 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 ### 3.2 Operator — team board
 
-First column: **Me** (tasks assigned to the logged-in Operator). Then one column per **other active group member** (teammates **and** other operators, including promoted members). Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
+First column: the **logged-in operator** (same header as other members: name, role, Telegram). Then one column per **other active group member** (teammates **and** other operators, including promoted members). Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
-│    Me           │    Ana          │    Bruno        │    Carla        │
-│  (Sam)          │  ● linked       │  ○ pending TG   │  ● linked       │
+│    Sam          │    Ana          │    Bruno        │    Carla        │
+│  Operator       │  ● linked       │  ○ pending TG   │  ● linked       │
+│  ● linked       │                 │                 │                 │
 ├─────────────────┼─────────────────┼─────────────────┼─────────────────┤
 │ TO DO (1)       │ TO DO (2)       │ TO DO (1)       │ TO DO (0)       │
 │ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────┐ │                 │
@@ -249,7 +250,7 @@ First column: **Me** (tasks assigned to the logged-in Operator). Then one column
 └─────────────────┴─────────────────┴─────────────────┴─────────────────┘
 ```
 
-**Me column:** Operator self-assigned tasks; **Telegram task relay** when the operator’s account is linked (same one-at-a-time queue as teammates). Operators also receive **alert** notifications on Telegram. Label shows Operator display name or “Me” per locale. **Drag within any member’s To do** (including Me) reorders that queue; drop onto another member’s To do reassigns and places at that position.
+**Self column (first):** Operator self-assigned tasks; **Telegram task relay** when the operator’s account is linked (same one-at-a-time queue as teammates). Operators also receive **alert** notifications on Telegram. Label uses the same member naming rules (fantasy → account name → email). **Drag within any member’s To do** (including self) reorders that queue; drop onto another member’s To do reassigns and places at that position.
 
 #### Column header (member)
 
@@ -285,7 +286,7 @@ Toggle in toolbar: **Board** | **List** (icon + label).
 | Role | List content |
 |------|--------------|
 | Teammate | My tasks; sort by due date, status, updated_at |
-| Operator | All tasks; columns: title, assignee, status, due, updated; filter by assignee (**Me** + all other members), status |
+| Operator | All tasks; columns: title, assignee, status, due, updated; filter by assignee (self + all other members), status |
 
 List is the fallback for narrow screens and power-user scanning.
 
@@ -528,7 +529,7 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `OperatorBoardTaskCard` | Operator board: inline edit, open detail, drag handle |
 | `DraggableTaskCard` | Teammate Kanban card |
 | `BoardQuickAddTask` | Per-column quick add in To do section |
-| `TeammateBoard` | Operator team board (§3.2) — includes **Me** column |
+| `TeammateBoard` | Operator team board (§3.2) — first column is self, then other members |
 | `OperatorAlertsList` | Operator alert feed (§8.3) |
 | `StatusKanban` | Teammate 3-column board (§3.1) |
 | `TaskList` | Table list view |
@@ -591,5 +592,6 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | Landing copy: product-first hero (one task at a time); anti-metrics only in FAQ |
 | 2026-07-18 | Telegram locked to Profile (account); Settings deep-links when unlinked; linked members (incl. operators) get task relay; operators also get alerts |
 | 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
+| 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

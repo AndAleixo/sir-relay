@@ -70,7 +70,7 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 │  │  Product demo (demo.webm · CSS board fallback)       │   │
 │  └──────────────────────────────────────────────────────┘   │
 ├──────────────────────────────────────────────────────────────┤
-│  3 feature cards — simple · no metrics · one task at a time  │
+│  3 feature cards — simple · what matters now · one task at a time │
 ├──────────────────────────────────────────────────────────────┤
 │  © Sir · SirRelay    FAQ · Privacy · Terms · Log in · Sign up │  ← footer
 └──────────────────────────────────────────────────────────────┘
@@ -79,14 +79,14 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 | Element | Spec |
 |---------|------|
 | Header | Sticky; logo links home; locale links; **Sign up** (ghost) + **Log in** → `/[locale]/signup` · `/login` |
-| Hero | Value prop: calm team coordination, no KPI pressure; primary CTA **Create account** → `/signup` |
+| Hero | Product hook: one clear task at a time; web + Telegram; primary CTA **Create account** → `/signup` |
 | Demo | Browser frame with **`/brand/demo.webm`** (autoplay, muted, loop); CSS board fallback if video fails |
-| Features | Three cards — simple to run · no metric pressure · one task at a time (Telegram relay) |
-| FAQ | `#faq` — groups, metrics, Telegram, data/cache (public pages CDN-friendly; signed-in pages `no-store`) |
+| Features | Three cards — simple to run · only what matters now · one task at a time (Telegram relay) |
+| FAQ | `#faq` — groups, **metrics (anti-KPI home)**, Telegram, data/cache (public pages CDN-friendly; signed-in pages `no-store`) |
 | Footer | Copyright, FAQ, Privacy, Terms, Log in, Sign up — shared `SiteFooter` on auth/legal pages |
 | App store badges | **None** in Phase 1 (P3-13) |
 
-**Voice:** Reassuring, plain language — “manage without pressure”, not “boost productivity 10×”.
+**Voice:** Plain and product-first — lead with relay and clarity. Anti-metric positioning lives once in FAQ, not repeated in hero + features.
 
 **Logged-in users:** `/[locale]` redirects to app home per [ARCHITECTURE.md](./ARCHITECTURE.md#entry-redirects).
 
@@ -584,6 +584,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-11 | Marketing landing (§2.0); hosted product entry at `/[locale]`; no-metric positioning |
 | 2026-07-14 | Pre-create + sign-up merge (§2.1); teammate Telegram on Profile only (§7, §8.1) |
 | 2026-07-18 | Fantasy name only on Settings / member detail (not Profile); operator board columns = all other members |
+| 2026-07-18 | Landing copy: product-first hero (one task at a time); anti-metrics only in FAQ |
 | 2026-07-18 | Telegram locked to Profile (account); Settings deep-links when unlinked; linked members (incl. operators) get task relay; operators also get alerts |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

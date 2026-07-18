@@ -300,8 +300,8 @@
     "language": "Language",
     "footerNav": "Footer links",
     "eyebrow": "Simple team relay",
-    "heroTitle": "Manage your team without the pressure.",
-    "heroSubtitle": "SirRelay helps small teams stay aligned — one clear task at a time, on the web or Telegram. No dashboards, no performance metrics, no noise.",
+    "heroTitle": "One clear task at a time for your team.",
+    "heroSubtitle": "SirRelay keeps small groups aligned on the web and Telegram — assign work, follow progress, and send the next task when the current one is done.",
     "ctaPrimary": "Create account",
     "ctaSecondary": "How we handle data",
     "demoAria": "SirRelay board preview",
@@ -310,20 +310,20 @@
     "demoTaskB": "Confirm inventory",
     "demoTaskC": "Reply to supplier",
     "demoCaption": "One task in focus — the next one arrives when the current one is done.",
-    "featuresTitle": "Built for calm coordination",
-    "featuresLead": "You run the work. Your team sees what matters now — not a wall of KPIs.",
+    "featuresTitle": "Built for small teams",
+    "featuresLead": "You run the group. Everyone sees the work that matters now.",
     "feature": {
       "simple": {
         "title": "Simple to run",
-        "body": "Create teammates, assign tasks, and follow progress on a clean board or list. Operators see everything; teammates see only their queue."
+        "body": "Invite members, assign tasks, and follow progress on a clean board or list. Operators see everything; teammates see only their queue."
       },
       "calm": {
-        "title": "No metric pressure",
-        "body": "No leaderboards, velocity charts, or surveillance-style stats. Tasks and due dates — that's it. Your team works, not performs."
+        "title": "Only what matters now",
+        "body": "Tasks and due dates — that's the whole picture. No dashboards to maintain, no noise in the way of the next step."
       },
       "relay": {
         "title": "One task at a time",
-        "body": "On Telegram, teammates receive a single active task. Mark it done and the next one arrives automatically — focused relay, not overload."
+        "body": "On Telegram, linked members get a single active task. Mark it done and the next one arrives — focused relay, not overload."
       }
     },
     "footerCopy": "© {year} Sir · SirRelay",
@@ -331,7 +331,7 @@
     "faq": {
       "what": {
         "q": "What is SirRelay?",
-        "a": "A calm task relay for small groups — web for the full picture, Telegram for one task at a time."
+        "a": "A task relay for small groups — web for the full picture, Telegram for one task at a time."
       },
       "groups": {
         "q": "How do groups work?",

@@ -300,8 +300,8 @@
     "language": "Idioma",
     "footerNav": "Links do rodapé",
     "eyebrow": "Relay simples para equipas",
-    "heroTitle": "Gira a sua equipa sem pressão.",
-    "heroSubtitle": "O SirRelay ajuda equipas pequenas a manter-se alinhadas — uma tarefa clara de cada vez, na web ou Telegram. Sem dashboards, sem métricas de desempenho, sem ruído.",
+    "heroTitle": "Uma tarefa clara de cada vez para a sua equipa.",
+    "heroSubtitle": "O SirRelay mantém grupos pequenos alinhados na web e no Telegram — atribua trabalho, acompanhe o progresso e envie a tarefa seguinte quando a actual terminar.",
     "ctaPrimary": "Criar conta",
     "ctaSecondary": "Como tratamos os dados",
     "demoAria": "Pré-visualização do quadro SirRelay",
@@ -310,20 +310,20 @@
     "demoTaskB": "Confirmar inventário",
     "demoTaskC": "Responder ao fornecedor",
     "demoCaption": "Uma tarefa em foco — a seguinte chega quando a actual termina.",
-    "featuresTitle": "Feito para coordenar com calma",
-    "featuresLead": "Você gere o trabalho. A equipa vê o que importa agora — não um muro de KPIs.",
+    "featuresTitle": "Feito para equipas pequenas",
+    "featuresLead": "Você gere o grupo. Todos vêem o trabalho que importa agora.",
     "feature": {
       "simple": {
         "title": "Simples de gerir",
-        "body": "Crie colegas, atribua tarefas e acompanhe o progresso num quadro ou lista limpos. Operadores veem tudo; colegas só a sua fila."
+        "body": "Convide membros, atribua tarefas e acompanhe o progresso num quadro ou lista limpos. Operadores vêem tudo; colegas só a sua fila."
       },
       "calm": {
-        "title": "Sem pressão por métricas",
-        "body": "Sem rankings, gráficos de velocidade ou estatísticas de vigilância. Tarefas e prazos — só isso. A equipa trabalha, não performa."
+        "title": "Só o que importa agora",
+        "body": "Tarefas e prazos — é esse o panorama. Sem dashboards para manter, sem ruído a atrapalhar o próximo passo."
       },
       "relay": {
-        "title": "Uma tarea de cada vez",
-        "body": "No Telegram, os colegas recebem uma única tarefa activa. Marque como concluída e chega a seguinte — relay focado, não sobrecarga."
+        "title": "Uma tarefa de cada vez",
+        "body": "No Telegram, membros ligados recebem uma única tarefa activa. Marque como concluída e chega a seguinte — relay focado, não sobrecarga."
       }
     },
     "footerCopy": "© {year} Sir · SirRelay",
@@ -331,7 +331,7 @@
     "faq": {
       "what": {
         "q": "O que é o SirRelay?",
-        "a": "Um relay de tarefas calmo para grupos pequenos — web para a visão completa, Telegram para uma tarefa de cada vez."
+        "a": "Um relay de tarefas para grupos pequenos — web para a visão completa, Telegram para uma tarefa de cada vez."
       },
       "groups": {
         "q": "Como funcionam os grupos?",

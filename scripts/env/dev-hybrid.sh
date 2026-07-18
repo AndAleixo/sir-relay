@@ -31,5 +31,5 @@ if [[ -f prisma/schema.prisma ]]; then
 fi
 
 echo "→ dev-hybrid · NEXT_PUBLIC_SERVICE_MODE=api · http://localhost:3000"
-echo "  login: sam@example.com / demo12345"
+echo "  login: sam@example.com / SirRelay1"
 exec npm run dev

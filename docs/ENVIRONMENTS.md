@@ -99,7 +99,7 @@ APP_URL=http://localhost:3000
 
 **Usar para:** implementar auth, groups, tasks, Prisma, debug SQL — dia-a-dia do backend.
 
-**Hoje:** `npm run dev-hybrid` sobe Postgres, corre migrate + seed, e `next dev`. Login demo usa password **`demo12345`** (não qualquer string como no mock).
+**Hoje:** `npm run dev-hybrid` sobe Postgres, corre migrate + seed, e `next dev`. Login demo usa password **`SirRelay1`** (não qualquer string como no mock).
 
 **Smoke mínimo:**
 
@@ -107,7 +107,7 @@ APP_URL=http://localhost:3000
 cp .env.example .env
 npm run dev-hybrid
 curl -s http://localhost:3000/api/v1/health
-# browser: sam@example.com / demo12345
+# browser: sam@example.com / SirRelay1
 ```
 
 ### Dev híbrido — checklist de prontidão
@@ -122,7 +122,7 @@ O script `scripts/env/dev-hybrid.sh` faz: validar env · subir Postgres · `pris
 | 4 | UI + contratos (`UserGroup`, `GroupService`) | Done | Mock implementa; UI não muda no swap |
 | 5 | Server actions `app/actions/*` | Done | Thin layer → `getServices()` |
 | 6 | **`prisma/schema.prisma`** + migrations | Done | incl. `last_active_group_id` |
-| 7 | **`prisma/seed.ts`** | Done | Paridade mock · password `demo12345` |
+| 7 | **`prisma/seed.ts`** | Done | Paridade mock · password `SirRelay1` |
 | 8 | Deps npm: `prisma`, `@prisma/client`, `bcrypt`, `jose`, `zod` | Done | Prisma 6.19 |
 | 9 | **`src/services/api/*`** | Done | auth · groups · tasks · teammates · alerts · export |
 | 10 | Ramo `api` em **`getServices()`** | Done | |
@@ -138,7 +138,7 @@ O script `scripts/env/dev-hybrid.sh` faz: validar env · subir Postgres · `pris
 ```bash
 npm run dev-hybrid
 curl -s http://localhost:3000/api/v1/health   # → 200
-# browser: sam@example.com / demo12345 → tasks (resume last group)
+# browser: sam@example.com / SirRelay1 → tasks (resume last group)
 # promote teammate → Settings → leave group · delete group
 ```
 

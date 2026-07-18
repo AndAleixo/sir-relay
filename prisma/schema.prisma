@@ -55,6 +55,9 @@ model User {
   mustChangePassword Boolean       @default(false) @map("must_change_password")
   accountStatus      AccountStatus @default(active) @map("account_status")
   lastActiveGroupId  String?       @map("last_active_group_id")
+  tokenVersion       Int           @default(0) @map("token_version")
+  failedLoginCount   Int           @default(0) @map("failed_login_count")
+  lockedUntil        DateTime?     @map("locked_until")
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
 

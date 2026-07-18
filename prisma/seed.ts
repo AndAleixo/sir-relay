@@ -12,7 +12,8 @@ import { fromLocale } from "../src/services/api/mappers";
 const prisma = new PrismaClient();
 
 /** Shared demo password — dev-hybrid only (see docs/ENVIRONMENTS.md). */
-export const DEMO_PASSWORD = "demo12345";
+/** Meets P2-SEC-04 (legacy `demo12345` hashes still log in — grandfather). */
+export const DEMO_PASSWORD = "SirRelay1";
 
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");

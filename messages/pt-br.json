@@ -49,8 +49,9 @@
     "changePassword": "Alterar senha",
     "changePasswordSubtitle": "Escolha uma nova senha para a sua conta.",
     "changePasswordRequired": "Tem de definir uma nova senha antes de usar a app.",
-    "passwordHint": "Mínimo 8 caracteres.",
+    "passwordHint": "Mínimo 8 caracteres, com uma maiúscula e um número. Evita senhas comuns.",
     "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
+    "passwordTooWeak": "A senha deve ter pelo menos 8 caracteres, uma maiúscula e um número, e não ser uma senha comum.",
     "passwordMismatch": "As senhas não coincidem.",
     "passwordChanged": "Senha actualizada.",
     "currentPasswordInvalid": "A senha actual está incorrecta."

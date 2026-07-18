@@ -2,6 +2,8 @@ import type { Locale, Session, User } from "@/domain/types";
 import { defaultLocale } from "@/i18n/config";
 import type { AuthService } from "@/services/contracts";
 import { hashPassword, verifyPassword } from "@/lib/password";
+import { assertPasswordForSet } from "@/lib/password-policy";
+import { isLoginLocked, nextFailedLoginState } from "@/lib/login-lockout";
 import { prisma } from "@/lib/prisma";
 import {
   readSessionPayload,
@@ -22,12 +24,21 @@ async function loadDbUser(userId: string) {
   return prisma.user.findUnique({ where: { id: userId } });
 }
 
+function payloadFor(
+  userId: string,
+  activeGroupId: string | null,
+  tokenVersion: number,
+): SessionPayload {
+  return { userId, activeGroupId, tokenVersion };
+}
+
 async function hydrateFromPayload(
   payload: SessionPayload,
   options: HydrateOptions = {},
 ): Promise<Session | null> {
   const row = await loadDbUser(payload.userId);
   if (!row || !row.active) return null;
+  if (payload.tokenVersion !== row.tokenVersion) return null;
 
   const autoPick = options.autoPickGroup !== false;
   let activeGroupId = payload.activeGroupId;
@@ -49,13 +60,34 @@ async function hydrateFromPayload(
 }
 
 async function persistSession(
-  payload: SessionPayload,
+  userId: string,
+  activeGroupId: string | null,
+  tokenVersion: number,
   options: HydrateOptions = {},
 ): Promise<Session> {
+  const payload = payloadFor(userId, activeGroupId, tokenVersion);
   const session = await hydrateFromPayload(payload, options);
   if (!session) throw new Error("Invalid session");
   await writeSessionPayload(payload);
   return session;
+}
+
+async function recordLoginFailure(userId: string, failedLoginCount: number) {
+  const next = nextFailedLoginState(failedLoginCount);
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      failedLoginCount: next.failedLoginCount,
+      lockedUntil: next.lockedUntil,
+    },
+  });
+}
+
+async function clearLoginFailures(userId: string) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { failedLoginCount: 0, lockedUntil: null },
+  });
 }
 
 export class ApiAuthService implements AuthService {
@@ -72,12 +104,23 @@ export class ApiAuthService implements AuthService {
     const row = await prisma.user.findFirst({
       where: { email: normalized, active: true },
     });
-    if (!row || !(await verifyPassword(password, row.passwordHash))) {
+    if (!row) throw new Error("Invalid credentials");
+
+    if (isLoginLocked(row.lockedUntil)) {
       throw new Error("Invalid credentials");
     }
 
-    let activeGroupId = await pickDefaultGroupIdAsync(row.id);
-    return persistSession({ userId: row.id, activeGroupId }, { autoPickGroup: true });
+    if (!(await verifyPassword(password, row.passwordHash))) {
+      await recordLoginFailure(row.id, row.failedLoginCount);
+      throw new Error("Invalid credentials");
+    }
+
+    await clearLoginFailures(row.id);
+
+    const activeGroupId = await pickDefaultGroupIdAsync(row.id);
+    return persistSession(row.id, activeGroupId, row.tokenVersion, {
+      autoPickGroup: true,
+    });
   }
 
   async signup(
@@ -86,9 +129,11 @@ export class ApiAuthService implements AuthService {
     password: string,
     locale: Locale = defaultLocale,
   ): Promise<Session> {
-    if (!name.trim() || !email.trim() || password.length < 8) {
+    if (!name.trim() || !email.trim()) {
       throw new Error("Invalid signup");
     }
+    assertPasswordForSet(password);
+
     const normalized = email.trim().toLowerCase();
     const existing = await prisma.user.findUnique({ where: { email: normalized } });
     if (existing) throw new Error("Email taken");
@@ -106,13 +151,17 @@ export class ApiAuthService implements AuthService {
       },
     });
 
-    return persistSession(
-      { userId: id, activeGroupId: null },
-      { autoPickGroup: false },
-    );
+    return persistSession(id, null, 0, { autoPickGroup: false });
   }
 
   async logout(): Promise<void> {
+    const payload = await readSessionPayload();
+    if (payload) {
+      await prisma.user.update({
+        where: { id: payload.userId },
+        data: { tokenVersion: { increment: 1 } },
+      });
+    }
     await writeSessionPayload(null);
   }
 
@@ -126,7 +175,7 @@ export class ApiAuthService implements AuthService {
 
     const firstLogin = row.mustChangePassword;
     if (!firstLogin && !currentPassword) throw new Error("Invalid password");
-    if (newPassword.length < 8) throw new Error("Invalid password");
+    assertPasswordForSet(newPassword);
 
     if (!firstLogin && !(await verifyPassword(currentPassword, row.passwordHash))) {
       throw new Error("Invalid password");
@@ -137,12 +186,15 @@ export class ApiAuthService implements AuthService {
       data: {
         passwordHash: await hashPassword(newPassword),
         mustChangePassword: false,
+        tokenVersion: { increment: 1 },
       },
     });
 
     const payload = await readSessionPayload();
     if (payload?.userId === userId) {
-      await writeSessionPayload(payload);
+      await writeSessionPayload(
+        payloadFor(userId, payload.activeGroupId, updated.tokenVersion),
+      );
     }
 
     const role = payload?.activeGroupId
@@ -159,7 +211,7 @@ export class ApiAuthService implements AuthService {
     locale: Locale = defaultLocale,
     name?: string,
   ): Promise<Session> {
-    if (password.length < 8) throw new Error("Invalid password");
+    assertPasswordForSet(password);
     const trimmedName = name?.trim() ?? "";
     if (trimmedName.length < 2) throw new Error("Invalid name");
 
@@ -202,10 +254,12 @@ export class ApiAuthService implements AuthService {
       return candidate;
     });
 
-    return persistSession(
-      { userId: invite.userId, activeGroupId: invite.groupId },
-      { autoPickGroup: false },
-    );
+    const row = await loadDbUser(invite.userId);
+    if (!row) throw new Error("Invalid token");
+
+    return persistSession(invite.userId, invite.groupId, row.tokenVersion, {
+      autoPickGroup: false,
+    });
   }
 
   async setActiveGroup(userId: string, groupId: string | null): Promise<Session> {
@@ -223,13 +277,19 @@ export class ApiAuthService implements AuthService {
       });
     }
 
-    return persistSession({ userId, activeGroupId: groupId }, { autoPickGroup: false });
+    return persistSession(userId, groupId, row.tokenVersion, {
+      autoPickGroup: false,
+    });
   }
 
   async refreshSessionUser(user: User): Promise<void> {
     const payload = await readSessionPayload();
     if (!payload || payload.userId !== user.id) return;
-    await writeSessionPayload(payload);
+    const row = await loadDbUser(user.id);
+    if (!row) return;
+    await writeSessionPayload(
+      payloadFor(user.id, payload.activeGroupId, row.tokenVersion),
+    );
   }
 
   async isInviteTokenValid(token: string): Promise<boolean> {

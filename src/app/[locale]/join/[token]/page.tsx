@@ -15,6 +15,7 @@ import { getServices } from "@/services";
 
 const errorKeys = {
   short: "passwordTooShort",
+  weak: "passwordTooWeak",
   mismatch: "passwordMismatch",
   invalid: "invalidToken",
   email_mismatch: "emailMismatch",

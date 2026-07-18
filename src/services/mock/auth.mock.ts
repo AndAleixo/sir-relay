@@ -3,6 +3,8 @@ import type { Session, User } from "@/domain/types";
 import type { Locale } from "@/domain/types";
 import { defaultLocale } from "@/i18n/config";
 import { hydrateSession } from "@/lib/session-hydrate";
+import { assertPasswordForSet } from "@/lib/password-policy";
+import { isLoginLocked } from "@/lib/login-lockout";
 import type { AuthService } from "@/services/contracts";
 import {
   findMockUserByEmail,
@@ -15,6 +17,26 @@ import { consumeInvite, resolveInvite } from "@/services/mock/tokens.mock";
 
 const MOCK_SESSION_COOKIE = "sirrelay_mock_session";
 
+type MockSecState = {
+  tokenVersion: number;
+  failedLoginCount: number;
+  lockedUntil: Date | null;
+};
+
+/** ponytail: in-memory SEC state for mock — resets on process restart. */
+const mockSec = new Map<string, MockSecState>();
+
+function sec(userId: string): MockSecState {
+  let state = mockSec.get(userId);
+  if (!state) {
+    state = { tokenVersion: 0, failedLoginCount: 0, lockedUntil: null };
+    mockSec.set(userId, state);
+  }
+  return state;
+}
+
+type MockCookieSession = Session & { tokenVersion?: number };
+
 const cookieOptions = {
   httpOnly: true,
   sameSite: "lax" as const,
@@ -26,9 +48,10 @@ function readSession(): Session | null {
   const raw = cookies().get(MOCK_SESSION_COOKIE)?.value;
   if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw) as Session;
+    const parsed = JSON.parse(raw) as MockCookieSession;
     const fresh = findMockUserById(parsed.user.id);
     if (!fresh) return null;
+    if ((parsed.tokenVersion ?? 0) !== sec(fresh.id).tokenVersion) return null;
     return hydrateSession(
       {
         user: { ...fresh },
@@ -56,7 +79,11 @@ function writeSession(
     jar.delete(MOCK_SESSION_COOKIE);
     return;
   }
-  jar.set(MOCK_SESSION_COOKIE, JSON.stringify(hydrated), cookieOptions);
+  const cookieBody: MockCookieSession = {
+    ...hydrated,
+    tokenVersion: sec(hydrated.user.id).tokenVersion,
+  };
+  jar.set(MOCK_SESSION_COOKIE, JSON.stringify(cookieBody), cookieOptions);
 }
 
 function patchUser(userId: string, patch: Partial<User>) {
@@ -86,6 +113,16 @@ export class MockAuthService implements AuthService {
       throw new Error("Invalid credentials");
     }
 
+    const state = sec(user.id);
+    if (isLoginLocked(state.lockedUntil)) {
+      throw new Error("Invalid credentials");
+    }
+
+    // Mock: any non-empty password still works (grandfather demo UX).
+    // Failed attempts only when password is empty (already rejected) — no-op here.
+    state.failedLoginCount = 0;
+    state.lockedUntil = null;
+
     const session = buildSession(user);
     writeSession(session);
     return session;
@@ -97,9 +134,11 @@ export class MockAuthService implements AuthService {
     password: string,
     locale: Locale = defaultLocale,
   ): Promise<Session> {
-    if (!name.trim() || !email.trim() || password.length < 8) {
+    if (!name.trim() || !email.trim()) {
       throw new Error("Invalid signup");
     }
+    assertPasswordForSet(password);
+
     if (findMockUserByEmail(email)) {
       throw new Error("Email taken");
     }
@@ -114,6 +153,7 @@ export class MockAuthService implements AuthService {
       mustChangePassword: false,
     };
     registerDynamicUser(user);
+    sec(user.id);
 
     const session: Session = { user: { ...user }, activeGroupId: null };
     writeSession(session, { autoPickGroup: false });
@@ -121,6 +161,10 @@ export class MockAuthService implements AuthService {
   }
 
   async logout(): Promise<void> {
+    const current = readSession();
+    if (current) {
+      sec(current.user.id).tokenVersion += 1;
+    }
     writeSession(null);
   }
 
@@ -138,17 +182,15 @@ export class MockAuthService implements AuthService {
     if (!firstLogin && !currentPassword) {
       throw new Error("Invalid password");
     }
-    if (newPassword.length < 8) {
-      throw new Error("Invalid password");
-    }
+    assertPasswordForSet(newPassword);
 
     const updated = patchUser(userId, { mustChangePassword: false });
     if (!updated) throw new Error("User not found");
 
+    sec(userId).tokenVersion += 1;
+
     const current = readSession();
-    writeSession(
-      buildSession(updated, current?.activeGroupId ?? null),
-    );
+    writeSession(buildSession(updated, current?.activeGroupId ?? null));
     return { ...updated };
   }
 
@@ -158,9 +200,7 @@ export class MockAuthService implements AuthService {
     locale: Locale = defaultLocale,
     name?: string,
   ): Promise<Session> {
-    if (password.length < 8) {
-      throw new Error("Invalid password");
-    }
+    assertPasswordForSet(password);
     const trimmedName = name?.trim() ?? "";
     if (trimmedName.length < 2) throw new Error("Invalid name");
 
@@ -183,6 +223,7 @@ export class MockAuthService implements AuthService {
     (user as { accountStatus: string }).accountStatus = "active";
     user.name = trimmedName;
     user.locale = locale;
+    sec(user.id);
 
     const session = buildSession(
       { ...user, mustChangePassword: false },

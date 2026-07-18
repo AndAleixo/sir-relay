@@ -1,10 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import {
   defaultLocale,
   localePathPattern,
   locales,
 } from "./i18n/config";
+import { applySecurityHeaders } from "./lib/security-headers";
 
 const intlMiddleware = createMiddleware({
   locales: [...locales],
@@ -44,6 +45,7 @@ export default function middleware(request: NextRequest) {
     response.headers.set("Cache-Control", PRIVATE_CACHE);
   }
 
+  applySecurityHeaders(request, response);
   return response;
 }
 

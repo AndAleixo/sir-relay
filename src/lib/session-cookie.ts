@@ -8,6 +8,7 @@ const MAX_AGE_SEC = 60 * 60 * 24 * 7;
 export type SessionPayload = {
   userId: string;
   activeGroupId: string | null;
+  tokenVersion: number;
 };
 
 function sessionSecret(): Uint8Array {
@@ -27,7 +28,11 @@ const cookieOptions = {
 };
 
 export async function signSessionPayload(payload: SessionPayload): Promise<string> {
-  return new SignJWT(payload)
+  return new SignJWT({
+    userId: payload.userId,
+    activeGroupId: payload.activeGroupId,
+    tokenVersion: payload.tokenVersion,
+  })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE_SEC}s`)
@@ -43,7 +48,11 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
       payload.activeGroupId === null || typeof payload.activeGroupId === "string"
         ? payload.activeGroupId
         : null;
-    return { userId, activeGroupId };
+    const tokenVersion =
+      typeof payload.tokenVersion === "number" && Number.isFinite(payload.tokenVersion)
+        ? payload.tokenVersion
+        : 0;
+    return { userId, activeGroupId, tokenVersion };
   } catch {
     return null;
   }

@@ -49,8 +49,8 @@ export default async function ProfilePage({
   const passwordErrorMessage =
     passwordError === "invalid"
       ? t("auth.currentPasswordInvalid")
-      : passwordError === "short"
-        ? t("auth.passwordTooShort")
+      : passwordError === "short" || passwordError === "weak"
+        ? t(passwordError === "weak" ? "auth.passwordTooWeak" : "auth.passwordTooShort")
         : passwordError === "mismatch"
           ? t("auth.passwordMismatch")
           : null;

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Locale } from "@/domain/types";
 import { loginPath, resolveEntryPath } from "@/lib/entry-route";
+import { checkPasswordPolicy } from "@/lib/password-policy";
 import { locales, defaultLocale } from "@/i18n/config";
 import { getServices } from "@/services";
 
@@ -27,8 +28,8 @@ export async function signupForm(locale: string, formData: FormData) {
   const newPassword = String(formData.get("newPassword") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-  if (newPassword.length < 8) {
-    redirect(`/${locale}/signup?error=short`);
+  if (checkPasswordPolicy(newPassword)) {
+    redirect(`/${locale}/signup?error=weak`);
   }
   if (newPassword !== confirmPassword) {
     redirect(`/${locale}/signup?error=mismatch`);
@@ -45,7 +46,10 @@ export async function signupForm(locale: string, formData: FormData) {
       newPassword,
       signupLocale,
     );
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.message === "Weak password") {
+      redirect(`/${locale}/signup?error=weak`);
+    }
     redirect(`/${locale}/signup?error=taken`);
   }
   revalidatePath("/", "layout");
@@ -63,8 +67,8 @@ export async function changePasswordForm(locale: string, formData: FormData) {
   const newPassword = String(formData.get("newPassword") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-  if (newPassword.length < 8) {
-    redirect(`/${locale}/change-password?error=short`);
+  if (checkPasswordPolicy(newPassword)) {
+    redirect(`/${locale}/change-password?error=weak`);
   }
   if (newPassword !== confirmPassword) {
     redirect(`/${locale}/change-password?error=mismatch`);
@@ -78,7 +82,10 @@ export async function changePasswordForm(locale: string, formData: FormData) {
 
   try {
     await auth.changePassword(session.user.id, currentPassword, newPassword);
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.message === "Weak password") {
+      redirect(`/${locale}/change-password?error=weak`);
+    }
     redirect(`/${locale}/change-password?error=invalid`);
   }
 
@@ -95,8 +102,8 @@ export async function joinAccountForm(locale: string, token: string, formData: F
   if (name.length < 2) {
     redirect(`/${locale}/join/${token}?error=name`);
   }
-  if (newPassword.length < 8) {
-    redirect(`/${locale}/join/${token}?error=short`);
+  if (checkPasswordPolicy(newPassword)) {
+    redirect(`/${locale}/join/${token}?error=weak`);
   }
   if (newPassword !== confirmPassword) {
     redirect(`/${locale}/join/${token}?error=mismatch`);
@@ -113,7 +120,10 @@ export async function joinAccountForm(locale: string, token: string, formData: F
       joinLocale,
       name,
     );
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.message === "Weak password") {
+      redirect(`/${locale}/join/${token}?error=weak`);
+    }
     redirect(`/${locale}/join/${token}?error=invalid`);
   }
   revalidatePath("/", "layout");
@@ -125,8 +135,8 @@ export async function profileChangePasswordForm(locale: string, formData: FormDa
   const newPassword = String(formData.get("newPassword") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-  if (newPassword.length < 8) {
-    redirect(`/${locale}/profile?passwordError=short`);
+  if (checkPasswordPolicy(newPassword)) {
+    redirect(`/${locale}/profile?passwordError=weak`);
   }
   if (newPassword !== confirmPassword) {
     redirect(`/${locale}/profile?passwordError=mismatch`);
@@ -140,7 +150,10 @@ export async function profileChangePasswordForm(locale: string, formData: FormDa
 
   try {
     await auth.changePassword(session.user.id, currentPassword, newPassword);
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.message === "Weak password") {
+      redirect(`/${locale}/profile?passwordError=weak`);
+    }
     redirect(`/${locale}/profile?passwordError=invalid`);
   }
 

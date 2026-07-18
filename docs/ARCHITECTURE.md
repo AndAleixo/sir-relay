@@ -84,7 +84,7 @@ Unauthenticated access to app routes → `/login?session=expired`.
 
 ## Landing demo
 
-Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `demo12345` (dev-hybrid) · 2 groups → login resume **Demo Shop** · `ana@example.com` (active teammate → tasks) · activation: `mock-invite-carla` for invited Carla.
+Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `SirRelay1` (dev-hybrid) · 2 groups → login resume **Demo Shop** · `ana@example.com` (active teammate → tasks) · activation: `mock-invite-carla` for invited Carla.
 
 ## Task queue & boards
 
@@ -125,7 +125,7 @@ Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-ofic
 
 ```bash
 npm install && npm run dev-mock && npm run check:routes
-# dev-hybrid: npm run dev-hybrid   # Postgres + API · demo12345
+# dev-hybrid: npm run dev-hybrid   # Postgres + API · SirRelay1
 ```
 
-`http://localhost:3000` — landing · `/en-gb/login` — sign in · **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `demo12345` · activation: `mock-invite-carla` as carla@example.com
+`http://localhost:3000` — landing · `/en-gb/login` — sign in · **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `SirRelay1` · activation: `mock-invite-carla` as carla@example.com

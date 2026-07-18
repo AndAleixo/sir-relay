@@ -49,8 +49,9 @@
     "changePassword": "Change password",
     "changePasswordSubtitle": "Choose a new password for your account.",
     "changePasswordRequired": "You must set a new password before using the app.",
-    "passwordHint": "Minimum 8 characters.",
+    "passwordHint": "At least 8 characters, with one uppercase letter and one number. Avoid common passwords.",
     "passwordTooShort": "Password must be at least 8 characters.",
+    "passwordTooWeak": "Password must be at least 8 characters, include an uppercase letter and a number, and not be a common password.",
     "passwordMismatch": "Passwords do not match.",
     "passwordChanged": "Password updated.",
     "currentPasswordInvalid": "Current password is incorrect."

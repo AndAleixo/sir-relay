@@ -4,7 +4,7 @@ import { getServices } from "@/services";
 
 export const dynamic = "force-dynamic";
 
-/** P2-AUD-04 — operator-only audit list for active group. */
+/** P2-AUD-04 — raw audit list (platform/admin later). Operator UI uses /events/activity. */
 export async function GET(request: Request) {
   const session = await getServices().auth.getSession();
   if (!session?.activeGroupId || session.user.role !== "operator") {

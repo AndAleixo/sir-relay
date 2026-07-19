@@ -1,5 +1,7 @@
 /**
- * P2-AUD — append-only audit events. Never throws to callers (ops must not break UX).
+ * P2-AUD — append-only audit store (security + ops).
+ * Operator UI filters to GROUP_ACTIVITY_ACTIONS via /events/activity.
+ * Never throws to callers (ops must not break UX).
  */
 import type { Session } from "@/domain/types";
 import type { AuditAction, AuditActorType, AuditEntry } from "@/domain/audit";

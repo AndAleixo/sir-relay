@@ -435,7 +435,7 @@ All users with an active group. Access: sidebar / mobile tabs only (not account 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
 | **General** | Group name (operator rename); **your fantasy name** for this group only | Yes |
-| **Operator alerts** | Toggles + link to Events; banner → **Profile** if Telegram unlinked | Yes |
+| **Operator alerts** | Toggles + link to **Events**; banner → **Profile** if Telegram unlinked | Yes |
 | **Notifications** | Teammate empty state (operators configure alerts); banner → **Profile** if unlinked | Yes |
 | **Membership** | Leave group; delete group (operator) | Yes |
 
@@ -467,7 +467,7 @@ Platform-wide security/analytics admin remains a separate later surface.
 | No groups | “You are not in any group yet.” | Create group |
 | No tasks (Teammate) | “No tasks assigned to you yet.” | — |
 | No members (Operator board) | “Add members to start coordinating work.” | Add teammate |
-| No alerts (Operator) | “No alerts yet…” | — |
+| No events / alerts (Operator) | “No alerts yet…” | — |
 | Empty todo column | Light placeholder in column | — |
 | Login failed | “Invalid email or password.” | — |
 | Session expired | Redirect to login + toast | Log in again |
@@ -532,7 +532,7 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `DraggableTaskCard` | Teammate Kanban card |
 | `BoardQuickAddTask` | Per-column quick add in To do section |
 | `TeammateBoard` | Operator team board (§3.2) — self first, then members by To do load |
-| `OperatorAlertsList` | Operator alert feed (§8.3) |
+| `OperatorAlertsList` | Operator alerts list on `/events` (§8.3) |
 | `StatusKanban` | Teammate 3-column board (§3.1) |
 | `TaskList` | Table list view |
 | `ViewToggle` | Board / List switch |

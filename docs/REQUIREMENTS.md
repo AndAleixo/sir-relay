@@ -80,7 +80,7 @@ sequenceDiagram
 | Phase | Goal | Done when |
 |-------|------|-----------|
 | **1** | Workflow + deploy | Relay loop works; both roles on web; VPS + HTTPS |
-| **2** | Security + audit + ops | Hardened app; audit log; VPS runbook in README |
+| **2** | Security + audit + ops | Hardened app; `audit_logs` + Events activity; VPS runbook in README |
 | **3** | Enhancements | Backlog items, one at a time |
 
 Implement **one phase at a time**. Do not skip ahead unless explicitly requested.
@@ -369,9 +369,9 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `tasks/new` | Yes | — |
 | `tasks/[id]` | Yes | Own tasks only | Edit form + delete |
 | `teammates`, `teammates/new`, `teammates/[id]` | Yes (list includes operators in group) | — |
-| `events` | Yes | — | Alerts feed |
-| `events/activity` | Yes | — | Group activity (human language) |
-| `settings` | Yes | Yes | Group alerts, leave/delete group |
+| `events` | Yes | — | Operator alerts (done / due) |
+| `events/activity` | Yes | — | Group activity (human language; no login) |
+| `settings` | Yes | Yes | Alert prefs, leave/delete group |
 
 **Phase 1 acceptance test:** Landing → sign up → create group → pre-create teammate → share invite → teammate activates via `/join/<token>` → links Telegram on Profile → two tasks → relay `done` on Telegram. **Or:** demo `sam@example.com` → Demo Shop → same loop. Stack on VPS with HTTPS. (Sign-up merge Path B is out of scope until P1-AUTH-13.)
 
@@ -383,7 +383,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-SEC-01 | IDOR protection | Every resource route validates role + ownership · **Done** (service-layer: `authz.ts` + operator on export/alerts/invites; self-only on UserService; tasks already via `loadTask`) |
+| P2-SEC-01 | IDOR protection | Every resource route validates role + ownership · **Done** (service-layer: `authz.ts` + operator on export/alerts/invites/audit list; self-only on UserService; tasks already via `loadTask`) |
 | P2-SEC-02 | Session revocation | `token_version` on user; increment on password change; invalidate on logout · **Done (SEC base)** |
 | P2-SEC-03 | Account lockout | 5 failed logins per email per 15 min → lock 15 min · **Done (SEC base)** |
 | P2-SEC-04 | Password policy | Min 8 + uppercase + number; block common passwords · **Done (grandfather: only on set)** |
@@ -395,14 +395,16 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | P2-SEC-10 | Dependency audit | Run/document `npm audit` before deploy; no critical in prod · **Process done** — remaining Next 14 **high** needs major upgrade (not fixed yet); see README |
 | P2-SEC-11 | Safe logging | Never log passwords, tokens, or full comment bodies; JSON logs · **Done** (`safe-log.ts` + redaction; login / CSRF / rate-limit / telegram errors). Per-request tracing → P2-MON-01 |
 
-### 6.2 Audit log
+### 6.2 Audit log & group activity
+
+Server writes append-only `audit_logs` (security + ops). Operators see **group activity** only (human language under Events). Login / logout / password stay in the DB for platform admin later — not in the group UI.
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-AUD-01 | Events | Login, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** · **Done** (`writeAudit` / `writeAuditFromSession`) |
+| P2-AUD-01 | Recorded actions | Login, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** · **Done** (`writeAudit` / `writeAuditFromSession`) |
 | P2-AUD-02 | Storage | `audit_logs`: id, action, actor_type, actor_id, metadata, created_at · **Done** |
-| P2-AUD-03 | UI | Operator **group activity** at `/[locale]/events/activity` (human language; no login/logout). Alerts live at `/events`. · **Done** |
-| P2-AUD-04 | API | `GET /api/v1/audit` (raw; platform/admin later) · **Done** |
+| P2-AUD-03 | Operator UI | `/[locale]/events` = alerts; `/events/activity` = group history (human language; no login/logout) · **Done** |
+| P2-AUD-04 | API | `GET /api/v1/audit` (raw list; platform/admin later) · **Done** |
 
 **Schema addition:**
 
@@ -435,7 +437,7 @@ audit_logs
 
 | Layer | Answers | Tooling | Cookie consent |
 |-------|---------|---------|----------------|
-| **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` + `/events/activity` (group) · platform admin later | No — server-side |
+| **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` · operator **group activity** UI · platform admin later | No — server-side |
 | **Access / ops** | Is the app up? Who hit the server? | Caddy access logs, `GET /health`, JSON app logs | No — infrastructure |
 | **Web analytics** (optional) | Which screens are used? Mobile vs desktop? | Self-hosted **Umami** or **Plausible** (recommended) | **Yes** — unless provider is cookieless and legal review confirms exemption |
 
@@ -451,7 +453,7 @@ audit_logs
 | P2-ANA-04 | Privacy policy | `/privacy` links cookies used, analytics (if on), retention, self-hosted controller |
 | P2-ANA-05 | Load script only after consent | No analytics network calls until user accepts (or cookieless mode documented) |
 
-**Phase 1 minimum (before analytics):** session cookie + login notice + privacy page stub. **Phase 2:** audit log covers operational monitoring; enable analytics when product usage insights are needed.
+**Phase 1 minimum (before analytics):** session cookie + login notice + privacy page stub. **Phase 2:** `audit_logs` + group activity cover operational monitoring; enable product analytics when usage insights are needed.
 
 **Environment variables (when analytics enabled):**
 
@@ -609,7 +611,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/tasks/:id/notify` | 1 | Operator in active group |
 | POST | `/telegram/webhook` | 1 | Webhook secret |
 | GET | `/health` | 1 | Public |
-| GET | `/audit` | 2 | Operator / platform — raw `audit_logs` (UI uses `/events/activity`) |
+| GET | `/audit` | 2 | Raw `audit_logs` (operator session today; platform admin later). UI: `/events/activity` |
 | GET | `/export` | 2 | Operator in active group · §6.5.2 |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
@@ -716,8 +718,8 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
-| 2026-07-19 | Events UX: `/events` alerts + `/events/activity` human group history; `/audit` nav UI removed |
-| 2026-07-19 | Phase 2 audit log storage: `audit_logs` + `GET /api/v1/audit` (P2-AUD) |
+| 2026-07-19 | Events: `/events` (alerts) + `/events/activity` (human group history); raw store stays `audit_logs` |
+| 2026-07-19 | Phase 2 audit storage: `audit_logs` + `GET /api/v1/audit` (P2-AUD) |
 | 2026-07-19 | Phase 2 IDOR: service-layer operator/self guards (P2-SEC-01) |
 | 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
 | 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |

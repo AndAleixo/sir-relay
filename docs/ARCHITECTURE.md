@@ -66,7 +66,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/change-password` | Session | private | Forced / optional password change |
 | `/[locale]/tasks`, `/tasks/new`, `/tasks/[id]` | Session + group | private | Boards, list, CRUD |
 | `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | Operator team management |
-| `/[locale]/events`, `/events/activity`, `/settings` | Session + group | private | Alerts feed · group activity · group alert prefs |
+| `/[locale]/events`, `/events/activity`, `/settings` | Session + group | private | Operator alerts · group activity · alert prefs |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 
 **Backend (Phase 1–2):** Prisma + server actions · `/api/v1/health` · `/api/v1/audit` · Telegram webhook · SEC base + CSRF Origin guard in `middleware.ts` · (optional full REST) · **Phase 2 remaining:** Next major (SEC-10 highs), P2-MON-01 tracing, P2-OPS checklist polish.
@@ -137,9 +137,9 @@ Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-ofic
 | Telegram in | `telegram/sanitize.ts` | Strip C0/C1 controls on replies + `/start` codes before persist/parse |
 | Dep audit | README · `audit:prod` | Processo + Image Optimizer off; highs do Next 14 **ainda abertos** (precisa major) |
 | Safe log | `safe-log.ts` | JSON lines; redacts password/token/body/…; used on login + security blocks |
-| IDOR | `authz.ts` + services | Operator: export/alerts/invites/audit; self: profile mutations; tasks: `loadTask` |
+| IDOR | `authz.ts` + services | Operator: export · alerts · invites · audit list; self: profile mutations; tasks: `loadTask` |
 | Headers | `security-headers.ts` + middleware | HSTS (prod HTTPS), frame deny, nosniff, referrer, CSP |
-| Audit | `audit.ts` · `audit_logs` · `/events/activity` · `GET /api/v1/audit` | Append-only; operator sees **group activity** (human copy); login/logout stay in DB for platform admin later |
+| Audit store | `audit.ts` · `audit_logs` · `GET /api/v1/audit` | Append-only (incl. login). Operator UI: **group activity** at `/events/activity` (no login). Platform admin later |
 | Checks | `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `audit:prod` | |
 
 ## Session sync

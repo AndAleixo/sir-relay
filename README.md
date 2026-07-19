@@ -47,7 +47,7 @@ For deployment, read [**docs/DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEA
 Development is split into **3 phases** — see [REQUIREMENTS.md §3](./docs/REQUIREMENTS.md#3-development-phases):
 
 - **Phase 1** — Relay workflow + deploy (usable product)
-- **Phase 2** — Security, audit log, VPS hardening
+- **Phase 2** — Security, audit storage + Events activity, VPS hardening
 - **Phase 3** — New features (backlog)
 
 ---

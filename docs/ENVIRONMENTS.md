@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** UI + **dev-híbrido** · Telegram · fila · convites · **Phase 2 SEC** (01–09, 11; audit processo) · **P2-AUD** audit log. Próximo Phase 2: upgrade Next (SEC-10 highs) ou P2-MON-01.
+**Estado actual:** UI + **dev-híbrido** · Telegram · fila · convites · **Phase 2 SEC** (01–09, 11; audit processo) · **P2-AUD** (`audit_logs` + Events activity). Próximo Phase 2: upgrade Next (SEC-10 highs) ou P2-MON-01.
 
 ---
 
@@ -328,7 +328,7 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Feito (Phase 2 SEC parcial):**
 - P2-SEC-01–09, 11 (+ processo P2-SEC-10) — incl. IDOR service guards + safe JSON logging
-- P2-AUD-01–04 — `audit_logs` + `/events` + `/events/activity` + `GET /api/v1/audit` + `check:audit`
+- P2-AUD-01–04 — `audit_logs` · `/events` (alerts) · `/events/activity` (group history) · `GET /api/v1/audit` · `check:audit`
 - Checks: `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `audit:prod`
 - Demo seed password: **`SirRelay1`**
 

@@ -3,7 +3,7 @@ import type { Session, Task } from "@/domain/types";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/audit";
-import { logJson } from "@/lib/safe-log";
+import { logJsonAsync } from "@/lib/safe-log";
 import { toLocale } from "@/services/api/mappers";
 import { apiOperatorAlertService } from "@/services/api/alerts";
 import { telegramBotToken, telegramConfigured } from "@/lib/telegram/config";
@@ -190,7 +190,7 @@ function createBot(token: string): Bot {
         await apiOperatorAlertService.notifyTaskDone(task, { session });
       }
     } catch (err) {
-      logJson("error", "telegram_message_handler_failed", {
+      await logJsonAsync("error", "telegram_message_handler_failed", {
         chatId: ctx.chat?.id != null ? String(ctx.chat.id) : undefined,
         error: err instanceof Error ? err.message : "unknown",
       });

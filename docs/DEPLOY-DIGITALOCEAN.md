@@ -192,7 +192,8 @@ curl -s "${APP_URL}/api/v1/health"
 | Tarefa | Comando |
 |--------|---------|
 | Actualizar app | `git pull && bash scripts/env/prod-vps.sh` (como `deploy`) |
-| Logs | `docker compose logs -f app caddy` |
+| Logs | `docker compose logs -f app caddy` · rotação `10m`×5 ficheiros (`docker-compose.yml`) · correlacionar com `x-request-id` / campo `requestId` no JSON |
+
 | Backup DB | `bash scripts/db/backup.sh` |
 | Backup + Drive | `bash scripts/db/backup-offsite.sh` — §9.1 |
 | Restore DB | `bash scripts/db/restore.sh backups/….sql.gz` |

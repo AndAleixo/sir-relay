@@ -6,7 +6,7 @@ import type { Session } from "@/domain/types";
 import type { AuditAction, AuditActorType, AuditEntry } from "@/domain/audit";
 import { actorTypeFromRole } from "@/domain/audit";
 import { prisma } from "@/lib/prisma";
-import { logJson } from "@/lib/safe-log";
+import { logJsonAsync } from "@/lib/safe-log";
 import type { Prisma } from "@prisma/client";
 
 export type AuditWriteInput = {
@@ -59,7 +59,7 @@ export async function writeAudit(input: AuditWriteInput): Promise<void> {
       },
     });
   } catch (err) {
-    logJson("error", "audit_write_failed", {
+    await logJsonAsync("error", "audit_write_failed", {
       action: input.action,
       error: err instanceof Error ? err.message : "unknown",
     });

@@ -19,6 +19,11 @@ import {
   isAuthRateLimitedPath,
   type RateLimitStore,
 } from "./lib/rate-limit";
+import {
+  REQUEST_ID_HEADER,
+  resolveRequestId,
+  runWithRequestId,
+} from "./lib/request-context";
 import { applySecurityHeaders } from "./lib/security-headers";
 import { logJson } from "./lib/safe-log";
 
@@ -97,6 +102,20 @@ function assertRateLimit(request: NextRequest): NextResponse | null {
   return res;
 }
 
+function withRequestIdOnRequest(
+  request: NextRequest,
+  requestId: string,
+): NextRequest {
+  const headers = new Headers(request.headers);
+  headers.set(REQUEST_ID_HEADER, requestId);
+  return new NextRequest(request.url, { headers, method: request.method });
+}
+
+function attachRequestId(response: NextResponse, requestId: string): NextResponse {
+  response.headers.set(REQUEST_ID_HEADER, requestId);
+  return response;
+}
+
 function logSecurityBlock(
   request: NextRequest,
   status: number,
@@ -115,31 +134,37 @@ function logSecurityBlock(
 }
 
 export default function proxy(request: NextRequest) {
-  const csrfBlocked = assertCsrfOrigin(request);
-  if (csrfBlocked) {
-    logSecurityBlock(request, 403, "csrf_origin_rejected");
-    applySecurityHeaders(request, csrfBlocked);
-    return csrfBlocked;
-  }
+  const requestId = resolveRequestId(request.headers.get(REQUEST_ID_HEADER));
 
-  const rateBlocked = assertRateLimit(request);
-  if (rateBlocked) {
-    logSecurityBlock(request, 429, "rate_limited");
-    applySecurityHeaders(request, rateBlocked);
-    return rateBlocked;
-  }
+  return runWithRequestId(requestId, () => {
+    const req = withRequestIdOnRequest(request, requestId);
 
-  const { pathname } = request.nextUrl;
-  const response = intlMiddleware(request);
+    const csrfBlocked = assertCsrfOrigin(req);
+    if (csrfBlocked) {
+      logSecurityBlock(req, 403, "csrf_origin_rejected");
+      applySecurityHeaders(req, csrfBlocked);
+      return attachRequestId(csrfBlocked, requestId);
+    }
 
-  if (isPublicPage(pathname)) {
-    response.headers.set("Cache-Control", PUBLIC_CACHE);
-  } else if (isAppPage(pathname)) {
-    response.headers.set("Cache-Control", PRIVATE_CACHE);
-  }
+    const rateBlocked = assertRateLimit(req);
+    if (rateBlocked) {
+      logSecurityBlock(req, 429, "rate_limited");
+      applySecurityHeaders(req, rateBlocked);
+      return attachRequestId(rateBlocked, requestId);
+    }
 
-  applySecurityHeaders(request, response);
-  return response;
+    const { pathname } = req.nextUrl;
+    const response = intlMiddleware(req);
+
+    if (isPublicPage(pathname)) {
+      response.headers.set("Cache-Control", PUBLIC_CACHE);
+    } else if (isAppPage(pathname)) {
+      response.headers.set("Cache-Control", PRIVATE_CACHE);
+    }
+
+    applySecurityHeaders(req, response);
+    return attachRequestId(response, requestId);
+  });
 }
 
 export const config = {

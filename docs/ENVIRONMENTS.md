@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** Quatro ambientes **Active** (mock · híbrido · prod local · VPS). Phase 2 SEC + AUD · **Next 16**. Próximo: P2-MON-01 ou AUTH-13.
+**Estado actual:** Quatro ambientes **Active** (mock · híbrido · prod local · VPS). Phase 2 SEC + AUD · **Next 16** · P2-MON-01. Próximo: AUTH-13 ou P2-OPS polish.
 
 ---
 
@@ -334,9 +334,9 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 - Demo seed password: **`SirRelay1`**
 
 **Pendente Phase 2 SEC / follow-ups:**
-1. P2-MON-01 request tracing completo
-2. P2-OPS checklist polish (só gaps remanescentes no runbook)
-3. Nested postcss moderate inside Next (upstream; no safe force-fix)
+1. P2-OPS checklist polish (só gaps remanescentes no runbook)
+2. Nested postcss moderate inside Next (upstream; no safe force-fix)
+3. P2-MON-02 failed-login → audit event (opcional)
 
 **Pendente / opcional (Phase 1 leftover):**
 1. REST `/api/v1/*` além de health + webhook
@@ -352,4 +352,4 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 ---
 
-**Last updated:** 2026-07-19 (Next 16.2 / P2-SEC-10)
+**Last updated:** 2026-07-20 (P2-MON-01 request id)

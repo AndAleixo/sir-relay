@@ -25,6 +25,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
     networks:
       - internal
 
@@ -44,6 +49,11 @@ services:
       - caddy_config:/config
     depends_on:
       - app
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
     networks:
       - internal
 

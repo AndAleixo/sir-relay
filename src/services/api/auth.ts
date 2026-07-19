@@ -6,7 +6,7 @@ import { hashPassword, verifyPassword } from "@/lib/password";
 import { assertPasswordForSet } from "@/lib/password-policy";
 import { isLoginLocked, nextFailedLoginState } from "@/lib/login-lockout";
 import { prisma } from "@/lib/prisma";
-import { logJson } from "@/lib/safe-log";
+import { logJsonAsync } from "@/lib/safe-log";
 import {
   readSessionPayload,
   writeSessionPayload,
@@ -107,7 +107,7 @@ export class ApiAuthService implements AuthService {
       where: { email: normalized, active: true },
     });
     if (!row) {
-      logJson("warn", "login_failed", {
+      await logJsonAsync("warn", "login_failed", {
         reason: "unknown_or_inactive",
         email: normalized,
       });
@@ -115,7 +115,7 @@ export class ApiAuthService implements AuthService {
     }
 
     if (isLoginLocked(row.lockedUntil)) {
-      logJson("warn", "login_failed", {
+      await logJsonAsync("warn", "login_failed", {
         reason: "locked",
         userId: row.id,
         email: normalized,
@@ -125,7 +125,7 @@ export class ApiAuthService implements AuthService {
 
     if (!(await verifyPassword(password, row.passwordHash))) {
       await recordLoginFailure(row.id, row.failedLoginCount);
-      logJson("warn", "login_failed", {
+      await logJsonAsync("warn", "login_failed", {
         reason: "bad_password",
         userId: row.id,
         email: normalized,
@@ -134,7 +134,7 @@ export class ApiAuthService implements AuthService {
     }
 
     await clearLoginFailures(row.id);
-    logJson("info", "login_ok", { userId: row.id });
+    await logJsonAsync("info", "login_ok", { userId: row.id });
 
     const activeGroupId = await pickDefaultGroupIdAsync(row.id);
     const session = await persistSession(row.id, activeGroupId, row.tokenVersion, {

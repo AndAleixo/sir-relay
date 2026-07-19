@@ -398,7 +398,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | P2-SEC-08 | Login errors | Generic message; no email enumeration on **login** · **Done** (always `Invalid credentials` / `auth.loginError`; signup “taken” is intentional for new accounts) |
 | P2-SEC-09 | Telegram input | Sanitize; strip control characters · **Done** (`sanitizeTelegramText` / link codes on inbound bot handlers) |
 | P2-SEC-10 | Dependency audit | Run/document `npm audit` before deploy; no critical in prod · **Done** (Next **16.2.10**; no high in `audit:prod`; nested postcss moderate remains) |
-| P2-SEC-11 | Safe logging | Never log passwords, tokens, or full comment bodies; JSON logs · **Done** (`safe-log.ts` + redaction; login / CSRF / rate-limit / telegram errors). Per-request tracing → P2-MON-01 |
+| P2-SEC-11 | Safe logging | Never log passwords, tokens, or full comment bodies; JSON logs · **Done** (`safe-log.ts` + redaction; login / CSRF / rate-limit / telegram errors). Request id → P2-MON-01 |
 
 ### 6.2 Audit log & group activity
 
@@ -450,7 +450,7 @@ audit_logs
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-MON-01 | Structured app logs | JSON logs: request id, user id (if session), route, status; never log passwords or tokens |
+| P2-MON-01 | Structured app logs | JSON logs: request id, user id (if session), route, status; never log passwords or tokens · **Done** (`x-request-id` in `proxy.ts` · auto on `logJson` / `logJsonAsync`; no per-request start/end spam). Docker log rotation: `max-size` 10m × 5 |
 | P2-MON-02 | Failed login visibility | Audit event + optional Operator alert threshold (Phase 3) |
 | P2-ANA-01 | Self-hosted analytics (optional) | Umami or Plausible in Docker Compose; disabled by default |
 | P2-ANA-02 | Env toggle | `ANALYTICS_ENABLED=false` default; `ANALYTICS_SCRIPT_URL` when true |
@@ -729,6 +729,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-07-19 | Events: `/events` (alerts) + `/events/activity` (human group history); raw store stays `audit_logs` |
 | 2026-07-19 | Phase 2 IDOR: service-layer operator/self guards (P2-SEC-01) |
 | 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
+| 2026-07-20 | P2-MON-01: `x-request-id` + `requestId` on existing JSON logs; Docker log rotation 10m×5 |
 | 2026-07-19 | Next 16.2.10 + React 19 + next-intl 4 (P2-SEC-10 highs cleared); `middleware` → `proxy` |
 | 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |
 | 2026-07-19 | Phase 2 Telegram sanitize: strip controls on inbound text + link codes (P2-SEC-09) |

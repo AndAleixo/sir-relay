@@ -374,7 +374,7 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 | Change password | `/change-password` | Yes | Yes |
 | Privacy | `/privacy` | Public | Public |
 | Terms | `/terms` | Public | Public |
-| Audit | `/audit` | Yes (Phase 2) | — |
+| Audit | `/audit` | Yes | — |
 
 **Default URL:** `/[locale]` — public landing when logged out. **Sign up** / **Log in** from header or footer. After login: no group → `/groups`; operator in active group → `/teammates`; teammate in active group → `/tasks`.
 

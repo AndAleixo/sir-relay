@@ -1,4 +1,5 @@
 import type { Locale as DbLocale } from "@prisma/client";
+import { writeAudit } from "@/lib/audit";
 import { hashToken } from "@/lib/token-hash";
 import { prisma } from "@/lib/prisma";
 import { sanitizeTelegramLinkCode } from "@/lib/telegram/sanitize";
@@ -47,6 +48,12 @@ export async function linkTelegramChat(
         data: { usedAt: new Date() },
       }),
     ]);
+    void writeAudit({
+      action: "telegram_link",
+      actorType: operator ? "operator" : "teammate",
+      actorId: record.userId,
+      metadata: { linked: true },
+    });
   } else {
     await prisma.telegramLinkToken.update({
       where: { id: record.id },

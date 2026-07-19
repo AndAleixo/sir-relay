@@ -72,6 +72,12 @@ export function AppShell({
       roles: ["operator"],
     },
     {
+      href: `/${locale}/audit`,
+      label: t("common.audit"),
+      icon: "audit",
+      roles: ["operator"],
+    },
+    {
       href: `/${locale}/settings`,
       label: t("common.settings"),
       icon: "settings",

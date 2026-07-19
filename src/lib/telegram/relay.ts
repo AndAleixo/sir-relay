@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { telegramConfigured } from "@/lib/telegram/config";
 import {
   queueEmpty,
@@ -174,6 +175,13 @@ export async function dispatchAfterDone(
     const busy = await hasActiveTelegramQueue(groupId, assigneeId, next.id);
     if (!busy) {
       await sendAndPersistTaskNotify(next.id);
+      void writeAudit({
+        groupId,
+        action: "relay_dispatch",
+        actorType: "system",
+        actorId: assigneeId,
+        metadata: { taskId: next.id },
+      });
     }
     return;
   }

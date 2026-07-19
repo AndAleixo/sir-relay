@@ -9,6 +9,7 @@ import type {
 } from "@/services/contracts";
 import { defaultLocale } from "@/i18n/config";
 import { requireOperator, requireSelfUserId } from "@/lib/authz";
+import { writeAuditFromSession } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import {
   createInviteTokenRecord,
@@ -131,6 +132,10 @@ export class ApiTeammateService implements TeammateService {
           invitedUserId: existing.id,
           invitedByUserId: ctx.session.user.id,
         });
+        void writeAuditFromSession(ctx.session, "teammate_create", {
+          kind: "invitation",
+          userId: existing.id,
+        });
         return { ok: true, kind: "invitation", invitation };
       }
 
@@ -139,6 +144,10 @@ export class ApiTeammateService implements TeammateService {
           await tx.groupMembership.create({
             data: { groupId, userId: existing.id, role: "teammate" },
           });
+        });
+        void writeAuditFromSession(ctx.session, "teammate_create", {
+          kind: "membership",
+          userId: existing.id,
         });
         return {
           ok: true as const,
@@ -170,6 +179,10 @@ export class ApiTeammateService implements TeammateService {
           data: { groupId, userId: id, role: "teammate" },
         });
         return created;
+      });
+      void writeAuditFromSession(ctx.session, "teammate_create", {
+        kind: "precreate",
+        userId: id,
       });
       return {
         ok: true as const,
@@ -251,6 +264,7 @@ export class ApiTeammateService implements TeammateService {
         data: { lastActiveGroupId: null },
       });
     });
+    void writeAuditFromSession(ctx.session, "teammate_remove", { userId: id });
   }
 
   async promoteToOperator(id: string, ctx: { session: Session }): Promise<void> {
@@ -264,6 +278,7 @@ export class ApiTeammateService implements TeammateService {
       where: { groupId_userId: { groupId, userId: id } },
       data: { role: "operator" },
     });
+    void writeAuditFromSession(ctx.session, "teammate_promote", { userId: id });
   }
 
   async regenerateInvite(id: string, ctx: { session: Session }): Promise<void> {
@@ -280,6 +295,7 @@ export class ApiTeammateService implements TeammateService {
       },
       data: { usedAt: new Date() },
     });
+    void writeAuditFromSession(ctx.session, "invite_regenerate", { userId: id });
   }
 
   async getInviteToken(id: string, ctx: { session: Session }): Promise<string | null> {
@@ -338,7 +354,9 @@ export class ApiUserService implements UserService {
       where: { userId, usedAt: null },
       data: { usedAt: new Date() },
     });
-    return createTelegramLinkTokenRecord(userId);
+    const token = await createTelegramLinkTokenRecord(userId);
+    void writeAuditFromSession(ctx.session, "telegram_link", { rotated: true });
+    return token;
   }
 
   async getTelegramLinkToken(
@@ -356,7 +374,9 @@ export class ApiUserService implements UserService {
         data: { usedAt: new Date() },
       });
     }
-    return createTelegramLinkTokenRecord(userId);
+    const token = await createTelegramLinkTokenRecord(userId);
+    void writeAuditFromSession(ctx.session, "telegram_link", { rotated: true });
+    return token;
   }
 }
 

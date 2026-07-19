@@ -11,6 +11,7 @@
     "tasks": "Tasks",
     "teammates": "Teammates",
     "alerts": "Alerts",
+    "audit": "Audit",
     "board": "Board",
     "list": "List",
     "newTask": "New task",
@@ -289,6 +290,18 @@
     "taskDue": "Due:",
     "sentToTelegram": "Telegram",
     "webOnly": "Web only"
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Security and operational events for this group.",
+    "empty": "No audit events yet.",
+    "when": "When",
+    "action": "Action",
+    "actor": "Actor",
+    "detail": "Detail",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {totalPages}"
   },
   "sync": {
     "pending": "Not synced with server — {count, plural, one {# change waiting} other {# changes waiting}}.",

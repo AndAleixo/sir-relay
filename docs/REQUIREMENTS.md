@@ -398,10 +398,10 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-AUD-01 | Events | Login, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** |
-| P2-AUD-02 | Storage | `audit_logs`: id, action, actor_type, actor_id, metadata, created_at |
-| P2-AUD-03 | UI | `/[locale]/audit` — paginated, read-only (Operator) |
-| P2-AUD-04 | API | `GET /api/v1/audit` |
+| P2-AUD-01 | Events | Login, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** · **Done** (`writeAudit` / `writeAuditFromSession`) |
+| P2-AUD-02 | Storage | `audit_logs`: id, action, actor_type, actor_id, metadata, created_at · **Done** |
+| P2-AUD-03 | UI | `/[locale]/audit` — paginated, read-only (Operator) · **Done** |
+| P2-AUD-04 | API | `GET /api/v1/audit` · **Done** |
 
 **Schema addition:**
 
@@ -715,6 +715,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-07-19 | Phase 2 audit log: `audit_logs` + `/audit` UI + `GET /api/v1/audit` (P2-AUD) |
 | 2026-07-19 | Phase 2 IDOR: service-layer operator/self guards (P2-SEC-01) |
 | 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
 | 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |

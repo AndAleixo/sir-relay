@@ -2,6 +2,7 @@ import { Bot } from "grammy";
 import type { Session, Task } from "@/domain/types";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { prisma } from "@/lib/prisma";
+import { writeAudit } from "@/lib/audit";
 import { logJson } from "@/lib/safe-log";
 import { toLocale } from "@/services/api/mappers";
 import { apiOperatorAlertService } from "@/services/api/alerts";
@@ -131,12 +132,24 @@ function createBot(token: string): Bot {
             source: "telegram",
           },
         });
-        if (keyword) {
-          await tx.task.update({
-            where: { id: taskRow.id },
-            data: { status: keyword },
-          });
-        }
+      if (keyword) {
+        await tx.task.update({
+          where: { id: taskRow.id },
+          data: { status: keyword },
+        });
+      }
+      });
+
+      void writeAudit({
+        groupId: taskRow.groupId,
+        action: "telegram_reply",
+        actorType: membership?.role === "operator" ? "operator" : "teammate",
+        actorId: user.id,
+        metadata: {
+          taskId: taskRow.id,
+          status: keyword,
+          // no body (P2-SEC-11)
+        },
       });
 
       if (keyword) {

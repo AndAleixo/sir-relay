@@ -3,6 +3,7 @@ import { toExportTask } from "@/domain/export";
 import type { Session, Teammate, User } from "@/domain/types";
 import type { ExportService } from "@/services/contracts";
 import { requireOperator } from "@/lib/authz";
+import { writeAuditFromSession } from "@/lib/audit";
 import { prisma } from "@/lib/prisma";
 import { apiOperatorAlertService } from "@/services/api/alerts";
 import { toRole, toTeammate, toUser } from "@/services/api/mappers";
@@ -62,19 +63,22 @@ export class ApiExportService implements ExportService {
     if (userId) {
       const user = users.find((entry) => entry.id === userId);
       if (!user) throw new Error("User not found");
-      return {
-        version: 1,
+      const payload = {
+        version: 1 as const,
         exportedAt,
-        app: "sirrelay",
-        scope: "user",
+        app: "sirrelay" as const,
+        scope: "user" as const,
         scopeUserId: userId,
         users: [toExportUser(user)],
         tasks: tasks.filter((task) => task.assigneeId === userId).map(toExportTask),
-        telegramActivity: [],
+        telegramActivity: [] as [],
       };
+      void writeAuditFromSession(ctx.session, "export_data", { scope: "user", userId });
+      return payload;
     }
 
     const alertPrefs = await apiOperatorAlertService.getPrefs(ctx);
+    void writeAuditFromSession(ctx.session, "export_data", { scope: "full" });
     return {
       version: 1,
       exportedAt,

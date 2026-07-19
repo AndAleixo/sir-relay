@@ -1,6 +1,7 @@
 import type { Locale, Session, User } from "@/domain/types";
 import { defaultLocale } from "@/i18n/config";
 import type { AuthService } from "@/services/contracts";
+import { writeAudit, writeAuditFromSession } from "@/lib/audit";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { assertPasswordForSet } from "@/lib/password-policy";
 import { isLoginLocked, nextFailedLoginState } from "@/lib/login-lockout";
@@ -136,9 +137,11 @@ export class ApiAuthService implements AuthService {
     logJson("info", "login_ok", { userId: row.id });
 
     const activeGroupId = await pickDefaultGroupIdAsync(row.id);
-    return persistSession(row.id, activeGroupId, row.tokenVersion, {
+    const session = await persistSession(row.id, activeGroupId, row.tokenVersion, {
       autoPickGroup: true,
     });
+    void writeAuditFromSession(session, "login");
+    return session;
   }
 
   async signup(
@@ -175,6 +178,12 @@ export class ApiAuthService implements AuthService {
   async logout(): Promise<void> {
     const payload = await readSessionPayload();
     if (payload) {
+      void writeAudit({
+        groupId: payload.activeGroupId,
+        action: "logout",
+        actorType: "system",
+        actorId: payload.userId,
+      });
       await prisma.user.update({
         where: { id: payload.userId },
         data: { tokenVersion: { increment: 1 } },
@@ -218,6 +227,14 @@ export class ApiAuthService implements AuthService {
     const role = payload?.activeGroupId
       ? await roleInGroupAsync(userId, payload.activeGroupId)
       : null;
+
+    void writeAudit({
+      groupId: payload?.activeGroupId ?? null,
+      action: "password_change",
+      actorType: role === "teammate" ? "teammate" : "operator",
+      actorId: userId,
+    });
+
     return role === "teammate"
       ? toTeammate(updated, role)
       : toUser(updated, role ?? "operator");

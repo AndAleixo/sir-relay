@@ -1,5 +1,6 @@
 import type { Session, Task, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
+import { writeAuditFromSession } from "@/lib/audit";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { prisma } from "@/lib/prisma";
 import {
@@ -116,7 +117,12 @@ export class ApiTaskService implements TaskService {
 
     await notifyTaskIfEligible(id);
     const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
-    return toTask(refreshed, name);
+    const task = toTask(refreshed, name);
+    void writeAuditFromSession(ctx.session, "task_create", {
+      taskId: id,
+      assigneeId: input.assigneeId,
+    });
+    return task;
   }
 
   async updateTaskStatus(
@@ -146,6 +152,11 @@ export class ApiTaskService implements TaskService {
       await syncAssigneeTelegramHead(row.groupId, row.assigneeId);
     }
 
+    void writeAuditFromSession(ctx.session, "task_status", {
+      taskId: id,
+      from: existing.status,
+      to: status,
+    });
     return toTask(row, existing.assigneeName);
   }
 
@@ -187,6 +198,11 @@ export class ApiTaskService implements TaskService {
     }
 
     const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
+    void writeAuditFromSession(ctx.session, "task_reassign", {
+      taskId: id,
+      fromAssigneeId: existing.assigneeId,
+      toAssigneeId: assigneeId,
+    });
     return toTask(refreshed, assigneeName);
   }
 
@@ -211,6 +227,7 @@ export class ApiTaskService implements TaskService {
               : null,
       },
     });
+    void writeAuditFromSession(ctx.session, "task_update", { taskId: id });
     return toTask(row, existing.assigneeName);
   }
 
@@ -222,6 +239,10 @@ export class ApiTaskService implements TaskService {
     if (existing.status !== "done") {
       await syncAssigneeTelegramHead(groupId, existing.assigneeId);
     }
+    void writeAuditFromSession(ctx.session, "task_delete", {
+      taskId: id,
+      title: existing.title,
+    });
   }
 
   async renotifyTask(id: string, ctx: { session: Session }): Promise<Task> {
@@ -241,6 +262,7 @@ export class ApiTaskService implements TaskService {
 
     await renotifyTaskTelegram(id);
     const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
+    void writeAuditFromSession(ctx.session, "task_renotify", { taskId: id });
     return toTask(refreshed, existing.assigneeName);
   }
 
@@ -326,6 +348,11 @@ export class ApiTaskService implements TaskService {
     if (previousAssigneeId !== assigneeId) {
       await syncAssigneeTelegramHead(groupId, previousAssigneeId);
     }
+
+    void writeAuditFromSession(ctx.session, "task_queue", {
+      taskId,
+      assigneeId,
+    });
 
     return this.visibleTasks(ctx.session);
   }

@@ -40,6 +40,12 @@ enum GroupInvitationStatus {
   declined
 }
 
+enum AuditActorType {
+  operator
+  teammate
+  system
+}
+
 enum TelegramActivitySource {
   telegram
 }
@@ -69,6 +75,7 @@ model User {
   sentGroupInvitations     GroupInvitation[] @relation("GroupInvitationSender")
   receivedGroupInvitations GroupInvitation[] @relation("GroupInvitationRecipient")
   telegramActivities       TelegramActivity[]
+  auditLogs                AuditLog[]
 
   @@map("users")
 }
@@ -86,6 +93,7 @@ model Group {
   inviteTokens TeammateInviteToken[]
   invitations  GroupInvitation[]
   telegramActivities TelegramActivity[]
+  auditLogs   AuditLog[]
 
   @@map("groups")
 }
@@ -229,4 +237,21 @@ model TelegramActivity {
   @@index([taskId, createdAt(sort: Desc)])
   @@index([groupId])
   @@map("telegram_activity")
+}
+
+model AuditLog {
+  id        String         @id @default(cuid())
+  groupId   String?        @map("group_id")
+  action    String
+  actorType AuditActorType @map("actor_type")
+  actorId   String?        @map("actor_id")
+  metadata  Json           @default("{}")
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  group Group? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  actor User?  @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([groupId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
 }

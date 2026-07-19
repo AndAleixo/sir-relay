@@ -11,6 +11,7 @@
     "tasks": "Tareas",
     "teammates": "Compañeros",
     "alerts": "Alertas",
+    "audit": "Auditoría",
     "board": "Tablero",
     "list": "Lista",
     "newTask": "Nueva tarea",
@@ -289,6 +290,18 @@
     "taskDue": "Vence:",
     "sentToTelegram": "Telegram",
     "webOnly": "Solo web"
+  },
+  "audit": {
+    "title": "Registro de auditoría",
+    "subtitle": "Eventos de seguridad y operación de este grupo.",
+    "empty": "Aún no hay eventos de auditoría.",
+    "when": "Cuándo",
+    "action": "Acción",
+    "actor": "Actor",
+    "detail": "Detalle",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "page": "Página {page} de {totalPages}"
   },
   "sync": {
     "pending": "Sin sincronizar con el servidor — {count, plural, one {# cambio pendiente} other {# cambios pendientes}}.",

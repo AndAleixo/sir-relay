@@ -20,6 +20,7 @@ import {
   type RateLimitStore,
 } from "./lib/rate-limit";
 import { applySecurityHeaders } from "./lib/security-headers";
+import { logJson } from "./lib/safe-log";
 
 const intlMiddleware = createMiddleware({
   locales: [...locales],
@@ -96,15 +97,34 @@ function assertRateLimit(request: NextRequest): NextResponse | null {
   return res;
 }
 
+function logSecurityBlock(
+  request: NextRequest,
+  status: number,
+  reason: string,
+): void {
+  logJson("warn", reason, {
+    route: request.nextUrl.pathname,
+    method: request.method,
+    status,
+    // ponytail: last octet only — enough for ops correlation, less PII
+    ipHint: clientIpFromHeaders(request.headers).replace(
+      /^(\d+\.\d+\.\d+)\.\d+$/,
+      "$1.x",
+    ),
+  });
+}
+
 export default function middleware(request: NextRequest) {
   const csrfBlocked = assertCsrfOrigin(request);
   if (csrfBlocked) {
+    logSecurityBlock(request, 403, "csrf_origin_rejected");
     applySecurityHeaders(request, csrfBlocked);
     return csrfBlocked;
   }
 
   const rateBlocked = assertRateLimit(request);
   if (rateBlocked) {
+    logSecurityBlock(request, 429, "rate_limited");
     applySecurityHeaders(request, rateBlocked);
     return rateBlocked;
   }

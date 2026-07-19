@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** UI + **dev-híbrido** · Telegram · fila · convites · **Phase 2 SEC** (mitigações 02–09; audit = processo, highs Next ainda abertos). Próximo: safe logging (P2-SEC-11), IDOR (P2-SEC-01), ou upgrade Next.
+**Estado actual:** UI + **dev-híbrido** · Telegram · fila · convites · **Phase 2 SEC** (02–09, 11; audit processo). Próximo: IDOR pass (P2-SEC-01) ou upgrade Next.
 
 ---
 
@@ -327,14 +327,14 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 **Feito (Phase 1):** Prisma + seed + `services/api/*` + actions · fila To do · invitations · Telegram relay + alerts.
 
 **Feito (Phase 2 SEC parcial):**
-- P2-SEC-02–09 (+ processo P2-SEC-10) — token_version, lockout, password, headers, CSRF, rate limits, login errors, Telegram sanitize; audit **processo** documentado (`audit:prod`)
-- Checks: `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `audit:prod`
+- P2-SEC-02–09, 11 (+ processo P2-SEC-10) — incl. safe JSON logging
+- Checks: `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `audit:prod`
 - Demo seed password: **`SirRelay1`**
 
 **Pendente Phase 2 SEC:**
-1. P2-SEC-10 **fechar** highs do Next (upgrade major) — processo já existe, vulnerabilidades ainda reportadas
-2. P2-SEC-11 JSON safe logging
-3. P2-SEC-01 IDOR pass (auditoria de ownership)
+1. P2-SEC-10 **fechar** highs do Next (upgrade major) — processo já existe
+2. P2-SEC-01 IDOR pass (auditoria de ownership)
+3. P2-MON-01 request tracing completo (requestId em todos os hits) — além do safe-log
 
 **Pendente / opcional (Phase 1 leftover):**
 1. REST `/api/v1/*` além de health + webhook
@@ -344,7 +344,7 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Ops (feito no VPS):** backups diários → Drive; restore testado. Ver [DEPLOY §9.1](./DEPLOY-DIGITALOCEAN.md).
 
-**Smoke:** Telegram · fila · SEC (`check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `audit:prod`).
+**Smoke:** Telegram · fila · SEC (`check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `audit:prod`).
 
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*`.
 

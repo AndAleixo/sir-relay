@@ -5,6 +5,7 @@ import { hashPassword, verifyPassword } from "@/lib/password";
 import { assertPasswordForSet } from "@/lib/password-policy";
 import { isLoginLocked, nextFailedLoginState } from "@/lib/login-lockout";
 import { prisma } from "@/lib/prisma";
+import { logJson } from "@/lib/safe-log";
 import {
   readSessionPayload,
   writeSessionPayload,
@@ -104,18 +105,35 @@ export class ApiAuthService implements AuthService {
     const row = await prisma.user.findFirst({
       where: { email: normalized, active: true },
     });
-    if (!row) throw new Error("Invalid credentials");
+    if (!row) {
+      logJson("warn", "login_failed", {
+        reason: "unknown_or_inactive",
+        email: normalized,
+      });
+      throw new Error("Invalid credentials");
+    }
 
     if (isLoginLocked(row.lockedUntil)) {
+      logJson("warn", "login_failed", {
+        reason: "locked",
+        userId: row.id,
+        email: normalized,
+      });
       throw new Error("Invalid credentials");
     }
 
     if (!(await verifyPassword(password, row.passwordHash))) {
       await recordLoginFailure(row.id, row.failedLoginCount);
+      logJson("warn", "login_failed", {
+        reason: "bad_password",
+        userId: row.id,
+        email: normalized,
+      });
       throw new Error("Invalid credentials");
     }
 
     await clearLoginFailures(row.id);
+    logJson("info", "login_ok", { userId: row.id });
 
     const activeGroupId = await pickDefaultGroupIdAsync(row.id);
     return persistSession(row.id, activeGroupId, row.tokenVersion, {

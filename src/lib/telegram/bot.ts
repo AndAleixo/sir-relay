@@ -2,6 +2,7 @@ import { Bot } from "grammy";
 import type { Session, Task } from "@/domain/types";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { prisma } from "@/lib/prisma";
+import { logJson } from "@/lib/safe-log";
 import { toLocale } from "@/services/api/mappers";
 import { apiOperatorAlertService } from "@/services/api/alerts";
 import { telegramBotToken, telegramConfigured } from "@/lib/telegram/config";
@@ -72,105 +73,114 @@ function createBot(token: string): Bot {
   });
 
   bot.on("message:text", async (ctx) => {
-    const chatId = String(ctx.chat.id);
-    const user = await prisma.user.findFirst({
-      where: { telegramChatId: chatId },
-    });
-    if (!user) return;
+    try {
+      const chatId = String(ctx.chat.id);
+      const user = await prisma.user.findFirst({
+        where: { telegramChatId: chatId },
+      });
+      if (!user) return;
 
-    const body = sanitizeTelegramText(ctx.message.text ?? "");
-    if (!body) return;
+      const body = sanitizeTelegramText(ctx.message.text ?? "");
+      if (!body) return;
 
-    const replyTo = ctx.message.reply_to_message;
-    if (!replyTo?.message_id) {
-      await ctx.reply(replyToTaskHint(user.locale));
-      return;
-    }
+      const replyTo = ctx.message.reply_to_message;
+      if (!replyTo?.message_id) {
+        await ctx.reply(replyToTaskHint(user.locale));
+        return;
+      }
 
-    const repliedId = String(replyTo.message_id);
-    const taskRow = await prisma.task.findFirst({
-      where: {
-        telegramMessageId: repliedId,
-        assigneeId: user.id,
-        status: { in: ["todo", "doing"] },
-      },
-      include: {
-        group: {
-          include: {
-            memberships: {
-              where: { userId: user.id },
-              take: 1,
+      const repliedId = String(replyTo.message_id);
+      const taskRow = await prisma.task.findFirst({
+        where: {
+          telegramMessageId: repliedId,
+          assigneeId: user.id,
+          status: { in: ["todo", "doing"] },
+        },
+        include: {
+          group: {
+            include: {
+              memberships: {
+                where: { userId: user.id },
+                take: 1,
+              },
             },
           },
         },
-      },
-    });
-    if (!taskRow) {
-      await ctx.reply(replyToTaskHint(user.locale));
-      return;
-    }
-
-    const keyword = parseStatusKeyword(body);
-    const membership = taskRow.group.memberships[0];
-    const displayName = membership?.displayName ?? null;
-    const assigneeLabel = groupMemberLabel({
-      name: user.name,
-      email: user.email,
-      displayName,
-    });
-
-    await prisma.$transaction(async (tx) => {
-      await tx.telegramActivity.create({
-        data: {
-          groupId: taskRow.groupId,
-          taskId: taskRow.id,
-          userId: user.id,
-          body,
-          source: "telegram",
-        },
       });
-      if (keyword) {
-        await tx.task.update({
-          where: { id: taskRow.id },
-          data: { status: keyword },
-        });
+      if (!taskRow) {
+        await ctx.reply(replyToTaskHint(user.locale));
+        return;
       }
-    });
 
-    if (keyword) {
-      await ctx.reply(statusAck(user.locale, keyword));
-    }
+      const keyword = parseStatusKeyword(body);
+      const membership = taskRow.group.memberships[0];
+      const displayName = membership?.displayName ?? null;
+      const assigneeLabel = groupMemberLabel({
+        name: user.name,
+        email: user.email,
+        displayName,
+      });
 
-    if (keyword === "done") {
-      await dispatchAfterDone(taskRow.groupId, user.id);
+      await prisma.$transaction(async (tx) => {
+        await tx.telegramActivity.create({
+          data: {
+            groupId: taskRow.groupId,
+            taskId: taskRow.id,
+            userId: user.id,
+            body,
+            source: "telegram",
+          },
+        });
+        if (keyword) {
+          await tx.task.update({
+            where: { id: taskRow.id },
+            data: { status: keyword },
+          });
+        }
+      });
 
-      const task: Task = {
-        id: taskRow.id,
-        title: taskRow.title,
-        description: taskRow.description,
-        assigneeId: taskRow.assigneeId,
-        assigneeName: assigneeLabel,
-        status: "done",
-        dueDate: taskRow.dueDate ? taskRow.dueDate.toISOString().slice(0, 10) : null,
-        telegramNotifyFailed: taskRow.telegramNotifyFailed,
-        sortOrder: taskRow.sortOrder,
-        updatedAt: new Date().toISOString(),
-        createdAt: taskRow.createdAt.toISOString(),
-      };
+      if (keyword) {
+        await ctx.reply(statusAck(user.locale, keyword));
+      }
 
-      const session: Session = {
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: membership?.role === "operator" ? "operator" : "teammate",
-          locale: toLocale(user.locale),
-          active: user.active,
-        },
-        activeGroupId: taskRow.groupId,
-      };
+      if (keyword === "done") {
+        await dispatchAfterDone(taskRow.groupId, user.id);
 
-      await apiOperatorAlertService.notifyTaskDone(task, { session });
+        const task: Task = {
+          id: taskRow.id,
+          title: taskRow.title,
+          description: taskRow.description,
+          assigneeId: taskRow.assigneeId,
+          assigneeName: assigneeLabel,
+          status: "done",
+          dueDate: taskRow.dueDate
+            ? taskRow.dueDate.toISOString().slice(0, 10)
+            : null,
+          telegramNotifyFailed: taskRow.telegramNotifyFailed,
+          sortOrder: taskRow.sortOrder,
+          updatedAt: new Date().toISOString(),
+          createdAt: taskRow.createdAt.toISOString(),
+        };
+
+        const session: Session = {
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: membership?.role === "operator" ? "operator" : "teammate",
+            locale: toLocale(user.locale),
+            active: user.active,
+          },
+          activeGroupId: taskRow.groupId,
+        };
+
+        await apiOperatorAlertService.notifyTaskDone(task, { session });
+      }
+    } catch (err) {
+      logJson("error", "telegram_message_handler_failed", {
+        chatId: ctx.chat?.id != null ? String(ctx.chat.id) : undefined,
+        error: err instanceof Error ? err.message : "unknown",
+      });
     }
   });
 

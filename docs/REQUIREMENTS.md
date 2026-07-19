@@ -392,7 +392,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | P2-SEC-08 | Login errors | Generic message; no email enumeration on **login** · **Done** (always `Invalid credentials` / `auth.loginError`; signup “taken” is intentional for new accounts) |
 | P2-SEC-09 | Telegram input | Sanitize; strip control characters · **Done** (`sanitizeTelegramText` / link codes on inbound bot handlers) |
 | P2-SEC-10 | Dependency audit | Run/document `npm audit` before deploy; no critical in prod · **Process done** — remaining Next 14 **high** needs major upgrade (not fixed yet); see README |
-| P2-SEC-11 | Safe logging | Never log passwords, tokens, or full comment bodies; JSON logs |
+| P2-SEC-11 | Safe logging | Never log passwords, tokens, or full comment bodies; JSON logs · **Done** (`safe-log.ts` + redaction; login / CSRF / rate-limit / telegram errors). Per-request tracing → P2-MON-01 |
 
 ### 6.2 Audit log
 
@@ -715,6 +715,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
 | 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |
 | 2026-07-19 | Phase 2 Telegram sanitize: strip controls on inbound text + link codes (P2-SEC-09) |
 | 2026-07-19 | Phase 2 rate limits: login/signup 10/min/IP, mutations 100/min/IP (P2-SEC-07) |

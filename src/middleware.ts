@@ -11,6 +11,14 @@ import {
   isSafeHttpMethod,
   isSameOriginMutation,
 } from "./lib/csrf-origin";
+import {
+  LOGIN_RATE,
+  MUTATION_RATE,
+  clientIpFromHeaders,
+  consumeRateLimit,
+  isAuthRateLimitedPath,
+  type RateLimitStore,
+} from "./lib/rate-limit";
 import { applySecurityHeaders } from "./lib/security-headers";
 
 const intlMiddleware = createMiddleware({
@@ -23,6 +31,9 @@ const LOCALE_SEGMENT = localePathPattern();
 const PUBLIC_CACHE =
   "public, s-maxage=3600, stale-while-revalidate=86400, max-age=300";
 const PRIVATE_CACHE = "private, no-store, max-age=0, must-revalidate";
+
+/** Shared across requests in this process / Edge isolate. */
+const rateLimitStore: RateLimitStore = new Map();
 
 function stripLocale(pathname: string): string {
   return pathname.replace(new RegExp(`^/(${LOCALE_SEGMENT})`), "") || "/";
@@ -62,11 +73,40 @@ function assertCsrfOrigin(request: NextRequest): NextResponse | null {
   return new NextResponse("Forbidden", { status: 403 });
 }
 
+function assertRateLimit(request: NextRequest): NextResponse | null {
+  if (isSafeHttpMethod(request.method)) return null;
+
+  const stripped = stripLocale(request.nextUrl.pathname);
+  const ip = clientIpFromHeaders(request.headers);
+  const auth = isAuthRateLimitedPath(stripped);
+  const rate = auth ? LOGIN_RATE : MUTATION_RATE;
+  const key = `${auth ? "auth" : "mut"}:${ip}`;
+
+  const result = consumeRateLimit(
+    rateLimitStore,
+    key,
+    rate.limit,
+    rate.windowMs,
+  );
+
+  if (result.ok) return null;
+
+  const res = new NextResponse("Too Many Requests", { status: 429 });
+  res.headers.set("Retry-After", String(result.retryAfterSec));
+  return res;
+}
+
 export default function middleware(request: NextRequest) {
-  const blocked = assertCsrfOrigin(request);
-  if (blocked) {
-    applySecurityHeaders(request, blocked);
-    return blocked;
+  const csrfBlocked = assertCsrfOrigin(request);
+  if (csrfBlocked) {
+    applySecurityHeaders(request, csrfBlocked);
+    return csrfBlocked;
+  }
+
+  const rateBlocked = assertRateLimit(request);
+  if (rateBlocked) {
+    applySecurityHeaders(request, rateBlocked);
+    return rateBlocked;
   }
 
   const { pathname } = request.nextUrl;

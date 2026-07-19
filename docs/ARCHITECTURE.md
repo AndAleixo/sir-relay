@@ -15,7 +15,12 @@ src/
 ├── lib/
 │   ├── entry-route.ts    # Post-auth redirects
 │   ├── session-hydrate.ts # Role + resume group on login
-│   └── task-queue.ts     # To do order helpers (buildTodoQueueOrder, placeIdAtIndex, …)
+│   ├── task-queue.ts     # To do queue order helpers
+│   ├── password-policy.ts # P2-SEC-04 — validate on set (grandfather login)
+│   ├── login-lockout.ts  # P2-SEC-03 — 5 fails → 15 min
+│   ├── csrf-origin.ts    # P2-SEC-06 — Origin/Referer same-origin check
+│   ├── rate-limit.ts     # P2-SEC-07 — sliding window per IP
+│   └── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
 ├── app/actions/
 │   ├── auth.ts           # Login, signup, logout, password
 │   ├── groups.ts         # Group panel
@@ -62,7 +67,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/alerts`, `/settings` | Session + group | private | Alerts · group alert prefs |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 
-**Backend (Phase 1):** Prisma + server actions · `/api/v1/health` · Telegram webhook · (optional full REST) · **Phase 2:** `/audit`
+**Backend (Phase 1–2):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `middleware.ts` · (optional full REST) · **Phase 2 remaining:** rate limits, audit, …
 
 ## Entry redirects
 
@@ -116,6 +121,19 @@ Passos:
 Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina).
 
 **API layer:** `src/services/api/` — Prisma-backed implementations of `contracts.ts`. Health: `GET /api/v1/health` · Telegram link: `POST /api/v1/telegram/webhook`. Full REST `/api/v1/*` beyond those routes is optional — the UI uses server actions.
+
+## Session & security (Phase 2 SEC)
+
+| Peça | Onde | Notas |
+|------|------|-------|
+| Session cookie | `session-cookie.ts` | JWT httpOnly · `SameSite=Lax` · payload inclui `tokenVersion` |
+| Revocation | `users.token_version` | Incrementa em logout + change password; hydrate rejeita mismatch |
+| Lockout | `users.failed_login_count` / `locked_until` | 5 falhas → 15 min; erros de login genéricos |
+| Password set | `password-policy.ts` | 8 + maiúscula + número + denylist; login grandfather |
+| CSRF | `csrf-origin.ts` + middleware | POST/… sem Origin/Referer same-origin → 403; webhook `/api` fora do matcher |
+| Rate limit | `rate-limit.ts` + middleware | login/signup 10/min/IP · other POSTs 100/min/IP → 429 + Retry-After |
+| Headers | `security-headers.ts` + middleware | HSTS (prod HTTPS), frame deny, nosniff, referrer, CSP |
+| Checks | `npm run check:sec` · `check:csrf` · `check:rate` | |
 
 ## Session sync
 

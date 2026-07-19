@@ -13,6 +13,7 @@
     "check:queue": "tsx scripts/check-task-queue-order.ts",
     "check:sec": "tsx scripts/check-sec-base.ts",
     "check:csrf": "tsx scripts/check-csrf-origin.ts",
+    "check:rate": "tsx scripts/check-rate-limit.ts",
     "dev-mock": "bash scripts/env/dev-mock.sh",
     "dev-hybrid": "bash scripts/env/dev-hybrid.sh",
     "dev-hybrid-db": "bash scripts/env/dev-hybrid-db.sh",

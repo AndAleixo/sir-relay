@@ -121,7 +121,7 @@ export default async function SettingsPage({
               <CardBody>
                 <GroupNotificationSettings
                   prefs={alertPrefs}
-                  viewAlertsHref={`/${locale}/alerts`}
+                  viewEventsHref={`/${locale}/events`}
                 />
               </CardBody>
             </Card>

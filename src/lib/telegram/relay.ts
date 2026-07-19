@@ -180,7 +180,7 @@ export async function dispatchAfterDone(
         action: "relay_dispatch",
         actorType: "system",
         actorId: assigneeId,
-        metadata: { taskId: next.id },
+        metadata: { taskId: next.id, title: next.title },
       });
     }
     return;

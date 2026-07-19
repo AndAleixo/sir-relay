@@ -120,6 +120,7 @@ export class ApiTaskService implements TaskService {
     const task = toTask(refreshed, name);
     void writeAuditFromSession(ctx.session, "task_create", {
       taskId: id,
+      title: input.title,
       assigneeId: input.assigneeId,
     });
     return task;
@@ -154,6 +155,7 @@ export class ApiTaskService implements TaskService {
 
     void writeAuditFromSession(ctx.session, "task_status", {
       taskId: id,
+      title: existing.title,
       from: existing.status,
       to: status,
     });
@@ -200,6 +202,7 @@ export class ApiTaskService implements TaskService {
     const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
     void writeAuditFromSession(ctx.session, "task_reassign", {
       taskId: id,
+      title: existing.title,
       fromAssigneeId: existing.assigneeId,
       toAssigneeId: assigneeId,
     });
@@ -227,7 +230,10 @@ export class ApiTaskService implements TaskService {
               : null,
       },
     });
-    void writeAuditFromSession(ctx.session, "task_update", { taskId: id });
+    void writeAuditFromSession(ctx.session, "task_update", {
+      taskId: id,
+      title: fields.title?.trim() || existing.title,
+    });
     return toTask(row, existing.assigneeName);
   }
 
@@ -262,7 +268,10 @@ export class ApiTaskService implements TaskService {
 
     await renotifyTaskTelegram(id);
     const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
-    void writeAuditFromSession(ctx.session, "task_renotify", { taskId: id });
+    void writeAuditFromSession(ctx.session, "task_renotify", {
+      taskId: id,
+      title: existing.title,
+    });
     return toTask(refreshed, existing.assigneeName);
   }
 

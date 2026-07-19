@@ -37,7 +37,7 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 
 ```
 User (account)
-  ├── Group A — operator  →  nav: Tasks · Teammates · Alerts · Settings
+  ├── Group A — operator  →  nav: Tasks · Teammates · Events · Settings
   └── Group B — teammate →  nav: Tasks · Settings
 ```
 
@@ -46,7 +46,7 @@ User (account)
 | **User** | Email + password; signs up at `/signup`; not labelled “operator” or “teammate” globally |
 | **Group** | Team workspace; **create inline** in header group panel or join via invite (`/join/[token]` or panel paste) |
 | **Role** | Per group; shown in **group switcher** only |
-| **Active group** | Session selection; all app screens (tasks, teammates, alerts) are scoped here |
+| **Active group** | Session selection; all app screens (tasks, teammates, events) are scoped here |
 | **Switch / manage groups** | Header **group switcher** panel — switch, create, join with invite (dropdown anchored below trigger) |
 
 **Post-login flow:** sign up / log in → (password change if bootstrap only) → **no group** → `/groups` (panel opens) → create or join → operator → `/teammates` · teammate → `/tasks`.
@@ -141,7 +141,7 @@ Same chrome for everyone; **navigation and default view depend on role in the ac
 │ ────────── │  Page title                    [+ New task]*      │
 │  Tasks     │  ─────────────────────────────────────────────  │
 │  Teammates*│                                                   │
-│  Alerts*   │              Main content                         │
+│  Events*   │              Main content                         │
 │  Settings  │                                                   │
 │            │                                                   │
 │ ────────── │                                                   │
@@ -156,7 +156,7 @@ Same chrome for everyone; **navigation and default view depend on role in the ac
 |---------|------|
 | Sidebar | Fixed left; collapsible (`w-56` ↔ `w-20`); preference stored in `localStorage` |
 | Sidebar logo | `logo.svg` expanded · `logo-compact.svg` collapsed; cross-fade animation |
-| Sidebar nav | Tasks · Teammates* · Alerts* · Settings — icons + labels (icons only when collapsed) |
+| Sidebar nav | Tasks · Teammates* · Events* · Settings — icons + labels (icons only when collapsed) |
 | Sidebar footer | Profile link (name + avatar) only |
 | Top header | **Group switcher** · locale picker · account menu (avatar + chevron) |
 | Account menu (`▾`) | Name · Profile · Log out |
@@ -173,7 +173,7 @@ Sidebar hidden. Sticky top bar + tab navigation.
 ┌────────────────────────────────────────┐
 │ [logo]  [Group ▾]     [EN▾] [avatar]   │
 ├────────────────────────────────────────┤
-│   Tasks    Teammates*    Alerts*    Settings      │  ← icon tabs
+│   Tasks    Teammates*    Events*    Settings      │  ← icon tabs
 ├────────────────────────────────────────┤
 │              Main content              │
 └────────────────────────────────────────┘
@@ -367,14 +367,14 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 | Teammates | `/teammates` | Yes | — |
 | New teammate | `/teammates/new` | Yes | — |
 | Teammate detail | `/teammates/[id]` | Yes | — |
-| **Alerts** | `/alerts` | Yes | — |
+| **Events** | `/events` | Yes | — |
+| **Group activity** | `/events/activity` | Yes | — |
 | **Profile** | `/profile` | Yes | Yes |
 | Settings | `/settings` | Yes | Yes |
 | Join (group invite) | `/join/[token]` | Public | Public |
 | Change password | `/change-password` | Yes | Yes |
 | Privacy | `/privacy` | Public | Public |
 | Terms | `/terms` | Public | Public |
-| Audit | `/audit` | Yes | — |
 
 **Default URL:** `/[locale]` — public landing when logged out. **Sign up** / **Log in** from header or footer. After login: no group → `/groups`; operator in active group → `/teammates`; teammate in active group → `/tasks`.
 
@@ -435,7 +435,7 @@ All users with an active group. Access: sidebar / mobile tabs only (not account 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
 | **General** | Group name (operator rename); **your fantasy name** for this group only | Yes |
-| **Operator alerts** | Toggles + link to Alerts history; banner → **Profile** if Telegram unlinked | Yes |
+| **Operator alerts** | Toggles + link to Events; banner → **Profile** if Telegram unlinked | Yes |
 | **Notifications** | Teammate empty state (operators configure alerts); banner → **Profile** if unlinked | Yes |
 | **Membership** | Leave group; delete group (operator) | Yes |
 
@@ -443,19 +443,20 @@ Language and Telegram live on **Profile**; group switching on the header **Group
 
 **Profile** = account (incl. Telegram). **Settings** = group-scoped (fantasy name, which alerts to send, leave/delete). Group and role appear in the **group switcher** only.
 
-### 8.3 Alerts (`/alerts`)
+### 8.3 Events (`/events`)
 
 Operator only. Access: sidebar / mobile tabs.
 
-| Content | Phase 1 |
-|---------|---------|
-| Feed of teammate **task done** and **due/overdue** events | Shipped |
+| Content | Phase |
+|---------|-------|
+| Feed of teammate **task done** and **due/overdue** alerts | Shipped |
 | Delivery badge: Telegram vs web-only (operator alert prefs + linked Telegram) | Shipped |
+| Link to **Group activity** (`/events/activity`) — human-language history of group changes (no login/logout) | Shipped |
 | Preferences | **Settings** → Operator alerts toggles |
 
 Teammates do not have this route (redirect to `/tasks`).
 
-Operator-only system settings (audit, org config) remain Phase 2+.
+Platform-wide security/analytics admin remains a separate later surface.
 
 ---
 
@@ -565,12 +566,12 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | Status Kanban + list toggle | 1 | Shipped |
 | Profile vs Settings split | 1 | Shipped |
 | Join + change-password + privacy | 1 | Shipped |
-| Operator alerts + **Alerts** page | 1 | Shipped |
+| Operator alerts + **Events** page | 1 | Shipped |
 | To do queue DnD + status/reassign drops | 1 | Shipped |
 | Sidebar collapse + logo cross-fade | 3 (P3-11) | Yes in UI |
 | Kanban DnD polish (touch / a11y) | 3 (P3-03) | Core shipped in Phase 1 |
 | Locale persist (Profile) | 1 | Shipped via `updateLocale`; header switcher changes URL path only |
-| Audit screen | 2 | — |
+| Group activity (`/events/activity`) | 2 | Shipped |
 | Native mobile apps | 3 (P3-13) | — |
 
 ---

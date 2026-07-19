@@ -66,15 +66,9 @@ export function AppShell({
       roles: ["operator"],
     },
     {
-      href: `/${locale}/alerts`,
-      label: t("common.alerts"),
-      icon: "alerts",
-      roles: ["operator"],
-    },
-    {
-      href: `/${locale}/audit`,
-      label: t("common.audit"),
-      icon: "audit",
+      href: `/${locale}/events`,
+      label: t("common.events"),
+      icon: "events",
       roles: ["operator"],
     },
     {

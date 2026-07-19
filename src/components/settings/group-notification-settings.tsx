@@ -10,12 +10,12 @@ import { Label, Select } from "@/components/ui/input";
 
 interface GroupNotificationSettingsProps {
   prefs: OperatorAlertPrefs;
-  viewAlertsHref?: string;
+  viewEventsHref?: string;
 }
 
 export function GroupNotificationSettings({
   prefs,
-  viewAlertsHref,
+  viewEventsHref,
 }: GroupNotificationSettingsProps) {
   const t = useTranslations("settings");
   const [pending, startTransition] = useTransition();
@@ -176,12 +176,12 @@ export function GroupNotificationSettings({
         ) : null}
       </div>
 
-      {viewAlertsHref ? (
+      {viewEventsHref ? (
         <Link
-          href={viewAlertsHref}
+          href={viewEventsHref}
           className="inline-block text-sm font-medium text-brand-accent hover:text-brand-accent-hover"
         >
-          {t("viewAlertHistory")}
+          {t("viewEvents")}
         </Link>
       ) : null}
     </div>

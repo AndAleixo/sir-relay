@@ -242,7 +242,7 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-UI-01 | Branding | Login/header logos per [BRAND.md](./BRAND.md); favicon `icon.svg`; tokens `brand/brand.css` |
-| P1-UI-02 | Role-based nav | Nav reflects **role in active group**: Operator → Tasks · Teammates · Alerts · Settings · Teammate → Tasks · Settings; **Profile** via avatar / sidebar footer |
+| P1-UI-02 | Role-based nav | Nav reflects **role in active group**: Operator → Tasks · Teammates · Events · Settings · Teammate → Tasks · Settings; **Profile** via avatar / sidebar footer |
 | P1-UI-03 | Marketing landing | Public `/[locale]` when logged out — hero, product demo, feature highlights, footer — [UIUX.md §2.0](./UIUX.md#20-marketing-landing) |
 | P1-UI-04 | Landing header | `logo.svg`, locale switcher, **Sign up** + **Log in** → `/signup` · `/login` |
 | P1-UI-05 | Product demo | **`public/brand/demo.webm`** in hero (muted, loop); CSS board fallback |
@@ -369,7 +369,8 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `tasks/new` | Yes | — |
 | `tasks/[id]` | Yes | Own tasks only | Edit form + delete |
 | `teammates`, `teammates/new`, `teammates/[id]` | Yes (list includes operators in group) | — |
-| `alerts` | Yes | — |
+| `events` | Yes | — | Alerts feed |
+| `events/activity` | Yes | — | Group activity (human language) |
 | `settings` | Yes | Yes | Group alerts, leave/delete group |
 
 **Phase 1 acceptance test:** Landing → sign up → create group → pre-create teammate → share invite → teammate activates via `/join/<token>` → links Telegram on Profile → two tasks → relay `done` on Telegram. **Or:** demo `sam@example.com` → Demo Shop → same loop. Stack on VPS with HTTPS. (Sign-up merge Path B is out of scope until P1-AUTH-13.)
@@ -400,8 +401,8 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 |----|-------------|---------------------|
 | P2-AUD-01 | Events | Login, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** · **Done** (`writeAudit` / `writeAuditFromSession`) |
 | P2-AUD-02 | Storage | `audit_logs`: id, action, actor_type, actor_id, metadata, created_at · **Done** |
-| P2-AUD-03 | UI | `/[locale]/audit` — paginated, read-only (Operator) · **Done** |
-| P2-AUD-04 | API | `GET /api/v1/audit` · **Done** |
+| P2-AUD-03 | UI | Operator **group activity** at `/[locale]/events/activity` (human language; no login/logout). Alerts live at `/events`. · **Done** |
+| P2-AUD-04 | API | `GET /api/v1/audit` (raw; platform/admin later) · **Done** |
 
 **Schema addition:**
 
@@ -434,7 +435,7 @@ audit_logs
 
 | Layer | Answers | Tooling | Cookie consent |
 |-------|---------|---------|----------------|
-| **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` table + `/audit` UI | No — server-side, essential for security |
+| **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` + `/events/activity` (group) · platform admin later | No — server-side |
 | **Access / ops** | Is the app up? Who hit the server? | Caddy access logs, `GET /health`, JSON app logs | No — infrastructure |
 | **Web analytics** (optional) | Which screens are used? Mobile vs desktop? | Self-hosted **Umami** or **Plausible** (recommended) | **Yes** — unless provider is cookieless and legal review confirms exemption |
 
@@ -565,7 +566,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Telegram reply log | — | — | Reply (stored server-side) |
 | Re-notify | Yes | — | — |
 | Link Telegram | Self-link on **Profile** (relay + alerts if operator) | Self-link on **Profile** (relay) | `/start <code>` |
-| Audit log | Yes (Phase 2) | — | — |
+| Group activity | Yes (`/events/activity`) | — | — |
 | Export data (JSON) | Yes (Phase 2) | — | — |
 
 ---
@@ -608,7 +609,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/tasks/:id/notify` | 1 | Operator in active group |
 | POST | `/telegram/webhook` | 1 | Webhook secret |
 | GET | `/health` | 1 | Public |
-| GET | `/audit` | 2 | Operator in active group |
+| GET | `/audit` | 2 | Operator / platform — raw `audit_logs` (UI uses `/events/activity`) |
 | GET | `/export` | 2 | Operator in active group · §6.5.2 |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
@@ -715,7 +716,8 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
-| 2026-07-19 | Phase 2 audit log: `audit_logs` + `/audit` UI + `GET /api/v1/audit` (P2-AUD) |
+| 2026-07-19 | Events UX: `/events` alerts + `/events/activity` human group history; `/audit` nav UI removed |
+| 2026-07-19 | Phase 2 audit log storage: `audit_logs` + `GET /api/v1/audit` (P2-AUD) |
 | 2026-07-19 | Phase 2 IDOR: service-layer operator/self guards (P2-SEC-01) |
 | 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
 | 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |

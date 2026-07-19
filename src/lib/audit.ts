@@ -3,7 +3,7 @@
  */
 import type { Session } from "@/domain/types";
 import type { AuditAction, AuditActorType, AuditEntry } from "@/domain/audit";
-import { actorTypeFromRole } from "@/domain/audit";
+import { actorTypeFromRole, GROUP_ACTIVITY_ACTIONS } from "@/domain/audit";
 import { prisma } from "@/lib/prisma";
 import { logJson } from "@/lib/safe-log";
 import type { Prisma } from "@prisma/client";
@@ -81,14 +81,24 @@ export function writeAuditFromSession(
 
 export async function listAuditForGroup(
   groupId: string,
-  opts: { page?: number; pageSize?: number } = {},
+  opts: {
+    page?: number;
+    pageSize?: number;
+    /** When true, only operator-facing group activity (no login/logout/password). */
+    activityOnly?: boolean;
+  } = {},
 ): Promise<{ entries: AuditEntry[]; total: number; page: number; pageSize: number }> {
   const pageSize = Math.min(Math.max(opts.pageSize ?? 30, 1), 100);
   const page = Math.max(opts.page ?? 1, 1);
   const skip = (page - 1) * pageSize;
+  const actions = opts.activityOnly ? [...GROUP_ACTIVITY_ACTIONS] : null;
 
   if (isMockMode()) {
-    const filtered = mockRows.filter((row) => row.groupId === groupId);
+    const filtered = mockRows.filter(
+      (row) =>
+        row.groupId === groupId &&
+        (actions == null || actions.includes(row.action as (typeof GROUP_ACTIVITY_ACTIONS)[number])),
+    );
     const slice = filtered.slice(skip, skip + pageSize);
     return {
       entries: slice.map((row) => ({
@@ -107,7 +117,10 @@ export async function listAuditForGroup(
     };
   }
 
-  const where = { groupId };
+  const where = {
+    groupId,
+    ...(actions ? { action: { in: actions } } : {}),
+  };
   const [total, rows] = await Promise.all([
     prisma.auditLog.count({ where }),
     prisma.auditLog.findMany({
@@ -134,4 +147,48 @@ export async function listAuditForGroup(
     page,
     pageSize,
   };
+}
+
+/** Resolve task titles + user names referenced in activity metadata. */
+export async function resolveActivityLabels(
+  entries: AuditEntry[],
+): Promise<{ taskTitles: Map<string, string>; userNames: Map<string, string> }> {
+  const taskIds = new Set<string>();
+  const userIds = new Set<string>();
+
+  for (const entry of entries) {
+    const meta = entry.metadata;
+    if (typeof meta.taskId === "string") taskIds.add(meta.taskId);
+    if (typeof meta.assigneeId === "string") userIds.add(meta.assigneeId);
+    if (typeof meta.toAssigneeId === "string") userIds.add(meta.toAssigneeId);
+    if (typeof meta.userId === "string") userIds.add(meta.userId);
+  }
+
+  const taskTitles = new Map<string, string>();
+  const userNames = new Map<string, string>();
+
+  if (isMockMode() || (taskIds.size === 0 && userIds.size === 0)) {
+    return { taskTitles, userNames };
+  }
+
+  const [tasks, users] = await Promise.all([
+    taskIds.size
+      ? prisma.task.findMany({
+          where: { id: { in: Array.from(taskIds) } },
+          select: { id: true, title: true },
+        })
+      : Promise.resolve([]),
+    userIds.size
+      ? prisma.user.findMany({
+          where: { id: { in: Array.from(userIds) } },
+          select: { id: true, name: true, email: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  for (const task of tasks) taskTitles.set(task.id, task.title);
+  for (const user of users) {
+    userNames.set(user.id, user.name.trim() || user.email);
+  }
+  return { taskTitles, userNames };
 }

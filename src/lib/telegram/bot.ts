@@ -147,8 +147,8 @@ function createBot(token: string): Bot {
         actorId: user.id,
         metadata: {
           taskId: taskRow.id,
+          title: taskRow.title,
           status: keyword,
-          // no body (P2-SEC-11)
         },
       });
 

@@ -107,6 +107,20 @@ Open `http://localhost:3000` · demo: `sam@example.com` · `ana@example.com` (ta
 
 ---
 
+## Dependency audit (P2-SEC-10)
+
+`npm audit` reports **known security advisories** in installed packages — **not** “deprecated” warnings.
+
+```bash
+npm run audit:prod   # same as: npm audit --omit=dev
+```
+
+**Deploy rule:** no **critical** in prod deps. **High** → upgrade if possible without a major break; otherwise record and schedule.
+
+**Today:** still **high** on Next 14 (and moderate on next-intl/postcss). Clearing them needs a **Next 15/16** upgrade — not done yet. Until then we stay on latest 14.2 and keep Image Optimizer off (`next.config.mjs`) because the app does not use `next/image`.
+
+---
+
 ## License
 
 TBD.

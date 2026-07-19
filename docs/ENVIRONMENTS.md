@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** UI + **dev-híbrido** · Telegram · fila · convites · **Phase 2 SEC** · **P2-AUD** (`audit_logs` + Events activity + `/platform` admin). Próximo Phase 2: upgrade Next (SEC-10 highs) ou P2-MON-01.
+**Estado actual:** Quatro ambientes **Active** (mock · híbrido · prod local · VPS). Phase 2 SEC + AUD. Próximo: upgrade Next (SEC-10 highs) ou P2-MON-01.
 
 ---
 
@@ -41,7 +41,7 @@
 | **Telegram** | — | Bot teste + tunnel* | Bot staging (opcional) | Bot produção |
 | **Persistência** | Reinicia com o Node | Volume Postgres | Volume Docker | Volume + backups |
 | **Ficheiro env** | `.env` | `.env` | `.env` | `.env` no servidor |
-| **Estado hoje** | Active | Active (API + Prisma) | Pending smoke | Pending pós smoke local |
+| **Estado hoje** | Active | Active (API + Prisma) | Active | Active |
 
 \* Webhook Telegram em dev requer tunnel (ngrok / Cloudflare) ou testar só no VPS.
 
@@ -336,7 +336,7 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 **Pendente Phase 2 SEC / follow-ups:**
 1. P2-SEC-10 **fechar** highs do Next (upgrade major)
 2. P2-MON-01 request tracing completo
-3. P2-OPS checklist polish (se ainda houver gaps no README/VPS)
+3. P2-OPS checklist polish (só gaps remanescentes no runbook)
 
 **Pendente / opcional (Phase 1 leftover):**
 1. REST `/api/v1/*` além de health + webhook
@@ -346,10 +346,10 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Ops (feito no VPS):** backups diários → Drive; restore testado. Ver [DEPLOY §9.1](./DEPLOY-DIGITALOCEAN.md).
 
-**Smoke:** Telegram · fila · SEC (checks acima) · `/platform/login` com `PLATFORM_ADMIN_*`.
+**Smoke (feito):** prod local + VPS · Telegram · fila · SEC (checks acima) · `/platform/login` com `PLATFORM_ADMIN_*`.
 
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*`.
 
 ---
 
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-19 (prod local + VPS Active)

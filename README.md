@@ -97,7 +97,8 @@ Details in [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-lay
 |----------|---------|--------|
 | Dev mock | `npm run dev-mock` | Active — in-memory, any password |
 | Dev híbrido | `npm run dev-hybrid` | Active — Postgres + API, `SirRelay1`, resume last group |
-| Prod local / VPS | `npm run prod-local` | Pending — smoke Docker app |
+| Prod local | `npm run prod-local` | Active — Docker stack (smoke OK) |
+| Prod VPS | `bash scripts/env/prod-vps.sh` | Active — deploy + backups |
 
 ```bash
 npm install && npm run dev-mock && npm run check:routes

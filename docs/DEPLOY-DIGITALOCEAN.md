@@ -157,6 +157,8 @@ POSTGRES_PASSWORD=senha_forte_gerada
 SESSION_SECRET=...
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_WEBHOOK_SECRET=
+PLATFORM_ADMIN_USERNAME=ops
+PLATFORM_ADMIN_PASSWORD=...   # ≥8 chars; login em /{locale}/platform/login
 ```
 
 Caddy obtém certificado Let's Encrypt quando `APP_DOMAIN` (e apex, se configurado) apontam para o Droplet.

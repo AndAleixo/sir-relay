@@ -1,11 +1,10 @@
 /**
- * P2-AUD — append-only audit store (security + ops).
- * Operator UI filters to GROUP_ACTIVITY_ACTIONS via /events/activity.
- * Never throws to callers (ops must not break UX).
+ * Append-only audit store (`audit_logs`) — write path + low-level query.
+ * Operator product UI must use `@/lib/activity`, not this module's query.
  */
 import type { Session } from "@/domain/types";
 import type { AuditAction, AuditActorType, AuditEntry } from "@/domain/audit";
-import { actorTypeFromRole, GROUP_ACTIVITY_ACTIONS } from "@/domain/audit";
+import { actorTypeFromRole } from "@/domain/audit";
 import { prisma } from "@/lib/prisma";
 import { logJson } from "@/lib/safe-log";
 import type { Prisma } from "@prisma/client";
@@ -28,7 +27,7 @@ type MockRow = {
   createdAt: Date;
 };
 
-/** ponytail: mock audit store resets with process; enough for UI smoke. */
+/** ponytail: mock store resets with process; enough for smoke checks. */
 const mockRows: MockRow[] = [];
 
 function isMockMode(): boolean {
@@ -81,26 +80,62 @@ export function writeAuditFromSession(
   });
 }
 
-export async function listAuditForGroup(
-  groupId: string,
-  opts: {
-    page?: number;
-    pageSize?: number;
-    /** When true, only operator-facing group activity (no login/logout/password). */
-    activityOnly?: boolean;
-  } = {},
-): Promise<{ entries: AuditEntry[]; total: number; page: number; pageSize: number }> {
+export type AuditQueryOpts = {
+  /** Omit to query across all groups (incl. null groupId rows). */
+  groupId?: string;
+  /** When set, only these action codes (e.g. group activity subset). */
+  actions?: readonly string[];
+  /** Single action filter (admin UI). */
+  action?: string;
+  actorId?: string;
+  from?: Date;
+  to?: Date;
+  page?: number;
+  pageSize?: number;
+};
+
+function buildWhere(opts: AuditQueryOpts): Prisma.AuditLogWhereInput {
+  const where: Prisma.AuditLogWhereInput = {};
+  if (opts.groupId !== undefined) where.groupId = opts.groupId;
+  if (opts.actions?.length) where.action = { in: [...opts.actions] };
+  else if (opts.action) where.action = opts.action;
+  if (opts.actorId) where.actorId = opts.actorId;
+  if (opts.from || opts.to) {
+    where.createdAt = {
+      ...(opts.from ? { gte: opts.from } : {}),
+      ...(opts.to ? { lte: opts.to } : {}),
+    };
+  }
+  return where;
+}
+
+/**
+ * Low-level store read. Prefer `listGroupActivity` for operator UI.
+ * Platform admin uses optional groupId / filters.
+ */
+export async function queryAuditLogs(
+  opts: AuditQueryOpts = {},
+): Promise<{
+  entries: AuditEntry[];
+  total: number;
+  page: number;
+  pageSize: number;
+}> {
   const pageSize = Math.min(Math.max(opts.pageSize ?? 30, 1), 100);
   const page = Math.max(opts.page ?? 1, 1);
   const skip = (page - 1) * pageSize;
-  const actions = opts.activityOnly ? [...GROUP_ACTIVITY_ACTIONS] : null;
+  const where = buildWhere(opts);
 
   if (isMockMode()) {
-    const filtered = mockRows.filter(
-      (row) =>
-        row.groupId === groupId &&
-        (actions == null || actions.includes(row.action as (typeof GROUP_ACTIVITY_ACTIONS)[number])),
-    );
+    const filtered = mockRows.filter((row) => {
+      if (opts.groupId !== undefined && row.groupId !== opts.groupId) return false;
+      if (opts.actions?.length && !opts.actions.includes(row.action)) return false;
+      if (opts.action && row.action !== opts.action) return false;
+      if (opts.actorId && row.actorId !== opts.actorId) return false;
+      if (opts.from && row.createdAt < opts.from) return false;
+      if (opts.to && row.createdAt > opts.to) return false;
+      return true;
+    });
     const slice = filtered.slice(skip, skip + pageSize);
     return {
       entries: slice.map((row) => ({
@@ -119,10 +154,6 @@ export async function listAuditForGroup(
     };
   }
 
-  const where = {
-    groupId,
-    ...(actions ? { action: { in: actions } } : {}),
-  };
   const [total, rows] = await Promise.all([
     prisma.auditLog.count({ where }),
     prisma.auditLog.findMany({
@@ -130,7 +161,10 @@ export async function listAuditForGroup(
       orderBy: { createdAt: "desc" },
       skip,
       take: pageSize,
-      include: { actor: { select: { name: true, email: true } } },
+      include: {
+        actor: { select: { name: true, email: true } },
+        group: { select: { name: true } },
+      },
     }),
   ]);
 
@@ -142,7 +176,10 @@ export async function listAuditForGroup(
       actorType: row.actorType,
       actorId: row.actorId,
       actorName: row.actor?.name || row.actor?.email || null,
-      metadata: (row.metadata ?? {}) as Record<string, unknown>,
+      metadata: {
+        ...((row.metadata ?? {}) as Record<string, unknown>),
+        ...(row.group?.name ? { _groupName: row.group.name } : {}),
+      },
       createdAt: row.createdAt.toISOString(),
     })),
     total,
@@ -151,46 +188,37 @@ export async function listAuditForGroup(
   };
 }
 
-/** Resolve task titles + user names referenced in activity metadata. */
-export async function resolveActivityLabels(
-  entries: AuditEntry[],
-): Promise<{ taskTitles: Map<string, string>; userNames: Map<string, string> }> {
-  const taskIds = new Set<string>();
-  const userIds = new Set<string>();
-
-  for (const entry of entries) {
-    const meta = entry.metadata;
-    if (typeof meta.taskId === "string") taskIds.add(meta.taskId);
-    if (typeof meta.assigneeId === "string") userIds.add(meta.assigneeId);
-    if (typeof meta.toAssigneeId === "string") userIds.add(meta.toAssigneeId);
-    if (typeof meta.userId === "string") userIds.add(meta.userId);
+/** Counts for platform overview (last N days). */
+export async function countAuditSince(
+  since: Date,
+  action?: string,
+): Promise<number> {
+  if (isMockMode()) {
+    return mockRows.filter(
+      (row) => row.createdAt >= since && (!action || row.action === action),
+    ).length;
   }
+  return prisma.auditLog.count({
+    where: {
+      createdAt: { gte: since },
+      ...(action ? { action } : {}),
+    },
+  });
+}
 
-  const taskTitles = new Map<string, string>();
-  const userNames = new Map<string, string>();
-
-  if (isMockMode() || (taskIds.size === 0 && userIds.size === 0)) {
-    return { taskTitles, userNames };
+export async function countDistinctGroupsWithAuditSince(since: Date): Promise<number> {
+  if (isMockMode()) {
+    const ids = new Set(
+      mockRows
+        .filter((row) => row.createdAt >= since && row.groupId)
+        .map((row) => row.groupId as string),
+    );
+    return ids.size;
   }
-
-  const [tasks, users] = await Promise.all([
-    taskIds.size
-      ? prisma.task.findMany({
-          where: { id: { in: Array.from(taskIds) } },
-          select: { id: true, title: true },
-        })
-      : Promise.resolve([]),
-    userIds.size
-      ? prisma.user.findMany({
-          where: { id: { in: Array.from(userIds) } },
-          select: { id: true, name: true, email: true },
-        })
-      : Promise.resolve([]),
-  ]);
-
-  for (const task of tasks) taskTitles.set(task.id, task.title);
-  for (const user of users) {
-    userNames.set(user.id, user.name.trim() || user.email);
-  }
-  return { taskTitles, userNames };
+  const rows = await prisma.auditLog.findMany({
+    where: { createdAt: { gte: since }, groupId: { not: null } },
+    select: { groupId: true },
+    distinct: ["groupId"],
+  });
+  return rows.length;
 }

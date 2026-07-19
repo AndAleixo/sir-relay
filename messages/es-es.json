@@ -382,5 +382,78 @@
         "a": "En servidores SirRelay (PostgreSQL). Las páginas autenticadas no se cachean; la sesión usa una cookie esencial."
       }
     }
+  },
+  "platform": {
+    "brand": "SirRelay Admin",
+    "backToApp": "Volver a la app",
+    "logout": "Cerrar sesión",
+    "navOverview": "Resumen",
+    "navAudit": "Auditoría",
+    "navUsers": "Usuarios",
+    "navGroups": "Grupos",
+    "navHealth": "Salud",
+    "login": {
+      "title": "Acceso de plataforma",
+      "subtitle": "Credenciales de ops — distintas del login del producto.",
+      "username": "Usuario",
+      "password": "Contraseña",
+      "submit": "Entrar",
+      "invalid": "Usuario o contraseña incorrectos.",
+      "notConfigured": "Define PLATFORM_ADMIN_USERNAME y PLATFORM_ADMIN_PASSWORD en el entorno del servidor."
+    },
+    "overview": {
+      "title": "Resumen",
+      "subtitle": "Señales de la plataforma de los últimos 7 días.",
+      "logins7d": "Inicios de sesión",
+      "exports7d": "Exportaciones",
+      "groups7d": "Grupos con actividad",
+      "recent": "Actividad reciente",
+      "viewAudit": "Abrir auditoría"
+    },
+    "audit": {
+      "title": "Registro de auditoría",
+      "subtitle": "Eventos de seguridad y operación de todos los grupos.",
+      "empty": "Ningún evento coincide con estos filtros.",
+      "when": "Cuándo",
+      "action": "Acción",
+      "actor": "Actor",
+      "group": "Grupo",
+      "detail": "Detalle",
+      "allGroups": "Todos los grupos",
+      "actorId": "Id del actor",
+      "filter": "Filtrar",
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "page": "Página {page} de {totalPages}"
+    },
+    "users": {
+      "title": "Usuarios",
+      "subtitle": "Cuentas en este despliegue de SirRelay.",
+      "email": "Email",
+      "name": "Nombre",
+      "status": "Estado",
+      "audit": "Auditoría",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "viewAudit": "Ver auditoría"
+    },
+    "groups": {
+      "title": "Grupos",
+      "subtitle": "Espacios de trabajo en este despliegue.",
+      "name": "Nombre",
+      "members": "Miembros",
+      "created": "Creado",
+      "audit": "Auditoría",
+      "viewAudit": "Ver auditoría"
+    },
+    "health": {
+      "title": "Salud",
+      "subtitle": "Comprobaciones de infraestructura.",
+      "database": "Base de datos",
+      "ok": "OK",
+      "fail": "No disponible",
+      "checkedAt": "Comprobado",
+      "publicEndpoint": "Sonda pública"
+    }
   }
 }

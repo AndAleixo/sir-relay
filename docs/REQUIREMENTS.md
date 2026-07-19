@@ -383,7 +383,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-SEC-01 | IDOR protection | Every resource route validates role + ownership · **Done** (service-layer: `authz.ts` + operator on export/alerts/invites/audit list; self-only on UserService; tasks already via `loadTask`) |
+| P2-SEC-01 | IDOR protection | Every resource route validates role + ownership · **Done** (service-layer: `authz.ts` + operator on export/alerts/invites; self-only on UserService; tasks already via `loadTask`) |
 | P2-SEC-02 | Session revocation | `token_version` on user; increment on password change; invalidate on logout · **Done (SEC base)** |
 | P2-SEC-03 | Account lockout | 5 failed logins per email per 15 min → lock 15 min · **Done (SEC base)** |
 | P2-SEC-04 | Password policy | Min 8 + uppercase + number; block common passwords · **Done (grandfather: only on set)** |
@@ -397,14 +397,14 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 ### 6.2 Audit log & group activity
 
-Server writes append-only `audit_logs` (security + ops). Operators see **group activity** only (human language under Events). Login / logout / password stay in the DB for platform admin later — not in the group UI.
+Server writes append-only `audit_logs` via `writeAudit` (security + ops). Operators see **group activity** only (`listGroupActivity` → `/events/activity`, human language). Login / logout / password stay in the store for **platform admin** (`/platform`) — not in the group UI.
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P2-AUD-01 | Recorded actions | Login, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** · **Done** (`writeAudit` / `writeAuditFromSession`) |
 | P2-AUD-02 | Storage | `audit_logs`: id, action, actor_type, actor_id, metadata, created_at · **Done** |
 | P2-AUD-03 | Operator UI | `/[locale]/events` = alerts; `/events/activity` = group history (human language; no login/logout) · **Done** |
-| P2-AUD-04 | API | `GET /api/v1/audit` (raw list; platform/admin later) · **Done** |
+| P2-AUD-04 | Platform admin | `/{locale}/platform/*` with **separate** env credentials (`PLATFORM_ADMIN_USERNAME` / `PLATFORM_ADMIN_PASSWORD`) + cookie `sirrelay_platform_session` · **Done** (no public audit API; not product login) |
 
 **Schema addition:**
 
@@ -437,7 +437,7 @@ audit_logs
 
 | Layer | Answers | Tooling | Cookie consent |
 |-------|---------|---------|----------------|
-| **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` · operator **group activity** UI · platform admin later | No — server-side |
+| **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` · `/events/activity` · `/platform` | No — server-side |
 | **Access / ops** | Is the app up? Who hit the server? | Caddy access logs, `GET /health`, JSON app logs | No — infrastructure |
 | **Web analytics** (optional) | Which screens are used? Mobile vs desktop? | Self-hosted **Umami** or **Plausible** (recommended) | **Yes** — unless provider is cookieless and legal review confirms exemption |
 
@@ -485,7 +485,7 @@ audit_logs
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-DATA-01 | API | `GET /api/v1/export` — Operator; default full org export · `?userId={id}` per person · `?include=audit` full only; rate limit 5/hour |
+| P2-DATA-01 | API | `GET /api/v1/export` — Operator; default full org export · `?userId={id}` per person; rate limit 5/hour |
 | P2-DATA-02 | Payload | Versioned JSON (below); never include `password_hash`, token hashes, `telegram_chat_id`, `telegram_message_id` |
 | P2-DATA-03 | UI | [UIUX.md §7](./UIUX.md#7-teammates-operator) |
 
@@ -611,7 +611,6 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/tasks/:id/notify` | 1 | Operator in active group |
 | POST | `/telegram/webhook` | 1 | Webhook secret |
 | GET | `/health` | 1 | Public |
-| GET | `/audit` | 2 | Raw `audit_logs` (operator session today; platform admin later). UI: `/events/activity` |
 | GET | `/export` | 2 | Operator in active group · §6.5.2 |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
@@ -718,8 +717,11 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-07-19 | Platform admin: separate ops login + session cookie (not `users.platform_admin`) |
+| 2026-07-19 | Platform admin UI: `/platform/*` (P2-AUD-04) |
+| 2026-07-19 | Split activity vs audit: `lib/activity` for `/events/activity`; `lib/audit` = store write/query only |
+| 2026-07-19 | Removed public `GET /api/v1/audit` (ops use `/platform` instead) |
 | 2026-07-19 | Events: `/events` (alerts) + `/events/activity` (human group history); raw store stays `audit_logs` |
-| 2026-07-19 | Phase 2 audit storage: `audit_logs` + `GET /api/v1/audit` (P2-AUD) |
 | 2026-07-19 | Phase 2 IDOR: service-layer operator/self guards (P2-SEC-01) |
 | 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
 | 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |

@@ -382,5 +382,78 @@
         "a": "Nos servidores SirRelay (PostgreSQL). Páginas autenticadas não são cacheadas; a sessão usa um cookie essencial."
       }
     }
+  },
+  "platform": {
+    "brand": "SirRelay Admin",
+    "backToApp": "Voltar à app",
+    "logout": "Sair",
+    "navOverview": "Resumo",
+    "navAudit": "Auditoria",
+    "navUsers": "Utilizadores",
+    "navGroups": "Grupos",
+    "navHealth": "Saúde",
+    "login": {
+      "title": "Acesso à plataforma",
+      "subtitle": "Credenciais de ops — distintas do login do produto.",
+      "username": "Utilizador",
+      "password": "Password",
+      "submit": "Entrar",
+      "invalid": "Utilizador ou password incorrectos.",
+      "notConfigured": "Define PLATFORM_ADMIN_USERNAME e PLATFORM_ADMIN_PASSWORD no ambiente do servidor."
+    },
+    "overview": {
+      "title": "Resumo",
+      "subtitle": "Sinais da plataforma nos últimos 7 dias.",
+      "logins7d": "Logins",
+      "exports7d": "Exportações",
+      "groups7d": "Grupos com atividade",
+      "recent": "Atividade recente",
+      "viewAudit": "Abrir auditoria"
+    },
+    "audit": {
+      "title": "Registo de auditoria",
+      "subtitle": "Eventos de segurança e operação de todos os grupos.",
+      "empty": "Nenhum evento corresponde a estes filtros.",
+      "when": "Quando",
+      "action": "Ação",
+      "actor": "Autor",
+      "group": "Grupo",
+      "detail": "Detalhe",
+      "allGroups": "Todos os grupos",
+      "actorId": "Id do autor",
+      "filter": "Filtrar",
+      "prev": "Anterior",
+      "next": "Seguinte",
+      "page": "Página {page} de {totalPages}"
+    },
+    "users": {
+      "title": "Utilizadores",
+      "subtitle": "Contas neste deployment SirRelay.",
+      "email": "Email",
+      "name": "Nome",
+      "status": "Estado",
+      "audit": "Auditoria",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "viewAudit": "Ver auditoria"
+    },
+    "groups": {
+      "title": "Grupos",
+      "subtitle": "Espaços de trabalho neste deployment.",
+      "name": "Nome",
+      "members": "Membros",
+      "created": "Criado",
+      "audit": "Auditoria",
+      "viewAudit": "Ver auditoria"
+    },
+    "health": {
+      "title": "Saúde",
+      "subtitle": "Verificações de infraestrutura.",
+      "database": "Base de dados",
+      "ok": "OK",
+      "fail": "Indisponível",
+      "checkedAt": "Verificado em",
+      "publicEndpoint": "Probe público"
+    }
   }
 }

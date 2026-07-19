@@ -1,14 +1,15 @@
 /**
- * Self-check: audit helpers + group activity filter (P2-AUD).
+ * Self-check: audit store write + group activity list (separate layers).
  * Run: npx tsx scripts/check-audit.ts
  */
 import assert from "node:assert/strict";
+import { actorTypeFromRole } from "../src/domain/audit";
+import { isGroupActivityAction } from "../src/domain/activity";
 import {
-  actorTypeFromRole,
-  isGroupActivityAction,
-} from "../src/domain/audit";
-import { describeGroupActivity } from "../src/lib/activity-copy";
-import { listAuditForGroup, writeAudit } from "../src/lib/audit";
+  describeGroupActivity,
+  listGroupActivity,
+} from "../src/lib/activity";
+import { queryAuditLogs, writeAudit } from "../src/lib/audit";
 
 assert.equal(actorTypeFromRole("operator"), "operator");
 assert.equal(actorTypeFromRole("teammate"), "teammate");
@@ -33,14 +34,13 @@ async function main() {
     metadata: { taskId: "t1", title: "Prep shelf", from: "todo", to: "doing" },
   });
 
-  const all = await listAuditForGroup("g-audit", { page: 1, pageSize: 10 });
-  assert.equal(all.total, 2);
+  const raw = await queryAuditLogs({ groupId: "g-audit", page: 1, pageSize: 10 });
+  assert.equal(raw.total, 2);
 
-  const activity = await listAuditForGroup("g-audit", {
-    page: 1,
-    pageSize: 10,
-    activityOnly: true,
-  });
+  const crossGroup = await queryAuditLogs({ page: 1, pageSize: 10 });
+  assert.ok(crossGroup.total >= 2);
+
+  const activity = await listGroupActivity("g-audit", { page: 1, pageSize: 10 });
   assert.equal(activity.total, 1);
   assert.equal(activity.entries[0]?.action, "task_status");
 

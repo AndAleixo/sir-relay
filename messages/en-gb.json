@@ -382,5 +382,78 @@
         "a": "On SirRelay servers (PostgreSQL). Signed-in pages are never cached by the browser; the session uses one essential cookie."
       }
     }
+  },
+  "platform": {
+    "brand": "SirRelay Admin",
+    "backToApp": "Back to app",
+    "logout": "Log out",
+    "navOverview": "Overview",
+    "navAudit": "Audit",
+    "navUsers": "Users",
+    "navGroups": "Groups",
+    "navHealth": "Health",
+    "login": {
+      "title": "Platform sign-in",
+      "subtitle": "Ops credentials — separate from the product login.",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Sign in",
+      "invalid": "Invalid username or password.",
+      "notConfigured": "Set PLATFORM_ADMIN_USERNAME and PLATFORM_ADMIN_PASSWORD in the server environment."
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Platform signals for the last 7 days.",
+      "logins7d": "Logins",
+      "exports7d": "Exports",
+      "groups7d": "Groups with activity",
+      "recent": "Recent activity",
+      "viewAudit": "Open audit"
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Raw security and operational events across all groups.",
+      "empty": "No events match these filters.",
+      "when": "When",
+      "action": "Action",
+      "actor": "Actor",
+      "group": "Group",
+      "detail": "Detail",
+      "allGroups": "All groups",
+      "actorId": "Actor id",
+      "filter": "Filter",
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {page} of {totalPages}"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Accounts on this SirRelay deployment.",
+      "email": "Email",
+      "name": "Name",
+      "status": "Status",
+      "audit": "Audit",
+      "active": "Active",
+      "inactive": "Inactive",
+      "viewAudit": "View audit"
+    },
+    "groups": {
+      "title": "Groups",
+      "subtitle": "Workspaces on this deployment.",
+      "name": "Name",
+      "members": "Members",
+      "created": "Created",
+      "audit": "Audit",
+      "viewAudit": "View audit"
+    },
+    "health": {
+      "title": "Health",
+      "subtitle": "Infrastructure checks for this deployment.",
+      "database": "Database",
+      "ok": "OK",
+      "fail": "Unavailable",
+      "checkedAt": "Checked at",
+      "publicEndpoint": "Public probe"
+    }
   }
 }

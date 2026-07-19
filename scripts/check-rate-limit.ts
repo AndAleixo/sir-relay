@@ -41,6 +41,8 @@ assert.equal(afterWindow.ok, true);
 
 assert.equal(isAuthRateLimitedPath("/login"), true);
 assert.equal(isAuthRateLimitedPath("/signup"), true);
+assert.equal(isAuthRateLimitedPath("/platform/login"), true);
+assert.equal(isAuthRateLimitedPath("/platform"), false);
 assert.equal(isAuthRateLimitedPath("/tasks"), false);
 
 assert.equal(

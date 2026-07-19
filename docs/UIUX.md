@@ -369,6 +369,7 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 | Teammate detail | `/teammates/[id]` | Yes | — |
 | **Events** | `/events` | Yes | — |
 | **Group activity** | `/events/activity` | Yes | — |
+| **Platform admin** | `/platform/login`, `/platform`, … | Ops credentials only | — |
 | **Profile** | `/profile` | Yes | Yes |
 | Settings | `/settings` | Yes | Yes |
 | Join (group invite) | `/join/[token]` | Public | Public |
@@ -452,11 +453,11 @@ Operator only. Access: sidebar / mobile tabs.
 | Feed of teammate **task done** and **due/overdue** alerts | Shipped |
 | Delivery badge: Telegram vs web-only (operator alert prefs + linked Telegram) | Shipped |
 | Link to **Group activity** (`/events/activity`) — human-language history of group changes (no login/logout) | Shipped |
-| Preferences | **Settings** → Operator alerts toggles |
+| Preferences | **Settings** → Operator alerts toggles | Shipped |
 
 Teammates do not have this route (redirect to `/tasks`).
 
-Platform-wide security/analytics admin remains a separate later surface.
+**Implementation notes:** `lib/activity` + `domain/activity` (group history). Store: `audit_logs` via `lib/audit`. Platform ops console: `/platform/login` with env `PLATFORM_ADMIN_*` + cookie `sirrelay_platform_session` (not product credentials).
 
 ---
 
@@ -572,6 +573,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | Kanban DnD polish (touch / a11y) | 3 (P3-03) | Core shipped in Phase 1 |
 | Locale persist (Profile) | 1 | Shipped via `updateLocale`; header switcher changes URL path only |
 | Group activity (`/events/activity`) | 2 | Shipped |
+| Platform admin (`/platform/*`) | 2 | Shipped (separate ops login) |
 | Native mobile apps | 3 (P3-13) | — |
 
 ---

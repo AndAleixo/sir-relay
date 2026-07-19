@@ -1,8 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
 import { ButtonLink } from "@/components/ui/button";
-import { describeGroupActivity } from "@/lib/activity-copy";
-import { listAuditForGroup, resolveActivityLabels } from "@/lib/audit";
+import {
+  describeGroupActivity,
+  listGroupActivity,
+  resolveActivityLabels,
+} from "@/lib/activity";
 import { requireOperatorSession } from "@/lib/require-session";
 
 const PAGE_SIZE = 30;
@@ -21,10 +24,9 @@ export default async function GroupActivityPage({
   const groupId = session.activeGroupId!;
   const page = Math.max(1, Number(pageRaw) || 1);
 
-  const { entries, total, pageSize } = await listAuditForGroup(groupId, {
+  const { entries, total, pageSize } = await listGroupActivity(groupId, {
     page,
     pageSize: PAGE_SIZE,
-    activityOnly: true,
   });
   const { taskTitles, userNames } = await resolveActivityLabels(entries);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));

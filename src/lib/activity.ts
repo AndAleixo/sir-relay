@@ -1,13 +1,80 @@
 /**
- * Human-readable group activity lines for /events/activity (operator UI).
+ * Operator group activity for `/events/activity`.
+ * Reads a filtered slice of the audit store; presents human-readable lines.
  */
-import type { AuditEntry } from "@/domain/audit";
-import { isGroupActivityAction } from "@/domain/audit";
+import type { GroupActivityEntry } from "@/domain/activity";
+import { GROUP_ACTIVITY_ACTIONS, isGroupActivityAction } from "@/domain/activity";
+import { queryAuditLogs } from "@/lib/audit";
+import { prisma } from "@/lib/prisma";
 
 export type ActivityMessage = {
   key: string;
   values: Record<string, string>;
 };
+
+export async function listGroupActivity(
+  groupId: string,
+  opts: { page?: number; pageSize?: number } = {},
+): Promise<{
+  entries: GroupActivityEntry[];
+  total: number;
+  page: number;
+  pageSize: number;
+}> {
+  return queryAuditLogs({
+    groupId,
+    actions: GROUP_ACTIVITY_ACTIONS,
+    page: opts.page,
+    pageSize: opts.pageSize,
+  });
+}
+
+/** Resolve task titles + user names referenced in activity metadata. */
+export async function resolveActivityLabels(
+  entries: GroupActivityEntry[],
+): Promise<{ taskTitles: Map<string, string>; userNames: Map<string, string> }> {
+  const taskIds = new Set<string>();
+  const userIds = new Set<string>();
+
+  for (const entry of entries) {
+    const meta = entry.metadata;
+    if (typeof meta.taskId === "string") taskIds.add(meta.taskId);
+    if (typeof meta.assigneeId === "string") userIds.add(meta.assigneeId);
+    if (typeof meta.toAssigneeId === "string") userIds.add(meta.toAssigneeId);
+    if (typeof meta.userId === "string") userIds.add(meta.userId);
+  }
+
+  const taskTitles = new Map<string, string>();
+  const userNames = new Map<string, string>();
+
+  if (
+    process.env.NEXT_PUBLIC_SERVICE_MODE === "mock" ||
+    (taskIds.size === 0 && userIds.size === 0)
+  ) {
+    return { taskTitles, userNames };
+  }
+
+  const [tasks, users] = await Promise.all([
+    taskIds.size
+      ? prisma.task.findMany({
+          where: { id: { in: Array.from(taskIds) } },
+          select: { id: true, title: true },
+        })
+      : Promise.resolve([]),
+    userIds.size
+      ? prisma.user.findMany({
+          where: { id: { in: Array.from(userIds) } },
+          select: { id: true, name: true, email: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  for (const task of tasks) taskTitles.set(task.id, task.title);
+  for (const user of users) {
+    userNames.set(user.id, user.name.trim() || user.email);
+  }
+  return { taskTitles, userNames };
+}
 
 function str(meta: Record<string, unknown>, key: string): string | null {
   const value = meta[key];
@@ -35,8 +102,9 @@ function personLabel(
   return "—";
 }
 
+/** Map a store row to an i18n message key under `events.activity.*`. */
 export function describeGroupActivity(
-  entry: AuditEntry,
+  entry: GroupActivityEntry,
   ctx: {
     taskTitles: Map<string, string>;
     userNames: Map<string, string>;
@@ -70,10 +138,9 @@ export function describeGroupActivity(
       };
     }
     case "task_reassign": {
+      const toName = personLabel(meta, "toAssigneeId", ctx.userNames);
       const assignee =
-        personLabel(meta, "toAssigneeId", ctx.userNames) !== "—"
-          ? personLabel(meta, "toAssigneeId", ctx.userNames)
-          : personLabel(meta, "assigneeId", ctx.userNames);
+        toName !== "—" ? toName : personLabel(meta, "assigneeId", ctx.userNames);
       return { key: "task_reassign", values: { actor, task, assignee } };
     }
     case "task_renotify":

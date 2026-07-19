@@ -67,9 +67,10 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/tasks`, `/tasks/new`, `/tasks/[id]` | Session + group | private | Boards, list, CRUD |
 | `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | Operator team management |
 | `/[locale]/events`, `/events/activity`, `/settings` | Session + group | private | Operator alerts · group activity · alert prefs |
+| `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 
-**Backend (Phase 1–2):** Prisma + server actions · `/api/v1/health` · `/api/v1/audit` · Telegram webhook · SEC base + CSRF Origin guard in `middleware.ts` · (optional full REST) · **Phase 2 remaining:** Next major (SEC-10 highs), P2-MON-01 tracing, P2-OPS checklist polish.
+**Backend (Phase 1–2):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `middleware.ts` · platform admin `/platform` · (optional full REST) · **Phase 2 remaining:** Next major (SEC-10 highs), P2-MON-01 tracing, P2-OPS checklist polish.
 
 ## Entry redirects
 
@@ -133,14 +134,16 @@ Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-ofic
 | Lockout | `users.failed_login_count` / `locked_until` | 5 falhas → 15 min; erros de login genéricos |
 | Password set | `password-policy.ts` | 8 + maiúscula + número + denylist; login grandfather |
 | CSRF | `csrf-origin.ts` + middleware | POST/… sem Origin/Referer same-origin → 403; webhook `/api` fora do matcher |
-| Rate limit | `rate-limit.ts` + middleware | login/signup 10/min/IP · other POSTs 100/min/IP → 429 + Retry-After |
+| Rate limit | `rate-limit.ts` + middleware | login/signup/platform/login 10/min/IP · other POSTs 100/min/IP → 429 + Retry-After |
 | Telegram in | `telegram/sanitize.ts` | Strip C0/C1 controls on replies + `/start` codes before persist/parse |
 | Dep audit | README · `audit:prod` | Processo + Image Optimizer off; highs do Next 14 **ainda abertos** (precisa major) |
 | Safe log | `safe-log.ts` | JSON lines; redacts password/token/body/…; used on login + security blocks |
-| IDOR | `authz.ts` + services | Operator: export · alerts · invites · audit list; self: profile mutations; tasks: `loadTask` |
+| IDOR | `authz.ts` + services | Operator: export · alerts · invites; self: profile mutations; tasks: `loadTask` |
 | Headers | `security-headers.ts` + middleware | HSTS (prod HTTPS), frame deny, nosniff, referrer, CSP |
-| Audit store | `audit.ts` · `audit_logs` · `GET /api/v1/audit` | Append-only (incl. login). Operator UI: **group activity** at `/events/activity` (no login). Platform admin later |
-| Checks | `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `audit:prod` | |
+| Audit store | `lib/audit.ts` · `audit_logs` | Append-only write + `queryAuditLogs` (cross-group for platform admin). Incl. login |
+| Group activity | `domain/activity.ts` · `lib/activity.ts` · `/events/activity` | Filtered human-language history for operators (no login) |
+| Platform admin | `/platform/login` · env `PLATFORM_ADMIN_*` · cookie `sirrelay_platform_session` | Separate from product login; Overview · Audit · Users · Groups · Health |
+| Checks | `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `check:platform-session` · `audit:prod` | |
 
 ## Session sync
 

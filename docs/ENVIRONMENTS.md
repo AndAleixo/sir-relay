@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** UI + **dev-híbrido** · Telegram · fila · convites · **Phase 2 SEC** (01–09, 11; audit processo) · **P2-AUD** (`audit_logs` + Events activity). Próximo Phase 2: upgrade Next (SEC-10 highs) ou P2-MON-01.
+**Estado actual:** UI + **dev-híbrido** · Telegram · fila · convites · **Phase 2 SEC** · **P2-AUD** (`audit_logs` + Events activity + `/platform` admin). Próximo Phase 2: upgrade Next (SEC-10 highs) ou P2-MON-01.
 
 ---
 
@@ -140,6 +140,7 @@ npm run dev-hybrid
 curl -s http://localhost:3000/api/v1/health   # → 200
 # browser: sam@example.com / SirRelay1 → tasks (resume last group)
 # promote teammate → Settings → leave group · delete group
+# PLATFORM_ADMIN_* no .env → /en-gb/platform/login → Overview / Audit
 ```
 
 ---
@@ -328,8 +329,8 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Feito (Phase 2 SEC parcial):**
 - P2-SEC-01–09, 11 (+ processo P2-SEC-10) — incl. IDOR service guards + safe JSON logging
-- P2-AUD-01–04 — `audit_logs` · `/events` (alerts) · `/events/activity` (group history) · `GET /api/v1/audit` · `check:audit`
-- Checks: `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `audit:prod`
+- P2-AUD-01–04 — `audit_logs` · `/events/activity` · `/platform` (ops login + session) · `check:audit` · `check:platform-session`
+- Checks: `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `check:platform-session` · `audit:prod`
 - Demo seed password: **`SirRelay1`**
 
 **Pendente Phase 2 SEC / follow-ups:**
@@ -345,7 +346,7 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Ops (feito no VPS):** backups diários → Drive; restore testado. Ver [DEPLOY §9.1](./DEPLOY-DIGITALOCEAN.md).
 
-**Smoke:** Telegram · fila · SEC (`check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `audit:prod`).
+**Smoke:** Telegram · fila · SEC (checks acima) · `/platform/login` com `PLATFORM_ADMIN_*`.
 
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*`.
 

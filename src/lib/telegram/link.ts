@@ -1,6 +1,7 @@
 import type { Locale as DbLocale } from "@prisma/client";
 import { hashToken } from "@/lib/token-hash";
 import { prisma } from "@/lib/prisma";
+import { sanitizeTelegramLinkCode } from "@/lib/telegram/sanitize";
 
 export type LinkTelegramResult =
   | { ok: true; name: string; locale: DbLocale; operator: boolean; alreadyLinked: boolean }
@@ -11,7 +12,10 @@ export async function linkTelegramChat(
   code: string,
   chatId: string,
 ): Promise<LinkTelegramResult> {
-  const tokenHash = hashToken(code.trim());
+  const cleaned = sanitizeTelegramLinkCode(code);
+  if (!cleaned) return { ok: false, reason: "invalid" };
+
+  const tokenHash = hashToken(cleaned);
   const record = await prisma.telegramLinkToken.findUnique({
     where: { tokenHash },
     include: { user: { include: { memberships: true } } },

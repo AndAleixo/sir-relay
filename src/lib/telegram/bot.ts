@@ -19,6 +19,10 @@ import {
   dispatchAfterDone,
   parseStatusKeyword,
 } from "@/lib/telegram/relay";
+import {
+  sanitizeTelegramLinkCode,
+  sanitizeTelegramText,
+} from "@/lib/telegram/sanitize";
 
 export { telegramConfigured };
 
@@ -40,7 +44,7 @@ function createBot(token: string): Bot {
 
   bot.command("start", async (ctx) => {
     const chatId = String(ctx.chat.id);
-    const code = ctx.match?.trim();
+    const code = sanitizeTelegramLinkCode(ctx.match ?? "");
 
     if (!code) {
       const linked = await prisma.user.findFirst({
@@ -74,7 +78,7 @@ function createBot(token: string): Bot {
     });
     if (!user) return;
 
-    const body = (ctx.message.text ?? "").trim().slice(0, 2000);
+    const body = sanitizeTelegramText(ctx.message.text ?? "");
     if (!body) return;
 
     const replyTo = ctx.message.reply_to_message;

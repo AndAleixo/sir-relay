@@ -132,8 +132,9 @@ Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-ofic
 | Password set | `password-policy.ts` | 8 + maiúscula + número + denylist; login grandfather |
 | CSRF | `csrf-origin.ts` + middleware | POST/… sem Origin/Referer same-origin → 403; webhook `/api` fora do matcher |
 | Rate limit | `rate-limit.ts` + middleware | login/signup 10/min/IP · other POSTs 100/min/IP → 429 + Retry-After |
+| Telegram in | `telegram/sanitize.ts` | Strip C0/C1 controls on replies + `/start` codes before persist/parse |
 | Headers | `security-headers.ts` + middleware | HSTS (prod HTTPS), frame deny, nosniff, referrer, CSP |
-| Checks | `npm run check:sec` · `check:csrf` · `check:rate` | |
+| Checks | `npm run check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` | |
 
 ## Session sync
 

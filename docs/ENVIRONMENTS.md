@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** UI + **dev-híbrido** (Prisma + API) · Telegram · fila To do · convites · **Phase 2 SEC** (token_version, lockout, password, headers, CSRF, rate limits). Próximo SEC: sanitize Telegram (P2-SEC-09) ou `npm audit` (P2-SEC-10). Sign-up merge (P1-AUTH-13) ainda não.
+**Estado actual:** UI + **dev-híbrido** (Prisma + API) · Telegram · fila To do · convites · **Phase 2 SEC** (até rate limits + Telegram sanitize). Próximo SEC: `npm audit` (P2-SEC-10) ou safe logging (P2-SEC-11). Sign-up merge (P1-AUTH-13) ainda não.
 
 ---
 
@@ -327,15 +327,14 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 **Feito (Phase 1):** Prisma + seed + `services/api/*` + actions · fila To do · invitations · Telegram relay + alerts.
 
 **Feito (Phase 2 SEC parcial):**
-- P2-SEC-02–08 — `token_version`, lockout, password policy (grandfather), security headers, CSRF Origin guard, rate limits, generic login errors
-- Checks: `npm run check:sec` · `check:csrf` · `check:rate`
+- P2-SEC-02–09 — `token_version`, lockout, password policy, headers, CSRF, rate limits, generic login errors, Telegram sanitize
+- Checks: `npm run check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize`
 - Demo seed password: **`SirRelay1`** (hashes antigos `demo12345` ainda fazem login)
 
 **Pendente Phase 2 SEC:**
-1. P2-SEC-09 Sanitize Telegram input
-2. P2-SEC-10 `npm audit` no README
-3. P2-SEC-11 JSON safe logging
-4. P2-SEC-01 IDOR pass (auditoria de ownership)
+1. P2-SEC-10 `npm audit` no README
+2. P2-SEC-11 JSON safe logging
+3. P2-SEC-01 IDOR pass (auditoria de ownership)
 
 **Pendente / opcional (Phase 1 leftover):**
 1. REST `/api/v1/*` além de health + webhook
@@ -345,7 +344,7 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Ops (feito no VPS):** backups diários → Drive; restore testado. Ver [DEPLOY §9.1](./DEPLOY-DIGITALOCEAN.md).
 
-**Smoke:** Telegram (Profile → DM → `feito`) · fila (`check:queue` + DnD) · SEC (`check:sec` · `check:csrf` · `check:rate`).
+**Smoke:** Telegram (Profile → DM → `feito`) · fila (`check:queue` + DnD) · SEC (`check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize`).
 
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*`.
 

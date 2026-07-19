@@ -390,7 +390,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | P2-SEC-06 | CSRF | SameSite=Lax session cookie + middleware Origin/Referer check on non-GET locale routes · **Done (no token; upgrade if cookie REST API)** |
 | P2-SEC-07 | Rate limits | Login/signup 10/min/IP · other mutations 100/min/IP · in-memory middleware · **Done** (Redis if multi-instance) |
 | P2-SEC-08 | Login errors | Generic message; no email enumeration on **login** · **Done** (always `Invalid credentials` / `auth.loginError`; signup “taken” is intentional for new accounts) |
-| P2-SEC-09 | Telegram input | Sanitize; strip control characters |
+| P2-SEC-09 | Telegram input | Sanitize; strip control characters · **Done** (`sanitizeTelegramText` / link codes on inbound bot handlers) |
 | P2-SEC-10 | Dependency audit | Document `npm audit` in README; fix critical/high before deploy |
 | P2-SEC-11 | Safe logging | Never log passwords, tokens, or full comment bodies; JSON logs |
 
@@ -715,6 +715,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-07-19 | Phase 2 Telegram sanitize: strip controls on inbound text + link codes (P2-SEC-09) |
 | 2026-07-19 | Phase 2 rate limits: login/signup 10/min/IP, mutations 100/min/IP (P2-SEC-07) |
 | 2026-07-19 | Phase 2 CSRF: Origin/Referer same-origin guard (P2-SEC-06) on top of SameSite=Lax |
 | 2026-07-19 | Phase 2 SEC base: token_version, login lockout, password policy (grandfather), security headers |

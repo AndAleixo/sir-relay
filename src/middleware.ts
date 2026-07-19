@@ -1,10 +1,16 @@
 import type { NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
+import { NextResponse } from "next/server";
 import {
   defaultLocale,
   localePathPattern,
   locales,
 } from "./i18n/config";
+import {
+  expectedOriginFromHost,
+  isSafeHttpMethod,
+  isSameOriginMutation,
+} from "./lib/csrf-origin";
 import { applySecurityHeaders } from "./lib/security-headers";
 
 const intlMiddleware = createMiddleware({
@@ -35,7 +41,34 @@ function isAppPage(pathname: string): boolean {
   );
 }
 
+function assertCsrfOrigin(request: NextRequest): NextResponse | null {
+  if (isSafeHttpMethod(request.method)) return null;
+
+  const host =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  const proto =
+    request.headers.get("x-forwarded-proto") ??
+    request.nextUrl.protocol.replace(":", "");
+  const expectedOrigin = expectedOriginFromHost(host, proto, "http");
+
+  const ok = isSameOriginMutation({
+    method: request.method,
+    origin: request.headers.get("origin"),
+    referer: request.headers.get("referer"),
+    expectedOrigin,
+  });
+
+  if (ok) return null;
+  return new NextResponse("Forbidden", { status: 403 });
+}
+
 export default function middleware(request: NextRequest) {
+  const blocked = assertCsrfOrigin(request);
+  if (blocked) {
+    applySecurityHeaders(request, blocked);
+    return blocked;
+  }
+
   const { pathname } = request.nextUrl;
   const response = intlMiddleware(request);
 

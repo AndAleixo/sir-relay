@@ -387,7 +387,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | P2-SEC-03 | Account lockout | 5 failed logins per email per 15 min → lock 15 min · **Done (SEC base)** |
 | P2-SEC-04 | Password policy | Min 8 + uppercase + number; block common passwords · **Done (grandfather: only on set)** |
 | P2-SEC-05 | Security headers | HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, CSP · **Done (middleware)** |
-| P2-SEC-06 | CSRF | Protection on cookie-auth mutations |
+| P2-SEC-06 | CSRF | SameSite=Lax session cookie + middleware Origin/Referer check on non-GET locale routes · **Done (no token; upgrade if cookie REST API)** |
 | P2-SEC-07 | Rate limits | Login 10/min/IP · API 100/min/IP (authenticated) |
 | P2-SEC-08 | Login errors | Generic message; no email enumeration |
 | P2-SEC-09 | Telegram input | Sanitize; strip control characters |
@@ -713,6 +713,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-07-19 | Phase 2 CSRF: Origin/Referer same-origin guard (P2-SEC-06) on top of SameSite=Lax |
 | 2026-07-19 | Phase 2 SEC base: token_version, login lockout, password policy (grandfather), security headers |
 | 2026-07-19 | Phase 1 sync: self column (not “Me”); To do drop index rules; AUTH-13/14 marked not shipped; P3-03 narrowed; board column order by To do load |
 | 2026-07-18 | Telegram task relay + operator alert DMs (P1-TG-02–05, 08–10) |

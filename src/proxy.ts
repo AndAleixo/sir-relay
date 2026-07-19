@@ -33,7 +33,7 @@ const PUBLIC_CACHE =
   "public, s-maxage=3600, stale-while-revalidate=86400, max-age=300";
 const PRIVATE_CACHE = "private, no-store, max-age=0, must-revalidate";
 
-/** Shared across requests in this process / Edge isolate. */
+/** Shared across requests in this process. */
 const rateLimitStore: RateLimitStore = new Map();
 
 function stripLocale(pathname: string): string {
@@ -114,7 +114,7 @@ function logSecurityBlock(
   });
 }
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const csrfBlocked = assertCsrfOrigin(request);
   if (csrfBlocked) {
     logSecurityBlock(request, 403, "csrf_origin_rejected");

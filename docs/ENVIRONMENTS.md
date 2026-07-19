@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** Quatro ambientes **Active** (mock · híbrido · prod local · VPS). Phase 2 SEC + AUD. Próximo: upgrade Next (SEC-10 highs) ou P2-MON-01.
+**Estado actual:** Quatro ambientes **Active** (mock · híbrido · prod local · VPS). Phase 2 SEC + AUD · **Next 16**. Próximo: P2-MON-01 ou AUTH-13.
 
 ---
 
@@ -328,15 +328,15 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 **Feito (Phase 1):** Prisma + seed + `services/api/*` + actions · fila To do · invitations · Telegram relay + alerts.
 
 **Feito (Phase 2 SEC parcial):**
-- P2-SEC-01–09, 11 (+ processo P2-SEC-10) — incl. IDOR service guards + safe JSON logging
+- P2-SEC-01–11 — incl. IDOR · safe JSON logging · **Next 16.2** (SEC-10 highs closed)
 - P2-AUD-01–04 — `audit_logs` · `/events/activity` · `/platform` (ops login + session) · `check:audit` · `check:platform-session`
 - Checks: `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `check:platform-session` · `audit:prod`
 - Demo seed password: **`SirRelay1`**
 
 **Pendente Phase 2 SEC / follow-ups:**
-1. P2-SEC-10 **fechar** highs do Next (upgrade major)
-2. P2-MON-01 request tracing completo
-3. P2-OPS checklist polish (só gaps remanescentes no runbook)
+1. P2-MON-01 request tracing completo
+2. P2-OPS checklist polish (só gaps remanescentes no runbook)
+3. Nested postcss moderate inside Next (upstream; no safe force-fix)
 
 **Pendente / opcional (Phase 1 leftover):**
 1. REST `/api/v1/*` além de health + webhook
@@ -352,4 +352,4 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 ---
 
-**Last updated:** 2026-07-19 (prod local + VPS Active)
+**Last updated:** 2026-07-19 (Next 16.2 / P2-SEC-10)

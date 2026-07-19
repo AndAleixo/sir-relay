@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
-import { useFormState } from "react-dom";
+import { useEffect, useId, useState, useActionState } from "react";
 import { useTranslations } from "next-intl";
 import type { GroupInvitation, UserGroup } from "@/domain/types";
 import type { GroupFormState } from "@/app/actions/groups";
@@ -42,7 +41,7 @@ function GroupPanelCreateForm({
 }) {
   const t = useTranslations();
   const nameId = useId();
-  const [state, action] = useFormState(
+  const [state, action] = useActionState(
     createGroupForm.bind(null, locale),
     emptyFormState,
   );
@@ -92,7 +91,7 @@ function GroupPanelJoinForm({
 }) {
   const t = useTranslations();
   const inviteId = useId();
-  const [state, action] = useFormState(
+  const [state, action] = useActionState(
     redeemInviteForm.bind(null, locale),
     emptyFormState,
   );

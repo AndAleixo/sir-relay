@@ -80,7 +80,7 @@ Languages: **English (UK), Spanish (Spain), and Portuguese (Brazil)** (`en-gb`, 
 
 ## Stack (summary)
 
-- **Next.js** (App Router) + TypeScript + React
+- **Next.js 16** (App Router) + TypeScript + React 19
 - **PostgreSQL** + Prisma
 - **Telegram** (grammy, webhook)
 - **Docker Compose** + Caddy
@@ -118,7 +118,7 @@ npm run audit:prod   # same as: npm audit --omit=dev
 
 **Deploy rule:** no **critical** in prod deps. **High** → upgrade if possible without a major break; otherwise record and schedule.
 
-**Today:** still **high** on Next 14 (and moderate on next-intl/postcss). Clearing them needs a **Next 15/16** upgrade — not done yet. Until then we stay on latest 14.2 and keep Image Optimizer off (`next.config.mjs`) because the app does not use `next/image`.
+**Today:** on **Next 16.2** — prod `audit:prod` has **no critical/high**. Remaining: **moderate** nested `postcss` inside Next (no safe bump without `audit fix --force` downgrade). Image Optimizer stays off (`next.config.mjs`) — app does not use `next/image`.
 
 ---
 

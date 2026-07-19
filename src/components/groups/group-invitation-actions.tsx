@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import {
   acceptGroupInvitation,
@@ -19,11 +19,11 @@ export function GroupInvitationActions({
   invitationId: string;
 }) {
   const t = useTranslations();
-  const [acceptState, acceptAction] = useFormState(
+  const [acceptState, acceptAction] = useActionState(
     acceptGroupInvitation.bind(null, locale, invitationId),
     initialState,
   );
-  const [declineState, declineAction] = useFormState(
+  const [declineState, declineAction] = useActionState(
     declineGroupInvitation.bind(null, locale, invitationId),
     initialState,
   );

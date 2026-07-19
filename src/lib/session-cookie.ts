@@ -59,13 +59,14 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
 }
 
 export async function readSessionPayload(): Promise<SessionPayload | null> {
-  const raw = cookies().get(COOKIE_NAME)?.value;
+  const jar = await cookies();
+  const raw = jar.get(COOKIE_NAME)?.value;
   if (!raw) return null;
   return verifySessionToken(raw);
 }
 
 export async function writeSessionPayload(payload: SessionPayload | null): Promise<void> {
-  const jar = cookies();
+  const jar = await cookies();
   if (!payload) {
     jar.delete(COOKIE_NAME);
     return;

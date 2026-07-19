@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import type { UserGroup } from "@/domain/types";
 import type { GroupFormState } from "@/app/actions/groups";
@@ -36,11 +36,11 @@ export function GroupDangerSettings({
   isLastOperator?: boolean;
 }) {
   const t = useTranslations();
-  const [leaveState, leaveAction] = useFormState(
+  const [leaveState, leaveAction] = useActionState(
     leaveGroupForm.bind(null, locale),
     emptyFormState,
   );
-  const [deleteState, deleteAction] = useFormState(
+  const [deleteState, deleteAction] = useActionState(
     deleteGroupForm.bind(null, locale),
     emptyFormState,
   );

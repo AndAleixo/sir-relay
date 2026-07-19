@@ -57,7 +57,8 @@ const cookieOptions = {
 };
 
 export async function readPlatformSession(): Promise<PlatformSession | null> {
-  const raw = cookies().get(COOKIE_NAME)?.value;
+  const jar = await cookies();
+  const raw = jar.get(COOKIE_NAME)?.value;
   if (!raw) return null;
   try {
     const { payload } = await jwtVerify(raw, sessionSecret());
@@ -72,7 +73,7 @@ export async function readPlatformSession(): Promise<PlatformSession | null> {
 export async function writePlatformSession(
   session: PlatformSession | null,
 ): Promise<void> {
-  const jar = cookies();
+  const jar = await cookies();
   if (!session) {
     jar.delete(COOKIE_NAME);
     return;

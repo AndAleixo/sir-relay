@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import {
   platformLoginAction,
@@ -19,7 +19,7 @@ export function PlatformLoginForm({
   configured: boolean;
 }) {
   const t = useTranslations("platform");
-  const [state, action] = useFormState(
+  const [state, action] = useActionState(
     platformLoginAction.bind(null, locale),
     initial,
   );

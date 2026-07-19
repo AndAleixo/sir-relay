@@ -49,7 +49,7 @@ export default async function TeammateDetailPage({
     teammate?.accountStatus === "invited"
       ? await teammates.getInviteToken(id, { session })
       : null;
-  const inviteUrl = inviteToken ? joinInviteUrl(locale, inviteToken) : "";
+  const inviteUrl = inviteToken ? await joinInviteUrl(locale, inviteToken) : "";
 
   return (
     <>

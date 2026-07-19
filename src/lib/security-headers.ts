@@ -1,7 +1,7 @@
 import type { NextRequest, NextResponse } from "next/server";
 
 /**
- * P2-SEC-05 — attach on every middleware response.
+ * P2-SEC-05 — attach on every proxy response.
  * CSP allows Next inline bootstrap; tighten with nonces later if needed.
  */
 const CSP = [

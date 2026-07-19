@@ -44,8 +44,9 @@ const cookieOptions = {
   secure: process.env.NODE_ENV === "production",
 };
 
-function readSession(): Session | null {
-  const raw = cookies().get(MOCK_SESSION_COOKIE)?.value;
+async function readSession(): Promise<Session | null> {
+  const jar = await cookies();
+  const raw = jar.get(MOCK_SESSION_COOKIE)?.value;
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as MockCookieSession;
@@ -65,11 +66,11 @@ function readSession(): Session | null {
   }
 }
 
-function writeSession(
+async function writeSession(
   session: Session | null,
   options: { autoPickGroup?: boolean } = {},
 ) {
-  const jar = cookies();
+  const jar = await cookies();
   if (!session) {
     jar.delete(MOCK_SESSION_COOKIE);
     return;
@@ -124,7 +125,7 @@ export class MockAuthService implements AuthService {
     state.lockedUntil = null;
 
     const session = buildSession(user);
-    writeSession(session);
+    await writeSession(session);
     return session;
   }
 
@@ -156,16 +157,16 @@ export class MockAuthService implements AuthService {
     sec(user.id);
 
     const session: Session = { user: { ...user }, activeGroupId: null };
-    writeSession(session, { autoPickGroup: false });
+    await writeSession(session, { autoPickGroup: false });
     return hydrateSession(session, mockGroupMembershipLookup, { autoPickGroup: false })!;
   }
 
   async logout(): Promise<void> {
-    const current = readSession();
+    const current = await readSession();
     if (current) {
       sec(current.user.id).tokenVersion += 1;
     }
-    writeSession(null);
+    await writeSession(null);
   }
 
   async changePassword(
@@ -189,8 +190,8 @@ export class MockAuthService implements AuthService {
 
     sec(userId).tokenVersion += 1;
 
-    const current = readSession();
-    writeSession(buildSession(updated, current?.activeGroupId ?? null));
+    const current = await readSession();
+    await writeSession(buildSession(updated, current?.activeGroupId ?? null));
     return { ...updated };
   }
 
@@ -229,7 +230,7 @@ export class MockAuthService implements AuthService {
       { ...user, mustChangePassword: false },
       invite.groupId,
     );
-    writeSession(session);
+    await writeSession(session);
     return session;
   }
 
@@ -254,13 +255,13 @@ export class MockAuthService implements AuthService {
       { autoPickGroup: false },
     );
     if (!session) throw new Error("Invalid session");
-    writeSession(session, { autoPickGroup: false });
+    await writeSession(session, { autoPickGroup: false });
     return session;
   }
 
   async refreshSessionUser(user: User): Promise<void> {
-    const current = readSession();
-    writeSession(
+    const current = await readSession();
+    await writeSession(
       hydrateSession(
         {
           user,

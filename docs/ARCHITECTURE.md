@@ -70,7 +70,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 
-**Backend (Phase 1–2):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `middleware.ts` · platform admin `/platform` · (optional full REST) · **Phase 2 remaining:** Next major (SEC-10 highs), P2-MON-01 tracing, P2-OPS checklist polish.
+**Backend (Phase 1–2):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `proxy.ts` · platform admin `/platform` · (optional full REST) · **Phase 2 remaining:** P2-MON-01 tracing, P2-OPS checklist polish.
 
 ## Entry redirects
 
@@ -133,13 +133,13 @@ Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-ofic
 | Revocation | `users.token_version` | Incrementa em logout + change password; hydrate rejeita mismatch |
 | Lockout | `users.failed_login_count` / `locked_until` | 5 falhas → 15 min; erros de login genéricos |
 | Password set | `password-policy.ts` | 8 + maiúscula + número + denylist; login grandfather |
-| CSRF | `csrf-origin.ts` + middleware | POST/… sem Origin/Referer same-origin → 403; webhook `/api` fora do matcher |
-| Rate limit | `rate-limit.ts` + middleware | login/signup/platform/login 10/min/IP · other POSTs 100/min/IP → 429 + Retry-After |
+| CSRF | `csrf-origin.ts` + `proxy.ts` | POST/… sem Origin/Referer same-origin → 403; webhook `/api` fora do matcher |
+| Rate limit | `rate-limit.ts` + `proxy.ts` | login/signup/platform/login 10/min/IP · other POSTs 100/min/IP → 429 + Retry-After |
 | Telegram in | `telegram/sanitize.ts` | Strip C0/C1 controls on replies + `/start` codes before persist/parse |
-| Dep audit | README · `audit:prod` | Processo + Image Optimizer off; highs do Next 14 **ainda abertos** (precisa major) |
+| Dep audit | README · `audit:prod` | Next 16.2 · no high in prod; Image Optimizer off; nested postcss moderate |
 | Safe log | `safe-log.ts` | JSON lines; redacts password/token/body/…; used on login + security blocks |
 | IDOR | `authz.ts` + services | Operator: export · alerts · invites; self: profile mutations; tasks: `loadTask` |
-| Headers | `security-headers.ts` + middleware | HSTS (prod HTTPS), frame deny, nosniff, referrer, CSP |
+| Headers | `security-headers.ts` + `proxy.ts` | HSTS (prod HTTPS), frame deny, nosniff, referrer, CSP |
 | Audit store | `lib/audit.ts` · `audit_logs` | Append-only write + `queryAuditLogs` (cross-group for platform admin). Incl. login |
 | Group activity | `domain/activity.ts` · `lib/activity.ts` · `/events/activity` | Filtered human-language history for operators (no login) |
 | Platform admin | `/platform/login` · env `PLATFORM_ADMIN_*` · cookie `sirrelay_platform_session` | Separate from product login; Overview · Audit · Users · Groups · Health |

@@ -392,12 +392,12 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | P2-SEC-02 | Session revocation | `token_version` on user; increment on password change; invalidate on logout · **Done (SEC base)** |
 | P2-SEC-03 | Account lockout | 5 failed logins per email per 15 min → lock 15 min · **Done (SEC base)** |
 | P2-SEC-04 | Password policy | Min 8 + uppercase + number; block common passwords · **Done (grandfather: only on set)** |
-| P2-SEC-05 | Security headers | HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, CSP · **Done (middleware)** |
-| P2-SEC-06 | CSRF | SameSite=Lax session cookie + middleware Origin/Referer check on non-GET locale routes · **Done (no token; upgrade if cookie REST API)** |
-| P2-SEC-07 | Rate limits | Login/signup/`platform/login` 10/min/IP · other mutations 100/min/IP · in-memory middleware · **Done** (Redis if multi-instance) |
+| P2-SEC-05 | Security headers | HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, CSP · **Done (`proxy.ts`)** |
+| P2-SEC-06 | CSRF | SameSite=Lax session cookie + `proxy.ts` Origin/Referer check on non-GET locale routes · **Done (no token; upgrade if cookie REST API)** |
+| P2-SEC-07 | Rate limits | Login/signup/`platform/login` 10/min/IP · other mutations 100/min/IP · in-memory in `proxy.ts` · **Done** (Redis if multi-instance) |
 | P2-SEC-08 | Login errors | Generic message; no email enumeration on **login** · **Done** (always `Invalid credentials` / `auth.loginError`; signup “taken” is intentional for new accounts) |
 | P2-SEC-09 | Telegram input | Sanitize; strip control characters · **Done** (`sanitizeTelegramText` / link codes on inbound bot handlers) |
-| P2-SEC-10 | Dependency audit | Run/document `npm audit` before deploy; no critical in prod · **Process done** — remaining Next 14 **high** needs major upgrade (not fixed yet); see README |
+| P2-SEC-10 | Dependency audit | Run/document `npm audit` before deploy; no critical in prod · **Done** (Next **16.2.10**; no high in `audit:prod`; nested postcss moderate remains) |
 | P2-SEC-11 | Safe logging | Never log passwords, tokens, or full comment bodies; JSON logs · **Done** (`safe-log.ts` + redaction; login / CSRF / rate-limit / telegram errors). Per-request tracing → P2-MON-01 |
 
 ### 6.2 Audit log & group activity
@@ -625,7 +625,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Layer | Choice |
 |-------|--------|
-| Framework | Next.js 14+ App Router · React · TypeScript (strict) |
+| Framework | Next.js 16 App Router · React 19 · TypeScript (strict) |
 | ORM | Prisma |
 | i18n | next-intl |
 | Auth | jose (JWT) + httpOnly cookie |
@@ -729,6 +729,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-07-19 | Events: `/events` (alerts) + `/events/activity` (human group history); raw store stays `audit_logs` |
 | 2026-07-19 | Phase 2 IDOR: service-layer operator/self guards (P2-SEC-01) |
 | 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
+| 2026-07-19 | Next 16.2.10 + React 19 + next-intl 4 (P2-SEC-10 highs cleared); `middleware` → `proxy` |
 | 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |
 | 2026-07-19 | Phase 2 Telegram sanitize: strip controls on inbound text + link codes (P2-SEC-09) |
 | 2026-07-19 | Phase 2 rate limits: login/signup/platform/login 10/min/IP, mutations 100/min/IP (P2-SEC-07) |

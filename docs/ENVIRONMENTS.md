@@ -203,7 +203,7 @@ cd sir-relay
 bash scripts/env/prod-vps.sh    # git pull + migrate + docker compose up --build
 ```
 
-Checklist: [DEPLOY-DIGITALOCEAN.md §10](./DEPLOY-DIGITALOCEAN.md#10-checklist-pós-deploy).
+Checklist: [DEPLOY-DIGITALOCEAN.md §10](./DEPLOY-DIGITALOCEAN.md#10-checklist-pos-deploy).
 
 ---
 
@@ -276,7 +276,7 @@ Dev mock ──► Dev híbrido ──► Prod local ──► Prod VPS
 |-----------|----------|
 | Mock → Híbrido | `services/api` com auth + groups + tasks; migrations + seed |
 | Híbrido → Prod local | `docker compose up --build` OK; health + acceptance test |
-| Prod local → VPS | Checklist [DEPLOY §10](./DEPLOY-DIGITALOCEAN.md#10-checklist-pós-deploy) |
+| Prod local → VPS | Checklist [DEPLOY §10](./DEPLOY-DIGITALOCEAN.md#10-checklist-pos-deploy) |
 
 ---
 

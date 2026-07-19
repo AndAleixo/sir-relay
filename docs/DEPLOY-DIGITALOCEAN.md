@@ -238,8 +238,18 @@ rclone ls gdrive:sirrelay-backups
 Retenção local 7 dias (`BACKUP_RETAIN_DAYS`); no Drive limpa manualmente ou `rclone delete gdrive:sirrelay-backups --min-age 30d`.
 
 **Estado:** P2-BAK-01–04 cumpridos — scripts · cron diário · offsite Drive · restore testado.
+
 ---
 
+## 10. Checklist pós-deploy
+
+1. `curl -s "${APP_URL}/api/v1/health"` → `{"ok":true,"service":"sirrelay"}`
+2. Login produto (`ADMIN_*` / seed) → criar ou entrar num grupo → tasks
+3. Se `PLATFORM_ADMIN_*` no `.env`: `/{locale}/platform/login` → Overview / Audit
+4. Telegram: `getWebhookInfo` OK (se bot activo)
+5. Backup: `bash scripts/db/backup.sh` (ou confirmar cron offsite §9.1)
+
+---
 
 ## Ficheiros no repo
 

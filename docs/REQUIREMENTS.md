@@ -295,7 +295,7 @@ Full hardening → Phase 2.
 | P1-DEP-03 | Postgres persistent volume |
 | P1-DEP-04 | README + deploy doc | Env setup, DNS, first login, landing at `/`, Telegram webhook — [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) |
 | P1-DEP-05 | Next.js `output: 'standalone'` |
-| P1-DEP-06 | `GET /api/v1/health` → `{ "status": "ok" \| "fail" }` (`fail` = DB unreachable) |
+| P1-DEP-06 | `GET /api/v1/health` → `{ "ok": true, "service": "sirrelay" }` · fail: `503` + `{ "ok": false, "error": "database_unavailable" }` |
 | P1-DEP-07 | Versioned Prisma migrations |
 
 **Environment variables:**
@@ -308,8 +308,12 @@ Full hardening → Phase 2.
 | `SESSION_MAX_AGE_DAYS` | No | Default `7` |
 | `ADMIN_EMAIL` | Yes | Seeds bootstrap **user** on first deploy |
 | `ADMIN_PASSWORD` | Yes | Seeds bootstrap **user** on first deploy |
+| `PLATFORM_ADMIN_USERNAME` | No* | Ops console `/platform/login` (separate from product login) |
+| `PLATFORM_ADMIN_PASSWORD` | No* | ≥8 chars; required with username to enable `/platform` |
 | `TELEGRAM_BOT_TOKEN` | Yes | From BotFather |
 | `TELEGRAM_WEBHOOK_SECRET` | Yes | Webhook verification |
+
+\*Required in prod if you use the platform admin console (P2-AUD-04).
 
 ### 5.9 Data model
 
@@ -372,6 +376,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `events` | Yes | — | Operator alerts (done / due) |
 | `events/activity` | Yes | — | Group activity (human language; no login) |
 | `settings` | Yes | Yes | Alert prefs, leave/delete group |
+| `platform/login`, `platform`, `platform/audit`, … | — | — | Ops cookie + `PLATFORM_ADMIN_*` (not product session) |
 
 **Phase 1 acceptance test:** Landing → sign up → create group → pre-create teammate → share invite → teammate activates via `/join/<token>` → links Telegram on Profile → two tasks → relay `done` on Telegram. **Or:** demo `sam@example.com` → Demo Shop → same loop. Stack on VPS with HTTPS. (Sign-up merge Path B is out of scope until P1-AUTH-13.)
 
@@ -389,7 +394,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | P2-SEC-04 | Password policy | Min 8 + uppercase + number; block common passwords · **Done (grandfather: only on set)** |
 | P2-SEC-05 | Security headers | HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, CSP · **Done (middleware)** |
 | P2-SEC-06 | CSRF | SameSite=Lax session cookie + middleware Origin/Referer check on non-GET locale routes · **Done (no token; upgrade if cookie REST API)** |
-| P2-SEC-07 | Rate limits | Login/signup 10/min/IP · other mutations 100/min/IP · in-memory middleware · **Done** (Redis if multi-instance) |
+| P2-SEC-07 | Rate limits | Login/signup/`platform/login` 10/min/IP · other mutations 100/min/IP · in-memory middleware · **Done** (Redis if multi-instance) |
 | P2-SEC-08 | Login errors | Generic message; no email enumeration on **login** · **Done** (always `Invalid credentials` / `auth.loginError`; signup “taken” is intentional for new accounts) |
 | P2-SEC-09 | Telegram input | Sanitize; strip control characters · **Done** (`sanitizeTelegramText` / link codes on inbound bot handlers) |
 | P2-SEC-10 | Dependency audit | Run/document `npm audit` before deploy; no critical in prod · **Process done** — remaining Next 14 **high** needs major upgrade (not fixed yet); see README |
@@ -485,9 +490,9 @@ audit_logs
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-DATA-01 | API | `GET /api/v1/export` — Operator; default full org export · `?userId={id}` per person; rate limit 5/hour |
-| P2-DATA-02 | Payload | Versioned JSON (below); never include `password_hash`, token hashes, `telegram_chat_id`, `telegram_message_id` |
-| P2-DATA-03 | UI | [UIUX.md §7](./UIUX.md#7-teammates-operator) |
+| P2-DATA-01 | Export | Operator via **server action** (UI on Teammates); full org or per-person scope · **Done** (REST `GET /api/v1/export` optional / not shipped) |
+| P2-DATA-02 | Payload | Versioned JSON (below); never include `password_hash`, token hashes, `telegram_chat_id`, `telegram_message_id` · **Done** |
+| P2-DATA-03 | UI | [UIUX.md §7](./UIUX.md#7-teammates-operator) · **Done** |
 
 **Export envelope (version 1):**
 
@@ -611,7 +616,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/tasks/:id/notify` | 1 | Operator in active group |
 | POST | `/telegram/webhook` | 1 | Webhook secret |
 | GET | `/health` | 1 | Public |
-| GET | `/export` | 2 | Operator in active group · §6.5.2 |
+| GET | `/export` | 2 | Optional REST — today: server action + Teammates UI · §6.5.2 |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
 ---
@@ -726,7 +731,8 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
 | 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |
 | 2026-07-19 | Phase 2 Telegram sanitize: strip controls on inbound text + link codes (P2-SEC-09) |
-| 2026-07-19 | Phase 2 rate limits: login/signup 10/min/IP, mutations 100/min/IP (P2-SEC-07) |
+| 2026-07-19 | Phase 2 rate limits: login/signup/platform/login 10/min/IP, mutations 100/min/IP (P2-SEC-07) |
+| 2026-07-19 | Docs sync: health JSON shape; `PLATFORM_ADMIN_*` in §5.8; export via server action (P2-DATA) |
 | 2026-07-19 | Phase 2 CSRF: Origin/Referer same-origin guard (P2-SEC-06) on top of SameSite=Lax |
 | 2026-07-19 | Phase 2 SEC base: token_version, login lockout, password policy (grandfather), security headers |
 | 2026-07-19 | Phase 1 sync: self column (not “Me”); To do drop index rules; AUTH-13/14 marked not shipped; P3-03 narrowed; board column order by To do load |

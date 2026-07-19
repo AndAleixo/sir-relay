@@ -2,6 +2,7 @@ import type { SirRelayExport, ExportUser } from "@/domain/export";
 import { toExportTask } from "@/domain/export";
 import type { Session, Task, Teammate, User } from "@/domain/types";
 import type { ExportService } from "@/services/contracts";
+import { requireOperator } from "@/lib/authz";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { MOCK_OPERATORS, MOCK_TASKS, MOCK_TEAMMATES } from "@/services/mock/data";
 import { mockOperatorAlertService } from "@/services/mock/alerts.mock";
@@ -71,8 +72,8 @@ export class MockExportService implements ExportService {
     ctx: { session: Session },
     userId?: string,
   ): Promise<SirRelayExport> {
-    const groupId = ctx.session.activeGroupId;
-    if (!groupId) throw new Error("No active group");
+    requireOperator(ctx.session);
+    const groupId = ctx.session.activeGroupId!;
 
     const exportedAt = new Date().toISOString();
     const users = usersInGroup(groupId);

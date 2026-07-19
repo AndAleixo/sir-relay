@@ -17,6 +17,7 @@
     "check:telegram-sanitize": "tsx scripts/check-telegram-sanitize.ts",
     "audit:prod": "npm audit --omit=dev",
     "check:safe-log": "tsx scripts/check-safe-log.ts",
+    "check:authz": "tsx scripts/check-authz.ts",
     "dev-mock": "bash scripts/env/dev-mock.sh",
     "dev-hybrid": "bash scripts/env/dev-hybrid.sh",
     "dev-hybrid-db": "bash scripts/env/dev-hybrid-db.sh",

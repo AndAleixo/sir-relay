@@ -5,6 +5,7 @@ import {
   calendarDateInTimezone,
   isDueOnOrBeforeTodayInTimezone,
 } from "@/lib/group-timezones";
+import { requireActiveGroupId, requireOperator } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import {
   telegramDeliveryAllowed,
@@ -18,9 +19,11 @@ import {
 import { sendTelegramMessage } from "@/lib/telegram/send";
 
 function requireGroupId(ctx: { session: Session }): string {
-  const groupId = ctx.session.activeGroupId;
-  if (!groupId) throw new Error("No active group");
-  return groupId;
+  return requireActiveGroupId(ctx.session);
+}
+
+function requireOperatorGroup(ctx: { session: Session }): string {
+  return requireOperator(ctx.session);
 }
 
 async function defaultPrefs(groupId: string): Promise<OperatorAlertPrefs> {
@@ -77,14 +80,14 @@ async function deliverOperatorAlertDms(
 
 export class ApiOperatorAlertService implements OperatorAlertService {
   async getPrefs(ctx: { session: Session }): Promise<OperatorAlertPrefs> {
-    return defaultPrefs(requireGroupId(ctx));
+    return defaultPrefs(requireOperatorGroup(ctx));
   }
 
   async updatePrefs(
     ctx: { session: Session },
     next: Partial<OperatorAlertPrefs>,
   ): Promise<OperatorAlertPrefs> {
-    const groupId = requireGroupId(ctx);
+    const groupId = requireOperatorGroup(ctx);
     await defaultPrefs(groupId);
     const row = await prisma.groupAlertPrefs.update({
       where: { groupId },
@@ -105,7 +108,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
     ctx: { session: Session },
     limit = 8,
   ): Promise<OperatorAlert[]> {
-    const groupId = requireGroupId(ctx);
+    const groupId = requireOperatorGroup(ctx);
     const taskRows = await prisma.task.findMany({
       where: { groupId },
       select: { id: true },

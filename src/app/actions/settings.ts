@@ -16,7 +16,9 @@ export async function updateUserLocale(newLocale: string, pathname: string) {
   const session = await auth.getSession();
   if (!session) return;
 
-  const user = await users.updateLocale(session.user.id, newLocale as Locale);
+  const user = await users.updateLocale(session.user.id, newLocale as Locale, {
+    session,
+  });
   await auth.refreshSessionUser(user);
   revalidatePath("/", "layout");
 

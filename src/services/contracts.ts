@@ -147,10 +147,20 @@ export interface ExportService {
 }
 
 export interface UserService {
-  updateLocale(userId: string, locale: Locale): Promise<User>;
-  updateName(userId: string, name: string): Promise<User>;
-  regenerateTelegramLink(userId: string): Promise<string>;
-  getTelegramLinkToken(userId: string): Promise<string | null>;
+  updateLocale(
+    userId: string,
+    locale: Locale,
+    ctx: { session: Session },
+  ): Promise<User>;
+  updateName(userId: string, name: string, ctx: { session: Session }): Promise<User>;
+  regenerateTelegramLink(
+    userId: string,
+    ctx: { session: Session },
+  ): Promise<string>;
+  getTelegramLinkToken(
+    userId: string,
+    ctx: { session: Session },
+  ): Promise<string | null>;
 }
 
 export interface Services {

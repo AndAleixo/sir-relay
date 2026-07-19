@@ -2,6 +2,7 @@ import type { SirRelayExport, ExportUser } from "@/domain/export";
 import { toExportTask } from "@/domain/export";
 import type { Session, Teammate, User } from "@/domain/types";
 import type { ExportService } from "@/services/contracts";
+import { requireOperator } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { apiOperatorAlertService } from "@/services/api/alerts";
 import { toRole, toTeammate, toUser } from "@/services/api/mappers";
@@ -39,8 +40,8 @@ export class ApiExportService implements ExportService {
     ctx: { session: Session },
     userId?: string,
   ): Promise<SirRelayExport> {
-    const groupId = ctx.session.activeGroupId;
-    if (!groupId) throw new Error("No active group");
+    requireOperator(ctx.session);
+    const groupId = ctx.session.activeGroupId!;
 
     const memberships = await prisma.groupMembership.findMany({
       where: { groupId },

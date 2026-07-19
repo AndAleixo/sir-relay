@@ -8,6 +8,7 @@ import type {
   UserService,
 } from "@/services/contracts";
 import { defaultLocale } from "@/i18n/config";
+import { requireOperator, requireSelfUserId } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import {
   createInviteTokenRecord,
@@ -266,6 +267,7 @@ export class ApiTeammateService implements TeammateService {
   }
 
   async regenerateInvite(id: string, ctx: { session: Session }): Promise<void> {
+    requireOperator(ctx.session);
     const teammate = await requireTeammateInGroup(ctx, id);
     if (teammate.accountStatus !== "invited") {
       throw new Error("account_active");
@@ -281,6 +283,7 @@ export class ApiTeammateService implements TeammateService {
   }
 
   async getInviteToken(id: string, ctx: { session: Session }): Promise<string | null> {
+    requireOperator(ctx.session);
     const teammate = await this.getTeammate(id, ctx);
     if (!teammate || teammate.accountStatus !== "invited") return null;
     const groupId = requireGroupId(ctx.session);
@@ -293,7 +296,8 @@ export class ApiTeammateService implements TeammateService {
 }
 
 export class ApiUserService implements UserService {
-  async updateLocale(userId: string, locale: Locale) {
+  async updateLocale(userId: string, locale: Locale, ctx: { session: Session }) {
+    requireSelfUserId(ctx.session, userId);
     const updated = await prisma.user.update({
       where: { id: userId },
       data: { locale: fromLocale(locale) },
@@ -305,7 +309,8 @@ export class ApiUserService implements UserService {
     return role === "teammate" ? toTeammate(updated, role) : toUser(updated, role);
   }
 
-  async updateName(userId: string, name: string) {
+  async updateName(userId: string, name: string, ctx: { session: Session }) {
+    requireSelfUserId(ctx.session, userId);
     const updated = await prisma.user.update({
       where: { id: userId },
       data: { name: name.trim() },
@@ -317,7 +322,11 @@ export class ApiUserService implements UserService {
     return role === "teammate" ? toTeammate(updated, role) : toUser(updated, role);
   }
 
-  async regenerateTelegramLink(userId: string): Promise<string> {
+  async regenerateTelegramLink(
+    userId: string,
+    ctx: { session: Session },
+  ): Promise<string> {
+    requireSelfUserId(ctx.session, userId);
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user || !user.active) throw new Error("User not found");
 
@@ -332,7 +341,11 @@ export class ApiUserService implements UserService {
     return createTelegramLinkTokenRecord(userId);
   }
 
-  async getTelegramLinkToken(userId: string): Promise<string | null> {
+  async getTelegramLinkToken(
+    userId: string,
+    ctx: { session: Session },
+  ): Promise<string | null> {
+    requireSelfUserId(ctx.session, userId);
     const active = await prisma.telegramLinkToken.findFirst({
       where: { userId, usedAt: null, expiresAt: { gt: new Date() } },
     });

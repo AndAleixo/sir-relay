@@ -43,7 +43,9 @@ export default async function ProfilePage({
 
   const telegramStatus = teammate?.telegramStatus ?? user.telegramStatus;
   const telegramToken =
-    telegramStatus === "pending" ? await users.getTelegramLinkToken(user.id) : null;
+    telegramStatus === "pending"
+      ? await users.getTelegramLinkToken(user.id, { session })
+      : null;
   const telegramUrl = telegramToken ? telegramBotUrl(telegramToken) : "";
 
   const passwordErrorMessage =

@@ -21,6 +21,7 @@ src/
 │   ├── csrf-origin.ts    # P2-SEC-06 — Origin/Referer same-origin check
 │   ├── rate-limit.ts     # P2-SEC-07 — sliding window per IP
 │   ├── safe-log.ts       # P2-SEC-11 — JSON logs + redaction
+│   ├── authz.ts          # P2-SEC-01 — requireOperator / requireSelfUserId
 │   └── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
 ├── app/actions/
 │   ├── auth.ts           # Login, signup, logout, password
@@ -136,8 +137,9 @@ Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-ofic
 | Telegram in | `telegram/sanitize.ts` | Strip C0/C1 controls on replies + `/start` codes before persist/parse |
 | Dep audit | README · `audit:prod` | Processo + Image Optimizer off; highs do Next 14 **ainda abertos** (precisa major) |
 | Safe log | `safe-log.ts` | JSON lines; redacts password/token/body/…; used on login + security blocks |
+| IDOR | `authz.ts` + services | Operator: export/alerts/invites; self: profile mutations; tasks: `loadTask` |
 | Headers | `security-headers.ts` + middleware | HSTS (prod HTTPS), frame deny, nosniff, referrer, CSP |
-| Checks | `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `audit:prod` | |
+| Checks | `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `audit:prod` | |
 
 ## Session sync
 

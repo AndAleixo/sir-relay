@@ -174,7 +174,7 @@ export async function profileUpdateNameForm(locale: string, formData: FormData) 
     redirect(loginPath(locale, { session: "expired" }));
   }
 
-  const user = await users.updateName(session.user.id, name);
+  const user = await users.updateName(session.user.id, name, { session });
   await auth.refreshSessionUser(user);
   revalidatePath("/", "layout");
   redirect(`/${locale}/profile?nameSaved=1`);
@@ -187,7 +187,7 @@ export async function regenerateTelegramLinkAction(locale: string) {
     redirect(loginPath(locale, { session: "expired" }));
   }
 
-  await users.regenerateTelegramLink(session.user.id);
+  await users.regenerateTelegramLink(session.user.id, { session });
   revalidatePath(`/${locale}/profile`);
   redirect(`/${locale}/profile`);
 }

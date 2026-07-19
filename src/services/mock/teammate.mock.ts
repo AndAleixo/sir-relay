@@ -1,4 +1,5 @@
 import { defaultLocale } from "@/i18n/config";
+import { requireOperator, requireSelfUserId } from "@/lib/authz";
 import type { Locale, Session, Teammate, User } from "@/domain/types";
 import type {
   CreateTeammateInput,
@@ -251,12 +252,14 @@ export class MockTeammateService implements TeammateService {
   }
 
   async regenerateInvite(id: string, ctx: { session: Session }): Promise<void> {
+    requireOperator(ctx.session);
     const teammate = requireTeammateInGroup(ctx, id);
     if (teammate.accountStatus !== "invited") throw new Error("account_active");
     invalidateInviteTokens(id, ctx.session.activeGroupId!);
   }
 
   async getInviteToken(id: string, ctx: { session: Session }): Promise<string | null> {
+    requireOperator(ctx.session);
     const teammate = await this.getTeammate(id, ctx);
     if (!teammate || teammate.accountStatus !== "invited") return null;
     const groupId = ctx.session.activeGroupId!;
@@ -265,19 +268,33 @@ export class MockTeammateService implements TeammateService {
 }
 
 export class MockUserService implements UserService {
-  async updateLocale(userId: string, locale: Locale): Promise<User> {
+  async updateLocale(
+    userId: string,
+    locale: Locale,
+    ctx: { session: Session },
+  ): Promise<User> {
+    requireSelfUserId(ctx.session, userId);
     const updated = patchMockUser(userId, { locale });
     if (!updated) throw new Error("User not found");
     return { ...updated };
   }
 
-  async updateName(userId: string, name: string): Promise<User> {
+  async updateName(
+    userId: string,
+    name: string,
+    ctx: { session: Session },
+  ): Promise<User> {
+    requireSelfUserId(ctx.session, userId);
     const updated = patchMockUser(userId, { name: name.trim() });
     if (!updated) throw new Error("User not found");
     return { ...updated };
   }
 
-  async regenerateTelegramLink(userId: string): Promise<string> {
+  async regenerateTelegramLink(
+    userId: string,
+    ctx: { session: Session },
+  ): Promise<string> {
+    requireSelfUserId(ctx.session, userId);
     const user = findMockUserById(userId);
     if (!user || !user.active) {
       throw new Error("User not found");
@@ -286,7 +303,11 @@ export class MockUserService implements UserService {
     return createTelegramLinkToken(userId);
   }
 
-  async getTelegramLinkToken(userId: string): Promise<string | null> {
+  async getTelegramLinkToken(
+    userId: string,
+    ctx: { session: Session },
+  ): Promise<string | null> {
+    requireSelfUserId(ctx.session, userId);
     return getTelegramLinkTokenForUser(userId) ?? createTelegramLinkToken(userId);
   }
 }

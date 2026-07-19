@@ -3,6 +3,7 @@ import {
   calendarDateInTimezone,
   isDueOnOrBeforeTodayInTimezone,
 } from "@/lib/group-timezones";
+import { requireOperator } from "@/lib/authz";
 import type {
   OperatorAlertPrefs,
   OperatorAlertService,
@@ -84,16 +85,20 @@ function requireGroupId(ctx: { session: Session }): string {
   return groupId;
 }
 
+function requireOperatorGroup(ctx: { session: Session }): string {
+  return requireOperator(ctx.session);
+}
+
 export class MockOperatorAlertService implements OperatorAlertService {
   async getPrefs(ctx: { session: Session }): Promise<OperatorAlertPrefs> {
-    return { ...groupPrefs(requireGroupId(ctx)) };
+    return { ...groupPrefs(requireOperatorGroup(ctx)) };
   }
 
   async updatePrefs(
     ctx: { session: Session },
     next: Partial<OperatorAlertPrefs>,
   ): Promise<OperatorAlertPrefs> {
-    const groupId = requireGroupId(ctx);
+    const groupId = requireOperatorGroup(ctx);
     const prefs = { ...groupPrefs(groupId), ...next };
     prefsByGroup.set(groupId, prefs);
     return { ...prefs };
@@ -103,6 +108,7 @@ export class MockOperatorAlertService implements OperatorAlertService {
     ctx: { session: Session },
     limit = 8,
   ): Promise<OperatorAlert[]> {
+    requireOperatorGroup(ctx);
     const taskIds = new Set(
       (await mockTaskService.listTasks(ctx)).map((task) => task.id),
     );

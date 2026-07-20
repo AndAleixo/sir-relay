@@ -32,6 +32,7 @@ interface StatusKanbanProps {
     doing: string;
     done: string;
     dragHandle: string;
+    openTask: string;
     startDoing: string;
     markDone: string;
     completedMark: string;
@@ -115,10 +116,10 @@ export function StatusKanban({
     await assignStatus(taskId, targetStatus);
   }
 
-  const cardLabels: TaskCardLabels & { dragHandle: string } = {
+  const cardLabels: TaskCardLabels & { openTask: string } = {
     dueDate: labels.dueDate,
     overdue: labels.overdue,
-    dragHandle: labels.dragHandle,
+    openTask: labels.openTask,
   };
 
   return (

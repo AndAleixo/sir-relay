@@ -139,6 +139,7 @@ export function TasksPageClient({
               dueDate: labels.dueDate,
               overdue: labels.overdue,
               dragHandle: labels.dragHandle,
+              openTask: labels.openTask,
               startDoing: labels.startDoing,
               markDone: labels.markDone,
               completedMark: labels.completedMark,

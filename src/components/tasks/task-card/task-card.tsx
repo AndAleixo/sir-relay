@@ -9,6 +9,7 @@ import { setTaskDragData } from "@/lib/task-drag";
 import { taskCardStyles } from "./task-card.styles";
 import { StartDoingIcon } from "./start-doing-icon";
 import { MarkDoneIcon } from "./mark-done-icon";
+import { OpenTaskIcon } from "./open-task-icon";
 
 export interface TaskCardLabels {
   dueDate: string;
@@ -19,7 +20,7 @@ interface DraggableTaskCardProps {
   task: Task;
   locale: string;
   showAssignee?: boolean;
-  labels: TaskCardLabels;
+  labels: TaskCardLabels & { openTask: string };
   href: string;
   dragHandleLabel: string;
   isDragging?: boolean;
@@ -79,18 +80,27 @@ export function DraggableTaskCard({
         ⠿
       </button>
       <div className={taskCardStyles.boardBody}>
-        <Link href={href} className={taskCardStyles.cardLink} draggable={false}>
-          <div className={taskCardStyles.titleRow}>
-            <h3 className={cn(taskCardStyles.title, "min-w-0 flex-1")}>
-              {task.title}
-            </h3>
-          </div>
-          {showAssignee ? (
-            <p className={cn(taskCardStyles.meta, "truncate")}>
-              {task.assigneeName}
-            </p>
-          ) : null}
-        </Link>
+        <div className={taskCardStyles.titleRow}>
+          <Link
+            href={href}
+            className={cn(taskCardStyles.titleButton, "min-w-0")}
+            draggable={false}
+          >
+            {task.title}
+          </Link>
+          <Link
+            href={href}
+            className={taskCardStyles.openLink}
+            aria-label={labels.openTask}
+            title={labels.openTask}
+            draggable={false}
+          >
+            <OpenTaskIcon />
+          </Link>
+        </div>
+        {showAssignee ? (
+          <p className={cn(taskCardStyles.meta, "truncate")}>{task.assigneeName}</p>
+        ) : null}
         <div
           className={cn(
             taskCardStyles.footer,

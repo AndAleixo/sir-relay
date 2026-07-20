@@ -532,7 +532,7 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |
 | `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared create + edit forms (§5) |
 | `OperatorBoardTaskCard` | Operator board: inline edit, open detail, drag handle |
-| `DraggableTaskCard` | Teammate Kanban card |
+| `DraggableTaskCard` | Teammate Kanban card (↗ open detail) |
 | `BoardQuickAddTask` | Quick add in To do (`components/tasks/board-quick-add-task`) — operator columns + teammate Kanban |
 | `TeammateBoard` | Operator team board (§3.2) — self first, then members by To do load |
 | `OperatorAlertsList` | Operator alerts list on `/events` (§8.3) |

@@ -43,7 +43,7 @@ interface BoardOperator {
 
 interface TeammateBoardProps {
   operator: BoardOperator;
-  /** Other group members (teammates + other operators), excluding the logged-in operator. */
+  /** Other group members (page-load order: To do count desc). Excludes signed-in operator. */
   members: OrganizationUser[];
   tasks: Task[];
   locale: string;
@@ -618,23 +618,6 @@ export function TeammateBoard({
   const selfActive =
     selfTasks.filter((t) => t.status === "todo" || t.status === "doing").length;
 
-  const todoCountByAssignee = new Map<string, number>();
-  for (const task of tasks) {
-    if (task.status !== "todo") continue;
-    todoCountByAssignee.set(
-      task.assigneeId,
-      (todoCountByAssignee.get(task.assigneeId) ?? 0) + 1,
-    );
-  }
-  // Self stays first; others by To do count (desc), then name.
-  const membersByTodoLoad = [...members].sort((a, b) => {
-    const byCount =
-      (todoCountByAssignee.get(b.id) ?? 0) -
-      (todoCountByAssignee.get(a.id) ?? 0);
-    if (byCount !== 0) return byCount;
-    return groupMemberLabel(a).localeCompare(groupMemberLabel(b));
-  });
-
   if (members.length === 0 && selfTasks.length === 0) {
     return (
       <p className="rounded-card border border-dashed border-[var(--border)] bg-surface-card p-8 text-center text-sm text-[var(--text-muted)]">
@@ -687,7 +670,7 @@ export function TeammateBoard({
           onQuickCreate={handleQuickCreate}
           sectionScrollAfter={sectionScrollAfter}
         />
-        {membersByTodoLoad.map((member) => {
+        {members.map((member) => {
           const columnTasks = tasks.filter((t) => t.assigneeId === member.id);
           const activeCount =
             columnTasks.filter((t) => t.status === "todo" || t.status === "doing").length;

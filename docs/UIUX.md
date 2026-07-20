@@ -230,7 +230,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 ### 3.2 Operator — team board
 
-First column: the **logged-in operator**. Then other members ordered by **To do count** (highest first; name as tiebreak). Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
+First column: the **logged-in operator**. Then other members ordered by **To do count** at **page load** (highest first; name as tiebreak) — order stays fixed while adding/moving tasks on the board. Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
@@ -601,6 +601,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
+| 2026-07-20 | Operator board: column order by To do count frozen at page load |
 | 2026-07-20 | Teammate Kanban: quick add in To do (self-assigned) |
 | 2026-07-20 | Teammate can create self-assigned tasks (`/tasks/new` + New task CTA) |
 | 2026-07-19 | Phase 1 sync: live DnD (not P3-only); drop scroll vs append; View all not a link; UserMenu = Profile · Log out; column order by To do load |

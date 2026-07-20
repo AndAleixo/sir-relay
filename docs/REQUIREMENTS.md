@@ -249,7 +249,7 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | P1-UI-06 | No metric UI | No velocity charts, leaderboards, or employee KPI dashboards in Phase 1–2 |
 | P1-UI-07 | App store links | **None** in Phase 1 — web only; native store badges → P3-13 |
 | P1-VIEW-01 | List sort | By due date, status, updated_at |
-| P1-VIEW-02 | Task boards | Teammate: 3-column Kanban (To do · In progress · Done). Operator: **self column** first (member label: fantasy → name → email) + other members ordered by **To do count desc** (name tiebreak) — To do + In progress expanded, Done collapsed — [UIUX.md §3](./UIUX.md#3-task-boards--two-layouts) |
+| P1-VIEW-02 | Task boards | Teammate: 3-column Kanban (To do · In progress · Done). Operator: **self column** first (member label: fantasy → name → email) + other members ordered by **To do count desc at page load** (name tiebreak; stable while editing) — To do + In progress expanded, Done collapsed — [UIUX.md §3](./UIUX.md#3-task-boards--two-layouts) |
 | P1-VIEW-03 | List view | Both roles; sort/filter; mobile fallback for Operator board |
 | P1-VIEW-04 | Responsive | Usable at 375px; Operator board → list on mobile per UIUX.md |
 | P1-I18N-01 | Locales | Full UI in `en`, `es`, `pt` via next-intl |

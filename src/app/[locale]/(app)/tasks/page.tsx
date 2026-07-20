@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
+import { orderMembersByTodoCount } from "@/lib/board-member-order";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { requireAppSession } from "@/lib/require-session";
 import { getServices } from "@/services";
@@ -22,6 +23,9 @@ export default async function TasksPage({
     : [];
   const operatorMember = orgUsers.find((user) => user.id === session.user.id);
   const otherMembers = orgUsers.filter((user) => user.id !== session.user.id);
+  const boardMembers = isOperator
+    ? orderMembersByTodoCount(otherMembers, taskList, groupMemberLabel)
+    : otherMembers;
 
   if (isOperator) {
     await alerts.syncDueAlerts(taskList, { session });
@@ -54,7 +58,7 @@ export default async function TasksPage({
             : undefined
         }
         tasks={taskList}
-        members={otherMembers}
+        members={boardMembers}
         labels={{
           board: t("common.board"),
           list: t("common.list"),

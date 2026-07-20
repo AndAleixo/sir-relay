@@ -26,6 +26,7 @@ interface TasksPageClientProps {
   /** Teammate board identity for quick-add (self-assign). */
   currentUser?: { id: string; name: string };
   tasks: Task[];
+  /** Operator board: other members already ordered at page load. */
   members: OrganizationUser[];
   labels: {
     board: string;

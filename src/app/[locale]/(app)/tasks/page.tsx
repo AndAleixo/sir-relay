@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
+import { groupMemberLabel } from "@/lib/group-member-label";
 import { requireAppSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 import { TasksPageClient } from "@/components/tasks/tasks-page-client";
@@ -32,7 +33,14 @@ export default async function TasksPage({
       <TasksPageClient
       locale={locale}
       role={session.user.role}
-      showNewTask={isOperator}
+      currentUser={
+        isOperator
+          ? undefined
+          : {
+              id: session.user.id,
+              name: groupMemberLabel(session.user),
+            }
+      }
       operator={
           isOperator
             ? {
@@ -55,7 +63,6 @@ export default async function TasksPage({
           dueDate: t("tasks.dueDate"),
           updated: t("tasks.updated"),
           overdue: t("tasks.overdue"),
-          emptyMine: t("tasks.emptyMine"),
           emptyBoard: t("teammate.emptyBoard"),
           sectionTodo: t("tasks.sectionTodo"),
           sectionDoing: t("tasks.sectionDoing"),

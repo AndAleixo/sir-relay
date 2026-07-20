@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Task, TaskStatus } from "@/domain/types";
 import type { SyncActionOptions, TaskActionResult } from "@/domain/sync";
-import { requireOperatorSession } from "@/lib/require-session";
+import { assertCanCreateTask } from "@/lib/authz";
+import { requireAppSession, requireOperatorSession } from "@/lib/require-session";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { isGroupTimezone } from "@/lib/group-timezones";
 import { getServices, serviceMode } from "@/services";
@@ -21,15 +22,19 @@ function maybeRevalidate() {
 
 export async function createTaskForm(locale: string, formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
-  const assigneeId = String(formData.get("assigneeId") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const dueRaw = String(formData.get("dueDate") ?? "").trim();
+
+  const session = await requireAppSession(locale);
+  const assigneeId =
+    session.user.role === "teammate"
+      ? session.user.id
+      : String(formData.get("assigneeId") ?? "").trim();
 
   if (!title || !assigneeId) {
     redirect(`/${locale}/tasks/new`);
   }
 
-  const session = await requireOperatorSession(locale);
   const { tasks } = getServices();
 
   await tasks.createTask(
@@ -185,7 +190,12 @@ export async function quickCreateTaskAction(
 
   const { auth, tasks } = getServices();
   const session = await auth.getSession();
-  if (!session || session.user.role !== "operator") {
+  if (!session?.activeGroupId) {
+    return { ok: false, error: "forbidden" };
+  }
+  try {
+    assertCanCreateTask(session, assigneeId);
+  } catch {
     return { ok: false, error: "forbidden" };
   }
 
@@ -329,6 +339,7 @@ export async function saveTaskDetailAction(
 
   revalidatePath(`/${locale}/tasks`);
   revalidatePath(`/${locale}/tasks/${taskId}`);
+  redirect(`/${locale}/tasks`);
 }
 
 export async function deleteTaskAction(locale: string, taskId: string): Promise<void> {

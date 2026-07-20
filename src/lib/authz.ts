@@ -17,6 +17,17 @@ export function requireOperator(session: Session): string {
   return requireActiveGroupId(session);
 }
 
+/**
+ * Create task: operators may assign anyone in group;
+ * teammates may only create tasks assigned to themselves.
+ */
+export function assertCanCreateTask(session: Session, assigneeId: string): void {
+  requireActiveGroupId(session);
+  if (session.user.role === "operator") return;
+  if (session.user.role === "teammate" && assigneeId === session.user.id) return;
+  throw new Error("Forbidden");
+}
+
 /** Account-scoped mutations must target the signed-in user only. */
 export function requireSelfUserId(session: Session, userId: string): void {
   if (session.user.id !== userId) throw new Error("Forbidden");

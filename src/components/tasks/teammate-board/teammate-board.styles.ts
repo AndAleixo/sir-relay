@@ -19,8 +19,4 @@ export const teamBoardStyles = {
   doneToggle:
     "flex w-full items-center gap-2 rounded-button px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--surface-bg)]",
   viewAll: "px-2 py-1 text-center text-xs text-brand-accent-hover",
-  quickAdd:
-    "mt-1 flex w-full items-center rounded-button px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-brand-accent",
-  quickAddForm: "mt-1",
-  quickAddInput: "h-8 text-sm",
 } as const;

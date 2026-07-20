@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
-import { requireRole } from "@/lib/require-session";
+import { requireAppSession } from "@/lib/require-session";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { PageHeader } from "@/components/layout/app-shell";
 import { CreateTaskForm } from "@/components/tasks/task-form";
@@ -15,30 +15,40 @@ export default async function NewTaskPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations();
-  const { auth, teammates } = getServices();
-  const session = await auth.getSession();
-  if (!session) return null;
-  requireRole(session, "operator", locale);
+  const session = await requireAppSession(locale);
+  const isOperator = session.user.role === "operator";
+  const { teammates } = getServices();
 
-  const orgUsers = await teammates.listOrganizationUsers({ session });
-  const me = orgUsers.find((user) => user.id === session.user.id);
-  const assigneeOptions = [
-    {
-      id: session.user.id,
-      label: t("tasks.assignToMe", {
-        name: groupMemberLabel({
-          ...session.user,
-          displayName: me?.displayName,
-        }),
-      }),
-    },
-    ...orgUsers
-      .filter((user) => user.id !== session.user.id)
-      .map((user) => ({
-        id: user.id,
-        label: groupMemberLabel(user),
-      })),
-  ];
+  const assigneeOptions = isOperator
+    ? await (async () => {
+        const orgUsers = await teammates.listOrganizationUsers({ session });
+        const me = orgUsers.find((user) => user.id === session.user.id);
+        return [
+          {
+            id: session.user.id,
+            label: t("tasks.assignToMe", {
+              name: groupMemberLabel({
+                ...session.user,
+                displayName: me?.displayName,
+              }),
+            }),
+          },
+          ...orgUsers
+            .filter((user) => user.id !== session.user.id)
+            .map((user) => ({
+              id: user.id,
+              label: groupMemberLabel(user),
+            })),
+        ];
+      })()
+    : [
+        {
+          id: session.user.id,
+          label: t("tasks.assignToMe", {
+            name: groupMemberLabel(session.user),
+          }),
+        },
+      ];
 
   return (
     <>
@@ -54,7 +64,7 @@ export default async function NewTaskPage({
         <CardBody className="space-y-4">
           <CreateTaskForm
             locale={locale}
-            isOperator
+            isOperator={isOperator}
             assigneeOptions={assigneeOptions}
             labels={{
               title: t("tasks.titleLabel"),

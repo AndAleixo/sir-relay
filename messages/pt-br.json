@@ -184,7 +184,6 @@
     "dueDate": "Prazo",
     "updated": "Atualizado",
     "overdue": "Atrasada",
-    "emptyMine": "Nenhuma tarefa atribuída a você ainda.",
     "description": "Descrição",
     "status": "Estado",
     "editTask": "Editar tarefa",

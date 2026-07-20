@@ -3,7 +3,7 @@
 **Purpose:** Layout, interaction, and visual behavior for the **public landing**, signed-in web app, and Telegram experience.  
 **Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) (what must work) · [BRAND.md](./BRAND.md) (colors, logos, tokens) · [ARCHITECTURE.md](./ARCHITECTURE.md) (code layout)
 
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-20
 
 ### Status naming
 
@@ -149,7 +149,7 @@ Same chrome for everyone; **navigation and default view depend on role in the ac
 │      [◀]   │  ← collapse toggle (logo → logo-compact.svg)    │
 └────────────┴──────────────────────────────────────────────────┘
 
-* Operator only          Teammate nav: Tasks · Settings
+* New task CTA for both roles · Teammate nav: Tasks · Settings
 ```
 
 | Element | Spec |
@@ -161,7 +161,7 @@ Same chrome for everyone; **navigation and default view depend on role in the ac
 | Top header | **Group switcher** · locale picker · account menu (avatar + chevron) |
 | Account menu (`▾`) | Name · Profile · Log out |
 | Locale | Custom dropdown in header (same route, new locale prefix); also on login screen |
-| Primary CTA | “New task” — Operator only, yellow button per [BRAND.md](./BRAND.md) |
+| Primary CTA | “New task” — both roles (yellow button per [BRAND.md](./BRAND.md)); teammate creates **self-assigned** only |
 
 **Post-login landing:** no group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` (Kanban)
 
@@ -203,6 +203,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 ├─────────────┼─────────────┼─────────────┤
 │  [card]     │  [card]     │  [card]     │
 │  [card]     │             │  [card]     │
+│  + Add task │             │             │
 └─────────────┴─────────────┴─────────────┘
 ```
 
@@ -217,6 +218,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 **Interactions:**
 
 - ↗ on card → task detail (edit form)
+- **Quick add** at bottom of To do → creates a **self-assigned** task (same gate as `/tasks/new`)
 - Drag between columns to change status (Phase 1)
 - **Drag within To do** to set queue order; drop **inside** `[data-todo-scroll]` inserts by Y; drop on column chrome (header/footer) **appends**. Telegram follows the queue head when that person has no In progress task
 - Start / complete controls on cards (same status changes as drag)
@@ -329,7 +331,7 @@ Same card width and field order as **New task** (`/tasks/new`), plus status and 
 │  [Banner]: delivery failed (if applicable)              │
 │  ─────────────────────────────────────────────────────  │
 │  Title                                                  │
-│  Assignee* (Operator only)                              │
+│  Assignee* (Operator create/edit only)                  │
 │  Status (edit only)                                     │
 │  Due date                                               │
 │  Description                                            │
@@ -337,7 +339,7 @@ Same card width and field order as **New task** (`/tasks/new`), plus status and 
 │  [Save]  [Cancel]                    [Delete task]      │
 └─────────────────────────────────────────────────────────┘
 
-* Create form: Title → Assignee → Due → Description (no status, no delete)
+* Create form: Title → Assignee (operator) → Due → Description. Teammate create: no assignee field (always self).
 ```
 
 | Element | Operator | Teammate |
@@ -362,7 +364,7 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 | **Log in** | `/login` | Public | Public |
 | **No active group** | `/groups` | Yes (panel opens) | Yes (panel opens) |
 | Tasks board | `/tasks` | Team board (§3.2) | Status Kanban (§3.1) |
-| New task | `/tasks/new` | Yes | — |
+| New task | `/tasks/new` | Yes | Yes (self only) |
 | Task detail | `/tasks/[id]` | Yes | Own only |
 | Teammates | `/teammates` | Yes | — |
 | New teammate | `/teammates/new` | Yes | — |
@@ -531,7 +533,7 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared create + edit forms (§5) |
 | `OperatorBoardTaskCard` | Operator board: inline edit, open detail, drag handle |
 | `DraggableTaskCard` | Teammate Kanban card |
-| `BoardQuickAddTask` | Per-column quick add in To do section |
+| `BoardQuickAddTask` | Quick add in To do (`components/tasks/board-quick-add-task`) — operator columns + teammate Kanban |
 | `TeammateBoard` | Operator team board (§3.2) — self first, then members by To do load |
 | `OperatorAlertsList` | Operator alerts list on `/events` (§8.3) |
 | `StatusKanban` | Teammate 3-column board (§3.1) |
@@ -599,6 +601,8 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
+| 2026-07-20 | Teammate Kanban: quick add in To do (self-assigned) |
+| 2026-07-20 | Teammate can create self-assigned tasks (`/tasks/new` + New task CTA) |
 | 2026-07-19 | Phase 1 sync: live DnD (not P3-only); drop scroll vs append; View all not a link; UserMenu = Profile · Log out; column order by To do load |
 | 2026-06-28 | Operator board: horizontal pan, inline edit, quick add, compact cards; drag hint removed |
 | 2026-06-28 | Task detail: shared create/edit forms, delete task; removed web comments and archive |

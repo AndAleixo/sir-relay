@@ -28,7 +28,7 @@ Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../R
 
 **Operator (in a group)** creates teammates and tasks (including self-assigned), monitors on the web, and can use Telegram for **task relay** plus **alerts**.
 
-**Teammate (in a group)** works via Telegram (primary) or web (optional): sees assigned tasks and updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
+**Teammate (in a group)** works via Telegram (primary) or web (optional): can **create self-assigned tasks**, sees assigned tasks and updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
 
 **Clients:** Responsive **web first** (Phase 1). Native **iOS/Android** → Phase 3 (P3-13), same `/api/v1`.
 
@@ -214,7 +214,7 @@ Operator-only management **within the active group** (except fantasy name, which
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-TASK-01 | Create | Operator only; title + assignee (any active group member, including self and other operators); optional description, due_date |
+| P1-TASK-01 | Create | **Operator:** title + assignee (any active group member, including self and other operators). **Teammate:** title + self only (assignee forced to signed-in user). Optional description, due_date |
 | P1-TASK-02 | Notify on create | Send Telegram if assignee is **linked** **and** their queue is empty (§2) |
 | P1-TASK-03 | Re-notify | Operator only; resend Telegram; update `telegram_message_id` (replies bind to latest message) |
 | P1-TASK-04 | List / Kanban | Operator: all tasks · Teammate: assigned to me; 3 status columns |
@@ -354,7 +354,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 - **No `role` on `users`** — role lives on `group_memberships`
 - `assignee_id` → `users.id` (teammate **or** operator in the same group)
-- `created_by_id` → operator membership in that group
+- `created_by_id` → creating member in that group (operator or teammate)
 - All task/teammate queries filter by `session.activeGroupId`
 
 ### 5.10 Routes
@@ -370,7 +370,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `join/[token]`, `change-password` | — | — | Auth flows |
 | `profile` | Yes | Yes | Account is global; accessible without active group; no role badge |
 | `tasks` | All tasks in group | My tasks in group |
-| `tasks/new` | Yes | — |
+| `tasks/new` | Yes | Yes (self-assign only) |
 | `tasks/[id]` | Yes | Own tasks only | Edit form + delete |
 | `teammates`, `teammates/new`, `teammates/[id]` | Yes (list includes operators in group) | — |
 | `events` | Yes | — | Operator alerts (done / due) |
@@ -729,6 +729,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-07-19 | Events: `/events` (alerts) + `/events/activity` (human group history); raw store stays `audit_logs` |
 | 2026-07-19 | Phase 2 IDOR: service-layer operator/self guards (P2-SEC-01) |
 | 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
+| 2026-07-20 | Teammate may create self-assigned tasks (P1-TASK-01); `/tasks/new` + New task CTA for both roles |
 | 2026-07-20 | P2-MON-01: `x-request-id` + `requestId` on existing JSON logs; Docker log rotation 10m×5 |
 | 2026-07-19 | Next 16.2.10 + React 19 + next-intl 4 (P2-SEC-10 highs cleared); `middleware` → `proxy` |
 | 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |

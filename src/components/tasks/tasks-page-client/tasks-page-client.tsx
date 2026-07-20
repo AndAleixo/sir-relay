@@ -23,9 +23,10 @@ interface TasksPageClientProps {
     displayName?: string | null;
     telegramStatus?: "linked" | "pending";
   };
+  /** Teammate board identity for quick-add (self-assign). */
+  currentUser?: { id: string; name: string };
   tasks: Task[];
   members: OrganizationUser[];
-  showNewTask?: boolean;
   labels: {
     board: string;
     list: string;
@@ -34,7 +35,6 @@ interface TasksPageClientProps {
     dueDate: string;
     updated: string;
     overdue: string;
-    emptyMine: string;
     emptyBoard: string;
     sectionTodo: string;
     sectionDoing: string;
@@ -69,9 +69,9 @@ export function TasksPageClient({
   locale,
   role,
   operator,
+  currentUser,
   tasks: serverTasks,
   members,
-  showNewTask = false,
   labels,
 }: TasksPageClientProps) {
   const { tasks, syncFromServer } = useSync();
@@ -91,11 +91,9 @@ export function TasksPageClient({
           boardLabel={labels.board}
           listLabel={labels.list}
         />
-        {showNewTask ? (
-          <Link href={`/${locale}/tasks/new`}>
-            <Button>{labels.newTask}</Button>
-          </Link>
-        ) : null}
+        <Link href={`/${locale}/tasks/new`}>
+          <Button>{labels.newTask}</Button>
+        </Link>
       </div>
 
       {view === "board" ? (
@@ -128,24 +126,26 @@ export function TasksPageClient({
               titlePlaceholder: labels.titlePlaceholder,
             }}
           />
-        ) : isOperator ? null : (
+        ) : isOperator ? null : currentUser ? (
           <StatusKanban
             tasks={tasks}
             locale={locale}
+            currentUser={currentUser}
             labels={{
               todo: labels.status.todo,
               doing: labels.status.doing,
               done: labels.status.done,
               dueDate: labels.dueDate,
               overdue: labels.overdue,
-              emptyMine: labels.emptyMine,
               dragHandle: labels.dragHandle,
               startDoing: labels.startDoing,
               markDone: labels.markDone,
               completedMark: labels.completedMark,
+              addTask: labels.addTask,
+              titlePlaceholder: labels.titlePlaceholder,
             }}
           />
-        )
+        ) : null
       ) : isOperator && operator ? (
         <TaskListWithFilters
           tasks={tasks}

@@ -5,6 +5,7 @@
 import assert from "node:assert/strict";
 import type { Session } from "../src/domain/types";
 import {
+  assertCanCreateTask,
   requireActiveGroupId,
   requireOperator,
   requireSelfUserId,
@@ -32,5 +33,9 @@ assert.throws(() => requireOperator(session({ role: "teammate" })), /Forbidden/)
 
 assert.doesNotThrow(() => requireSelfUserId(session({ role: "operator" }), "u1"));
 assert.throws(() => requireSelfUserId(session({ role: "operator" }), "other"), /Forbidden/);
+
+assert.doesNotThrow(() => assertCanCreateTask(session({ role: "operator" }), "anyone"));
+assert.doesNotThrow(() => assertCanCreateTask(session({ role: "teammate" }), "u1"));
+assert.throws(() => assertCanCreateTask(session({ role: "teammate" }), "other"), /Forbidden/);
 
 console.log("check-authz: ok");

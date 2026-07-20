@@ -184,7 +184,6 @@
     "dueDate": "Due",
     "updated": "Updated",
     "overdue": "Overdue",
-    "emptyMine": "No tasks assigned to you yet.",
     "description": "Description",
     "status": "Status",
     "editTask": "Edit task",

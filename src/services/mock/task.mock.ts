@@ -1,5 +1,6 @@
 import type { Session, Task, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
+import { assertCanCreateTask } from "@/lib/authz";
 import { MOCK_TASKS } from "@/services/mock/data";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
@@ -79,9 +80,7 @@ export class MockTaskService implements TaskService {
   }
 
   async createTask(input: CreateTaskInput, ctx: { session: Session }): Promise<Task> {
-    if (ctx.session.user.role !== "operator") {
-      throw new Error("Forbidden");
-    }
+    assertCanCreateTask(ctx.session, input.assigneeId);
 
     const title = input.title.trim();
     if (!title) throw new Error("Title required");

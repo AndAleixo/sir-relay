@@ -26,7 +26,7 @@ import {
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
 import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
-import { BoardQuickAddTask } from "./board-quick-add-task";
+import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
 import {
   DEFAULT_BOARD_SECTION_SCROLL_AFTER,
   sectionListMaxHeight,

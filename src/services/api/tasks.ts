@@ -1,6 +1,7 @@
 import type { Session, Task, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
 import { writeAuditFromSession } from "@/lib/audit";
+import { assertCanCreateTask } from "@/lib/authz";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { prisma } from "@/lib/prisma";
 import {
@@ -90,7 +91,7 @@ export class ApiTaskService implements TaskService {
   }
 
   async createTask(input: CreateTaskInput, ctx: { session: Session }): Promise<Task> {
-    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
+    assertCanCreateTask(ctx.session, input.assigneeId);
 
     const groupId = requireGroupId(ctx.session);
     const title = input.title.trim();

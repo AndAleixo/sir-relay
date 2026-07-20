@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { teamBoardStyles } from "./teammate-board.styles";
+
+const styles = {
+  quickAdd:
+    "mt-1 flex w-full items-center rounded-button px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-brand-accent",
+  quickAddForm: "mt-1",
+  quickAddInput: "h-8 text-sm",
+} as const;
 
 interface BoardQuickAddTaskProps {
   assigneeId: string;
@@ -55,7 +61,7 @@ export function BoardQuickAddTask({
     return (
       <button
         type="button"
-        className={teamBoardStyles.quickAdd}
+        className={styles.quickAdd}
         onClick={() => setOpen(true)}
       >
         + {addLabel}
@@ -64,13 +70,13 @@ export function BoardQuickAddTask({
   }
 
   return (
-    <div className={teamBoardStyles.quickAddForm}>
+    <div className={styles.quickAddForm}>
       <Input
         autoFocus
         value={title}
         placeholder={titlePlaceholder}
         disabled={pending}
-        className={teamBoardStyles.quickAddInput}
+        className={styles.quickAddInput}
         onChange={(event) => setTitle(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === "Enter") {

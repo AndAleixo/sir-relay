@@ -19,21 +19,24 @@ import {
   DraggableTaskCard,
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
+import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
 import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
 import { kanbanStyles } from "./status-kanban.styles";
 
 interface StatusKanbanProps {
   tasks: Task[];
   locale: string;
+  currentUser: { id: string; name: string };
   labels: TaskCardLabels & {
     todo: string;
     doing: string;
     done: string;
-    emptyMine: string;
     dragHandle: string;
     startDoing: string;
     markDone: string;
     completedMark: string;
+    addTask: string;
+    titlePlaceholder: string;
   };
 }
 
@@ -42,9 +45,10 @@ const columns: TaskStatus[] = ["todo", "doing", "done"];
 export function StatusKanban({
   tasks,
   locale,
+  currentUser,
   labels,
 }: StatusKanbanProps) {
-  const { applyTaskUpdate, placeInTodoQueue } = useSync();
+  const { applyTaskUpdate, createTaskQuick, placeInTodoQueue } = useSync();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<TaskStatus | null>(
     null,
@@ -52,7 +56,6 @@ export function StatusKanban({
 
   const grouped = groupTasksByStatusOrdered(tasks);
   const labelMap = { todo: labels.todo, doing: labels.doing, done: labels.done };
-  const selfId = tasks[0]?.assigneeId;
 
   function handleDragStart(taskId: string) {
     setDraggingTaskId(taskId);
@@ -67,8 +70,7 @@ export function StatusKanban({
   async function placeInTodo(taskId: string, toIndex: number) {
     handleDragEnd();
     const assigneeId =
-      tasks.find((t) => t.id === taskId)?.assigneeId ?? selfId;
-    if (!assigneeId) return;
+      tasks.find((t) => t.id === taskId)?.assigneeId ?? currentUser.id;
 
     await placeInTodoQueue(
       taskId,
@@ -111,14 +113,6 @@ export function StatusKanban({
     }
 
     await assignStatus(taskId, targetStatus);
-  }
-
-  if (tasks.length === 0) {
-    return (
-      <p className="rounded-card border border-dashed border-[var(--border)] bg-surface-card p-8 text-center text-sm text-[var(--text-muted)]">
-        {labels.emptyMine}
-      </p>
-    );
   }
 
   const cardLabels: TaskCardLabels & { dragHandle: string } = {
@@ -208,6 +202,15 @@ export function StatusKanban({
                 />
               ))
             )}
+            {status === "todo" ? (
+              <BoardQuickAddTask
+                assigneeId={currentUser.id}
+                assigneeName={currentUser.name}
+                addLabel={labels.addTask}
+                titlePlaceholder={labels.titlePlaceholder}
+                onCreate={(input) => createTaskQuick(locale, input)}
+              />
+            ) : null}
           </div>
         </section>
       ))}

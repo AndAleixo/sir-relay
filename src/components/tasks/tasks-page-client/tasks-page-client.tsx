@@ -9,7 +9,7 @@ import { useSync } from "@/components/sync";
 import { Button } from "@/components/ui/button";
 import { StatusKanban } from "@/components/tasks/status-kanban";
 import { TaskListWithFilters } from "@/components/tasks/task-list/task-list-with-filters";
-import { TeammateBoard } from "@/components/tasks/teammate-board";
+import { TeamBoard } from "@/components/tasks/team-board";
 import { ViewToggle, type TasksView } from "@/components/tasks/view-toggle";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 
@@ -99,7 +99,7 @@ export function TasksPageClient({
 
       {view === "board" ? (
         isOperator && operator ? (
-          <TeammateBoard
+          <TeamBoard
             operator={operator}
             members={members}
             tasks={tasks}
@@ -140,6 +140,7 @@ export function TasksPageClient({
               overdue: labels.overdue,
               dragHandle: labels.dragHandle,
               openTask: labels.openTask,
+              addDueDate: labels.addDueDate,
               startDoing: labels.startDoing,
               markDone: labels.markDone,
               completedMark: labels.completedMark,

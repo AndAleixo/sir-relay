@@ -1,20 +1,20 @@
 export const taskCardStyles = {
   root: "relative block rounded-card border border-[var(--border)] bg-surface-card p-2 shadow-sm transition-colors",
-  draggable: "flex gap-1 p-1.5",
+  /** Row layout: default cursor + no text select; move via dragHandle; board pan outside cards. */
+  layout: "flex cursor-default gap-1 p-1.5 select-none",
   dragging: "opacity-40 ring-2 ring-brand-accent/40",
   dragHandle:
     "shrink-0 cursor-grab touch-none rounded px-0.5 text-xs leading-none text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] active:cursor-grabbing",
   boardBody: "relative min-w-0 flex-1",
   titleRow: "mb-2 flex items-start gap-2",
   titleButton:
-    "line-clamp-2 flex-1 rounded-[4px] text-left text-[13px] font-medium leading-tight text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
+    "line-clamp-2 flex-1 cursor-pointer rounded-[4px] text-left text-[13px] font-medium leading-tight text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
   openLink:
     "shrink-0 rounded p-0.5 text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-brand-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 [&_svg]:h-3 [&_svg]:w-3",
-  inlineInput: "h-7 px-2 py-0.5 text-[13px]",
-  inlineDateInput: "h-6 w-full px-1.5 py-0 text-[11px]",
+  inlineInput: "h-7 select-text px-2 py-0.5 text-[13px]",
+  inlineDateInput: "h-6 w-full select-text px-1.5 py-0 text-[11px]",
   dueButton:
     "truncate text-left text-[11px] leading-tight text-[var(--text-muted)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 rounded-[4px]",
-  meta: "shrink-0 text-[11px] leading-tight text-[var(--text-muted)]",
   footer: "mt-0.5 flex items-center justify-between gap-2",
   overdue: "font-medium text-[var(--danger)]",
   startDoing:

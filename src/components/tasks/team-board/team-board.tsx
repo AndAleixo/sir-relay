@@ -22,7 +22,7 @@ import { useSync } from "@/components/sync";
 import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
 import { ToneBadge } from "@/components/ui/badge";
 import {
-  OperatorBoardTaskCard,
+  BoardTaskCard,
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
 import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
@@ -31,7 +31,7 @@ import {
   DEFAULT_BOARD_SECTION_SCROLL_AFTER,
   sectionListMaxHeight,
 } from "./board-section-scroll";
-import { teamBoardStyles } from "./teammate-board.styles";
+import { teamBoardStyles } from "./team-board.styles";
 
 interface BoardOperator {
   id: string;
@@ -41,7 +41,7 @@ interface BoardOperator {
   telegramStatus?: "linked" | "pending";
 }
 
-interface TeammateBoardProps {
+interface TeamBoardProps {
   operator: BoardOperator;
   /** Other group members (page-load order: To do count desc). Excludes signed-in operator. */
   members: OrganizationUser[];
@@ -115,7 +115,7 @@ function BoardTaskItem({
 }: {
   task: Task;
   locale: string;
-  labels: TeammateBoardProps["labels"];
+  labels: TeamBoardProps["labels"];
   draggingTaskId: string | null;
   isQueueHead?: boolean;
   showCompletedMark?: boolean;
@@ -147,7 +147,7 @@ function BoardTaskItem({
   };
 
   return (
-    <OperatorBoardTaskCard
+    <BoardTaskCard
       task={task}
       locale={locale}
       href={`/${locale}/tasks/${task.id}`}
@@ -166,7 +166,6 @@ function BoardTaskItem({
 
 function DroppableSection({
   title,
-  accent,
   assigneeId,
   status,
   activeDropTarget,
@@ -178,7 +177,6 @@ function DroppableSection({
   children,
 }: {
   title: string;
-  accent?: boolean;
   assigneeId: string;
   status: TaskStatus;
   activeDropTarget: string | null;
@@ -213,9 +211,7 @@ function DroppableSection({
         onDrop(assigneeId, status, event);
       }}
     >
-      <h3 className={accent ? teamBoardStyles.sectionTitleAccent : teamBoardStyles.sectionTitle}>
-        {title}
-      </h3>
+      <h3 className={teamBoardStyles.sectionTitle}>{title}</h3>
       <SectionCardList
         itemCount={itemCount}
         scrollAfter={scrollAfter}
@@ -252,7 +248,7 @@ function TaskColumn({
   header: React.ReactNode;
   tasks: Task[];
   locale: string;
-  labels: TeammateBoardProps["labels"];
+  labels: TeamBoardProps["labels"];
   draggingTaskId: string | null;
   activeDropTarget: string | null;
   onDragStart: (taskId: string) => void;
@@ -338,7 +334,6 @@ function TaskColumn({
 
       <DroppableSection
         title={`${labels.sectionDoing} (${grouped.doing.length})`}
-        accent
         assigneeId={assigneeId}
         status="doing"
         activeDropTarget={activeDropTarget}
@@ -433,7 +428,7 @@ function MemberColumnHeader({
     accountStatus?: "active" | "invited" | null;
   };
   locale: string;
-  labels: TeammateBoardProps["labels"];
+  labels: TeamBoardProps["labels"];
   activeCount: number;
 }) {
   const telegramStatus = member.telegramStatus;
@@ -444,7 +439,7 @@ function MemberColumnHeader({
     <>
       <Link
         href={`/${locale}/teammates/${member.id}`}
-        className={teamBoardStyles.teammateName}
+        className={teamBoardStyles.memberName}
       >
         {groupMemberLabel(member)}
       </Link>
@@ -468,14 +463,14 @@ function MemberColumnHeader({
   );
 }
 
-export function TeammateBoard({
+export function TeamBoard({
   operator,
   members,
   tasks,
   locale,
   labels,
   sectionScrollAfter = DEFAULT_BOARD_SECTION_SCROLL_AFTER,
-}: TeammateBoardProps) {
+}: TeamBoardProps) {
   const { applyTaskUpdate, createTaskQuick, placeInTodoQueue } = useSync();
   const { scrollRef, scrollHandlers } = useHorizontalDragScroll();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);

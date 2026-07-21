@@ -16,7 +16,7 @@ import {
 import type { MutationInput } from "@/domain/sync";
 import { useSync } from "@/components/sync";
 import {
-  DraggableTaskCard,
+  BoardTaskCard,
   type TaskCardLabels,
 } from "@/components/tasks/task-card";
 import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
@@ -33,6 +33,7 @@ interface StatusKanbanProps {
     done: string;
     dragHandle: string;
     openTask: string;
+    addDueDate: string;
     startDoing: string;
     markDone: string;
     completedMark: string;
@@ -97,6 +98,28 @@ export function StatusKanban({
     );
   }
 
+  async function handleUpdateFields(
+    taskId: string,
+    fields: { title?: string; dueDate?: string | null },
+  ) {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const patch: Partial<Task> = {
+      ...(fields.title !== undefined ? { title: fields.title } : {}),
+      ...(fields.dueDate !== undefined ? { dueDate: fields.dueDate } : {}),
+    };
+    if (Object.keys(patch).length === 0) return;
+
+    await applyTaskUpdate(taskId, patch, [
+      {
+        type: "update_fields",
+        taskId,
+        payload: fields,
+      },
+    ]);
+  }
+
   async function handleColumnDrop(
     targetStatus: TaskStatus,
     event: DragEvent<HTMLElement>,
@@ -116,11 +139,42 @@ export function StatusKanban({
     await assignStatus(taskId, targetStatus);
   }
 
-  const cardLabels: TaskCardLabels & { openTask: string } = {
+  const cardLabels = {
     dueDate: labels.dueDate,
     overdue: labels.overdue,
+    dragHandle: labels.dragHandle,
     openTask: labels.openTask,
+    addDueDate: labels.addDueDate,
+    startDoing: labels.startDoing,
+    markDone: labels.markDone,
+    completedMark: labels.completedMark,
   };
+
+  function renderCard(task: Task, status: TaskStatus, todoIndex?: number) {
+    const isTodo = status === "todo";
+    const isQueueHead = isTodo && todoIndex === 0;
+
+    return (
+      <BoardTaskCard
+        task={task}
+        locale={locale}
+        href={`/${locale}/tasks/${task.id}`}
+        labels={cardLabels}
+        isDragging={draggingTaskId === task.id}
+        isQueueHead={isQueueHead}
+        showCompletedMark={status === "done"}
+        onDragHandleStart={() => handleDragStart(task.id)}
+        onDragHandleEnd={handleDragEnd}
+        onUpdateFields={(fields) => handleUpdateFields(task.id, fields)}
+        onStartDoing={
+          isQueueHead ? () => void assignStatus(task.id, "doing") : undefined
+        }
+        onMarkDone={
+          status === "doing" ? () => void assignStatus(task.id, "done") : undefined
+        }
+      />
+    );
+  }
 
   return (
     <div className={kanbanStyles.grid}>
@@ -155,52 +209,12 @@ export function StatusKanban({
                 onPlace={placeInTodo}
                 items={grouped.todo.map((task, index) => ({
                   id: task.id,
-                  node: (
-                    <DraggableTaskCard
-                      task={task}
-                      locale={locale}
-                      href={`/${locale}/tasks/${task.id}`}
-                      labels={cardLabels}
-                      dragHandleLabel={labels.dragHandle}
-                      isDragging={draggingTaskId === task.id}
-                      isQueueHead={index === 0}
-                      startDoingLabel={labels.startDoing}
-                      onStartDoing={
-                        index === 0
-                          ? () => void assignStatus(task.id, "doing")
-                          : undefined
-                      }
-                      onDragHandleStart={() => handleDragStart(task.id)}
-                      onDragHandleEnd={handleDragEnd}
-                    />
-                  ),
+                  node: renderCard(task, "todo", index),
                 }))}
               />
             ) : (
               grouped[status].map((task) => (
-                <DraggableTaskCard
-                  key={task.id}
-                  task={task}
-                  locale={locale}
-                  href={`/${locale}/tasks/${task.id}`}
-                  labels={cardLabels}
-                  dragHandleLabel={labels.dragHandle}
-                  isDragging={draggingTaskId === task.id}
-                  markDoneLabel={
-                    status === "doing" ? labels.markDone : undefined
-                  }
-                  onMarkDone={
-                    status === "doing"
-                      ? () => void assignStatus(task.id, "done")
-                      : undefined
-                  }
-                  showCompletedMark={status === "done"}
-                  completedMarkLabel={
-                    status === "done" ? labels.completedMark : undefined
-                  }
-                  onDragHandleStart={() => handleDragStart(task.id)}
-                  onDragHandleEnd={handleDragEnd}
-                />
+                <div key={task.id}>{renderCard(task, status)}</div>
               ))
             )}
             {status === "todo" ? (

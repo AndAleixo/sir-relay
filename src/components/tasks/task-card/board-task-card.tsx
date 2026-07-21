@@ -8,12 +8,12 @@ import { formatDueDate, isOverdue } from "@/lib/dates";
 import { setTaskDragData } from "@/lib/task-drag";
 import { Input } from "@/components/ui/input";
 import { taskCardStyles } from "./task-card.styles";
-import type { TaskCardLabels } from "./task-card";
+import type { TaskCardLabels } from "./task-card-labels";
 import { StartDoingIcon } from "./start-doing-icon";
 import { MarkDoneIcon } from "./mark-done-icon";
 import { OpenTaskIcon } from "./open-task-icon";
 
-interface OperatorBoardTaskCardProps {
+interface BoardTaskCardProps {
   task: Task;
   locale: string;
   href: string;
@@ -37,7 +37,7 @@ interface OperatorBoardTaskCardProps {
   onMarkDone?: () => void;
 }
 
-export function OperatorBoardTaskCard({
+export function BoardTaskCard({
   task,
   locale,
   href,
@@ -50,7 +50,7 @@ export function OperatorBoardTaskCard({
   onUpdateFields,
   onStartDoing,
   onMarkDone,
-}: OperatorBoardTaskCardProps) {
+}: BoardTaskCardProps) {
   const overdue = isOverdue(task.dueDate);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(task.title);
@@ -106,16 +106,16 @@ export function OperatorBoardTaskCard({
 
   return (
     <div
+      data-no-drag-scroll
       className={cn(
         taskCardStyles.root,
-        taskCardStyles.draggable,
+        taskCardStyles.layout,
         isDragging && taskCardStyles.dragging,
       )}
     >
       <button
         type="button"
         draggable
-        data-no-drag-scroll
         className={taskCardStyles.dragHandle}
         aria-label={labels.dragHandle}
         onDragStart={handleDragStart}

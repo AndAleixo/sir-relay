@@ -218,6 +218,8 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 **Interactions:**
 
 - ↗ on card → task detail (edit form)
+- Card body: no text selection / default cursor; move task only via ⠿
+- Click title / due → inline edit (same as operator board)
 - **Quick add** at bottom of To do → creates a **self-assigned** task (same gate as `/tasks/new`)
 - Drag between columns to change status (Phase 1)
 - **Drag within To do** to set queue order; drop **inside** `[data-todo-scroll]` inserts by Y; drop on column chrome (header/footer) **appends**. Telegram follows the queue head when that person has no In progress task
@@ -276,7 +278,7 @@ First column: the **logged-in operator**. Then other members ordered by **To do 
 
 **Removed teammates:** membership and tasks assigned to them in that group are permanently deleted after explicit confirmation; their global account remains.
 
-**Horizontal scroll:** drag left/right on the board; native scrollbar at bottom when columns overflow.
+**Horizontal scroll:** drag left/right on **empty board chrome** (gaps, padding — not on task cards); native scrollbar at bottom when columns overflow. Task cards use default cursor; move a task only via the ⠿ handle.
 
 **Mobile (375px):** horizontal snap scroll between columns, or switch to list view.
 
@@ -312,9 +314,9 @@ Shared compact card on boards; list view uses a table row.
 | Default | Compact white card, `--border`, `--radius-card` |
 | Overdue | Red due date (`--danger`) |
 | Telegram notify failed | Small accent dot, bottom-right corner |
-| Operator board | Inline edit title/due; **+ Add task** in To do section; ↗ opens detail |
+| Operator / teammate board cards | Inline edit title/due; **+ Add task** in To do; ↗ opens detail |
 
-Operator cards show **assignee** only in list view (column implies assignee on board).
+Assignee only in list view (column implies assignee on the operator board).
 
 ---
 
@@ -531,10 +533,9 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `UserMenu` | Account dropdown (Profile, Log out) |
 | `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |
 | `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared create + edit forms (§5) |
-| `OperatorBoardTaskCard` | Operator board: inline edit, open detail, drag handle |
-| `DraggableTaskCard` | Teammate Kanban card (↗ open detail) |
+| `BoardTaskCard` | Board cards (operator + teammate): inline edit, open detail, drag handle |
+| `TeamBoard` | Operator team board (§3.2) — self first, then members by To do count at page load |
 | `BoardQuickAddTask` | Quick add in To do (`components/tasks/board-quick-add-task`) — operator columns + teammate Kanban |
-| `TeammateBoard` | Operator team board (§3.2) — self first, then members by To do load |
 | `OperatorAlertsList` | Operator alerts list on `/events` (§8.3) |
 | `StatusKanban` | Teammate 3-column board (§3.1) |
 | `TaskList` | Table list view |
@@ -601,6 +602,10 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
+| 2026-07-21 | Rename `TeammateBoard` → `TeamBoard` (`team-board/`); `tasks.emptyBoard` |
+| 2026-07-21 | Board card rename to `BoardTaskCard`; drop dead card styles / sectionTitleAccent |
+| 2026-07-21 | Teammate Kanban: same inline title/due edit as operator board |
+| 2026-07-21 | Board cards: select-none + default cursor; pan only on empty chrome; move via ⠿ only |
 | 2026-07-20 | Operator board: column order by To do count frozen at page load |
 | 2026-07-20 | Teammate Kanban: quick add in To do (self-assigned) |
 | 2026-07-20 | Teammate can create self-assigned tasks (`/tasks/new` + New task CTA) |

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 const PAN_THRESHOLD_PX = 6;
 
-/** Only block pan on form controls and explicitly marked elements (e.g. drag handle). */
+/** Block pan on form controls and marked regions (task cards, drag handle, etc.). */
 const NO_PAN_SELECTOR =
   "input, textarea, select, label, [contenteditable='true'], [data-no-drag-scroll]";
 

@@ -168,12 +168,12 @@
     "promoted": "Usuario promovido a operador.",
     "promoteFailed": "No se pudo promover a este usuario. Debe tener la cuenta activa.",
     "editFailed": "No se pudieron guardar los cambios.",
-    "regenerateInvite": "Regenerar invitación",
-    "emptyBoard": "Añade miembros para empezar a coordinar el trabajo."
+    "regenerateInvite": "Regenerar invitación"
   },
   "tasks": {
     "myTasks": "Mis tareas",
     "allTasks": "Todas las tareas",
+    "emptyBoard": "Añade miembros para empezar a coordinar el trabajo.",
     "assignee": "Asignado",
     "assignToMe": "Yo ({name})",
     "assigneeHint": "Los asignados vinculados reciben relay de Telegram (una tarea a la vez). Sin vínculo, quedan en la web.",

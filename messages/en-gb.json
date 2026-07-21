@@ -168,12 +168,12 @@
     "promoted": "User promoted to operator.",
     "promoteFailed": "Could not promote this user. They must have an active account.",
     "editFailed": "Could not save changes.",
-    "regenerateInvite": "Regenerate invite",
-    "emptyBoard": "Add members to start coordinating work."
+    "regenerateInvite": "Regenerate invite"
   },
   "tasks": {
     "myTasks": "My tasks",
     "allTasks": "All tasks",
+    "emptyBoard": "Add members to start coordinating work.",
     "assignee": "Assignee",
     "assignToMe": "Me ({name})",
     "assigneeHint": "Linked assignees get Telegram relay (one task at a time). Unlinked stay on the web.",

@@ -168,12 +168,12 @@
     "promoted": "Utilizador promovido a operator.",
     "promoteFailed": "Não foi possível promover este utilizador. A conta tem de estar activa.",
     "editFailed": "Não foi possível guardar as alterações.",
-    "regenerateInvite": "Regenerar convite",
-    "emptyBoard": "Adicione membros para começar a coordenar o trabalho."
+    "regenerateInvite": "Regenerar convite"
   },
   "tasks": {
     "myTasks": "Minhas tarefas",
     "allTasks": "Todas as tarefas",
+    "emptyBoard": "Adicione membros para começar a coordenar o trabalho.",
     "assignee": "Responsável",
     "assignToMe": "Eu ({name})",
     "assigneeHint": "Responsáveis com Telegram ligado recebem relay (uma tarefa de cada vez). Sem ligação, ficam na web.",

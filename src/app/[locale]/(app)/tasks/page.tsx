@@ -67,7 +67,7 @@ export default async function TasksPage({
           dueDate: t("tasks.dueDate"),
           updated: t("tasks.updated"),
           overdue: t("tasks.overdue"),
-          emptyBoard: t("teammate.emptyBoard"),
+          emptyBoard: t("tasks.emptyBoard"),
           sectionTodo: t("tasks.sectionTodo"),
           sectionDoing: t("tasks.sectionDoing"),
           sectionDone: t("tasks.sectionDone"),

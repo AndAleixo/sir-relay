@@ -20,8 +20,10 @@ import {
 import type { MutationInput } from "@/domain/sync";
 import { useSync } from "@/components/sync";
 import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
-import { ToneBadge } from "@/components/ui/badge";
-import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
+import {
+  MemberNameRow,
+  memberInactiveLabel,
+} from "@/components/ui/member-status-icons";
 import {
   BoardTaskCard,
   type TaskCardLabels,
@@ -58,8 +60,7 @@ interface TeamBoardProps {
     linked: string;
     pending: string;
     invited: string;
-    active: string;
-    operatorRole: string;
+    inactive: string;
     viewAll: string;
     emptyBoard: string;
     dragHandle: string;
@@ -425,6 +426,7 @@ function MemberColumnHeader({
     email: string;
     displayName?: string | null;
     role: "operator" | "teammate";
+    active?: boolean;
     telegramStatus?: "linked" | "pending";
     accountStatus?: "active" | "invited" | null;
   };
@@ -432,34 +434,26 @@ function MemberColumnHeader({
   labels: TeamBoardProps["labels"];
   activeCount: number;
 }) {
-  const telegramStatus = member.telegramStatus;
-  const accountStatus =
-    member.role === "teammate" ? member.accountStatus : null;
+  const inactiveLabel = memberInactiveLabel(member, {
+    invited: labels.invited,
+    inactive: labels.inactive,
+  });
 
   return (
     <>
-      <Link
-        href={`/${locale}/teammates/${member.id}`}
-        className={teamBoardStyles.memberName}
-      >
-        {groupMemberLabel(member)}
-      </Link>
-      <div className={teamBoardStyles.badges}>
-        {member.role === "operator" ? (
-          <ToneBadge tone="neutral">{labels.operatorRole}</ToneBadge>
-        ) : null}
-        {telegramStatus ? (
-          <TelegramStatusIcon
-            status={telegramStatus}
-            label={telegramStatus === "linked" ? labels.linked : labels.pending}
-          />
-        ) : null}
-        {accountStatus ? (
-          <ToneBadge tone="neutral">
-            {accountStatus === "active" ? labels.active : labels.invited}
-          </ToneBadge>
-        ) : null}
-      </div>
+      <MemberNameRow
+        nameNode={
+          <Link
+            href={`/${locale}/teammates/${member.id}`}
+            className={teamBoardStyles.memberName}
+          >
+            {groupMemberLabel(member)}
+          </Link>
+        }
+        telegramStatus={member.telegramStatus}
+        inactiveLabel={inactiveLabel}
+        labels={{ linked: labels.linked, pending: labels.pending }}
+      />
       <p className={teamBoardStyles.activeCount}>{activeCount} active</p>
     </>
   );

@@ -260,7 +260,7 @@ First column: the **logged-in operator**. Then other members ordered by **To do 
 #### Column header (member)
 
 - Member label (fantasy name → account name → email)
-- Status chips: role when operator; Telegram status as **icon** (green linked · amber pending); account `active` / `invited` for teammates
+- Column header: member name (left) · status icons (right): inactive mark if invited/deactivated; Telegram icon (green linked · amber pending). **No** operator/teammate role chip
 - Optional: count of `todo` + `doing` as summary badge
 
 #### Sections inside each column (top → bottom)
@@ -391,7 +391,7 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 
 ### List `/teammates`
 
-Table: name, email, role, account status, Telegram status, view link. **You** → **Settings**; **any other member** (teammate or operator) → `/teammates/[id]`.
+Table: name (+ status icons), email, view link. **You** → **Settings**; **any other member** (teammate or operator) → `/teammates/[id]`.
 
 **Add teammate** — header button → `/teammates/new` (**email only**). New/invited account → teammate detail with activation link; list shows **email + Pending** until the person sets their account name. Existing active account → pending request, no membership until acceptance (opaque success; do not surface account name on lookup).
 
@@ -401,7 +401,7 @@ Table: name, email, role, account status, Telegram status, view link. **You** �
 
 ### Detail `/teammates/[id]`
 
-- Group label (`display_name ?? name`), email, role, account + Telegram **status** badges
+- Group label (`display_name ?? name`) with status icons (inactive · Telegram); email. Role not shown as a chip (promote/demote still on actions)
 - Edit **group fantasy name** (`display_name`); email only while `invited`; **promote to operator** (active teammate only); **demote to teammate** (other operators except group owner / last operator); **transfer ownership** (current owner only — no owner badge in UI); remove from group (not yourself; not the owner)
 - **Never** edit another user’s global account name — that lives on **Profile**
 - Works for both teammates and other operators in the active group
@@ -543,8 +543,10 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `TaskList` | Table list view |
 | `ViewToggle` | Board / List switch |
 | `StatusBadge` | Maps `todo` / `doing` / `done` to UI labels (§ Status naming) |
+| `MemberNameRow` / `MemberStatusIcons` | Name left · inactive + Telegram icons right |
 | `TelegramStatusIcon` | Linked (green) / pending (amber) Telegram mark |
-| `ToneBadge` | Role, account, alert delivery chips |
+| `AccountInactiveIcon` | Invited or deactivated account mark |
+| `ToneBadge` | Role (Settings), invitation status, alert delivery chips |
 | `Banner` | Warning (delivery error on task detail) |
 | `SyncBar` | Session sync status (mock) |
 
@@ -605,6 +607,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
+| 2026-07-23 | Member identity: name · icons (inactive + Telegram); hide role chips on board/list/detail |
 | 2026-07-23 | Telegram status: icon green linked / amber pending (board, list, detail, Profile) |
 | 2026-07-22 | Settings General: show “Group owner” under your role when you own the active group |
 | 2026-07-22 | Invisible group owner: transfer on member detail; succession on owner leave; demote; delete owner-only |

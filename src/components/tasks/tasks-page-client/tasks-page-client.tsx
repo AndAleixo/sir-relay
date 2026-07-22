@@ -46,8 +46,7 @@ interface TasksPageClientProps {
     linked: string;
     pending: string;
     invited: string;
-    active: string;
-    operatorRole: string;
+    inactive: string;
     viewAll: string;
     dragHandle: string;
     openTask: string;
@@ -114,8 +113,7 @@ export function TasksPageClient({
               linked: labels.linked,
               pending: labels.pending,
               invited: labels.invited,
-              active: labels.active,
-              operatorRole: labels.operatorRole,
+              inactive: labels.inactive,
               dueDate: labels.dueDate,
               overdue: labels.overdue,
               viewAll: labels.viewAll,

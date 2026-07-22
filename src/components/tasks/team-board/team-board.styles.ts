@@ -4,8 +4,8 @@ export const teamBoardStyles = {
   column:
     "flex w-[min(100%,280px)] shrink-0 snap-center flex-col rounded-card border border-[var(--border)] bg-surface-card md:w-72",
   columnHeader: "space-y-2 border-b border-[var(--border)] p-3",
-  memberName: "text-base font-semibold text-[var(--text-primary)] hover:text-brand-accent-hover",
-  badges: "flex flex-wrap gap-1.5",
+  memberName:
+    "block truncate text-base font-semibold text-[var(--text-primary)] hover:text-brand-accent-hover",
   activeCount: "text-xs text-[var(--text-muted)]",
   section: "border-b border-[var(--border)] p-2 last:border-b-0 min-h-[3rem] transition-shadow",
   sectionDropTarget: "bg-brand-accent-soft/40 ring-2 ring-inset ring-brand-accent/40",

@@ -8,8 +8,10 @@ import { DemoteOperatorButton } from "@/components/teammates/demote-operator-but
 import { PromoteTeammateButton } from "@/components/teammates/promote-teammate-button";
 import { RemoveTeammateButton } from "@/components/teammates/remove-teammate-button";
 import { TransferOwnershipButton } from "@/components/teammates/transfer-ownership-button";
-import { ToneBadge } from "@/components/ui/badge";
-import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
+import {
+  MemberStatusIcons,
+  memberInactiveLabel,
+} from "@/components/ui/member-status-icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
@@ -75,7 +77,22 @@ export default async function TeammateDetailPage({
 
   return (
     <>
-      <PageHeader title={label} />
+      <PageHeader
+        title={label}
+        action={
+          <MemberStatusIcons
+            telegramStatus={member.telegramStatus}
+            inactiveLabel={memberInactiveLabel(member, {
+              invited: t("teammate.invited"),
+              inactive: t("teammate.inactive"),
+            })}
+            labels={{
+              linked: t("teammate.linked"),
+              pending: t("teammate.pending"),
+            }}
+          />
+        }
+      />
       {transferred === "1" ? (
         <Banner variant="info" className="mb-4">
           {t("teammate.ownershipTransferred")}
@@ -113,30 +130,6 @@ export default async function TeammateDetailPage({
       ) : null}
       <div className="grid max-w-2xl gap-4">
         <Card>
-          <CardHeader>
-            <div className="flex flex-wrap gap-2">
-              <ToneBadge tone={member.role === "operator" ? "accent" : "neutral"}>
-                {t(`roles.${member.role}`)}
-              </ToneBadge>
-              {member.telegramStatus ? (
-                <TelegramStatusIcon
-                  status={member.telegramStatus}
-                  label={
-                    member.telegramStatus === "linked"
-                      ? t("teammate.linked")
-                      : t("teammate.pending")
-                  }
-                />
-              ) : null}
-              {teammate ? (
-                <ToneBadge tone="neutral">
-                  {teammate.accountStatus === "active"
-                    ? t("teammate.active")
-                    : t("teammate.invited")}
-                </ToneBadge>
-              ) : null}
-            </div>
-          </CardHeader>
           <CardBody className="space-y-2 text-sm">
             <p>
               <span className="text-[var(--text-muted)]">{t("auth.email")}:</span>{" "}

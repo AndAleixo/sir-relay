@@ -123,6 +123,7 @@
     "linked": "Telegram linked",
     "pending": "Telegram pending",
     "invited": "Invited",
+    "inactive": "Inactive",
     "active": "Active",
     "inviteLink": "Invite link",
     "inviteLinkHint": "Share this URL so the teammate can activate their account.",

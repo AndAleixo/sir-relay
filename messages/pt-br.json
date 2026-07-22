@@ -123,6 +123,7 @@
     "linked": "Telegram vinculado",
     "pending": "Telegram pendente",
     "invited": "Convidado",
+    "inactive": "Inactivo",
     "active": "Ativo",
     "inviteLink": "Link de convite",
     "inviteLinkHint": "Partilhe este URL para o colega activar a conta.",

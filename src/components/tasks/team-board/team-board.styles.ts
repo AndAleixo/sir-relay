@@ -3,10 +3,9 @@ export const teamBoardStyles = {
     "flex cursor-grab gap-4 overflow-x-auto overscroll-x-contain pb-4 select-none touch-pan-y [scrollbar-gutter:stable] snap-x snap-mandatory data-[panning=true]:snap-none md:snap-none",
   column:
     "flex w-[min(100%,280px)] shrink-0 snap-center flex-col rounded-card border border-[var(--border)] bg-surface-card md:w-72",
-  columnHeader: "space-y-2 border-b border-[var(--border)] p-3",
+  columnHeader: "border-b border-[var(--border)] p-3",
   memberName:
     "block truncate text-base font-semibold text-[var(--text-primary)] hover:text-brand-accent-hover",
-  activeCount: "text-xs text-[var(--text-muted)]",
   section: "border-b border-[var(--border)] p-2 last:border-b-0 min-h-[3rem] transition-shadow",
   sectionDropTarget: "bg-brand-accent-soft/40 ring-2 ring-inset ring-brand-accent/40",
   sectionTitle: "mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-primary)]",

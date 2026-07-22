@@ -418,21 +418,18 @@ function MemberColumnHeader({
   member,
   locale,
   labels,
-  activeCount,
 }: {
   member: {
     id: string;
     name: string;
     email: string;
     displayName?: string | null;
-    role: "operator" | "teammate";
     active?: boolean;
     telegramStatus?: "linked" | "pending";
     accountStatus?: "active" | "invited" | null;
   };
   locale: string;
   labels: TeamBoardProps["labels"];
-  activeCount: number;
 }) {
   const inactiveLabel = memberInactiveLabel(member, {
     invited: labels.invited,
@@ -440,22 +437,19 @@ function MemberColumnHeader({
   });
 
   return (
-    <>
-      <MemberNameRow
-        nameNode={
-          <Link
-            href={`/${locale}/teammates/${member.id}`}
-            className={teamBoardStyles.memberName}
-          >
-            {groupMemberLabel(member)}
-          </Link>
-        }
-        telegramStatus={member.telegramStatus}
-        inactiveLabel={inactiveLabel}
-        labels={{ linked: labels.linked, pending: labels.pending }}
-      />
-      <p className={teamBoardStyles.activeCount}>{activeCount} active</p>
-    </>
+    <MemberNameRow
+      nameNode={
+        <Link
+          href={`/${locale}/teammates/${member.id}`}
+          className={teamBoardStyles.memberName}
+        >
+          {groupMemberLabel(member)}
+        </Link>
+      }
+      telegramStatus={member.telegramStatus}
+      inactiveLabel={inactiveLabel}
+      labels={{ linked: labels.linked, pending: labels.pending }}
+    />
   );
 }
 
@@ -606,8 +600,6 @@ export function TeamBoard({
   }
 
   const selfTasks = tasks.filter((t) => t.assigneeId === operator.id);
-  const selfActive =
-    selfTasks.filter((t) => t.status === "todo" || t.status === "doing").length;
 
   if (members.length === 0 && selfTasks.length === 0) {
     return (
@@ -638,12 +630,10 @@ export function TeamBoard({
                 name: operator.name,
                 email: operator.email ?? "",
                 displayName: operator.displayName,
-                role: "operator",
                 telegramStatus: operator.telegramStatus,
               }}
               locale={locale}
               labels={labels}
-              activeCount={selfActive}
             />
           }
           tasks={selfTasks}
@@ -663,8 +653,6 @@ export function TeamBoard({
         />
         {members.map((member) => {
           const columnTasks = tasks.filter((t) => t.assigneeId === member.id);
-          const activeCount =
-            columnTasks.filter((t) => t.status === "todo" || t.status === "doing").length;
 
           return (
             <TaskColumn
@@ -676,7 +664,6 @@ export function TeamBoard({
                   member={member}
                   locale={locale}
                   labels={labels}
-                  activeCount={activeCount}
                 />
               }
               tasks={columnTasks}

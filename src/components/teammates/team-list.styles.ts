@@ -5,5 +5,4 @@ export const teamListStyles = {
   td: "border-b border-[var(--border)] px-4 py-3 text-[var(--text-primary)]",
   trHover: "transition-colors hover:bg-[var(--surface-bg)]",
   userCell: "font-medium",
-  muted: "text-[var(--text-muted)]",
 } as const;

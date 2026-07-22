@@ -3,7 +3,7 @@
 **Purpose:** Layout, interaction, and visual behavior for the **public landing**, signed-in web app, and Telegram experience.  
 **Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) (what must work) · [BRAND.md](./BRAND.md) (colors, logos, tokens) · [ARCHITECTURE.md](./ARCHITECTURE.md) (code layout)
 
-**Last updated:** 2026-07-20
+**Last updated:** 2026-07-23
 
 ### Status naming
 
@@ -236,9 +236,7 @@ First column: the **logged-in operator**. Then other members ordered by **To do 
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
-│    Sam          │    Ana          │    Bruno        │    Carla        │
-│  Operator       │  ● linked       │  ○ pending TG   │  ● linked       │
-│  ● linked       │                 │                 │                 │
+│  Sam  ● linked  │  Ana  ● linked  │ Bruno ○ pending │  Carla ● linked │
 ├─────────────────┼─────────────────┼─────────────────┼─────────────────┤
 │ TO DO (1)       │ TO DO (2)       │ TO DO (1)       │ TO DO (0)       │
 │ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────┐ │                 │
@@ -260,8 +258,7 @@ First column: the **logged-in operator**. Then other members ordered by **To do 
 #### Column header (member)
 
 - Member label (fantasy name → account name → email)
-- Column header: member name (left) · status icons (right): inactive mark if invited/deactivated; Telegram icon (green linked · amber pending). **No** operator/teammate role chip
-- Optional: count of `todo` + `doing` as summary badge
+- Column header: member name (left) · status icons (right): inactive mark if invited/deactivated; Telegram icon (green linked · amber pending). **No** operator/teammate role chip; **no** active-task count under the name
 
 #### Sections inside each column (top → bottom)
 
@@ -608,6 +605,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
 | 2026-07-23 | Member identity: name · icons (inactive + Telegram); hide role chips on board/list/detail |
+| 2026-07-23 | Board column header: drop active-task count under name |
 | 2026-07-23 | Telegram status: icon green linked / amber pending (board, list, detail, Profile) |
 | 2026-07-22 | Settings General: show “Group owner” under your role when you own the active group |
 | 2026-07-22 | Invisible group owner: transfer on member detail; succession on owner leave; demote; delete owner-only |

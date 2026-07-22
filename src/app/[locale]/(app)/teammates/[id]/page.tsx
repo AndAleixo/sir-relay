@@ -220,7 +220,7 @@ export default async function TeammateDetailPage({
           </Card>
         ) : null}
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
           {teammate?.active && teammate.accountStatus === "active" ? (
             <PromoteTeammateButton
               locale={locale}
@@ -245,20 +245,19 @@ export default async function TeammateDetailPage({
               confirmMessage={t("teammate.transferOwnershipConfirm", { name: label })}
             />
           ) : null}
+          {memberIsOwner ? (
+            <p className="text-xs text-[var(--text-muted)] sm:basis-full">
+              {t("teammate.memberIsOwnerHint")}
+            </p>
+          ) : (
+            <RemoveTeammateButton
+              locale={locale}
+              teammateId={id}
+              label={t("teammate.remove")}
+              confirmMessage={t("teammate.removeConfirm")}
+            />
+          )}
         </div>
-
-        {memberIsOwner ? (
-          <p className="text-xs text-[var(--text-muted)]">
-            {t("teammate.memberIsOwnerHint")}
-          </p>
-        ) : (
-          <RemoveTeammateButton
-            locale={locale}
-            teammateId={id}
-            label={t("teammate.remove")}
-            confirmMessage={t("teammate.removeConfirm")}
-          />
-        )}
       </div>
     </>
   );

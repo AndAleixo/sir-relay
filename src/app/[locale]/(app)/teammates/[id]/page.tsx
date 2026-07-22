@@ -9,6 +9,7 @@ import { PromoteTeammateButton } from "@/components/teammates/promote-teammate-b
 import { RemoveTeammateButton } from "@/components/teammates/remove-teammate-button";
 import { TransferOwnershipButton } from "@/components/teammates/transfer-ownership-button";
 import { ToneBadge } from "@/components/ui/badge";
+import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
@@ -118,13 +119,14 @@ export default async function TeammateDetailPage({
                 {t(`roles.${member.role}`)}
               </ToneBadge>
               {member.telegramStatus ? (
-                <ToneBadge
-                  tone={member.telegramStatus === "linked" ? "success" : "warning"}
-                >
-                  {member.telegramStatus === "linked"
-                    ? t("teammate.linked")
-                    : t("teammate.pending")}
-                </ToneBadge>
+                <TelegramStatusIcon
+                  status={member.telegramStatus}
+                  label={
+                    member.telegramStatus === "linked"
+                      ? t("teammate.linked")
+                      : t("teammate.pending")
+                  }
+                />
               ) : null}
               {teammate ? (
                 <ToneBadge tone="neutral">

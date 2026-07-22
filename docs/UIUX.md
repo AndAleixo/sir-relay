@@ -260,7 +260,7 @@ First column: the **logged-in operator**. Then other members ordered by **To do 
 #### Column header (member)
 
 - Member label (fantasy name → account name → email)
-- Status chips: role when operator; Telegram `linked` / `pending` when known; account `active` / `invited` for teammates
+- Status chips: role when operator; Telegram status as **icon** (green linked · amber pending); account `active` / `invited` for teammates
 - Optional: count of `todo` + `doing` as summary badge
 
 #### Sections inside each column (top → bottom)
@@ -543,7 +543,8 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `TaskList` | Table list view |
 | `ViewToggle` | Board / List switch |
 | `StatusBadge` | Maps `todo` / `doing` / `done` to UI labels (§ Status naming) |
-| `ToneBadge` | Role, account, Telegram, alert delivery chips |
+| `TelegramStatusIcon` | Linked (green) / pending (amber) Telegram mark |
+| `ToneBadge` | Role, account, alert delivery chips |
 | `Banner` | Warning (delivery error on task detail) |
 | `SyncBar` | Session sync status (mock) |
 
@@ -604,6 +605,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
+| 2026-07-23 | Telegram status: icon green linked / amber pending (board, list, detail, Profile) |
 | 2026-07-22 | Settings General: show “Group owner” under your role when you own the active group |
 | 2026-07-22 | Invisible group owner: transfer on member detail; succession on owner leave; demote; delete owner-only |
 | 2026-07-21 | Rename `TeammateBoard` → `TeamBoard` (`team-board/`); `tasks.emptyBoard` |

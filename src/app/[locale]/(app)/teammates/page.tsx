@@ -9,6 +9,7 @@ import { teamListStyles } from "@/components/teammates/team-list.styles";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { Button } from "@/components/ui/button";
 import { ToneBadge } from "@/components/ui/badge";
+import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
 import { Banner } from "@/components/ui/banner";
 import { cn } from "@/lib/cn";
 import { groupMemberLabel } from "@/lib/group-member-label";
@@ -156,11 +157,14 @@ export default async function TeammatesPage({
                   </td>
                   <td className={teamListStyles.td}>
                     {user.telegramStatus ? (
-                      <ToneBadge tone={user.telegramStatus === "linked" ? "success" : "warning"}>
-                        {user.telegramStatus === "linked"
-                          ? t("teammate.linked")
-                          : t("teammate.pending")}
-                      </ToneBadge>
+                      <TelegramStatusIcon
+                        status={user.telegramStatus}
+                        label={
+                          user.telegramStatus === "linked"
+                            ? t("teammate.linked")
+                            : t("teammate.pending")
+                        }
+                      />
                     ) : (
                       <span className={teamListStyles.muted}>—</span>
                     )}

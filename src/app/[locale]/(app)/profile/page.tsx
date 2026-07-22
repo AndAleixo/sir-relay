@@ -10,7 +10,7 @@ import { ProfileAvatarEditor } from "@/components/profile/profile-avatar-editor"
 import { PasswordFormFields } from "@/components/auth/password-form-fields";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
 import { RegenerateTelegramLinkButton } from "@/components/profile/regenerate-telegram-link-button";
-import { ToneBadge } from "@/components/ui/badge";
+import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
 import { Banner } from "@/components/ui/banner";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { SettingsLocaleField } from "@/components/settings/settings-locale-field";
@@ -135,9 +135,14 @@ export default async function ProfilePage({
             <CardHeader>
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-sm font-semibold">{t("profile.telegramSection")}</h2>
-                <ToneBadge tone={telegramStatus === "linked" ? "success" : "warning"}>
-                  {telegramStatus === "linked" ? t("teammate.linked") : t("teammate.pending")}
-                </ToneBadge>
+                <TelegramStatusIcon
+                  status={telegramStatus === "linked" ? "linked" : "pending"}
+                  label={
+                    telegramStatus === "linked"
+                      ? t("teammate.linked")
+                      : t("teammate.pending")
+                  }
+                />
               </div>
             </CardHeader>
             <CardBody className="space-y-3">

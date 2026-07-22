@@ -21,7 +21,6 @@ const errorKeys = {
   short: "nameTooShort",
   invite_invalid: "inviteInvalid",
   email_mismatch: "inviteEmailMismatch",
-  last_operator: "lastOperator",
   forbidden: "forbidden",
   not_member: "notMember",
   action_failed: "actionFailed",

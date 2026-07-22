@@ -43,9 +43,9 @@ src/
 | Switcher + panel open | `group-switcher.tsx` | Desktop dropdown · mobile popover (só um painel visível por breakpoint) |
 | Lista + forms | `group-panel-menu.tsx` | Switch/create/join + accept/decline pending requests · leave/delete in `group-danger-settings.tsx` |
 | Server actions | `app/actions/groups.ts` + `invitations.ts` | Group lifecycle + consent-based invitation responses |
-| Teammate actions | `app/actions/teammates.ts` | pre-create/update/remove (assigned group tasks + membership)/promote/regenerate-invite |
-| Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` |
-| Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete |
+| Teammate actions | `app/actions/teammates.ts` | pre-create/update/remove/promote/demote/transfer-ownership/regenerate-invite |
+| Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` (`ownerUserId` on `Group`) |
+| Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete/transfer · ownership succession |
 | Invitation consent | `services/{api,mock}/invitations*` | Existing active account: pending → accept/decline; membership only on accept |
 | Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |
 | Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |
@@ -86,7 +86,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 
 Unauthenticated access to app routes → `/login?session=expired`.
 
-**User model:** one **account** per person → zero or more **groups** → **role per membership** (`operator` / `teammate`) + optional per-membership **`display_name`** (fantasy label; own edit on **Settings**, operator edit on member detail). Session: `{ user, activeGroupId }`; effective role from `hydrateSession()` + `group_memberships`. Account `users.name` is owner-only (Profile); operators must not mutate it. **Telegram** is account-scoped on Profile (`telegram_chat_id` on `users`) — **task relay** for any linked assignee; operators **also** get alert DMs. Group UI label: `display_name ?? users.name` (invited pending → show email). `UserGroup` in `domain/types.ts` matches `GET /groups` (id, name, role).
+**User model:** one **account** per person → zero or more **groups** → **role per membership** (`operator` / `teammate`) + optional per-membership **`display_name`** (fantasy label; own edit on **Settings**, operator edit on member detail). Each group has an invisible **`owner_user_id`** (creator by default; transferable; succession on owner leave). Session: `{ user, activeGroupId }`; effective role from `hydrateSession()` + `group_memberships`. Account `users.name` is account-owner-only (Profile); operators must not mutate it. **Telegram** is account-scoped on Profile (`telegram_chat_id` on `users`) — **task relay** for any linked assignee; operators **also** get alert DMs. Group UI label: `display_name ?? users.name` (invited pending → show email). `UserGroup` in `domain/types.ts` matches `GET /groups` (id, name, ownerUserId, role).
 
 **Add teammate:** email-only pre-create / consent invitation; person sets account name on `/join/<token>` (not via signup merge until P1-AUTH-13).
 

@@ -90,8 +90,16 @@ export function toTask(row: DbTask, assigneeName: string): Task {
   };
 }
 
-export function toUserGroup(group: { id: string; name: string }, role: Role): UserGroup {
-  return { id: group.id, name: group.name, role };
+export function toUserGroup(
+  group: { id: string; name: string; ownerUserId: string },
+  role: Role,
+): UserGroup {
+  return {
+    id: group.id,
+    name: group.name,
+    ownerUserId: group.ownerUserId,
+    role,
+  };
 }
 
 export type HydratedSession = Session;

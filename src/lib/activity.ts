@@ -177,6 +177,16 @@ export function describeGroupActivity(
         key: "teammate_promote",
         values: { actor, person: personLabel(meta, "userId", ctx.userNames) },
       };
+    case "teammate_demote":
+      return {
+        key: "teammate_demote",
+        values: { actor, person: personLabel(meta, "userId", ctx.userNames) },
+      };
+    case "group_ownership_transfer":
+      return {
+        key: "group_ownership_transfer",
+        values: { actor, person: personLabel(meta, "userId", ctx.userNames) },
+      };
     case "invite_regenerate":
       return {
         key: "invite_regenerate",

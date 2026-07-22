@@ -186,7 +186,11 @@ export class ApiGroupInvitationService implements GroupInvitationService {
         }],
         skipDuplicates: true,
       });
-      return { id: invitation.group.id, name: invitation.group.name };
+      return {
+        id: invitation.group.id,
+        name: invitation.group.name,
+        ownerUserId: invitation.group.ownerUserId,
+      };
     });
   }
 

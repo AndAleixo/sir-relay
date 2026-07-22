@@ -16,6 +16,9 @@ import {
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
 import {
   addGroupMember,
+  allMemberships,
+  getGroup,
+  getMembership,
   getMembershipDisplayName,
   getMembershipRole,
   removeGroupMember,
@@ -237,8 +240,11 @@ export class MockTeammateService implements TeammateService {
     if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
     if (id === ctx.session.user.id) throw new Error("Cannot remove yourself");
     requireMemberInGroup(ctx, id);
+    const groupId = ctx.session.activeGroupId!;
+    const group = getGroup(groupId);
+    if (group?.ownerUserId === id) throw new Error("is_owner");
     removeMockTasksAssignedTo(id);
-    removeGroupMember(ctx.session.activeGroupId!, id);
+    removeGroupMember(groupId, id);
   }
 
   async promoteToOperator(id: string, ctx: { session: Session }): Promise<void> {
@@ -249,6 +255,23 @@ export class MockTeammateService implements TeammateService {
     if (!teammate.active) throw new Error("Inactive user");
     if (teammate.accountStatus !== "active") throw new Error("Account not active");
     setMemberRole(groupId, id, "operator");
+  }
+
+  async demoteToTeammate(id: string, ctx: { session: Session }): Promise<void> {
+    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
+    if (id === ctx.session.user.id) throw new Error("Cannot demote yourself");
+    const groupId = ctx.session.activeGroupId;
+    if (!groupId) throw new Error("No active group");
+    requireMemberInGroup(ctx, id);
+    const group = getGroup(groupId);
+    if (group?.ownerUserId === id) throw new Error("is_owner");
+    const membership = getMembership(id, groupId);
+    if (!membership || membership.role !== "operator") throw new Error("not_operator");
+    const operators = allMemberships().filter(
+      (row) => row.groupId === groupId && row.role === "operator",
+    );
+    if (operators.length <= 1) throw new Error("last_operator");
+    setMemberRole(groupId, id, "teammate");
   }
 
   async regenerateInvite(id: string, ctx: { session: Session }): Promise<void> {

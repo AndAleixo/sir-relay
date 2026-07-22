@@ -124,7 +124,6 @@ async function redirectAfterMembershipChange(
 
 function groupActionError(error: unknown): GroupFormState {
   if (error instanceof Error) {
-    if (error.message === "last_operator") return { error: "last_operator" };
     if (error.message === "forbidden") return { error: "forbidden" };
     if (error.message === "not_member") return { error: "not_member" };
   }
@@ -164,7 +163,9 @@ export async function deleteGroupForm(
 
   const session = await requireSession(locale);
   const { groups } = getServices();
-  if ((await groups.roleInGroup(session.user.id, groupId)) !== "operator") {
+  const memberships = await groups.listForUser(session.user.id);
+  const target = memberships.find((group) => group.id === groupId);
+  if (!target || target.ownerUserId !== session.user.id) {
     return { error: "forbidden" };
   }
 

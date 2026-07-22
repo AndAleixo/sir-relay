@@ -33,11 +33,6 @@ async function main() {
   await prisma.group.deleteMany();
   await prisma.user.deleteMany();
 
-  for (const group of MOCK_GROUPS) {
-    await prisma.group.create({ data: { id: group.id, name: group.name } });
-    await prisma.groupAlertPrefs.create({ data: { groupId: group.id } });
-  }
-
   for (const op of MOCK_OPERATORS) {
     await prisma.user.create({
       data: {
@@ -70,6 +65,17 @@ async function main() {
           teammate.telegramStatus === "linked" ? `demo-chat-${teammate.id}` : null,
       },
     });
+  }
+
+  for (const group of MOCK_GROUPS) {
+    await prisma.group.create({
+      data: {
+        id: group.id,
+        name: group.name,
+        ownerUserId: group.ownerUserId,
+      },
+    });
+    await prisma.groupAlertPrefs.create({ data: { groupId: group.id } });
   }
 
   for (const membership of MOCK_MEMBERSHIPS) {

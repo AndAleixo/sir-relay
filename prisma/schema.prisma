@@ -68,6 +68,7 @@ model User {
   updatedAt          DateTime      @updatedAt @map("updated_at")
 
   memberships        GroupMembership[]
+  ownedGroups        Group[]           @relation("GroupOwner")
   assignedTasks      Task[]            @relation("TaskAssignee")
   createdTasks       Task[]            @relation("TaskCreator")
   inviteTokens       TeammateInviteToken[]
@@ -81,11 +82,13 @@ model User {
 }
 
 model Group {
-  id        String   @id
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id          String   @id
+  name        String
+  ownerUserId String   @map("owner_user_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
+  owner       User              @relation("GroupOwner", fields: [ownerUserId], references: [id])
   memberships GroupMembership[]
   tasks       Task[]
   alertPrefs  GroupAlertPrefs?

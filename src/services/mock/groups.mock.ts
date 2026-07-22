@@ -1,6 +1,7 @@
 import type { Group, GroupInvitePreview, GroupMembership, Role, UserGroup } from "@/domain/types";
 import type { GroupService } from "@/services/contracts";
 import type { GroupMembershipLookup } from "@/lib/session-hydrate";
+import { pickOwnershipSuccessorId } from "@/lib/group-ownership";
 import { findMockUserById } from "@/services/mock/users.mock";
 import {
   consumeInvite,
@@ -8,8 +9,8 @@ import {
 } from "@/services/mock/tokens.mock";
 
 export const MOCK_GROUPS: Group[] = [
-  { id: "group-demo", name: "Demo Shop" },
-  { id: "group-side", name: "Side Project" },
+  { id: "group-demo", name: "Demo Shop", ownerUserId: "user-operator-2" },
+  { id: "group-side", name: "Side Project", ownerUserId: "user-operator-2" },
 ];
 
 export const MOCK_MEMBERSHIPS: GroupMembership[] = [
@@ -59,7 +60,7 @@ function membershipKey(groupId: string, userId: string) {
   return `${groupId}:${userId}`;
 }
 
-function allMemberships(): GroupMembership[] {
+export function allMemberships(): GroupMembership[] {
   const { extraMemberships } = mockGroupExtras();
   const removed = removedMembershipKeys();
   const deleted = deletedGroupIds();
@@ -76,7 +77,7 @@ function allGroups(): Group[] {
   return [...MOCK_GROUPS, ...extraGroups].filter((group) => !deleted.has(group.id));
 }
 
-function getGroup(groupId: string): Group | null {
+export function getGroup(groupId: string): Group | null {
   return allGroups().find((group) => group.id === groupId) ?? null;
 }
 
@@ -93,7 +94,7 @@ function listGroupsForUser(userId: string): Group[] {
   return allGroups().filter((g) => ids.has(g.id));
 }
 
-function getMembership(userId: string, groupId: string): GroupMembership | null {
+export function getMembership(userId: string, groupId: string): GroupMembership | null {
   return (
     allMemberships().find((m) => m.userId === userId && m.groupId === groupId) ?? null
   );
@@ -159,6 +160,7 @@ function createGroupForUser(userId: string, name: string): Group {
   const group: Group = {
     id: `group-${Date.now().toString(36)}`,
     name: name.trim(),
+    ownerUserId: userId,
   };
   extraGroups.push(group);
   extraMemberships.push({ groupId: group.id, userId, role: "operator" });
@@ -320,10 +322,27 @@ export class MockGroupService implements GroupService {
     const membership = getMembership(userId, groupId);
     if (!membership) throw new Error("not_member");
 
+    const group = getGroup(groupId);
+    if (!group) throw new Error("not_member");
+
     const members = allMemberships().filter((row) => row.groupId === groupId);
-    const operators = members.filter((row) => row.role === "operator");
-    if (membership.role === "operator" && operators.length === 1 && members.length > 1) {
-      throw new Error("last_operator");
+    const remaining = members.filter((row) => row.userId !== userId);
+
+    if (remaining.length > 0 && group.ownerUserId === userId) {
+      const successorId = pickOwnershipSuccessorId(
+        members.map((row, index) => ({
+          userId: row.userId,
+          role: row.role,
+          createdAt: index,
+        })),
+        userId,
+      );
+      if (!successorId) throw new Error("action_failed");
+      const successor = members.find((row) => row.userId === successorId);
+      if (successor?.role === "teammate") {
+        setMemberRole(groupId, successorId, "operator");
+      }
+      group.ownerUserId = successorId;
     }
 
     const { removeMockTasksAssignedTo } = await import("@/services/mock/task.mock");
@@ -341,9 +360,39 @@ export class MockGroupService implements GroupService {
     }
   }
 
+  async transferOwnership(
+    userId: string,
+    groupId: string,
+    newOwnerUserId: string,
+  ): Promise<void> {
+    if (userId === newOwnerUserId) throw new Error("same_owner");
+    const group = getGroup(groupId);
+    if (!group) throw new Error("not_member");
+    if (group.ownerUserId !== userId) throw new Error("forbidden");
+
+    const target = getMembership(newOwnerUserId, groupId);
+    if (!target) throw new Error("not_member");
+
+    const targetUser = findMockUserById(newOwnerUserId);
+    if (!targetUser?.active) throw new Error("inactive");
+    if (
+      "accountStatus" in targetUser &&
+      (targetUser as { accountStatus: string }).accountStatus !== "active"
+    ) {
+      throw new Error("inactive");
+    }
+
+    if (target.role === "teammate") {
+      setMemberRole(groupId, newOwnerUserId, "operator");
+    }
+    group.ownerUserId = newOwnerUserId;
+  }
+
   async deleteGroup(userId: string, groupId: string): Promise<void> {
     const role = await this.roleInGroup(userId, groupId);
     if (role !== "operator") throw new Error("forbidden");
+    const group = getGroup(groupId);
+    if (!group || group.ownerUserId !== userId) throw new Error("forbidden");
     clearMockLastActiveGroupForGroup(groupId);
     deletedGroupIds().add(groupId);
     const { extraGroups, extraMemberships } = mockGroupExtras();

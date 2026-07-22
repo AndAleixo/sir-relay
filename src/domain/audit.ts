@@ -22,6 +22,8 @@ export type AuditAction =
   | "teammate_create"
   | "teammate_remove"
   | "teammate_promote"
+  | "teammate_demote"
+  | "group_ownership_transfer"
   | "invite_regenerate"
   | "telegram_link"
   | "telegram_reply"

@@ -39,11 +39,10 @@ export default async function SettingsPage({
   const members = activeGroup ? await teammates.listOrganizationUsers({ session }) : [];
   const membershipSelf = members.find((user) => user.id === session.user.id);
   const memberCount = activeGroup ? await groups.countMembers(activeGroup.id) : 0;
-  let isLastOperator = false;
-  if (activeGroup && isOperator) {
-    const operators = members.filter((user) => user.role === "operator");
-    isLastOperator = operators.length === 1 && members.length > 1;
-  }
+  const isOwner = Boolean(
+    activeGroup && activeGroup.ownerUserId === session.user.id,
+  );
+  const showLeaveSuccessionHint = isOwner && memberCount > 1;
 
   return (
     <>
@@ -79,6 +78,7 @@ export default async function SettingsPage({
                 group={activeGroup}
                 memberCount={memberCount}
                 isOperator={isOperator}
+                isOwner={isOwner}
                 renameError={renameError}
                 renamed={renamed === "1"}
               />
@@ -148,7 +148,8 @@ export default async function SettingsPage({
               <GroupDangerSettings
                 locale={locale}
                 group={activeGroup}
-                isLastOperator={isLastOperator}
+                isOwner={isOwner}
+                showLeaveSuccessionHint={showLeaveSuccessionHint}
               />
             </CardBody>
           </Card>

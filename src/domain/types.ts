@@ -25,6 +25,8 @@ export interface GroupInvitation {
 export interface Group {
   id: string;
   name: string;
+  /** Invisible owner — UI role stays operator/teammate. */
+  ownerUserId: string;
 }
 
 /** Group the user belongs to, with membership role (matches GET /groups). */

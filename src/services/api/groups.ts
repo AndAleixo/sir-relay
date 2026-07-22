@@ -1,6 +1,8 @@
-import type { Group, GroupInvitePreview, UserGroup } from "@/domain/types";
+import type { Group, GroupInvitePreview, Role, UserGroup } from "@/domain/types";
 import type { GroupService } from "@/services/contracts";
 import { prisma } from "@/lib/prisma";
+import { pickOwnershipSuccessorId } from "@/lib/group-ownership";
+import { writeAudit } from "@/lib/audit";
 import { hashToken, newToken } from "@/lib/token-hash";
 import { pickDefaultGroupIdAsync } from "@/services/api/membership";
 import { toRole, toUserGroup } from "@/services/api/mappers";
@@ -9,6 +11,10 @@ const INVITE_TTL_MS = 72 * 60 * 60 * 1000;
 
 function inviteNeedsPassword(accountStatus: string): boolean {
   return accountStatus === "invited";
+}
+
+function toGroup(row: { id: string; name: string; ownerUserId: string }): Group {
+  return { id: row.id, name: row.name, ownerUserId: row.ownerUserId };
 }
 
 export class ApiGroupService implements GroupService {
@@ -26,7 +32,7 @@ export class ApiGroupService implements GroupService {
     const id = `group-${Date.now().toString(36)}`;
     const group = await prisma.$transaction(async (tx) => {
       const created = await tx.group.create({
-        data: { id, name: trimmed },
+        data: { id, name: trimmed, ownerUserId: userId },
       });
       await tx.groupMembership.create({
         data: { groupId: id, userId, role: "operator" },
@@ -36,7 +42,7 @@ export class ApiGroupService implements GroupService {
       });
       return created;
     });
-    return { id: group.id, name: group.name };
+    return toGroup(group);
   }
 
   async roleInGroup(userId: string, groupId: string) {
@@ -126,7 +132,7 @@ export class ApiGroupService implements GroupService {
       });
     });
 
-    return { id: invite.group.id, name: invite.group.name };
+    return toGroup(invite.group);
   }
 
   async pickResumeGroupId(userId: string): Promise<string | null> {
@@ -144,7 +150,7 @@ export class ApiGroupService implements GroupService {
       where: { id: groupId },
       data: { name: trimmed },
     });
-    return { id: updated.id, name: updated.name };
+    return toGroup(updated);
   }
 
   async countMembers(groupId: string): Promise<number> {
@@ -155,15 +161,43 @@ export class ApiGroupService implements GroupService {
     const role = await this.roleInGroup(userId, groupId);
     if (!role) throw new Error("not_member");
 
-    const [operators, members] = await Promise.all([
-      prisma.groupMembership.count({ where: { groupId, role: "operator" } }),
-      prisma.groupMembership.count({ where: { groupId } }),
-    ]);
-    if (role === "operator" && operators === 1 && members > 1) {
-      throw new Error("last_operator");
-    }
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: { ownerUserId: true },
+    });
+    if (!group) throw new Error("not_member");
 
     await prisma.$transaction(async (tx) => {
+      const members = await tx.groupMembership.findMany({
+        where: { groupId },
+        select: { userId: true, role: true, createdAt: true },
+      });
+      const remaining = members.filter((m) => m.userId !== userId);
+      const isOwner = group.ownerUserId === userId;
+
+      if (remaining.length > 0 && isOwner) {
+        const successorId = pickOwnershipSuccessorId(
+          members.map((m) => ({
+            userId: m.userId,
+            role: toRole(m.role),
+            createdAt: m.createdAt,
+          })),
+          userId,
+        );
+        if (!successorId) throw new Error("action_failed");
+        const successor = members.find((m) => m.userId === successorId);
+        if (successor?.role === "teammate") {
+          await tx.groupMembership.update({
+            where: { groupId_userId: { groupId, userId: successorId } },
+            data: { role: "operator" },
+          });
+        }
+        await tx.group.update({
+          where: { id: groupId },
+          data: { ownerUserId: successorId },
+        });
+      }
+
       await tx.task.deleteMany({
         where: { groupId, assigneeId: userId },
       });
@@ -174,8 +208,8 @@ export class ApiGroupService implements GroupService {
         where: { id: userId, lastActiveGroupId: groupId },
         data: { lastActiveGroupId: null },
       });
-      const remaining = await tx.groupMembership.count({ where: { groupId } });
-      if (remaining === 0) {
+      const left = await tx.groupMembership.count({ where: { groupId } });
+      if (left === 0) {
         await tx.user.updateMany({
           where: { lastActiveGroupId: groupId },
           data: { lastActiveGroupId: null },
@@ -185,9 +219,63 @@ export class ApiGroupService implements GroupService {
     });
   }
 
+  async transferOwnership(
+    userId: string,
+    groupId: string,
+    newOwnerUserId: string,
+  ): Promise<void> {
+    if (userId === newOwnerUserId) throw new Error("same_owner");
+
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: { ownerUserId: true },
+    });
+    if (!group) throw new Error("not_member");
+    if (group.ownerUserId !== userId) throw new Error("forbidden");
+
+    const target = await prisma.groupMembership.findUnique({
+      where: { groupId_userId: { groupId, userId: newOwnerUserId } },
+    });
+    if (!target) throw new Error("not_member");
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id: newOwnerUserId },
+      select: { active: true, accountStatus: true },
+    });
+    if (!targetUser?.active || targetUser.accountStatus !== "active") {
+      throw new Error("inactive");
+    }
+
+    await prisma.$transaction(async (tx) => {
+      if (target.role === "teammate") {
+        await tx.groupMembership.update({
+          where: { groupId_userId: { groupId, userId: newOwnerUserId } },
+          data: { role: "operator" },
+        });
+      }
+      await tx.group.update({
+        where: { id: groupId },
+        data: { ownerUserId: newOwnerUserId },
+      });
+    });
+    void writeAudit({
+      groupId,
+      action: "group_ownership_transfer",
+      actorType: "operator",
+      actorId: userId,
+      metadata: { userId: newOwnerUserId },
+    });
+  }
+
   async deleteGroup(userId: string, groupId: string): Promise<void> {
     const role = await this.roleInGroup(userId, groupId);
     if (role !== "operator") throw new Error("forbidden");
+
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: { ownerUserId: true },
+    });
+    if (!group || group.ownerUserId !== userId) throw new Error("forbidden");
 
     await prisma.$transaction(async (tx) => {
       await tx.user.updateMany({

@@ -152,19 +152,20 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-GRP-01 | List | **Group switcher panel** lists groups with name + **role**; `/groups` is placeholder when no active group (panel opens) |
-| P1-GRP-02 | Create | **Group switcher → Create group** (inline name ≥ 2 chars); creator is `operator`; group becomes active |
+| P1-GRP-02 | Create | **Group switcher → Create group** (inline name ≥ 2 chars); creator is `operator` **and invisible group owner** (`groups.owner_user_id`); group becomes active |
 | P1-GRP-03 | Select | **Group switcher** sets `activeGroupId` → role home |
 | P1-GRP-04 | Auto-select | Single group + no active group → `GET /groups/auto` persiste cookie → role home; 2+ groups → `/groups` + panel open |
-| P1-GRP-05 | Manage | **Group switcher panel** — switch, create, join · **Settings** — leave (active group), delete (operator, active group) |
+| P1-GRP-05 | Manage | **Group switcher panel** — switch, create, join · **Settings** — leave (active group), delete (**owner** only, active group) |
 | P1-GRP-06 | Join via invite | `/join/<token>` (set password if `invited`) **or** paste in group panel (signed in, same email). Sign-up email match (§5.1.2 Path B) when P1-AUTH-13 ships |
 | P1-GRP-07 | Join from panel | Paste invite in group panel → accept when signed in; adds membership if missing |
 | P1-GRP-08 | Existing active email | Operator adds teammate email that already has an **`active`** account → create/refresh one pending `group_invitation`; **do not** create membership until the user accepts |
-| P1-GRP-09 | Leave group | Any member may leave **active** group; sole operator with other members blocked — promote or delete first |
-| P1-GRP-10 | Delete group | Operator only; cascade tasks/teammates/alerts; session picks next group or `/groups` |
+| P1-GRP-09 | Leave group | Any member may leave **active** group. If leaver is **owner** and others remain: ownership → longest-standing other **operator**, else longest-standing **teammate** (auto-promoted to operator). Last member leave deletes the group |
+| P1-GRP-10 | Delete group | **Owner** only; cascade tasks/teammates/alerts; session picks next group or `/groups` |
 | P1-GRP-11 | Resume last group | `users.last_active_group_id` + session cookie; login with 2+ groups opens last valid group (not picker) |
 | P1-GRP-12 | Invited email at operator add | Operator adds email with existing **`invited`** pre-create (same or other group) → add membership only; do not create duplicate user row |
 | P1-GRP-13 | Invitation consent | Existing active user sees pending requests in the group switcher and may accept or decline; accept creates teammate membership transactionally, decline does not |
 | P1-GRP-14 | Invitation lifecycle | One row per group/user; 72h expiry; operator sees pending/declined/expired and may resend; accepted requests are retained as history |
+| P1-GRP-15 | Transfer ownership | **Owner** only; pick any **active** member; target becomes operator if needed; previous owner stays operator. Owner not shown as a separate UI role |
 
 ### 5.1.2 Pre-created teammate activation
 
@@ -209,6 +210,8 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TM-09 | One chat per teammate | `telegram_chat_id` unique across users |
 | P1-TM-10 | Promote to operator | Operator promotes **active** teammate in group → `group_memberships.role = operator`; appears as operator in team list |
 | P1-TM-11 | Fantasy name | Optional `group_memberships.display_name`; editable by operator on member detail **or** by the member on **Settings**; empty → fall back to account name |
+| P1-TM-12 | Demote to teammate | Operator demotes another **operator** → teammate; **blocked** for group **owner** and for the last operator |
+| P1-TM-13 | Remove vs owner | Cannot remove the group **owner**; transfer ownership first |
 
 ### 5.3 Tasks & relay queue
 
@@ -324,7 +327,7 @@ users
   last_active_group_id, created_at, updated_at
 
 groups
-  id, name, created_at, updated_at
+  id, name, owner_user_id, created_at, updated_at
 
 group_memberships
   group_id, user_id, role (operator|teammate), display_name (nullable), created_at
@@ -561,11 +564,13 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Action | Operator (in group) | Teammate (in group) | Teammate (Telegram) |
 |--------|---------------------|---------------------|---------------------|
 | Sign up / log in | Yes | Yes | — |
-| Create group | Yes (becomes operator) | Yes (becomes operator) | — |
+| Create group | Yes (becomes operator + invisible owner) | Yes (becomes operator + invisible owner) | — |
 | Switch active group | Yes | Yes | — |
-| Leave group | Yes | Yes | — |
-| Delete group | Yes (operator) | — | — |
+| Leave group | Yes (owner leave → ownership succession) | Yes | — |
+| Delete group | Yes (owner only) | — | — |
+| Transfer ownership | Yes (owner only) | — | — |
 | Promote teammate → operator | Yes | — | — |
+| Demote operator → teammate | Yes (not owner / not last operator) | — | — |
 | Manage teammates | Yes | — | — |
 | Create / edit / delete tasks | Yes | Own tasks only | — |
 | View tasks | All in group | Assigned to me | Current notification |
@@ -593,14 +598,14 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | PATCH | `/me` | 1 | Session `{ name?, locale? }` |
 | POST | `/me/active-group` | 1 | Session `{ groupId \| null }` |
 | GET | `/groups` | 1 | Session — groups for current user + role per group |
-| POST | `/groups` | 1 | Session `{ name }` — creator becomes operator |
+| POST | `/groups` | 1 | Session `{ name }` — creator becomes operator + invisible owner |
 | POST | `/groups/join` | 1 | Session `{ token }` — accept invite for signed-in user |
 | GET | `/group-invitations` | 1 | Session — pending requests for current user |
 | POST | `/group-invitations/:id/accept` | 1 | Invited user — create teammate membership |
 | POST | `/group-invitations/:id/decline` | 1 | Invited user — decline without membership |
 | POST | `/group-invitations/:id/resend` | 1 | Operator in group — reset pending status + 72h expiry |
-| POST | `/groups/:id/leave` | 1 | Session — delete own assigned tasks in that group, then leave membership; empty group deleted |
-| DELETE | `/groups/:id` | 1 | Operator in group — delete group + cascade |
+| POST | `/groups/:id/leave` | 1 | Session — delete own assigned tasks; if owner, succession then leave; empty group deleted |
+| DELETE | `/groups/:id` | 1 | Owner of group — delete group + cascade |
 | GET | `/groups/invites/:token` | 1 | Public preview — group name, email, needsPassword |
 | GET | `/teammates` | 1 | Operator in active group |
 | POST | `/teammates` | 1 | Operator |
@@ -608,6 +613,8 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/teammates/:id/invite` | 1 | Operator |
 | POST | `/me/telegram-link` | 1 | Session — regenerate own Telegram link (Profile) |
 | POST | `/teammates/:id/promote` | 1 | Operator — teammate → operator in active group |
+| POST | `/teammates/:id/demote` | 1 | Operator — operator → teammate (not owner / not last operator) |
+| POST | `/groups/:id/transfer-ownership` | 1 | Owner — transfer invisible ownership to active member |
 | GET | `/tasks` | 1 | Operator (all in group) · Teammate (mine in group) |
 | POST | `/tasks` | 1 | Operator in active group |
 | GET | `/tasks/:id` | 1 | Operator in group · Teammate (if assignee) |
@@ -729,6 +736,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-07-19 | Events: `/events` (alerts) + `/events/activity` (human group history); raw store stays `audit_logs` |
 | 2026-07-19 | Phase 2 IDOR: service-layer operator/self guards (P2-SEC-01) |
 | 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
+| 2026-07-22 | Invisible `groups.owner_user_id`: create/transfer/succession on leave; demote; delete owner-only (P1-GRP-09/10/15, P1-TM-12/13) |
 | 2026-07-20 | Teammate may create self-assigned tasks (P1-TASK-01); `/tasks/new` + New task CTA for both roles |
 | 2026-07-20 | P2-MON-01: `x-request-id` + `requestId` on existing JSON logs; Docker log rotation 10m×5 |
 | 2026-07-19 | Next 16.2.10 + React 19 + next-intl 4 (P2-SEC-10 highs cleared); `middleware` → `proxy` |

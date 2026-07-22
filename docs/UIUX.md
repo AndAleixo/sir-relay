@@ -402,7 +402,7 @@ Table: name, email, role, account status, Telegram status, view link. **You** �
 ### Detail `/teammates/[id]`
 
 - Group label (`display_name ?? name`), email, role, account + Telegram **status** badges
-- Edit **group fantasy name** (`display_name`); email only while `invited`; **promote to operator** (active teammate only), remove from group (not yourself)
+- Edit **group fantasy name** (`display_name`); email only while `invited`; **promote to operator** (active teammate only); **demote to teammate** (other operators except group owner / last operator); **transfer ownership** (current owner only — no owner badge in UI); remove from group (not yourself; not the owner)
 - **Never** edit another user’s global account name — that lives on **Profile**
 - Works for both teammates and other operators in the active group
 - **Invite link** — `/join/{token}` · copy · regenerate (invited teammates only)
@@ -439,10 +439,10 @@ All users with an active group. Access: sidebar / mobile tabs only (not account 
 
 | Section | Content | Phase 1 |
 |---------|---------|---------|
-| **General** | Group name (operator rename); **your fantasy name** for this group only | Yes |
+| **General** | Group name (operator rename); role (+ **Group owner** line if you own the group); **your fantasy name** for this group only | Yes |
 | **Operator alerts** | Toggles + link to **Events**; banner → **Profile** if Telegram unlinked | Yes |
 | **Notifications** | Teammate empty state (operators configure alerts); banner → **Profile** if unlinked | Yes |
-| **Membership** | Leave group; delete group (operator) | Yes |
+| **Membership** | Leave group (owner leave → ownership succession); delete group (**owner** only) | Yes |
 
 Language and Telegram live on **Profile**; group switching on the header **Group switcher**.
 
@@ -525,6 +525,8 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `GroupSwitcher` + `GroupPanelMenu` | Header panel — switch · create · join |
 | `GroupDangerSettings` | Settings page — leave / delete active group |
 | `PromoteTeammateButton` | Teammate detail — promote to operator (confirm) |
+| `DemoteOperatorButton` | Member detail — demote operator → teammate (confirm) |
+| `TransferOwnershipButton` | Member detail — owner transfers invisible ownership (confirm) |
 | `RemoveTeammateButton` | Teammate detail — confirm permanent deletion of assigned group tasks, then remove membership; account remains |
 | `AppShell` | Sidebar + collapse + role-based nav (when group active) + profile footer |
 | `AppHeader` | Desktop group switcher + locale picker + account menu |
@@ -602,6 +604,8 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | To do priority = visual order; drag place/reorder in member To do (operator board / teammate Kanban); Telegram follows queue head |
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
+| 2026-07-22 | Settings General: show “Group owner” under your role when you own the active group |
+| 2026-07-22 | Invisible group owner: transfer on member detail; succession on owner leave; demote; delete owner-only |
 | 2026-07-21 | Rename `TeammateBoard` → `TeamBoard` (`team-board/`); `tasks.emptyBoard` |
 | 2026-07-21 | Board card rename to `BoardTaskCard`; drop dead card styles / sectionTitleAccent |
 | 2026-07-21 | Teammate Kanban: same inline title/due edit as operator board |

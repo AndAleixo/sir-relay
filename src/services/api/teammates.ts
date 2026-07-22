@@ -248,6 +248,12 @@ export class ApiTeammateService implements TeammateService {
     if (id === ctx.session.user.id) throw new Error("Cannot remove yourself");
     await requireMemberInGroup(ctx, id);
     const groupId = requireGroupId(ctx.session);
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: { ownerUserId: true },
+    });
+    if (group?.ownerUserId === id) throw new Error("is_owner");
+
     await prisma.$transaction(async (tx) => {
       await tx.task.deleteMany({
         where: { groupId, assigneeId: id },
@@ -279,6 +285,37 @@ export class ApiTeammateService implements TeammateService {
       data: { role: "operator" },
     });
     void writeAuditFromSession(ctx.session, "teammate_promote", { userId: id });
+  }
+
+  async demoteToTeammate(id: string, ctx: { session: Session }): Promise<void> {
+    if (ctx.session.user.role !== "operator") throw new Error("Forbidden");
+    if (id === ctx.session.user.id) throw new Error("Cannot demote yourself");
+    const groupId = requireGroupId(ctx.session);
+    await requireMemberInGroup(ctx, id);
+
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: { ownerUserId: true },
+    });
+    if (group?.ownerUserId === id) throw new Error("is_owner");
+
+    const membership = await prisma.groupMembership.findUnique({
+      where: { groupId_userId: { groupId, userId: id } },
+    });
+    if (!membership || membership.role !== "operator") {
+      throw new Error("not_operator");
+    }
+
+    const operators = await prisma.groupMembership.count({
+      where: { groupId, role: "operator" },
+    });
+    if (operators <= 1) throw new Error("last_operator");
+
+    await prisma.groupMembership.update({
+      where: { groupId_userId: { groupId, userId: id } },
+      data: { role: "teammate" },
+    });
+    void writeAuditFromSession(ctx.session, "teammate_demote", { userId: id });
   }
 
   async regenerateInvite(id: string, ctx: { session: Session }): Promise<void> {

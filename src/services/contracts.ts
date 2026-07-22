@@ -67,6 +67,12 @@ export interface GroupService {
   countMembers(groupId: string): Promise<number>;
   leaveGroup(userId: string, groupId: string): Promise<void>;
   deleteGroup(userId: string, groupId: string): Promise<void>;
+  /** Transfer invisible ownership; only current owner. Promotes teammate target to operator. */
+  transferOwnership(
+    userId: string,
+    groupId: string,
+    newOwnerUserId: string,
+  ): Promise<void>;
 }
 
 export interface TaskService {
@@ -129,6 +135,8 @@ export interface TeammateService {
   ): Promise<void>;
   removeTeammate(id: string, ctx: { session: Session }): Promise<void>;
   promoteToOperator(id: string, ctx: { session: Session }): Promise<void>;
+  /** Operator → teammate. Blocked for group owner and last operator. */
+  demoteToTeammate(id: string, ctx: { session: Session }): Promise<void>;
   regenerateInvite(id: string, ctx: { session: Session }): Promise<void>;
   getInviteToken(id: string, ctx: { session: Session }): Promise<string | null>;
 }

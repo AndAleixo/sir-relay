@@ -121,6 +121,45 @@ export async function promoteTeammate(locale: string, teammateId: string) {
   redirect(`/${locale}/teammates?promoted=1`);
 }
 
+export async function demoteTeammate(locale: string, memberId: string) {
+  const session = await requireOperatorSession(locale);
+  const { teammates } = getServices();
+
+  try {
+    await teammates.demoteToTeammate(memberId, { session });
+  } catch {
+    redirect(`/${locale}/teammates/${memberId}?error=demote`);
+  }
+
+  revalidatePath(`/${locale}/teammates`);
+  revalidatePath("/", "layout");
+  redirect(`/${locale}/teammates?demoted=1`);
+}
+
+export async function transferGroupOwnership(locale: string, memberId: string) {
+  const session = await requireOperatorSession(locale);
+  if (!session.activeGroupId) {
+    redirect(`/${locale}/groups`);
+  }
+  const { groups } = getServices();
+
+  try {
+    await groups.transferOwnership(
+      session.user.id,
+      session.activeGroupId,
+      memberId,
+    );
+  } catch {
+    redirect(`/${locale}/teammates/${memberId}?error=transfer`);
+  }
+
+  revalidatePath(`/${locale}/teammates`);
+  revalidatePath(`/${locale}/teammates/${memberId}`);
+  revalidatePath(`/${locale}/settings`);
+  revalidatePath("/", "layout");
+  redirect(`/${locale}/teammates/${memberId}?transferred=1`);
+}
+
 export async function regenerateInviteForm(locale: string, teammateId: string) {
   const session = await requireOperatorSession(locale);
   const { teammates } = getServices();

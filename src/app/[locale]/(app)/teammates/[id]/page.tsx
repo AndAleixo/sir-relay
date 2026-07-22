@@ -4,8 +4,10 @@ import { regenerateInviteForm, updateTeammateForm } from "@/app/actions/teammate
 import { Banner } from "@/components/ui/banner";
 import { PageHeader } from "@/components/layout/app-shell";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
+import { DemoteOperatorButton } from "@/components/teammates/demote-operator-button";
 import { PromoteTeammateButton } from "@/components/teammates/promote-teammate-button";
 import { RemoveTeammateButton } from "@/components/teammates/remove-teammate-button";
+import { TransferOwnershipButton } from "@/components/teammates/transfer-ownership-button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -26,12 +28,12 @@ export default async function TeammateDetailPage({
   searchParams,
 }: {
   params: Promise<{ locale: string; id: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; transferred?: string }>;
 }) {
   const { locale, id } = await params;
-  const { error } = await searchParams;
+  const { error, transferred } = await searchParams;
   const t = await getTranslations();
-  const { teammates, auth } = getServices();
+  const { teammates, auth, groups } = getServices();
   const session = await auth.getSession();
   if (!session) return null;
   requireRole(session, "operator", locale);
@@ -42,6 +44,25 @@ export default async function TeammateDetailPage({
 
   const member = await teammates.getOrganizationUser(id, { session });
   if (!member) redirect(`/${locale}/teammates`);
+
+  const groupList = await groups.listForUser(session.user.id);
+  const activeGroup =
+    groupList.find((group) => group.id === session.activeGroupId) ?? null;
+  const isOwner = Boolean(
+    activeGroup && activeGroup.ownerUserId === session.user.id,
+  );
+  const memberIsOwner = Boolean(
+    activeGroup && activeGroup.ownerUserId === member.id,
+  );
+  const orgUsers = await teammates.listOrganizationUsers({ session });
+  const operatorCount = orgUsers.filter((user) => user.role === "operator").length;
+  const canDemote =
+    member.role === "operator" && !memberIsOwner && operatorCount > 1;
+  const canTransfer =
+    isOwner &&
+    !memberIsOwner &&
+    member.active &&
+    (!isTeammateMember(member) || member.accountStatus === "active");
 
   const label = groupMemberLabel(member);
   const teammate = isTeammateMember(member) ? member : null;
@@ -54,9 +75,24 @@ export default async function TeammateDetailPage({
   return (
     <>
       <PageHeader title={label} />
+      {transferred === "1" ? (
+        <Banner variant="info" className="mb-4">
+          {t("teammate.ownershipTransferred")}
+        </Banner>
+      ) : null}
       {error === "promote" ? (
         <Banner variant="danger" className="mb-4">
           {t("teammate.promoteFailed")}
+        </Banner>
+      ) : null}
+      {error === "demote" ? (
+        <Banner variant="danger" className="mb-4">
+          {t("teammate.demoteFailed")}
+        </Banner>
+      ) : null}
+      {error === "transfer" ? (
+        <Banner variant="danger" className="mb-4">
+          {t("teammate.transferFailed")}
         </Banner>
       ) : null}
       {error === "edit" ? (
@@ -184,21 +220,45 @@ export default async function TeammateDetailPage({
           </Card>
         ) : null}
 
-        {teammate?.active && teammate.accountStatus === "active" ? (
-          <PromoteTeammateButton
+        <div className="flex flex-wrap gap-2">
+          {teammate?.active && teammate.accountStatus === "active" ? (
+            <PromoteTeammateButton
+              locale={locale}
+              teammateId={id}
+              label={t("teammate.promoteToOperator")}
+              confirmMessage={t("teammate.promoteConfirm", { name: label })}
+            />
+          ) : null}
+          {canDemote ? (
+            <DemoteOperatorButton
+              locale={locale}
+              memberId={id}
+              label={t("teammate.demoteToTeammate")}
+              confirmMessage={t("teammate.demoteConfirm", { name: label })}
+            />
+          ) : null}
+          {canTransfer ? (
+            <TransferOwnershipButton
+              locale={locale}
+              memberId={id}
+              label={t("teammate.transferOwnership")}
+              confirmMessage={t("teammate.transferOwnershipConfirm", { name: label })}
+            />
+          ) : null}
+        </div>
+
+        {memberIsOwner ? (
+          <p className="text-xs text-[var(--text-muted)]">
+            {t("teammate.memberIsOwnerHint")}
+          </p>
+        ) : (
+          <RemoveTeammateButton
             locale={locale}
             teammateId={id}
-            label={t("teammate.promoteToOperator")}
-            confirmMessage={t("teammate.promoteConfirm", { name: label })}
+            label={t("teammate.remove")}
+            confirmMessage={t("teammate.removeConfirm")}
           />
-        ) : null}
-
-        <RemoveTeammateButton
-          locale={locale}
-          teammateId={id}
-          label={t("teammate.remove")}
-          confirmMessage={t("teammate.removeConfirm")}
-        />
+        )}
       </div>
     </>
   );

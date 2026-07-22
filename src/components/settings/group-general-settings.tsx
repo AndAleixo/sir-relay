@@ -10,6 +10,7 @@ type GroupGeneralSettingsProps = {
   group: UserGroup;
   memberCount: number;
   isOperator: boolean;
+  isOwner?: boolean;
   renameError?: string;
   renamed?: boolean;
 };
@@ -19,6 +20,7 @@ export async function GroupGeneralSettings({
   group,
   memberCount,
   isOperator,
+  isOwner = false,
   renameError,
   renamed,
 }: GroupGeneralSettingsProps) {
@@ -38,6 +40,11 @@ export async function GroupGeneralSettings({
           <dt className="text-[var(--text-muted)]">{t("settings.yourRole")}</dt>
           <dd className="font-medium text-[var(--text-primary)]">
             {t(`roles.${group.role}`)}
+            {isOwner ? (
+              <span className="mt-0.5 block text-xs font-normal text-[var(--text-muted)]">
+                {t("settings.groupOwner")}
+              </span>
+            ) : null}
           </dd>
         </div>
         <div>

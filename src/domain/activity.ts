@@ -15,6 +15,8 @@ export const GROUP_ACTIVITY_ACTIONS = [
   "teammate_create",
   "teammate_remove",
   "teammate_promote",
+  "teammate_demote",
+  "group_ownership_transfer",
   "invite_regenerate",
   "telegram_reply",
   "relay_dispatch",

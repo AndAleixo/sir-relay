@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import type { UserGroup } from "@/domain/types";
@@ -12,7 +11,6 @@ import { Button } from "@/components/ui/button";
 const emptyFormState: GroupFormState = { error: null };
 
 const errorKeys = {
-  last_operator: "lastOperator",
   forbidden: "forbidden",
   not_member: "notMember",
   action_failed: "actionFailed",
@@ -29,11 +27,13 @@ function formErrorMessage(
 export function GroupDangerSettings({
   locale,
   group,
-  isLastOperator,
+  isOwner,
+  showLeaveSuccessionHint,
 }: {
   locale: string;
   group: UserGroup;
-  isLastOperator?: boolean;
+  isOwner?: boolean;
+  showLeaveSuccessionHint?: boolean;
 }) {
   const t = useTranslations();
   const [leaveState, leaveAction] = useActionState(
@@ -59,16 +59,8 @@ export function GroupDangerSettings({
         </p>
       </div>
 
-      {isLastOperator ? (
-        <Banner variant="warning">
-          {t("settings.promoteBeforeLeave")}{" "}
-          <Link
-            href={`/${locale}/teammates`}
-            className="font-medium underline underline-offset-2"
-          >
-            {t("common.teammates")}
-          </Link>
-        </Banner>
+      {showLeaveSuccessionHint ? (
+        <Banner variant="warning">{t("settings.leaveSuccessionHint")}</Banner>
       ) : null}
 
       {errorMessage ? (
@@ -98,7 +90,7 @@ export function GroupDangerSettings({
           </form>
         </div>
 
-        {group.role === "operator" ? (
+        {isOwner ? (
           <div className="flex flex-col gap-2 border-t border-[var(--border)] pt-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-[var(--text-muted)]">
               {t("settings.deleteHint", { group: group.name })}

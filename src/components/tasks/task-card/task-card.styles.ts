@@ -24,13 +24,13 @@ export const taskCardStyles = {
   footer: "mt-0.5 flex items-center justify-between gap-2",
   overdue: "font-medium text-[var(--danger)]",
   startDoing:
-    "shrink-0 rounded p-0.5 text-brand-accent hover:bg-brand-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3.5 [&_svg]:w-3.5",
+    "shrink-0 rounded p-0.5 text-[#F5C518] hover:bg-brand-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3.5 [&_svg]:w-3.5",
   /** In progress → Done (neutral; colour reserved for completed mark). */
   markDone:
     "shrink-0 rounded p-0.5 text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3.5 [&_svg]:w-3.5",
   /** Done column — same glyph, not interactive. */
   completedMark:
-    "shrink-0 p-0.5 text-emerald-700 [&_svg]:h-3.5 [&_svg]:w-3.5",
+    "shrink-0 p-0.5 text-emerald-600 [&_svg]:h-3.5 [&_svg]:w-3.5",
   notifyDotCorner:
     "pointer-events-none absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-brand-accent",
 } as const;

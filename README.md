@@ -60,7 +60,7 @@ Distributes operational tasks and tracks progress in one place — web for the f
 |------|-----------------|
 | **User** | Creates an account, then **creates a group** or **joins one by invite** |
 | **Operator** (in a group) | Web: manage members, create tasks, view Kanban/list · Telegram: **task relay** when assigned + **alerts** |
-| **Teammate** (in a group) | **Telegram** (primary): one task at a time · **Web**: view and update **only their** tasks |
+| **Teammate** (in a group) | **Telegram** (primary): one task at a time · **Web**: My work / Team (edit own; view group in Team) |
 
 ### Relay flow
 

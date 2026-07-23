@@ -6,6 +6,7 @@ export const teamBoardStyles = {
   columnHeader: "border-b border-[var(--border)] p-3",
   memberName:
     "block truncate text-base font-semibold text-[var(--text-primary)] hover:text-brand-accent-hover",
+  memberNamePlain: "block truncate text-base font-semibold text-[var(--text-primary)]",
   section: "border-b border-[var(--border)] p-2 last:border-b-0 min-h-[3rem] transition-shadow",
   sectionDropTarget: "bg-brand-accent-soft/40 ring-2 ring-inset ring-brand-accent/40",
   sectionTitle: "mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-primary)]",

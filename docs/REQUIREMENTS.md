@@ -28,7 +28,7 @@ Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../R
 
 **Operator (in a group)** creates teammates and tasks (including self-assigned), monitors on the web, and can use Telegram for **task relay** plus **alerts**.
 
-**Teammate (in a group)** works via Telegram (primary) or web (optional): can **create self-assigned tasks**, sees assigned tasks and updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
+**Teammate (in a group)** works via Telegram (primary) or web: can **create self-assigned tasks**, use **My work** / **Team** scopes (edit own; view group in Team), updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
 
 **Clients:** Responsive **web first** (Phase 1). Native **iOS/Android** → Phase 3 (P3-13), same `/api/v1`.
 
@@ -94,7 +94,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | Brand / app / repo | **Sir** · **SirRelay** · `sir-relay` |
 | Telegram bot name | **SirRelay** (e.g. `@SirRelayBot`) |
 | Web app | Single Next.js app; permissions scoped by **active group** + **membership role** |
-| Roles | **Operator** — full access in that group · **Teammate** — own tasks only in that group |
+| Roles | **Operator** — full edit in that group · **Teammate** — edit own tasks; may **view** all group tasks (Team scope) |
 | Bootstrap (deploy) | On empty DB, seed one **user** from `ADMIN_EMAIL` + `ADMIN_PASSWORD` (may create first group manually) |
 | Joining a group | **Create group** → creator is operator · **Invite link** (or panel paste) → join as teammate; **sign-up email match** specified but not shipped (P1-AUTH-13) |
 | Task assignee | One user per task — any **active member** of the same group (teammate or operator, including other operators) |
@@ -220,14 +220,14 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TASK-01 | Create | **Operator:** title + assignee (any active group member, including self and other operators). **Teammate:** title + self only (assignee forced to signed-in user). Optional description, due_date |
 | P1-TASK-02 | Notify on create | Send Telegram if assignee is **linked** **and** their queue is empty (§2) |
 | P1-TASK-03 | Re-notify | Operator only; resend Telegram; update `telegram_message_id` (replies bind to latest message) |
-| P1-TASK-04 | List / Kanban | Operator: all tasks · Teammate: assigned to me; 3 status columns |
+| P1-TASK-04 | List / Kanban | Both roles: **My work** (own) · **Team** (group). Teammate Team = view others, edit own only |
 | P1-TASK-05 | Update / delete | Operator: any field on any task · Teammate: edit + delete own tasks (title, status, due, description) |
-| P1-TASK-06 | Detail | Editable form (shared with create layout) + Telegram delivery banner; Teammate only if assignee; **no web comment UI** |
+| P1-TASK-06 | Detail | Editable form when allowed + Telegram delivery banner; teammate **read-only** on others’ tasks; **no web comment UI** |
 | P1-TASK-07 | Due date | Optional `DATE`; overdue when `due_date` < today UTC |
 | P1-TASK-08 | Limits | Title ≤ 200 · description ≤ 10 000 |
 | P1-TASK-09 | Reply threading | Store `telegram_message_id` + `telegram_chat_id` on each notify; replies must reference latest message |
 | P1-TASK-10 | Status sync | Telegram keyword or web update persists immediately for both roles |
-| P1-TASK-11 | Queue order | Next / head: `sort_order ASC`, then `due_date ASC NULLS LAST`, then `created_at ASC`. Web: drag to place/reorder in any member To do (operator) or own To do (teammate); drop inside scroll list = insert by Y, drop on section chrome = append; Telegram follows queue head |
+| P1-TASK-11 | Queue order | Next / head: `sort_order ASC`, then `due_date ASC NULLS LAST`, then `created_at ASC`. Web: drag to place/reorder in editable To do columns; drop inside scroll list = insert by Y, drop on section chrome = append; Telegram follows queue head |
 | P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). Same for teammate **and** operator assignees. |
 | P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves (or other operators); visible on web board in the **self column** (member label, not “Me”) and other member columns; **Telegram relay** when linked (same queue rules as teammates) |
 
@@ -252,9 +252,9 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | P1-UI-06 | No metric UI | No velocity charts, leaderboards, or employee KPI dashboards in Phase 1–2 |
 | P1-UI-07 | App store links | **None** in Phase 1 — web only; native store badges → P3-13 |
 | P1-VIEW-01 | List sort | By due date, status, updated_at |
-| P1-VIEW-02 | Task boards | Teammate: 3-column Kanban (To do · In progress · Done). Operator: **self column** first (member label: fantasy → name → email) + other members ordered by **To do count desc at page load** (name tiebreak; stable while editing) — To do + In progress expanded, Done collapsed — [UIUX.md §3](./UIUX.md#3-task-boards--two-layouts) |
-| P1-VIEW-03 | List view | Both roles; sort/filter; mobile fallback for Operator board |
-| P1-VIEW-04 | Responsive | Usable at 375px; Operator board → list on mobile per UIUX.md |
+| P1-VIEW-02 | Task boards | **My work:** 3-column Kanban. **Team:** self column + others by To do count at page load — [UIUX.md §3](./UIUX.md#3-task-boards--scope--layout). Operator edits all; teammate edits own column only |
+| P1-VIEW-03 | List view | Both roles; My work / Team scope; sort/filter; mobile fallback |
+| P1-VIEW-04 | Responsive | Usable at 375px; Team board → list on mobile per UIUX.md |
 | P1-I18N-01 | Locales | Full UI in `en`, `es`, `pt` via next-intl |
 | P1-I18N-02 | User locale | Persisted; selector on login, header, and **Profile** (`PATCH /me`) |
 | P1-I18N-03 | Telegram copy | Per-user locale (Profile or join URL); fallback `en-gb` |
@@ -372,9 +372,9 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `privacy`, `terms` | Public | Public | Footer links; **AuthPageHeader** on legal pages |
 | `join/[token]`, `change-password` | — | — | Auth flows |
 | `profile` | Yes | Yes | Account is global; accessible without active group; no role badge |
-| `tasks` | All tasks in group | My tasks in group |
+| `tasks` | My work / Team (Board \| List) | My work / Team (Board \| List; Team = view others, edit own) |
 | `tasks/new` | Yes | Yes (self-assign only) |
-| `tasks/[id]` | Yes | Own tasks only | Edit form + delete |
+| `tasks/[id]` | Yes | Own editable · others read-only | Edit form + delete when allowed |
 | `teammates`, `teammates/new`, `teammates/[id]` | Yes (list includes operators in group) | — |
 | `events` | Yes | — | Operator alerts (done / due) |
 | `events/activity` | Yes | — | Group activity (human language; no login) |
@@ -391,7 +391,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-SEC-01 | IDOR protection | Every resource route validates role + ownership · **Done** (service-layer: `authz.ts` + operator on export/alerts/invites; self-only on UserService; tasks already via `loadTask`) |
+| P2-SEC-01 | IDOR protection | Every resource route validates role + ownership · **Done** (service-layer: `authz.ts` + operator on export/alerts/invites; self-only on UserService; task mutations via `assertCanMutateTask`) |
 | P2-SEC-02 | Session revocation | `token_version` on user; increment on password change; invalidate on logout · **Done (SEC base)** |
 | P2-SEC-03 | Account lockout | 5 failed logins per email per 15 min → lock 15 min · **Done (SEC base)** |
 | P2-SEC-04 | Password policy | Min 8 + uppercase + number; block common passwords · **Done (grandfather: only on set)** |
@@ -573,7 +573,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Demote operator → teammate | Yes (not owner / not last operator) | — | — |
 | Manage teammates | Yes | — | — |
 | Create / edit / delete tasks | Yes | Own tasks only | — |
-| View tasks | All in group | Assigned to me | Current notification |
+| View tasks | All in group | All in group (edit own only) | Current notification |
 | Change status | Yes | Own tasks (`done` → relay) | Keywords (`done` → relay) |
 | Telegram reply log | — | — | Reply (stored server-side) |
 | Re-notify | Yes | — | — |
@@ -615,9 +615,9 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/teammates/:id/promote` | 1 | Operator — teammate → operator in active group |
 | POST | `/teammates/:id/demote` | 1 | Operator — operator → teammate (not owner / not last operator) |
 | POST | `/groups/:id/transfer-ownership` | 1 | Owner — transfer invisible ownership to active member |
-| GET | `/tasks` | 1 | Operator (all in group) · Teammate (mine in group) |
-| POST | `/tasks` | 1 | Operator in active group |
-| GET | `/tasks/:id` | 1 | Operator in group · Teammate (if assignee) |
+| GET | `/tasks` | 1 | Any member (all in active group) |
+| POST | `/tasks` | 1 | Operator (any assignee) · Teammate (self only) |
+| GET | `/tasks/:id` | 1 | Any member in group (read) |
 | PATCH | `/tasks/:id` | 1 | Operator (full) · Teammate (own tasks) |
 | DELETE | `/tasks/:id` | 1 | Operator (any in group) · Teammate (if assignee) |
 | POST | `/tasks/:id/notify` | 1 | Operator in active group |

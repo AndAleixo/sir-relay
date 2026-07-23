@@ -18,14 +18,14 @@ export default async function TasksPage({
 
   const isOperator = session.user.role === "operator";
   const taskList = await tasks.listTasks({ session });
-  const orgUsers = isOperator
-    ? await teammates.listOrganizationUsers({ session })
-    : [];
-  const operatorMember = orgUsers.find((user) => user.id === session.user.id);
+  const orgUsers = await teammates.listOrganizationUsers({ session });
+  const selfMember = orgUsers.find((user) => user.id === session.user.id);
   const otherMembers = orgUsers.filter((user) => user.id !== session.user.id);
-  const boardMembers = isOperator
-    ? orderMembersByTodoCount(otherMembers, taskList, groupMemberLabel)
-    : otherMembers;
+  const boardMembers = orderMembersByTodoCount(
+    otherMembers,
+    taskList,
+    groupMemberLabel,
+  );
 
   if (isOperator) {
     await alerts.syncDueAlerts(taskList, { session });
@@ -35,33 +35,23 @@ export default async function TasksPage({
     <>
       <PageHeader title={t("common.tasks")} />
       <TasksPageClient
-      locale={locale}
-      role={session.user.role}
-      currentUser={
-        isOperator
-          ? undefined
-          : {
-              id: session.user.id,
-              name: groupMemberLabel(session.user),
-            }
-      }
-      operator={
-          isOperator
-            ? {
-                id: session.user.id,
-                name: session.user.name,
-                email: session.user.email,
-                displayName: operatorMember?.displayName ?? null,
-                telegramStatus:
-                  operatorMember?.telegramStatus ?? session.user.telegramStatus,
-              }
-            : undefined
-        }
+        locale={locale}
+        role={session.user.role}
+        self={{
+          id: session.user.id,
+          name: session.user.name,
+          email: session.user.email,
+          displayName: selfMember?.displayName ?? null,
+          telegramStatus:
+            selfMember?.telegramStatus ?? session.user.telegramStatus,
+        }}
         tasks={taskList}
         members={boardMembers}
         labels={{
           board: t("common.board"),
           list: t("common.list"),
+          myWork: t("tasks.myWork"),
+          team: t("tasks.team"),
           newTask: t("common.newTask"),
           assignee: t("tasks.assignee"),
           dueDate: t("tasks.dueDate"),

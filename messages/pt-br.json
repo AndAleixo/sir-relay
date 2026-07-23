@@ -178,13 +178,12 @@
     "regenerateInvite": "Regenerar convite"
   },
   "tasks": {
-    "myTasks": "Minhas tarefas",
-    "allTasks": "Todas as tarefas",
+    "myWork": "O meu trabalho",
+    "team": "Equipa",
     "emptyBoard": "Adicione membros para começar a coordenar o trabalho.",
     "assignee": "Responsável",
     "assignToMe": "Eu ({name})",
     "assigneeHint": "Responsáveis com Telegram ligado recebem relay (uma tarefa de cada vez). Sem ligação, ficam na web.",
-    "webOnly": "Só web",
     "titleLabel": "Título",
     "titlePlaceholder": "O que precisa ser feito?",
     "descriptionPlaceholder": "Detalhes opcionais",
@@ -194,6 +193,8 @@
     "description": "Descrição",
     "status": "Estado",
     "editTask": "Editar tarefa",
+    "viewTask": "Tarefa",
+    "readOnlyHint": "Podes ver esta tarefa, mas só o responsável a pode alterar.",
     "delete": "Eliminar tarefa",
     "deleteConfirm": "Eliminar esta tarefa permanentemente? Isto não pode ser desfeito.",
     "telegramFailed": "Falha no envio pelo Telegram",
@@ -356,7 +357,7 @@
     "feature": {
       "simple": {
         "title": "Simples de gerir",
-        "body": "Convide membros, atribua tarefas e acompanhe o progresso num quadro ou lista limpos. Operadores vêem tudo; colegas só a sua fila."
+        "body": "Convide membros, atribua tarefas e acompanhe o progresso num quadro ou lista limpos. O meu trabalho para a sua fila; Equipa para o grupo todo."
       },
       "calm": {
         "title": "Só o que importa agora",

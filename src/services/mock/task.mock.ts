@@ -1,6 +1,6 @@
 import type { Session, Task, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
-import { assertCanCreateTask } from "@/lib/authz";
+import { assertCanCreateTask, assertCanMutateTask } from "@/lib/authz";
 import { MOCK_TASKS } from "@/services/mock/data";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
@@ -15,12 +15,6 @@ function tasksInGroup(tasks: Task[], session: Session): Task[] {
   if (!groupId) return [];
   const ids = userIdsInGroup(groupId);
   return tasks.filter((t) => ids.has(t.assigneeId));
-}
-
-function filterTasksForSession(tasks: Task[], session: Session): Task[] {
-  const scoped = tasksInGroup(tasks, session);
-  if (session.user.role === "operator") return scoped;
-  return scoped.filter((t) => t.assigneeId === session.user.id);
 }
 
 function liveAssigneeName(groupId: string, assigneeId: string): string {
@@ -66,7 +60,7 @@ export class MockTaskService implements TaskService {
   }
 
   async listTasks(ctx: { session: Session }): Promise<Task[]> {
-    return filterTasksForSession(this.tasks, ctx.session).map((task) =>
+    return tasksInGroup(this.tasks, ctx.session).map((task) =>
       withLiveAssigneeName(task, ctx.session),
     );
   }
@@ -74,7 +68,7 @@ export class MockTaskService implements TaskService {
   async getTask(id: string, ctx: { session: Session }): Promise<Task | null> {
     const task = this.tasks.find((t) => t.id === id);
     if (!task) return null;
-    const visible = filterTasksForSession([task], ctx.session);
+    const visible = tasksInGroup([task], ctx.session);
     const found = visible[0];
     return found ? withLiveAssigneeName(found, ctx.session) : null;
   }
@@ -119,6 +113,7 @@ export class MockTaskService implements TaskService {
   ): Promise<Task> {
     const task = await this.getTask(id, ctx);
     if (!task) throw new Error("Task not found");
+    assertCanMutateTask(ctx.session, task);
 
     let sortOrder = task.sortOrder;
     if (task.status === "done" && status !== "done") {
@@ -177,6 +172,7 @@ export class MockTaskService implements TaskService {
   ): Promise<Task> {
     const task = await this.getTask(id, ctx);
     if (!task) throw new Error("Task not found");
+    assertCanMutateTask(ctx.session, task);
 
     const title =
       fields.title !== undefined ? fields.title.trim().slice(0, 200) : task.title;
@@ -204,6 +200,7 @@ export class MockTaskService implements TaskService {
   async deleteTask(id: string, ctx: { session: Session }): Promise<void> {
     const task = await this.getTask(id, ctx);
     if (!task) throw new Error("Task not found");
+    assertCanMutateTask(ctx.session, task);
     this.tasks = this.tasks.filter((t) => t.id !== id);
   }
 
@@ -287,7 +284,7 @@ export class MockTaskService implements TaskService {
       return { ...t, sortOrder, updatedAt: now };
     });
 
-    return filterTasksForSession(this.tasks, ctx.session).map((row) =>
+    return tasksInGroup(this.tasks, ctx.session).map((row) =>
       withLiveAssigneeName(row, ctx.session),
     );
   }

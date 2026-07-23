@@ -5,6 +5,10 @@ export const taskCardStyles = {
   dragging: "opacity-40 ring-2 ring-brand-accent/40",
   dragHandle:
     "shrink-0 cursor-grab touch-none rounded px-0.5 text-xs leading-none text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] active:cursor-grabbing",
+  readOnly: "opacity-90",
+  titleReadonly:
+    "line-clamp-2 min-w-0 flex-1 text-left text-[13px] font-medium leading-tight text-[var(--text-primary)]",
+  dueReadonly: "text-left text-xs text-[var(--text-muted)]",
   boardBody: "relative min-w-0 flex-1",
   titleRow: "mb-2 flex items-start gap-2",
   titleButton:

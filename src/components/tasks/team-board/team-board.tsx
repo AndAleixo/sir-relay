@@ -36,7 +36,7 @@ import {
 } from "./board-section-scroll";
 import { teamBoardStyles } from "./team-board.styles";
 
-interface BoardOperator {
+interface BoardSelfMember {
   id: string;
   name: string;
   email?: string;
@@ -45,11 +45,16 @@ interface BoardOperator {
 }
 
 interface TeamBoardProps {
-  operator: BoardOperator;
-  /** Other group members (page-load order: To do count desc). Excludes signed-in operator. */
+  /** Signed-in member’s column (first). */
+  self: BoardSelfMember;
+  /** Other group members (page-load order: To do count desc). Excludes signed-in user. */
   members: OrganizationUser[];
   tasks: Task[];
   locale: string;
+  /** `all` = edit every column; `self-only` = edit own column, view others. */
+  editMode?: "all" | "self-only";
+  /** Operator-only: name links to /teammates/[id]. */
+  linkMemberProfiles?: boolean;
   labels: TaskCardLabels & {
     sectionTodo: string;
     sectionDoing: string;
@@ -106,6 +111,7 @@ function BoardTaskItem({
   task,
   locale,
   labels,
+  readOnly,
   draggingTaskId,
   isQueueHead,
   showCompletedMark,
@@ -118,6 +124,7 @@ function BoardTaskItem({
   task: Task;
   locale: string;
   labels: TeamBoardProps["labels"];
+  readOnly?: boolean;
   draggingTaskId: string | null;
   isQueueHead?: boolean;
   showCompletedMark?: boolean;
@@ -154,14 +161,17 @@ function BoardTaskItem({
       locale={locale}
       href={`/${locale}/tasks/${task.id}`}
       labels={cardLabels}
-      isDragging={draggingTaskId === task.id}
+      readOnly={readOnly}
+      isDragging={!readOnly && draggingTaskId === task.id}
       isQueueHead={isQueueHead}
       showCompletedMark={showCompletedMark}
-      onDragHandleStart={() => onDragStart(task.id)}
-      onDragHandleEnd={onDragEnd}
-      onUpdateFields={(fields) => onUpdateFields(task.id, fields)}
-      onStartDoing={onStartDoing}
-      onMarkDone={onMarkDone}
+      onDragHandleStart={readOnly ? undefined : () => onDragStart(task.id)}
+      onDragHandleEnd={readOnly ? undefined : onDragEnd}
+      onUpdateFields={
+        readOnly ? undefined : (fields) => onUpdateFields(task.id, fields)
+      }
+      onStartDoing={readOnly ? undefined : onStartDoing}
+      onMarkDone={readOnly ? undefined : onMarkDone}
     />
   );
 }
@@ -170,6 +180,7 @@ function DroppableSection({
   title,
   assigneeId,
   status,
+  editable,
   activeDropTarget,
   onSectionDragOver,
   onDrop,
@@ -181,6 +192,7 @@ function DroppableSection({
   title: string;
   assigneeId: string;
   status: TaskStatus;
+  editable: boolean;
   activeDropTarget: string | null;
   onSectionDragOver: (key: string) => void;
   onDrop: (
@@ -199,25 +211,33 @@ function DroppableSection({
     <section
       className={cn(
         teamBoardStyles.section,
-        activeDropTarget === key && teamBoardStyles.sectionDropTarget,
+        editable && activeDropTarget === key && teamBoardStyles.sectionDropTarget,
       )}
-      onDragOver={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        event.dataTransfer.dropEffect = "move";
-        onSectionDragOver(key);
-      }}
-      onDrop={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onDrop(assigneeId, status, event);
-      }}
+      onDragOver={
+        editable
+          ? (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              event.dataTransfer.dropEffect = "move";
+              onSectionDragOver(key);
+            }
+          : undefined
+      }
+      onDrop={
+        editable
+          ? (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onDrop(assigneeId, status, event);
+            }
+          : undefined
+      }
     >
       <h3 className={teamBoardStyles.sectionTitle}>{title}</h3>
       <SectionCardList
         itemCount={itemCount}
         scrollAfter={scrollAfter}
-        todoScroll={status === "todo"}
+        todoScroll={editable && status === "todo"}
       >
         {children}
       </SectionCardList>
@@ -233,6 +253,7 @@ function TaskColumn({
   tasks,
   locale,
   labels,
+  editable,
   draggingTaskId,
   activeDropTarget,
   onDragStart,
@@ -251,6 +272,7 @@ function TaskColumn({
   tasks: Task[];
   locale: string;
   labels: TeamBoardProps["labels"];
+  editable: boolean;
   draggingTaskId: string | null;
   activeDropTarget: string | null;
   onDragStart: (taskId: string) => void;
@@ -291,53 +313,73 @@ function TaskColumn({
         title={`${labels.sectionTodo} (${grouped.todo.length})`}
         assigneeId={assigneeId}
         status="todo"
+        editable={editable}
         activeDropTarget={activeDropTarget}
         onSectionDragOver={onSectionDragOver}
         onDrop={onDrop}
         itemCount={grouped.todo.length}
         scrollAfter={sectionScrollAfter}
         footer={
-          <BoardQuickAddTask
-            assigneeId={assigneeId}
-            assigneeName={assigneeName}
-            addLabel={labels.addTask}
-            titlePlaceholder={labels.titlePlaceholder}
-            onCreate={onQuickCreate}
-          />
+          editable ? (
+            <BoardQuickAddTask
+              assigneeId={assigneeId}
+              assigneeName={assigneeName}
+              addLabel={labels.addTask}
+              titlePlaceholder={labels.titlePlaceholder}
+              onCreate={onQuickCreate}
+            />
+          ) : null
         }
       >
-        <TodoReorderList
-          draggingTaskId={draggingTaskId}
-          onPlace={(taskId, toIndex) =>
-            onPlaceInTodo(assigneeId, taskId, toIndex)
-          }
-          items={grouped.todo.map((task, index) => ({
-            id: task.id,
-            node: (
-              <BoardTaskItem
-                task={task}
-                locale={locale}
-                labels={labels}
-                draggingTaskId={draggingTaskId}
-                isQueueHead={index === 0}
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-                onUpdateFields={onUpdateFields}
-                onStartDoing={
-                  index === 0
-                    ? () => onAssignToColumn(assigneeId, "doing", task.id)
-                    : undefined
-                }
-              />
-            ),
-          }))}
-        />
+        {editable ? (
+          <TodoReorderList
+            draggingTaskId={draggingTaskId}
+            onPlace={(taskId, toIndex) =>
+              onPlaceInTodo(assigneeId, taskId, toIndex)
+            }
+            items={grouped.todo.map((task, index) => ({
+              id: task.id,
+              node: (
+                <BoardTaskItem
+                  task={task}
+                  locale={locale}
+                  labels={labels}
+                  draggingTaskId={draggingTaskId}
+                  isQueueHead={index === 0}
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                  onUpdateFields={onUpdateFields}
+                  onStartDoing={
+                    index === 0
+                      ? () => onAssignToColumn(assigneeId, "doing", task.id)
+                      : undefined
+                  }
+                />
+              ),
+            }))}
+          />
+        ) : (
+          grouped.todo.map((task) => (
+            <BoardTaskItem
+              key={task.id}
+              task={task}
+              locale={locale}
+              labels={labels}
+              readOnly
+              draggingTaskId={null}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+              onUpdateFields={onUpdateFields}
+            />
+          ))
+        )}
       </DroppableSection>
 
       <DroppableSection
         title={`${labels.sectionDoing} (${grouped.doing.length})`}
         assigneeId={assigneeId}
         status="doing"
+        editable={editable}
         activeDropTarget={activeDropTarget}
         onSectionDragOver={onSectionDragOver}
         onDrop={onDrop}
@@ -350,11 +392,16 @@ function TaskColumn({
             task={task}
             locale={locale}
             labels={labels}
+            readOnly={!editable}
             draggingTaskId={draggingTaskId}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
             onUpdateFields={onUpdateFields}
-            onMarkDone={() => onAssignToColumn(assigneeId, "done", task.id)}
+            onMarkDone={
+              editable
+                ? () => onAssignToColumn(assigneeId, "done", task.id)
+                : undefined
+            }
           />
         ))}
       </DroppableSection>
@@ -362,21 +409,31 @@ function TaskColumn({
       <div
         className={cn(
           teamBoardStyles.doneSection,
-          activeDropTarget === doneKey && teamBoardStyles.sectionDropTarget,
+          editable &&
+            activeDropTarget === doneKey &&
+            teamBoardStyles.sectionDropTarget,
         )}
-        onDragOver={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          event.dataTransfer.dropEffect = "move";
-          onSectionDragOver(doneKey);
-        }}
-        onDrop={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          const taskId = getTaskIdFromDragEvent(event);
-          onDragEnd();
-          if (taskId) void onAssignToColumn(assigneeId, "done", taskId);
-        }}
+        onDragOver={
+          editable
+            ? (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                event.dataTransfer.dropEffect = "move";
+                onSectionDragOver(doneKey);
+              }
+            : undefined
+        }
+        onDrop={
+          editable
+            ? (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const taskId = getTaskIdFromDragEvent(event);
+                onDragEnd();
+                if (taskId) void onAssignToColumn(assigneeId, "done", taskId);
+              }
+            : undefined
+        }
       >
         <button
           type="button"
@@ -397,6 +454,7 @@ function TaskColumn({
                 task={task}
                 locale={locale}
                 labels={labels}
+                readOnly={!editable}
                 draggingTaskId={draggingTaskId}
                 showCompletedMark
                 onDragStart={onDragStart}
@@ -418,6 +476,7 @@ function MemberColumnHeader({
   member,
   locale,
   labels,
+  linkToProfile,
 }: {
   member: {
     id: string;
@@ -430,21 +489,27 @@ function MemberColumnHeader({
   };
   locale: string;
   labels: TeamBoardProps["labels"];
+  linkToProfile: boolean;
 }) {
   const inactiveLabel = memberInactiveLabel(member, {
     invited: labels.invited,
     inactive: labels.inactive,
   });
+  const name = groupMemberLabel(member);
 
   return (
     <MemberNameRow
       nameNode={
-        <Link
-          href={`/${locale}/teammates/${member.id}`}
-          className={teamBoardStyles.memberName}
-        >
-          {groupMemberLabel(member)}
-        </Link>
+        linkToProfile ? (
+          <Link
+            href={`/${locale}/teammates/${member.id}`}
+            className={teamBoardStyles.memberName}
+          >
+            {name}
+          </Link>
+        ) : (
+          <span className={teamBoardStyles.memberNamePlain}>{name}</span>
+        )
       }
       telegramStatus={member.telegramStatus}
       inactiveLabel={inactiveLabel}
@@ -454,10 +519,12 @@ function MemberColumnHeader({
 }
 
 export function TeamBoard({
-  operator,
+  self,
   members,
   tasks,
   locale,
+  editMode = "all",
+  linkMemberProfiles = true,
   labels,
   sectionScrollAfter = DEFAULT_BOARD_SECTION_SCROLL_AFTER,
 }: TeamBoardProps) {
@@ -466,13 +533,17 @@ export function TeamBoard({
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
 
+  function columnEditable(assigneeId: string) {
+    return editMode === "all" || assigneeId === self.id;
+  }
+
   const assigneeById: Record<string, { id: string; name: string }> = {
-    [operator.id]: {
-      id: operator.id,
+    [self.id]: {
+      id: self.id,
       name: groupMemberLabel({
-        name: operator.name,
-        email: operator.email ?? "",
-        displayName: operator.displayName,
+        name: self.name,
+        email: self.email ?? "",
+        displayName: self.displayName,
       }),
     },
     ...Object.fromEntries(
@@ -499,6 +570,7 @@ export function TeamBoard({
     toIndex: number,
   ) {
     handleDragEnd();
+    if (!columnEditable(assigneeId)) return;
     await placeInTodoQueue(
       taskId,
       assigneeId,
@@ -511,6 +583,7 @@ export function TeamBoard({
     targetStatus: TaskStatus,
     taskId: string,
   ) {
+    if (!columnEditable(targetAssigneeId)) return;
     const task = tasks.find((t) => t.id === taskId);
     const target = assigneeById[targetAssigneeId];
     if (!task || !target) return;
@@ -573,7 +646,7 @@ export function TeamBoard({
     fields: { title?: string; dueDate?: string | null },
   ) {
     const task = tasks.find((t) => t.id === taskId);
-    if (!task) return;
+    if (!task || !columnEditable(task.assigneeId)) return;
 
     const patch: Partial<Task> = {
       ...(fields.title !== undefined ? { title: fields.title } : {}),
@@ -596,10 +669,11 @@ export function TeamBoard({
     assigneeId: string;
     assigneeName: string;
   }) {
+    if (!columnEditable(input.assigneeId)) return Promise.resolve(false);
     return createTaskQuick(locale, input);
   }
 
-  const selfTasks = tasks.filter((t) => t.assigneeId === operator.id);
+  const selfTasks = tasks.filter((t) => t.assigneeId === self.id);
 
   if (members.length === 0 && selfTasks.length === 0) {
     return (
@@ -617,28 +691,30 @@ export function TeamBoard({
         {...scrollHandlers}
       >
         <TaskColumn
-          assigneeId={operator.id}
+          assigneeId={self.id}
           assigneeName={groupMemberLabel({
-            name: operator.name,
-            email: operator.email ?? "",
-            displayName: operator.displayName,
+            name: self.name,
+            email: self.email ?? "",
+            displayName: self.displayName,
           })}
           header={
             <MemberColumnHeader
               member={{
-                id: operator.id,
-                name: operator.name,
-                email: operator.email ?? "",
-                displayName: operator.displayName,
-                telegramStatus: operator.telegramStatus,
+                id: self.id,
+                name: self.name,
+                email: self.email ?? "",
+                displayName: self.displayName,
+                telegramStatus: self.telegramStatus,
               }}
               locale={locale}
               labels={labels}
+              linkToProfile={linkMemberProfiles}
             />
           }
           tasks={selfTasks}
           locale={locale}
           labels={labels}
+          editable={columnEditable(self.id)}
           draggingTaskId={draggingTaskId}
           activeDropTarget={activeDropTarget}
           onDragStart={handleDragStart}
@@ -664,11 +740,13 @@ export function TeamBoard({
                   member={member}
                   locale={locale}
                   labels={labels}
+                  linkToProfile={linkMemberProfiles}
                 />
               }
               tasks={columnTasks}
               locale={locale}
               labels={labels}
+              editable={columnEditable(member.id)}
               draggingTaskId={draggingTaskId}
               activeDropTarget={activeDropTarget}
               onDragStart={handleDragStart}

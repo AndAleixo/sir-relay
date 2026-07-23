@@ -1,7 +1,7 @@
 import type { Session, Task, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
 import { writeAuditFromSession } from "@/lib/audit";
-import { assertCanCreateTask } from "@/lib/authz";
+import { assertCanCreateTask, assertCanMutateTask } from "@/lib/authz";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { prisma } from "@/lib/prisma";
 import {
@@ -48,11 +48,9 @@ async function nextSortOrder(groupId: string, assigneeId: string): Promise<numbe
 
 async function loadTask(id: string, session: Session): Promise<Task | null> {
   const groupId = requireGroupId(session);
+  // Any group member may read any task in the group (Team scope). Mutations use assertCanMutateTask.
   const row = await prisma.task.findFirst({
-    where:
-      session.user.role === "operator"
-        ? { id, groupId }
-        : { id, groupId, assigneeId: session.user.id },
+    where: { id, groupId },
   });
   if (!row) return null;
   const name = await assigneeName(groupId, row.assigneeId);
@@ -62,13 +60,8 @@ async function loadTask(id: string, session: Session): Promise<Task | null> {
 export class ApiTaskService implements TaskService {
   private async visibleTasks(session: Session): Promise<Task[]> {
     const groupId = requireGroupId(session);
-    const where =
-      session.user.role === "operator"
-        ? { groupId }
-        : { groupId, assigneeId: session.user.id };
-
     const rows = await prisma.task.findMany({
-      where,
+      where: { groupId },
       // List/export order — boards re-sort To do via sortByQueueOrder.
       orderBy: { updatedAt: "desc" },
     });
@@ -134,6 +127,7 @@ export class ApiTaskService implements TaskService {
   ): Promise<Task> {
     const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
+    assertCanMutateTask(ctx.session, existing);
 
     const sortOrder =
       existing.status === "done" && status !== "done"
@@ -217,6 +211,7 @@ export class ApiTaskService implements TaskService {
   ): Promise<Task> {
     const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
+    assertCanMutateTask(ctx.session, existing);
 
     const row = await prisma.task.update({
       where: { id },
@@ -241,6 +236,7 @@ export class ApiTaskService implements TaskService {
   async deleteTask(id: string, ctx: { session: Session }): Promise<void> {
     const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
+    assertCanMutateTask(ctx.session, existing);
     const groupId = requireGroupId(ctx.session);
     await prisma.task.delete({ where: { id } });
     if (existing.status !== "done") {

@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { renotifyTaskAction } from "@/app/actions/tasks";
 import { requireAppSession } from "@/lib/require-session";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { getServices } from "@/services";
-import { isOverdue } from "@/lib/dates";
+import { formatDueDate, isOverdue } from "@/lib/dates";
 import { PageHeader } from "@/components/layout/app-shell";
 import { EditTaskForm } from "@/components/tasks/task-form";
 import { Banner } from "@/components/ui/banner";
@@ -31,6 +31,7 @@ export default async function TaskDetailPage({
 
   const overdue = isOverdue(task.dueDate);
   const isOperator = session.user.role === "operator";
+  const canEdit = isOperator || task.assigneeId === session.user.id;
 
   const orgUsers = isOperator
     ? await teammates.listOrganizationUsers({ session })
@@ -73,7 +74,7 @@ export default async function TaskDetailPage({
   return (
     <>
       <PageHeader
-        title={t("tasks.editTask")}
+        title={canEdit ? t("tasks.editTask") : t("tasks.viewTask")}
         action={
           <div className="flex flex-wrap gap-2">
             {isOperator && assigneeMember ? (
@@ -108,34 +109,80 @@ export default async function TaskDetailPage({
         </Banner>
       ) : null}
 
+      {!canEdit ? (
+        <Banner variant="info" className="mb-4">
+          {t("tasks.readOnlyHint")}
+        </Banner>
+      ) : null}
+
       <Card className="max-w-xl">
         <CardBody className="space-y-4">
-          {isOperator && assigneeMember ? (
-            <p className="text-xs text-[var(--text-muted)]">{t("tasks.renotifyHint")}</p>
-          ) : null}
-          <EditTaskForm
-            task={task}
-            locale={locale}
-            isOperator={isOperator}
-            assigneeOptions={assigneeOptions}
-            overdue={overdue}
-            statusLabels={statusLabels}
-            labels={{
-              title: t("tasks.titleLabel"),
-              titlePlaceholder: t("tasks.titlePlaceholder"),
-              assignee: t("tasks.assignee"),
-              assigneeHint: t("tasks.assigneeHint"),
-              dueDate: t("tasks.dueDate"),
-              description: t("tasks.description"),
-              descriptionPlaceholder: t("tasks.descriptionPlaceholder"),
-              status: t("tasks.status"),
-              save: t("common.save"),
-              cancel: t("common.cancel"),
-              overdue: t("tasks.overdue"),
-              delete: t("tasks.delete"),
-              deleteConfirm: t("tasks.deleteConfirm"),
-            }}
-          />
+          {canEdit ? (
+            <>
+              {isOperator && assigneeMember ? (
+                <p className="text-xs text-[var(--text-muted)]">
+                  {t("tasks.renotifyHint")}
+                </p>
+              ) : null}
+              <EditTaskForm
+                task={task}
+                locale={locale}
+                isOperator={isOperator}
+                assigneeOptions={assigneeOptions}
+                overdue={overdue}
+                statusLabels={statusLabels}
+                labels={{
+                  title: t("tasks.titleLabel"),
+                  titlePlaceholder: t("tasks.titlePlaceholder"),
+                  assignee: t("tasks.assignee"),
+                  assigneeHint: t("tasks.assigneeHint"),
+                  dueDate: t("tasks.dueDate"),
+                  description: t("tasks.description"),
+                  descriptionPlaceholder: t("tasks.descriptionPlaceholder"),
+                  status: t("tasks.status"),
+                  save: t("common.save"),
+                  cancel: t("common.cancel"),
+                  overdue: t("tasks.overdue"),
+                  delete: t("tasks.delete"),
+                  deleteConfirm: t("tasks.deleteConfirm"),
+                }}
+              />
+            </>
+          ) : (
+            <dl className="space-y-3 text-sm">
+              <div>
+                <dt className="text-[var(--text-muted)]">{t("tasks.titleLabel")}</dt>
+                <dd className="mt-0.5 font-medium">{task.title}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--text-muted)]">{t("tasks.assignee")}</dt>
+                <dd className="mt-0.5">{task.assigneeName}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--text-muted)]">{t("tasks.status")}</dt>
+                <dd className="mt-0.5">{statusLabels[task.status]}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--text-muted)]">{t("tasks.dueDate")}</dt>
+                <dd className="mt-0.5">
+                  {task.dueDate ? (
+                    <span className={overdue ? "font-medium text-[var(--danger)]" : undefined}>
+                      {formatDueDate(task.dueDate, locale)}
+                      {overdue ? ` · ${t("tasks.overdue")}` : null}
+                    </span>
+                  ) : (
+                    <span className="text-[var(--text-muted)]">—</span>
+                  )}
+                </dd>
+              </div>
+              {task.description.trim() ? (
+                <div>
+                  <dt className="text-[var(--text-muted)]">{t("tasks.description")}</dt>
+                  <dd className="mt-0.5 whitespace-pre-wrap">{task.description}</dd>
+                </div>
+              ) : null}
+            </dl>
+          )}
         </CardBody>
       </Card>
     </>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Task } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
 import { groupMemberLabel } from "@/lib/group-member-label";
@@ -10,27 +10,33 @@ import { Button } from "@/components/ui/button";
 import { StatusKanban } from "@/components/tasks/status-kanban";
 import { TaskListWithFilters } from "@/components/tasks/task-list/task-list-with-filters";
 import { TeamBoard } from "@/components/tasks/team-board";
-import { ViewToggle, type TasksView } from "@/components/tasks/view-toggle";
+import {
+  ScopeToggle,
+  ViewToggle,
+  type TasksScope,
+  type TasksView,
+} from "@/components/tasks/view-toggle";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 
 interface TasksPageClientProps {
   locale: string;
   role: "operator" | "teammate";
-  operator?: {
+  /** Signed-in user for Team board self column + My work Kanban. */
+  self: {
     id: string;
     name: string;
     email?: string;
     displayName?: string | null;
     telegramStatus?: "linked" | "pending";
   };
-  /** Teammate board identity for quick-add (self-assign). */
-  currentUser?: { id: string; name: string };
   tasks: Task[];
-  /** Operator board: other members already ordered at page load. */
+  /** Other members already ordered at page load (Team board). */
   members: OrganizationUser[];
   labels: {
     board: string;
     list: string;
+    myWork: string;
+    team: string;
     newTask: string;
     assignee: string;
     dueDate: string;
@@ -68,138 +74,155 @@ interface TasksPageClientProps {
 export function TasksPageClient({
   locale,
   role,
-  operator,
-  currentUser,
+  self,
   tasks: serverTasks,
   members,
   labels,
 }: TasksPageClientProps) {
   const { tasks, syncFromServer } = useSync();
   const [view, setView] = useState<TasksView>("board");
+  const [scope, setScope] = useState<TasksScope>(
+    role === "operator" ? "team" : "mine",
+  );
   const isOperator = role === "operator";
 
   useEffect(() => {
     syncFromServer(serverTasks);
   }, [serverTasks, syncFromServer]);
 
+  const scopedTasks = useMemo(() => {
+    if (scope === "mine") {
+      return tasks.filter((task) => task.assigneeId === self.id);
+    }
+    return tasks;
+  }, [tasks, scope, self.id]);
+
+  const assigneeOptions = useMemo(
+    () => [
+      {
+        id: self.id,
+        label: groupMemberLabel({
+          name: self.name,
+          email: self.email ?? "",
+          displayName: self.displayName,
+        }),
+      },
+      ...members.map((member) => ({
+        id: member.id,
+        label: groupMemberLabel(member),
+      })),
+    ],
+    [self, members],
+  );
+
+  const boardLabels = {
+    sectionTodo: labels.sectionTodo,
+    sectionDoing: labels.sectionDoing,
+    sectionDone: labels.sectionDone,
+    startDoing: labels.startDoing,
+    markDone: labels.markDone,
+    completedMark: labels.completedMark,
+    linked: labels.linked,
+    pending: labels.pending,
+    invited: labels.invited,
+    inactive: labels.inactive,
+    dueDate: labels.dueDate,
+    overdue: labels.overdue,
+    viewAll: labels.viewAll,
+    emptyBoard: labels.emptyBoard,
+    dragHandle: labels.dragHandle,
+    openTask: labels.openTask,
+    addTask: labels.addTask,
+    addDueDate: labels.addDueDate,
+    titlePlaceholder: labels.titlePlaceholder,
+  };
+
+  const listLabels = {
+    titleColumn: labels.titleColumn,
+    assignee: labels.assignee,
+    dueDate: labels.dueDate,
+    updated: labels.updated,
+    overdue: labels.overdue,
+    filterAssignee: labels.filterAssignee,
+    filterStatus: labels.filterStatus,
+    filterSort: labels.filterSort,
+    filterAll: labels.filterAll,
+    sortDue: labels.sortDue,
+    sortStatus: labels.sortStatus,
+    sortUpdated: labels.sortUpdated,
+    status: labels.status,
+  };
+
+  const kanbanLabels = {
+    todo: labels.status.todo,
+    doing: labels.status.doing,
+    done: labels.status.done,
+    dueDate: labels.dueDate,
+    overdue: labels.overdue,
+    dragHandle: labels.dragHandle,
+    openTask: labels.openTask,
+    addDueDate: labels.addDueDate,
+    startDoing: labels.startDoing,
+    markDone: labels.markDone,
+    completedMark: labels.completedMark,
+    addTask: labels.addTask,
+    titlePlaceholder: labels.titlePlaceholder,
+  };
+
   return (
     <div className="space-y-4">
       <div className={viewToggleStyles.toolbar}>
-        <ViewToggle
-          value={view}
-          onChange={setView}
-          boardLabel={labels.board}
-          listLabel={labels.list}
-        />
+        <div className={viewToggleStyles.toolbarStart}>
+          <ScopeToggle
+            value={scope}
+            onChange={setScope}
+            mineLabel={labels.myWork}
+            teamLabel={labels.team}
+          />
+          <ViewToggle
+            value={view}
+            onChange={setView}
+            boardLabel={labels.board}
+            listLabel={labels.list}
+          />
+        </div>
         <Link href={`/${locale}/tasks/new`}>
           <Button>{labels.newTask}</Button>
         </Link>
       </div>
 
       {view === "board" ? (
-        isOperator && operator ? (
+        scope === "team" ? (
           <TeamBoard
-            operator={operator}
+            self={self}
             members={members}
-            tasks={tasks}
+            tasks={scopedTasks}
             locale={locale}
-            labels={{
-              sectionTodo: labels.sectionTodo,
-              sectionDoing: labels.sectionDoing,
-              sectionDone: labels.sectionDone,
-              startDoing: labels.startDoing,
-              markDone: labels.markDone,
-              completedMark: labels.completedMark,
-              linked: labels.linked,
-              pending: labels.pending,
-              invited: labels.invited,
-              inactive: labels.inactive,
-              dueDate: labels.dueDate,
-              overdue: labels.overdue,
-              viewAll: labels.viewAll,
-              emptyBoard: labels.emptyBoard,
-              dragHandle: labels.dragHandle,
-              openTask: labels.openTask,
-              addTask: labels.addTask,
-              addDueDate: labels.addDueDate,
-              titlePlaceholder: labels.titlePlaceholder,
-            }}
+            editMode={isOperator ? "all" : "self-only"}
+            linkMemberProfiles={isOperator}
+            labels={boardLabels}
           />
-        ) : isOperator ? null : currentUser ? (
+        ) : (
           <StatusKanban
-            tasks={tasks}
+            tasks={scopedTasks}
             locale={locale}
-            currentUser={currentUser}
-            labels={{
-              todo: labels.status.todo,
-              doing: labels.status.doing,
-              done: labels.status.done,
-              dueDate: labels.dueDate,
-              overdue: labels.overdue,
-              dragHandle: labels.dragHandle,
-              openTask: labels.openTask,
-              addDueDate: labels.addDueDate,
-              startDoing: labels.startDoing,
-              markDone: labels.markDone,
-              completedMark: labels.completedMark,
-              addTask: labels.addTask,
-              titlePlaceholder: labels.titlePlaceholder,
-            }}
-          />
-        ) : null
-      ) : isOperator && operator ? (
-        <TaskListWithFilters
-          tasks={tasks}
-          locale={locale}
-          assigneeOptions={[
-            {
-              id: operator.id,
-              label: groupMemberLabel({
-                name: operator.name,
-                email: operator.email ?? "",
-                displayName: operator.displayName,
+            self={{
+              id: self.id,
+              name: groupMemberLabel({
+                name: self.name,
+                email: self.email ?? "",
+                displayName: self.displayName,
               }),
-            },
-            ...members.map((member) => ({
-              id: member.id,
-              label: groupMemberLabel(member),
-            })),
-          ]}
-          labels={{
-            titleColumn: labels.titleColumn,
-            assignee: labels.assignee,
-            dueDate: labels.dueDate,
-            updated: labels.updated,
-            overdue: labels.overdue,
-            filterAssignee: labels.filterAssignee,
-            filterStatus: labels.filterStatus,
-            filterSort: labels.filterSort,
-            filterAll: labels.filterAll,
-            sortDue: labels.sortDue,
-            sortStatus: labels.sortStatus,
-            sortUpdated: labels.sortUpdated,
-            status: labels.status,
-          }}
-        />
+            }}
+            labels={kanbanLabels}
+          />
+        )
       ) : (
         <TaskListWithFilters
-          tasks={tasks}
+          tasks={scopedTasks}
           locale={locale}
-          labels={{
-            titleColumn: labels.titleColumn,
-            assignee: labels.assignee,
-            dueDate: labels.dueDate,
-            updated: labels.updated,
-            overdue: labels.overdue,
-            filterAssignee: labels.filterAssignee,
-            filterStatus: labels.filterStatus,
-            filterSort: labels.filterSort,
-            filterAll: labels.filterAll,
-            sortDue: labels.sortDue,
-            sortStatus: labels.sortStatus,
-            sortUpdated: labels.sortUpdated,
-            status: labels.status,
-          }}
+          assigneeOptions={scope === "team" ? assigneeOptions : []}
+          labels={listLabels}
         />
       )}
     </div>

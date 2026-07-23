@@ -99,7 +99,7 @@ Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `SirRelay1` (dev-h
 - Order helpers: `src/lib/task-queue.ts` · check: `npm run check:queue`
 - Persist queue: `placeInTodoQueue` (server action / sync layer)
 - UI: `TodoReorderList` + `resolveTodoDropIndex` — drop inside `[data-todo-scroll]` = insert by Y; outside = append
-- Operator board column order: self first, then members by To do count desc **once on page load** (stable during the session)
+- Team board column order: self first, then members by To do count desc **once on page load** (stable during the session)
 
 ## Task forms
 

@@ -25,12 +25,14 @@ interface BoardTaskCardProps {
     markDone?: string;
     completedMark?: string;
   };
+  /** View-only: no drag, inline edit, or status controls. */
+  readOnly?: boolean;
   isDragging?: boolean;
   isQueueHead?: boolean;
   showCompletedMark?: boolean;
-  onDragHandleStart: (event: DragEvent<HTMLButtonElement>) => void;
-  onDragHandleEnd: () => void;
-  onUpdateFields: (
+  onDragHandleStart?: (event: DragEvent<HTMLButtonElement>) => void;
+  onDragHandleEnd?: () => void;
+  onUpdateFields?: (
     fields: { title?: string; dueDate?: string | null },
   ) => Promise<void>;
   onStartDoing?: () => void;
@@ -42,6 +44,7 @@ export function BoardTaskCard({
   locale,
   href,
   labels,
+  readOnly = false,
   isDragging,
   isQueueHead,
   showCompletedMark,
@@ -67,11 +70,13 @@ export function BoardTaskCard({
   }, [task.dueDate]);
 
   function handleDragStart(event: DragEvent<HTMLButtonElement>) {
+    if (readOnly || !onDragHandleStart) return;
     setTaskDragData(event, task.id);
     onDragHandleStart(event);
   }
 
   async function saveTitle() {
+    if (!onUpdateFields) return;
     const trimmed = titleDraft.trim();
     if (!trimmed) {
       setTitleDraft(task.title);
@@ -91,6 +96,7 @@ export function BoardTaskCard({
   }
 
   async function saveDueDate() {
+    if (!onUpdateFields) return;
     const nextDue = dueDraft.trim() || null;
     const currentDue = task.dueDate ?? null;
     if (nextDue === currentDue) {
@@ -104,6 +110,12 @@ export function BoardTaskCard({
     setEditingDue(false);
   }
 
+  const dueLabel = task.dueDate
+    ? `${labels.dueDate}: ${formatDueDate(task.dueDate, locale)}`
+    : labels.addDueDate;
+  const dueWithOverdue =
+    overdue && task.dueDate ? `${dueLabel} · ${labels.overdue}` : dueLabel;
+
   return (
     <div
       data-no-drag-scroll
@@ -111,22 +123,27 @@ export function BoardTaskCard({
         taskCardStyles.root,
         taskCardStyles.layout,
         isDragging && taskCardStyles.dragging,
+        readOnly && taskCardStyles.readOnly,
       )}
     >
-      <button
-        type="button"
-        draggable
-        className={taskCardStyles.dragHandle}
-        aria-label={labels.dragHandle}
-        onDragStart={handleDragStart}
-        onDragEnd={onDragHandleEnd}
-      >
-        ⠿
-      </button>
+      {readOnly ? null : (
+        <button
+          type="button"
+          draggable
+          className={taskCardStyles.dragHandle}
+          aria-label={labels.dragHandle}
+          onDragStart={handleDragStart}
+          onDragEnd={onDragHandleEnd}
+        >
+          ⠿
+        </button>
+      )}
 
       <div className={taskCardStyles.boardBody}>
         <div className={taskCardStyles.titleRow}>
-          {editingTitle ? (
+          {readOnly ? (
+            <p className={taskCardStyles.titleReadonly}>{task.title}</p>
+          ) : editingTitle ? (
             <Input
               autoFocus
               className={taskCardStyles.inlineInput}
@@ -173,7 +190,17 @@ export function BoardTaskCard({
             task.telegramNotifyFailed && "pr-3",
           )}
         >
-          {editingDue ? (
+          {readOnly ? (
+            <p
+              className={cn(
+                taskCardStyles.dueReadonly,
+                "min-w-0 flex-1",
+                overdue && taskCardStyles.overdue,
+              )}
+            >
+              {task.dueDate ? dueWithOverdue : null}
+            </p>
+          ) : editingDue ? (
             <Input
               autoFocus
               type="date"
@@ -205,13 +232,10 @@ export function BoardTaskCard({
               )}
               onClick={() => setEditingDue(true)}
             >
-              {task.dueDate
-                ? `${labels.dueDate}: ${formatDueDate(task.dueDate, locale)}`
-                : labels.addDueDate}
-              {overdue && task.dueDate && ` · ${labels.overdue}`}
+              {dueWithOverdue}
             </button>
           )}
-          {isQueueHead && onStartDoing && labels.startDoing ? (
+          {!readOnly && isQueueHead && onStartDoing && labels.startDoing ? (
             <button
               type="button"
               className={taskCardStyles.startDoing}
@@ -222,7 +246,7 @@ export function BoardTaskCard({
             >
               <StartDoingIcon />
             </button>
-          ) : onMarkDone && labels.markDone ? (
+          ) : !readOnly && onMarkDone && labels.markDone ? (
             <button
               type="button"
               className={taskCardStyles.markDone}

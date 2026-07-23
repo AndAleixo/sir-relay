@@ -178,13 +178,12 @@
     "regenerateInvite": "Regenerate invite"
   },
   "tasks": {
-    "myTasks": "My tasks",
-    "allTasks": "All tasks",
+    "myWork": "My work",
+    "team": "Team",
     "emptyBoard": "Add members to start coordinating work.",
     "assignee": "Assignee",
     "assignToMe": "Me ({name})",
     "assigneeHint": "Linked assignees get Telegram relay (one task at a time). Unlinked stay on the web.",
-    "webOnly": "Web only",
     "titleLabel": "Title",
     "titlePlaceholder": "What needs to be done?",
     "descriptionPlaceholder": "Optional details",
@@ -194,6 +193,8 @@
     "description": "Description",
     "status": "Status",
     "editTask": "Edit task",
+    "viewTask": "Task",
+    "readOnlyHint": "You can view this task but only the assignee can change it.",
     "delete": "Delete task",
     "deleteConfirm": "Delete this task permanently? This cannot be undone.",
     "telegramFailed": "Telegram delivery failed",
@@ -356,7 +357,7 @@
     "feature": {
       "simple": {
         "title": "Simple to run",
-        "body": "Invite members, assign tasks, and follow progress on a clean board or list. Operators see everything; teammates see only their queue."
+        "body": "Invite members, assign tasks, and follow progress on a clean board or list. My work for your queue; Team for the whole group."
       },
       "calm": {
         "title": "Only what matters now",

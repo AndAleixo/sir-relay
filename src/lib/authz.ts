@@ -28,6 +28,19 @@ export function assertCanCreateTask(session: Session, assigneeId: string): void 
   throw new Error("Forbidden");
 }
 
+/** Mutate task fields/status/delete: operators any in group; teammates only own. */
+export function assertCanMutateTask(
+  session: Session,
+  task: { assigneeId: string },
+): void {
+  requireActiveGroupId(session);
+  if (session.user.role === "operator") return;
+  if (session.user.role === "teammate" && task.assigneeId === session.user.id) {
+    return;
+  }
+  throw new Error("Forbidden");
+}
+
 /** Account-scoped mutations must target the signed-in user only. */
 export function requireSelfUserId(session: Session, userId: string): void {
   if (session.user.id !== userId) throw new Error("Forbidden");

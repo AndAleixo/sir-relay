@@ -1,7 +1,7 @@
 import type { Task } from "@/domain/types";
 
 /**
- * Operator board: other-member columns by To do count (desc), then label.
+ * Team board: other-member columns by To do count (desc), then label.
  * Call once on page load — pass the result as a stable `members` prop.
  */
 export function orderMembersByTodoCount<T extends { id: string }>(

@@ -26,7 +26,7 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 |-----------|-------------|
 | **Relay-first** | Telegram is the fast path; web shows the same truth without extra steps |
 | **Group context** | One **user account**; **role** (`operator` / `teammate`) is shown and enforced **in the active group** — same person may operate one team and work as teammate in another |
-| **To do + In progress first** | Active work is always visible; Done is secondary on the Operator board |
+| **To do + In progress first** | Active work is always visible; Done is secondary on the Team board |
 | **Calm UI** | Gray/white surfaces; yellow accent for CTAs and In progress column |
 | **No metric pressure** | No velocity charts, leaderboards, or surveillance KPIs — tasks and due dates only |
 | **Small team scale** | 2–5 people per group; no enterprise density — readable cards, generous spacing |
@@ -163,7 +163,7 @@ Same chrome for everyone; **navigation and default view depend on role in the ac
 | Locale | Custom dropdown in header (same route, new locale prefix); also on login screen |
 | Primary CTA | “New task” — both roles (yellow button per [BRAND.md](./BRAND.md)); teammate creates **self-assigned** only |
 
-**Post-login landing:** no group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` (Kanban)
+**Post-login landing:** no group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks`
 
 ### Mobile (<768px)
 
@@ -188,13 +188,20 @@ Sidebar hidden. Sticky top bar + tab navigation.
 
 ---
 
-## 3. Task boards — two layouts
+## 3. Task boards — scope + layout
 
-Both roles use `/[locale]/tasks` as the default tasks view. Layout is **role-based**, not a user toggle.
+Both roles use `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · New task. Either role may switch scope.
 
-### 3.1 Teammate — status Kanban (traditional)
+| Scope | Default | Board | List |
+|-------|---------|-------|------|
+| **My work** | Teammate | Status Kanban (own tasks) | Own tasks (no assignee filter) |
+| **Team** | Operator | Member columns (`TeamBoard`) | All group tasks + assignee filter |
 
-Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **assigned to me**.
+**Permissions:** operators edit any column/task in Team. Teammates in Team **edit only their own column**; other columns are view-only (no ⠿, no inline edit, no quick-add, no drop). Detail of another member’s task is read-only. Server: any member may **list/read** group tasks; mutations stay assignee-self (or operator).
+
+### 3.1 My work — status Kanban
+
+Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **assigned to me** (both roles when scope = My work).
 
 ```
 ┌─────────────┬─────────────┬─────────────┐
@@ -219,7 +226,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 - ↗ on card → task detail (edit form)
 - Card body: no text selection / default cursor; move task only via ⠿
-- Click title / due → inline edit (same as operator board)
+- Click title / due → inline edit (same as Team board editable columns)
 - **Quick add** at bottom of To do → creates a **self-assigned** task (same gate as `/tasks/new`)
 - Drag between columns to change status (Phase 1)
 - **Drag within To do** to set queue order; drop **inside** `[data-todo-scroll]` inserts by Y; drop on column chrome (header/footer) **appends**. Telegram follows the queue head when that person has no In progress task
@@ -230,9 +237,13 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 ---
 
-### 3.2 Operator — team board
+### 3.2 Team — member columns
 
-First column: the **logged-in operator**. Then other members ordered by **To do count** at **page load** (highest first; name as tiebreak) — order stays fixed while adding/moving tasks on the board. Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
+First column: the **signed-in member**. Then other members ordered by **To do count** at **page load** (highest first; name as tiebreak) — order stays fixed while adding/moving tasks on the board. Inside each column: **To do** and **In progress** expanded; **Done** collapsed.
+
+**Operator:** full edit on every column (reassign via drop, quick-add, inline edit). Member names link to `/teammates/[id]`.
+
+**Teammate:** same layout; **only own column editable**. Other columns: cards without drag handle / status controls; ↗ opens read-only detail. Member names are plain text (no teammates admin link).
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
@@ -253,7 +264,7 @@ First column: the **logged-in operator**. Then other members ordered by **To do 
 └─────────────────┴─────────────────┴─────────────────┴─────────────────┘
 ```
 
-**Self column (first):** Operator self-assigned tasks; **Telegram task relay** when the operator’s account is linked (same one-at-a-time queue as teammates). Operators also receive **alert** notifications on Telegram. Label uses the same member naming rules (fantasy → account name → email) — **not** “Me / Eu / Yo”. **Drag within any member’s To do** (including self) reorders that queue; drop onto another member’s To do reassigns and places at that index (scroll list = by Y; section chrome = append).
+**Self column (first):** Self-assigned tasks; **Telegram task relay** when the account is linked. Operators also receive **alert** notifications on Telegram. Label uses the same member naming rules (fantasy → account name → email) — **not** “Me / Eu / Yo”. When the column is editable: **Drag within To do** reorders that queue; drop onto another **editable** member’s To do reassigns and places at that index (scroll list = by Y; section chrome = append).
 
 #### Column header (member)
 
@@ -283,12 +294,12 @@ First column: the **logged-in operator**. Then other members ordered by **To do 
 
 ### 3.3 List view (both roles)
 
-Toggle in toolbar: **Board** | **List** (icon + label).
+Toggle in toolbar: **Board** | **List** (with **My work | Team** scope).
 
-| Role | List content |
-|------|--------------|
-| Teammate | My tasks; sort by due date, status, updated_at |
-| Operator | All tasks; columns: title, assignee, status, due, updated; filter by assignee (self + all other members), status |
+| Scope | List content |
+|-------|--------------|
+| My work | Own tasks; sort by due date, status, updated_at |
+| Team | All group tasks; columns include assignee; filter by assignee + status |
 
 List is the fallback for narrow screens and power-user scanning.
 
@@ -311,9 +322,9 @@ Shared compact card on boards; list view uses a table row.
 | Default | Compact white card, `--border`, `--radius-card` |
 | Overdue | Red due date (`--danger`) |
 | Telegram notify failed | Small accent dot, bottom-right corner |
-| Operator / teammate board cards | Inline edit title/due; **+ Add task** in To do; ↗ opens detail |
+| Operator / teammate board cards | Inline edit when editable; **+ Add task** in editable To do; ↗ opens detail (read-only if not assignee / not operator) |
 
-Assignee only in list view (column implies assignee on the operator board).
+Assignee only in list view (column implies assignee on the Team board).
 
 ---
 
@@ -362,9 +373,9 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 | **Sign up** | `/signup` | Public | Public |
 | **Log in** | `/login` | Public | Public |
 | **No active group** | `/groups` | Yes (panel opens) | Yes (panel opens) |
-| Tasks board | `/tasks` | Team board (§3.2) | Status Kanban (§3.1) |
+| Tasks | `/tasks` | My work / Team (§3) | My work / Team (§3; Team = view others, edit own) |
 | New task | `/tasks/new` | Yes | Yes (self only) |
-| Task detail | `/tasks/[id]` | Yes | Own only |
+| Task detail | `/tasks/[id]` | Yes | Own editable · others read-only |
 | Teammates | `/teammates` | Yes | — |
 | New teammate | `/teammates/new` | Yes | — |
 | Teammate detail | `/teammates/[id]` | Yes | — |
@@ -467,8 +478,8 @@ Teammates do not have this route (redirect to `/tasks`).
 | Context | Message (EN example) | CTA |
 |---------|----------------------|-----|
 | No groups | “You are not in any group yet.” | Create group |
-| No tasks (Teammate) | “No tasks assigned to you yet.” | — |
-| No members (Operator board) | “Add members to start coordinating work.” | Add teammate |
+| No tasks (My work) | “No tasks assigned to you yet.” | — |
+| No members (Team board) | “Add members to start coordinating work.” | Add teammate |
 | No events / alerts (Operator) | “No alerts yet…” | — |
 | Empty todo column | Light placeholder in column | — |
 | Login failed | “Invalid email or password.” | — |
@@ -532,13 +543,14 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `UserMenu` | Account dropdown (Profile, Log out) |
 | `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |
 | `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared create + edit forms (§5) |
-| `BoardTaskCard` | Board cards (operator + teammate): inline edit, open detail, drag handle |
-| `TeamBoard` | Operator team board (§3.2) — self first, then members by To do count at page load |
-| `BoardQuickAddTask` | Quick add in To do (`components/tasks/board-quick-add-task`) — operator columns + teammate Kanban |
+| `BoardTaskCard` | Board cards (operator + teammate): inline edit, open detail, drag handle; `readOnly` for Team others |
+| `TeamBoard` | Team scope (§3.2) — self first; `editMode` all \| self-only |
+| `BoardQuickAddTask` | Quick add in To do — editable columns + My work Kanban |
 | `OperatorAlertsList` | Operator alerts list on `/events` (§8.3) |
-| `StatusKanban` | Teammate 3-column board (§3.1) |
+| `StatusKanban` | My work 3-column board (§3.1) |
 | `TaskList` | Table list view |
 | `ViewToggle` | Board / List switch |
+| `ScopeToggle` | My work / Team switch |
 | `StatusBadge` | Maps `todo` / `doing` / `done` to UI labels (§ Status naming) |
 | `MemberNameRow` / `MemberStatusIcons` | Name left · inactive + Telegram icons right |
 | `TelegramStatusIcon` | Linked (green) / pending (amber) Telegram mark |
@@ -553,12 +565,12 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 
 ## 12. Responsive summary
 
-| Breakpoint | Shell | Operator tasks | Teammate tasks |
-|------------|-------|----------------|----------------|
-| ≥768px | Sidebar + top header utilities | Team board (horizontal scroll) | Status Kanban (3 columns) |
+| Breakpoint | Shell | Team scope | My work scope |
+|------------|-------|------------|---------------|
+| ≥768px | Sidebar + top header utilities | Member columns (horizontal scroll) | Status Kanban (3 columns) |
 | <768px | Top bar + tab nav (no sidebar) | Board or list (toggle) | Kanban stacks vertically |
 
-Toolbar offers Board / List toggle when both are implemented for that role.
+Toolbar offers **My work | Team** and **Board | List** for both roles.
 
 ---
 
@@ -570,6 +582,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | Team board + inline edit + quick add | 1 | Shipped |
 | Task create + edit + delete forms | 1 | Shipped |
 | Status Kanban + list toggle | 1 | Shipped |
+| My work / Team scope | 1 | Shipped |
 | Profile vs Settings split | 1 | Shipped |
 | Join + change-password + privacy | 1 | Shipped |
 | Operator alerts + **Events** page | 1 | Shipped |
@@ -606,6 +619,7 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
 | 2026-07-23 | Member identity: name · icons (inactive + Telegram); hide role chips on board/list/detail |
 | 2026-07-23 | Teammates list: Name · Email · Role · Account · Telegram; name opens detail; export on detail |
+| 2026-07-23 | Tasks: My work \| Team scope; teammate Team board read-only on others; group task read for all members |
 | 2026-07-23 | Drop dead ExportDataButton link variant; wire demote success banner |
 | 2026-07-23 | Board column header: drop active-task count under name |
 | 2026-07-23 | Telegram status: icon green linked / amber pending (board, list, detail, Profile) |

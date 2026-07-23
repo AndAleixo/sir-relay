@@ -26,7 +26,7 @@ import { kanbanStyles } from "./status-kanban.styles";
 interface StatusKanbanProps {
   tasks: Task[];
   locale: string;
-  currentUser: { id: string; name: string };
+  self: { id: string; name: string };
   labels: TaskCardLabels & {
     todo: string;
     doing: string;
@@ -47,7 +47,7 @@ const columns: TaskStatus[] = ["todo", "doing", "done"];
 export function StatusKanban({
   tasks,
   locale,
-  currentUser,
+  self,
   labels,
 }: StatusKanbanProps) {
   const { applyTaskUpdate, createTaskQuick, placeInTodoQueue } = useSync();
@@ -72,7 +72,7 @@ export function StatusKanban({
   async function placeInTodo(taskId: string, toIndex: number) {
     handleDragEnd();
     const assigneeId =
-      tasks.find((t) => t.id === taskId)?.assigneeId ?? currentUser.id;
+      tasks.find((t) => t.id === taskId)?.assigneeId ?? self.id;
 
     await placeInTodoQueue(
       taskId,
@@ -219,8 +219,8 @@ export function StatusKanban({
             )}
             {status === "todo" ? (
               <BoardQuickAddTask
-                assigneeId={currentUser.id}
-                assigneeName={currentUser.name}
+                assigneeId={self.id}
+                assigneeName={self.name}
                 addLabel={labels.addTask}
                 titlePlaceholder={labels.titlePlaceholder}
                 onCreate={(input) => createTaskQuick(locale, input)}

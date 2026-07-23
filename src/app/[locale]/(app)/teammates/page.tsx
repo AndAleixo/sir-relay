@@ -79,10 +79,6 @@ export default async function TeammatesPage({
           </Link>
         </div>
       </div>
-      <p className="mb-1 text-sm text-[var(--text-muted)]">
-        {t("teammate.userCount", { count: users.length })}
-      </p>
-      <p className="mb-4 text-xs text-[var(--text-muted)]">{t("teammate.exportHint")}</p>
 
       {groupInvitations.length > 0 ? (
         <section className="mb-4 rounded-card border border-[var(--border)] bg-surface-card p-4">

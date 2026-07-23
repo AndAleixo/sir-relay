@@ -5,6 +5,7 @@ import { Banner } from "@/components/ui/banner";
 import { PageHeader } from "@/components/layout/app-shell";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
 import { DemoteOperatorButton } from "@/components/teammates/demote-operator-button";
+import { ExportDataButton } from "@/components/teammates/export-data-button";
 import { PromoteTeammateButton } from "@/components/teammates/promote-teammate-button";
 import { RemoveTeammateButton } from "@/components/teammates/remove-teammate-button";
 import { TransferOwnershipButton } from "@/components/teammates/transfer-ownership-button";
@@ -216,6 +217,11 @@ export default async function TeammateDetailPage({
         ) : null}
 
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <ExportDataButton
+            userId={id}
+            label={t("teammate.export")}
+            variant="secondary"
+          />
           {teammate?.active && teammate.accountStatus === "active" ? (
             <PromoteTeammateButton
               locale={locale}

@@ -9,10 +9,9 @@ import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.sty
 import { Button } from "@/components/ui/button";
 import { ToneBadge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
-import {
-  MemberNameRow,
-  memberInactiveLabel,
-} from "@/components/ui/member-status-icons";
+import { AccountInactiveIcon } from "@/components/ui/account-inactive-icon";
+import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
+import { memberInactiveLabel } from "@/components/ui/member-status-icons";
 import { cn } from "@/lib/cn";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { resendGroupInvitation } from "@/app/actions/invitations";
@@ -24,13 +23,14 @@ export default async function TeammatesPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{
     promoted?: string;
+    demoted?: string;
     invited?: string;
     resent?: string;
     invitationError?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { promoted, invited, resent, invitationError } = await searchParams;
+  const { promoted, demoted, invited, resent, invitationError } = await searchParams;
   const t = await getTranslations();
   const { auth, teammates, invitations } = getServices();
   const session = await auth.getSession();
@@ -48,6 +48,11 @@ export default async function TeammatesPage({
       {promoted === "1" ? (
         <Banner variant="info" className="mb-4">
           {t("teammate.promoted")}
+        </Banner>
+      ) : null}
+      {demoted === "1" ? (
+        <Banner variant="info" className="mb-4">
+          {t("teammate.demoted")}
         </Banner>
       ) : null}
       {invited === "1" ? (
@@ -118,7 +123,13 @@ export default async function TeammatesPage({
             <tr>
               <th className={teamListStyles.th}>{t("teammate.name")}</th>
               <th className={teamListStyles.th}>{t("auth.email")}</th>
-              <th className={teamListStyles.th} />
+              <th className={teamListStyles.th}>{t("teammate.roleColumn")}</th>
+              <th className={cn(teamListStyles.th, teamListStyles.iconTh)}>
+                {t("teammate.accountColumn")}
+              </th>
+              <th className={cn(teamListStyles.th, teamListStyles.iconTh)}>
+                {t("teammate.telegramColumn")}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -127,38 +138,38 @@ export default async function TeammatesPage({
                 user.id === session.user.id
                   ? `/${locale}/settings`
                   : `/${locale}/teammates/${user.id}`;
+              const inactiveLabel = memberInactiveLabel(user, {
+                invited: t("teammate.invited"),
+                inactive: t("teammate.inactive"),
+              });
 
               return (
                 <tr key={user.id} className={teamListStyles.trHover}>
                   <td className={cn(teamListStyles.td, teamListStyles.userCell)}>
-                    <MemberNameRow
-                      nameNode={groupMemberLabel(user)}
-                      telegramStatus={user.telegramStatus}
-                      inactiveLabel={memberInactiveLabel(user, {
-                        invited: t("teammate.invited"),
-                        inactive: t("teammate.inactive"),
-                      })}
-                      labels={{
-                        linked: t("teammate.linked"),
-                        pending: t("teammate.pending"),
-                      }}
-                    />
+                    <Link href={detailHref} className={teamListStyles.nameLink}>
+                      {groupMemberLabel(user)}
+                    </Link>
                   </td>
                   <td className={teamListStyles.td}>{user.email}</td>
                   <td className={teamListStyles.td}>
-                    <div className="flex items-center gap-3">
-                      <ExportDataButton
-                        userId={user.id}
-                        label={t("teammate.export")}
-                        variant="link"
+                    {t(`roles.${user.role}`)}
+                  </td>
+                  <td className={cn(teamListStyles.td, teamListStyles.iconTd)}>
+                    {inactiveLabel ? (
+                      <AccountInactiveIcon label={inactiveLabel} />
+                    ) : null}
+                  </td>
+                  <td className={cn(teamListStyles.td, teamListStyles.iconTd)}>
+                    {user.telegramStatus ? (
+                      <TelegramStatusIcon
+                        status={user.telegramStatus}
+                        label={
+                          user.telegramStatus === "linked"
+                            ? t("teammate.linked")
+                            : t("teammate.pending")
+                        }
                       />
-                      <Link
-                        href={detailHref}
-                        className="text-sm font-medium text-brand-accent hover:text-brand-accent-hover"
-                      >
-                        {t("teammate.viewUser")}
-                      </Link>
-                    </div>
+                    ) : null}
                   </td>
                 </tr>
               );

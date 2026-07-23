@@ -388,18 +388,18 @@ Routes below use **Operator** / **Teammate** to mean **role in the active group*
 
 ### List `/teammates`
 
-Table: name (+ status icons), email, view link. **You** → **Settings**; **any other member** (teammate or operator) → `/teammates/[id]`.
+Table: **Name** (link) · **Email** · **Role** · **Account** (icon if invited/inactive) · **Telegram** (icon if linked/pending). Click name → **You** → **Settings**; **any other member** → `/teammates/[id]`. No per-row View / Export.
 
-**Add teammate** — header button → `/teammates/new` (**email only**). New/invited account → teammate detail with activation link; list shows **email + Pending** until the person sets their account name. Existing active account → pending request, no membership until acceptance (opaque success; do not surface account name on lookup).
+**Add teammate** — header button → `/teammates/new` (**email only**). New/invited account → teammate detail with activation link; list shows **email + Account icon** until the person sets their account name. Existing active account → pending request, no membership until acceptance (opaque success; do not surface account name on lookup).
 
 **Pending requests** — operator list shows pending/declined/expired requests and **Resend**. Existing members remain in the main table only.
 
-**Export (Phase 2)** — toolbar **Export all** · per-row **Export** on the list. Spec: [REQUIREMENTS.md §6.5.2](./REQUIREMENTS.md#652-json-export-app).
+**Export (Phase 2)** — toolbar **Export all** · per-member **Export** on detail. Spec: [REQUIREMENTS.md §6.5.2](./REQUIREMENTS.md#652-json-export-app).
 
 ### Detail `/teammates/[id]`
 
 - Group label (`display_name ?? name`) with status icons (inactive · Telegram); email. Role not shown as a chip (promote/demote still on actions)
-- Edit **group fantasy name** (`display_name`); email only while `invited`; **promote to operator** (active teammate only); **demote to teammate** (other operators except group owner / last operator); **transfer ownership** (current owner only — no owner badge in UI); remove from group (not yourself; not the owner)
+- **Export** this member · Edit **group fantasy name** (`display_name`); email only while `invited`; **promote to operator** (active teammate only); **demote to teammate** (other operators except group owner / last operator); **transfer ownership** (current owner only — no owner badge in UI); remove from group (not yourself; not the owner)
 - **Never** edit another user’s global account name — that lives on **Profile**
 - Works for both teammates and other operators in the active group
 - **Invite link** — `/join/{token}` · copy · regenerate (invited teammates only)
@@ -605,6 +605,8 @@ Toolbar offers Board / List toggle when both are implemented for that role.
 | 2026-07-18 | Operator self column uses same header as members (name, not “Me”) |
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
 | 2026-07-23 | Member identity: name · icons (inactive + Telegram); hide role chips on board/list/detail |
+| 2026-07-23 | Teammates list: Name · Email · Role · Account · Telegram; name opens detail; export on detail |
+| 2026-07-23 | Drop dead ExportDataButton link variant; wire demote success banner |
 | 2026-07-23 | Board column header: drop active-task count under name |
 | 2026-07-23 | Telegram status: icon green linked / amber pending (board, list, detail, Profile) |
 | 2026-07-22 | Settings General: show “Group owner” under your role when you own the active group |

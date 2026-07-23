@@ -3,13 +3,11 @@
 import { useState } from "react";
 import { exportDataAction } from "@/app/actions/export";
 import { Button, type ButtonVariant } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
 
 type ExportDataButtonProps = {
   userId?: string;
   label: string;
-  variant?: ButtonVariant | "link";
-  className?: string;
+  variant?: ButtonVariant;
 };
 
 function downloadJson(filename: string, data: unknown) {
@@ -28,7 +26,6 @@ export function ExportDataButton({
   userId,
   label,
   variant = "secondary",
-  className,
 }: ExportDataButtonProps) {
   const [pending, setPending] = useState(false);
 
@@ -42,29 +39,12 @@ export function ExportDataButton({
     }
   }
 
-  if (variant === "link") {
-    return (
-      <button
-        type="button"
-        onClick={handleExport}
-        disabled={pending}
-        className={cn(
-          "text-sm font-medium text-brand-accent hover:text-brand-accent-hover disabled:opacity-50",
-          className,
-        )}
-      >
-        {label}
-      </button>
-    );
-  }
-
   return (
     <Button
       type="button"
       variant={variant}
       onClick={handleExport}
       disabled={pending}
-      className={className}
     >
       {label}
     </Button>

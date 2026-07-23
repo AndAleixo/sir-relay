@@ -126,7 +126,9 @@ export function BoardTaskCard({
         readOnly && taskCardStyles.readOnly,
       )}
     >
-      {readOnly ? null : (
+      {readOnly ? (
+        <span className={taskCardStyles.dragHandleSpacer} aria-hidden />
+      ) : (
         <button
           type="button"
           draggable

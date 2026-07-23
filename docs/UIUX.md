@@ -243,7 +243,7 @@ First column: the **signed-in member**. Then other members ordered by **To do co
 
 **Operator:** full edit on every column (reassign via drop, quick-add, inline edit). Member names link to `/teammates/[id]`.
 
-**Teammate:** same layout; **only own column editable**. Other columns: cards without drag handle / status controls; ↗ opens read-only detail. Member names are plain text (no teammates admin link).
+**Teammate:** same layout; **only own column editable**. Other columns: no interactive drag handle (spacer keeps title alignment) / no status controls; ↗ opens read-only detail. Member names are plain text (no teammates admin link).
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
@@ -555,8 +555,8 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `MemberNameRow` / `MemberStatusIcons` | Name left · inactive + Telegram icons right |
 | `TelegramStatusIcon` | Linked (green) / pending (amber) Telegram mark |
 | `AccountInactiveIcon` | Invited or deactivated account mark |
-| `ToneBadge` | Role (Settings), invitation status, alert delivery chips |
-| `Banner` | Warning (delivery error on task detail) |
+| `ToneBadge` | Invitation status, alert delivery chips |
+| `Banner` | `info` (confirmations) · `warning` · `danger` (errors) |
 | `SyncBar` | Session sync status (mock) |
 
 **Styling:** Tailwind + CSS variables from `brand/brand.css`. Card radius 8px, button 6px per [BRAND.md](./BRAND.md).

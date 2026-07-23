@@ -8,7 +8,7 @@ export function requireActiveGroupId(session: Session): string {
   return groupId;
 }
 
-export function requireSessionRole(session: Session, role: Role): void {
+function requireSessionRole(session: Session, role: Role): void {
   if (session.user.role !== role) throw new Error("Forbidden");
 }
 

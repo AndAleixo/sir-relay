@@ -6,6 +6,6 @@ export const bannerStyles = {
     warning:
       "border-brand-accent/40 bg-brand-accent-soft text-[var(--text-primary)]",
     danger: "border-red-200 bg-red-50 text-red-800",
-    info: "border-[var(--border)] bg-[var(--surface-bg)] text-[var(--text-muted)]",
+    info: "border-[var(--border)] bg-surface-card text-[var(--text-primary)]",
   },
 } as const;

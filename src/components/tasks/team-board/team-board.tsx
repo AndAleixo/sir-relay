@@ -32,6 +32,8 @@ import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-r
 import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
 import {
   DEFAULT_BOARD_SECTION_SCROLL_AFTER,
+  DONE_PREVIEW_INITIAL,
+  DONE_PREVIEW_STEP,
   sectionListMaxHeight,
 } from "./board-section-scroll";
 import { teamBoardStyles } from "./team-board.styles";
@@ -66,7 +68,7 @@ interface TeamBoardProps {
     pending: string;
     invited: string;
     inactive: string;
-    viewAll: string;
+    showMore: string;
     emptyBoard: string;
     dragHandle: string;
     openTask: string;
@@ -74,7 +76,7 @@ interface TeamBoardProps {
     addDueDate: string;
     titlePlaceholder: string;
   };
-  /** Scroll inside To do / In progress / Done when count exceeds this (default 4). */
+  /** Scroll inside To do / In progress / Done when count exceeds this (default 3). */
   sectionScrollAfter?: number;
 }
 
@@ -301,8 +303,10 @@ function TaskColumn({
   sectionScrollAfter: number;
 }) {
   const [doneOpen, setDoneOpen] = useState(false);
+  const [doneLimit, setDoneLimit] = useState(DONE_PREVIEW_INITIAL);
   const grouped = groupTasksByStatusOrdered(tasks);
-  const donePreview = grouped.done.slice(-5);
+  const doneVisible = grouped.done.slice(-doneLimit);
+  const hasMoreDone = grouped.done.length > doneLimit;
   const doneKey = dropTargetKey(assigneeId, "done");
 
   return (
@@ -438,17 +442,20 @@ function TaskColumn({
         <button
           type="button"
           className={teamBoardStyles.doneToggle}
-          onClick={() => setDoneOpen((open) => !open)}
+          onClick={() => {
+            if (doneOpen) setDoneLimit(DONE_PREVIEW_INITIAL);
+            setDoneOpen(!doneOpen);
+          }}
         >
           <span>{doneOpen ? "▾" : "▸"}</span>
           {labels.sectionDone} ({grouped.done.length})
         </button>
         {doneOpen && (
           <SectionCardList
-            itemCount={donePreview.length}
+            itemCount={doneVisible.length}
             scrollAfter={sectionScrollAfter}
           >
-            {donePreview.map((task) => (
+            {doneVisible.map((task) => (
               <BoardTaskItem
                 key={task.id}
                 task={task}
@@ -462,8 +469,16 @@ function TaskColumn({
                 onUpdateFields={onUpdateFields}
               />
             ))}
-            {grouped.done.length > 5 && (
-              <p className={teamBoardStyles.viewAll}>{labels.viewAll}</p>
+            {hasMoreDone && (
+              <button
+                type="button"
+                className={teamBoardStyles.showMore}
+                onClick={() =>
+                  setDoneLimit((n) => n + DONE_PREVIEW_STEP)
+                }
+              >
+                {labels.showMore}
+              </button>
             )}
           </SectionCardList>
         )}

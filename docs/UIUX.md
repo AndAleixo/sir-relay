@@ -277,7 +277,7 @@ First column: the **signed-in member**. Then other members ordered by **To do co
 |---------|--------|----------|---------------|-------------|
 | **To do** | `todo` | High — **top card** has start control (→ In progress); order = queue | Expanded | All cards |
 | **In progress** | `doing` | High — each card has neutral ✓ → Done | Expanded | All cards |
-| **Done** | `done` | Low — green ✓ mark (not clickable; flow complete) | **Collapsed** | Count in header; expand shows last **5** cards + muted “View all” label (not a navigation link) |
+| **Done** | `done` | Low — green ✓ mark (not clickable; flow complete) | **Collapsed** | Count in header; expand shows last **5** cards; “Show more” loads **+10** older cards each click until exhausted |
 
 **Visual weight:**
 
@@ -625,6 +625,7 @@ Toolbar offers **My work | Team** and **Board | List** for both roles.
 | 2026-07-23 | Telegram status: icon green linked / amber pending (board, list, detail, Profile) |
 | 2026-07-22 | Settings General: show “Group owner” under your role when you own the active group |
 | 2026-07-22 | Invisible group owner: transfer on member detail; succession on owner leave; demote; delete owner-only |
+| 2026-07-24 | Team board Done: “Show more” loads +10 cards per click (was non-interactive “View all” label) |
 | 2026-07-21 | Rename `TeammateBoard` → `TeamBoard` (`team-board/`); `tasks.emptyBoard` |
 | 2026-07-21 | Board card rename to `BoardTaskCard`; drop dead card styles / sectionTitleAccent |
 | 2026-07-21 | Teammate Kanban: same inline title/due edit as operator board |

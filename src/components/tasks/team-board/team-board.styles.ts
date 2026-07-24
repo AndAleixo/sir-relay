@@ -16,5 +16,6 @@ export const teamBoardStyles = {
   doneSection: "p-2",
   doneToggle:
     "flex w-full items-center gap-2 rounded-button px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--surface-bg)]",
-  viewAll: "px-2 py-1 text-center text-xs text-brand-accent-hover",
+  showMore:
+    "w-full cursor-pointer px-2 py-1 text-center text-xs text-brand-accent-hover hover:underline",
 } as const;

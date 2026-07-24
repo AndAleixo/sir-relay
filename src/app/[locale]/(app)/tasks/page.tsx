@@ -68,7 +68,7 @@ export default async function TasksPage({
           pending: t("teammate.pending"),
           invited: t("teammate.invited"),
           inactive: t("teammate.inactive"),
-          viewAll: t("common.viewAll"),
+          showMore: t("common.showMore"),
           dragHandle: t("common.dragHandle"),
           openTask: t("tasks.openTask"),
           addTask: t("tasks.addTask"),

@@ -53,7 +53,7 @@ interface TasksPageClientProps {
     pending: string;
     invited: string;
     inactive: string;
-    viewAll: string;
+    showMore: string;
     dragHandle: string;
     openTask: string;
     addTask: string;
@@ -128,7 +128,7 @@ export function TasksPageClient({
     inactive: labels.inactive,
     dueDate: labels.dueDate,
     overdue: labels.overdue,
-    viewAll: labels.viewAll,
+    showMore: labels.showMore,
     emptyBoard: labels.emptyBoard,
     dragHandle: labels.dragHandle,
     openTask: labels.openTask,

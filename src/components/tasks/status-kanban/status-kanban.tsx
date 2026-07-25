@@ -43,6 +43,7 @@ interface StatusKanbanProps {
     done: string;
     dragHandle: string;
     openTask: string;
+    menuOpen: string;
     addDueDate: string;
     startDoing: string;
     markDone: string;
@@ -172,6 +173,7 @@ export function StatusKanban({
     overdue: labels.overdue,
     dragHandle: labels.dragHandle,
     openTask: labels.openTask,
+    menuOpen: labels.menuOpen,
     addDueDate: labels.addDueDate,
     startDoing: labels.startDoing,
     markDone: labels.markDone,

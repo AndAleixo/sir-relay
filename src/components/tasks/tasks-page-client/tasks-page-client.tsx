@@ -58,6 +58,7 @@ interface TasksPageClientProps {
     showMore: string;
     dragHandle: string;
     openTask: string;
+    menuOpen: string;
     addTask: string;
     addDueDate: string;
     titlePlaceholder: string;
@@ -162,6 +163,7 @@ export function TasksPageClient({
     emptyBoard: labels.emptyBoard,
     dragHandle: labels.dragHandle,
     openTask: labels.openTask,
+    menuOpen: labels.menuOpen,
     addTask: labels.addTask,
     addDueDate: labels.addDueDate,
     titlePlaceholder: labels.titlePlaceholder,
@@ -196,6 +198,7 @@ export function TasksPageClient({
     overdue: labels.overdue,
     dragHandle: labels.dragHandle,
     openTask: labels.openTask,
+    menuOpen: labels.menuOpen,
     addDueDate: labels.addDueDate,
     startDoing: labels.startDoing,
     markDone: labels.markDone,

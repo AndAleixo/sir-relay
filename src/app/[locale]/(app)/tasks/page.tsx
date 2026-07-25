@@ -113,6 +113,7 @@ export default async function TasksPage({
           showMore: t("common.showMore"),
           dragHandle: t("common.dragHandle"),
           openTask: t("tasks.openTask"),
+          menuOpen: t("tasks.menuOpen"),
           addTask: t("tasks.addTask"),
           addDueDate: t("tasks.addDueDate"),
           titlePlaceholder: t("tasks.titlePlaceholder"),

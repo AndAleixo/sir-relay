@@ -19,6 +19,7 @@ interface BoardTaskCardProps {
   labels: TaskCardLabels & {
     dragHandle: string;
     openTask: string;
+    menuOpen: string;
     addDueDate: string;
     startDoing?: string;
     markDone?: string;
@@ -271,7 +272,7 @@ export function BoardTaskCard({
           )}
           <TaskCardMenu
             href={href}
-            openLabel={labels.openTask}
+            openLabel={labels.menuOpen}
             cloneLabel={labels.cloneTask}
             deleteLabel={labels.deleteTask}
             menuLabel={labels.taskMenu}

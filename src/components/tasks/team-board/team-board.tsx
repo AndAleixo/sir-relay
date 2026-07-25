@@ -80,6 +80,7 @@ interface TeamBoardProps {
     addDueDate: string;
     titlePlaceholder: string;
     taskMenu: string;
+    menuOpen: string;
     cloneTask: string;
     deleteTask: string;
     deleteConfirm: string;
@@ -158,6 +159,7 @@ function BoardTaskItem({
   const cardLabels: TaskCardLabels & {
     dragHandle: string;
     openTask: string;
+    menuOpen: string;
     addDueDate: string;
     startDoing: string;
     markDone: string;
@@ -171,6 +173,7 @@ function BoardTaskItem({
     overdue: labels.overdue,
     dragHandle: labels.dragHandle,
     openTask: labels.openTask,
+    menuOpen: labels.menuOpen,
     addDueDate: labels.addDueDate,
     startDoing: labels.startDoing,
     markDone: labels.markDone,

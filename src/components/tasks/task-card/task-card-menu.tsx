@@ -60,7 +60,10 @@ export function TaskCardMenu({
     <div ref={rootRef} className={taskCardStyles.menuRoot}>
       <button
         type="button"
-        className={taskCardStyles.menuButton}
+        className={cn(
+          taskCardStyles.menuButton,
+          open && taskCardStyles.menuButtonOpen,
+        )}
         aria-label={menuLabel}
         aria-haspopup="menu"
         aria-expanded={open}

@@ -53,6 +53,20 @@ export function placeIdAtIndex(
   return next;
 }
 
+/** Insert newId immediately after afterId (append if afterId missing). */
+export function insertIdAfter(
+  orderedIds: string[],
+  afterId: string,
+  newId: string,
+): string[] {
+  const without = orderedIds.filter((id) => id !== newId);
+  const idx = without.indexOf(afterId);
+  if (idx < 0) return [...without, newId];
+  const next = [...without];
+  next.splice(idx + 1, 0, newId);
+  return next;
+}
+
 /** Full To do id list for assignee after placing taskId at toIndex. */
 export function buildTodoQueueOrder(
   tasks: Array<{

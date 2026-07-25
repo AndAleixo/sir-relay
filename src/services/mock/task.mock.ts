@@ -1,6 +1,7 @@
 import type { Session, Task, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
 import { assertCanCreateTask, assertCanMutateTask } from "@/lib/authz";
+import { insertIdAfter, sortByQueueOrder } from "@/lib/task-queue";
 import { MOCK_TASKS } from "@/services/mock/data";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
@@ -223,6 +224,48 @@ export class MockTaskService implements TaskService {
     };
     this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
     return updated;
+  }
+
+  async cloneTask(sourceId: string, ctx: { session: Session }): Promise<Task[]> {
+    const existing = await this.getTask(sourceId, ctx);
+    if (!existing) throw new Error("Not found");
+    assertCanCreateTask(ctx.session, existing.assigneeId);
+
+    const now = new Date().toISOString();
+    const id = `task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    const orderedIds = sortByQueueOrder(
+      this.tasks.filter(
+        (t) =>
+          t.assigneeId === existing.assigneeId && t.status === existing.status,
+      ),
+    ).map((t) => t.id);
+    const nextIds = insertIdAfter(orderedIds, sourceId, id);
+
+    const clone: Task = {
+      id,
+      title: existing.title,
+      description: existing.description,
+      assigneeId: existing.assigneeId,
+      assigneeName: existing.assigneeName,
+      status: existing.status,
+      dueDate: existing.dueDate,
+      telegramNotifyFailed: false,
+      sortOrder: nextIds.indexOf(id),
+      updatedAt: now,
+      createdAt: now,
+    };
+    this.tasks.push(clone);
+
+    const order = new Map(nextIds.map((taskId, i) => [taskId, i]));
+    this.tasks = this.tasks.map((t) => {
+      const sortOrder = order.get(t.id);
+      return sortOrder === undefined ? t : { ...t, sortOrder, updatedAt: now };
+    });
+
+    return tasksInGroup(this.tasks, ctx.session).map((row) =>
+      withLiveAssigneeName(row, ctx.session),
+    );
   }
 
   async placeInTodoQueue(

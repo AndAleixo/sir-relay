@@ -50,6 +50,10 @@ interface StatusKanbanProps {
     addTask: string;
     titlePlaceholder: string;
     showMore: string;
+    taskMenu: string;
+    cloneTask: string;
+    deleteTask: string;
+    deleteConfirm: string;
   };
   /** Scroll Done list when visible cards exceed this (default 3). */
   sectionScrollAfter?: number;
@@ -66,7 +70,8 @@ export function StatusKanban({
   labels,
   sectionScrollAfter = DEFAULT_BOARD_SECTION_SCROLL_AFTER,
 }: StatusKanbanProps) {
-  const { applyTaskUpdate, createTaskQuick, placeInTodoQueue } = useSync();
+  const { applyTaskUpdate, createTaskQuick, placeInTodoQueue, cloneTask, deleteTask } =
+    useSync();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<TaskStatus | null>(
     null,
@@ -171,6 +176,10 @@ export function StatusKanban({
     startDoing: labels.startDoing,
     markDone: labels.markDone,
     completedMark: labels.completedMark,
+    taskMenu: labels.taskMenu,
+    cloneTask: labels.cloneTask,
+    deleteTask: labels.deleteTask,
+    deleteConfirm: labels.deleteConfirm,
   };
 
   function renderCard(task: Task, status: TaskStatus, todoIndex?: number) {
@@ -195,6 +204,8 @@ export function StatusKanban({
         onMarkDone={
           status === "doing" ? () => void assignStatus(task.id, "done") : undefined
         }
+        onClone={() => void cloneTask(task.id)}
+        onDelete={() => void deleteTask(task.id)}
       />
     );
   }

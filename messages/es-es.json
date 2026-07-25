@@ -218,6 +218,8 @@
     "sortStatus": "Estado",
     "sortUpdated": "Actualizado recientemente",
     "openTask": "Abrir detalles de la tarea",
+    "taskMenu": "Acciones de la tarea",
+    "cloneTask": "Clonar",
     "addTask": "Añadir tarea",
     "addDueDate": "Añadir fecha límite",
     "sectionTodo": "Por hacer",

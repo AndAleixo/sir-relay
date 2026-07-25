@@ -4,6 +4,7 @@ import { writeAuditFromSession } from "@/lib/audit";
 import { assertCanCreateTask, assertCanMutateTask } from "@/lib/authz";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { prisma } from "@/lib/prisma";
+import { insertIdAfter, sortByQueueOrder } from "@/lib/task-queue";
 import {
   dispatchAfterDone,
   notifyTaskIfEligible,
@@ -270,6 +271,71 @@ export class ApiTaskService implements TaskService {
       title: existing.title,
     });
     return toTask(refreshed, existing.assigneeName);
+  }
+
+  async cloneTask(sourceId: string, ctx: { session: Session }): Promise<Task[]> {
+    const existing = await loadTask(sourceId, ctx.session);
+    if (!existing) throw new Error("Not found");
+    assertCanCreateTask(ctx.session, existing.assigneeId);
+
+    const groupId = requireGroupId(ctx.session);
+    const id = `task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    const siblingRows = await prisma.task.findMany({
+      where: {
+        groupId,
+        assigneeId: existing.assigneeId,
+        status: existing.status,
+      },
+    });
+    const orderedIds = sortByQueueOrder(
+      siblingRows.map((row) => ({
+        id: row.id,
+        sortOrder: row.sortOrder,
+        dueDate: row.dueDate ? row.dueDate.toISOString().slice(0, 10) : null,
+        createdAt: row.createdAt.toISOString(),
+      })),
+    ).map((row) => row.id);
+
+    const nextIds = insertIdAfter(orderedIds, sourceId, id);
+
+    await prisma.task.create({
+      data: {
+        id,
+        groupId,
+        title: existing.title.slice(0, 200),
+        description: existing.description.slice(0, 10_000),
+        assigneeId: existing.assigneeId,
+        createdById: ctx.session.user.id,
+        status: existing.status,
+        dueDate: existing.dueDate ? new Date(existing.dueDate) : null,
+        sortOrder: nextIds.indexOf(id),
+      },
+    });
+
+    await prisma.$transaction(
+      nextIds.map((taskId, sortOrder) =>
+        prisma.task.update({
+          where: { id: taskId },
+          data: { sortOrder },
+        }),
+      ),
+    );
+
+    if (existing.status === "todo") {
+      await notifyTaskIfEligible(id);
+    } else if (existing.status !== "done") {
+      await syncAssigneeTelegramHead(groupId, existing.assigneeId);
+    }
+
+    void writeAuditFromSession(ctx.session, "task_create", {
+      taskId: id,
+      title: existing.title,
+      assigneeId: existing.assigneeId,
+      clonedFrom: sourceId,
+    });
+
+    return this.visibleTasks(ctx.session);
   }
 
   async placeInTodoQueue(

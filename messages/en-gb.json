@@ -218,6 +218,8 @@
     "sortStatus": "Status",
     "sortUpdated": "Recently updated",
     "openTask": "Open task details",
+    "taskMenu": "Task actions",
+    "cloneTask": "Clone",
     "addTask": "Add task",
     "addDueDate": "Add due date",
     "sectionTodo": "To do",

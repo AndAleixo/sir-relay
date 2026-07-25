@@ -18,7 +18,12 @@ import type {
   SyncState,
 } from "@/domain/sync";
 import { executePendingMutation } from "@/lib/sync/execute-mutation";
-import { quickCreateTaskAction, placeInTodoQueueAction } from "@/app/actions/tasks";
+import {
+  cloneTaskAction,
+  deleteTaskInlineAction,
+  placeInTodoQueueAction,
+  quickCreateTaskAction,
+} from "@/app/actions/tasks";
 import {
   syncRetryConfig,
   syncRetryDelayMs,
@@ -42,6 +47,8 @@ interface SyncContextValue {
     locale: string,
     input: { title: string; assigneeId: string; assigneeName: string },
   ) => Promise<boolean>;
+  cloneTask: (taskId: string) => Promise<boolean>;
+  deleteTask: (taskId: string) => Promise<boolean>;
   placeInTodoQueue: (
     taskId: string,
     assigneeId: string,
@@ -328,6 +335,22 @@ export function SyncProvider({ children }: SyncProviderProps) {
     [],
   );
 
+  const cloneTask = useCallback(async (taskId: string) => {
+    const result = await cloneTaskAction(taskId);
+    if (!result.ok) return false;
+    setTasks(result.tasks);
+    return true;
+  }, []);
+
+  const deleteTask = useCallback(async (taskId: string) => {
+    const snapshot = tasksRef.current;
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    const result = await deleteTaskInlineAction(taskId);
+    if (result.ok) return true;
+    setTasks(snapshot);
+    return false;
+  }, []);
+
   const placeInTodoQueue = useCallback(
     async (taskId: string, assigneeId: string, orderedTodoIds: string[]) => {
       const order = new Map(orderedTodoIds.map((id, i) => [id, i]));
@@ -432,6 +455,8 @@ export function SyncProvider({ children }: SyncProviderProps) {
       syncFromServer,
       applyTaskUpdate,
       createTaskQuick,
+      cloneTask,
+      deleteTask,
       placeInTodoQueue,
       syncNow,
       resolveConflict,
@@ -445,6 +470,8 @@ export function SyncProvider({ children }: SyncProviderProps) {
       syncFromServer,
       applyTaskUpdate,
       createTaskQuick,
+      cloneTask,
+      deleteTask,
       placeInTodoQueue,
       syncNow,
       resolveConflict,

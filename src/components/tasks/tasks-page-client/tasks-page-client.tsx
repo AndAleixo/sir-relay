@@ -62,6 +62,10 @@ interface TasksPageClientProps {
     addDueDate: string;
     titlePlaceholder: string;
     titleColumn: string;
+    taskMenu: string;
+    cloneTask: string;
+    deleteTask: string;
+    deleteConfirm: string;
     filterAssignee: string;
     filterStatus: string;
     filterSort: string;
@@ -161,6 +165,10 @@ export function TasksPageClient({
     addTask: labels.addTask,
     addDueDate: labels.addDueDate,
     titlePlaceholder: labels.titlePlaceholder,
+    taskMenu: labels.taskMenu,
+    cloneTask: labels.cloneTask,
+    deleteTask: labels.deleteTask,
+    deleteConfirm: labels.deleteConfirm,
   };
 
   const listLabels = {
@@ -195,6 +203,10 @@ export function TasksPageClient({
     addTask: labels.addTask,
     titlePlaceholder: labels.titlePlaceholder,
     showMore: labels.showMore,
+    taskMenu: labels.taskMenu,
+    cloneTask: labels.cloneTask,
+    deleteTask: labels.deleteTask,
+    deleteConfirm: labels.deleteConfirm,
   };
 
   const emptyMyWork = scope === "mine" && scopedTasks.length === 0;

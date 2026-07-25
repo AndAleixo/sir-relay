@@ -251,6 +251,56 @@ export async function quickCreateTaskAction(
   return { ok: true, task };
 }
 
+export async function cloneTaskAction(
+  taskId: string,
+): Promise<
+  | { ok: true; tasks: Task[] }
+  | { ok: false; error: "unauthorized" | "forbidden" | "not_found" | "failed" }
+> {
+  const { auth, tasks } = getServices();
+  const session = await auth.getSession();
+  if (!session) return { ok: false, error: "unauthorized" };
+
+  try {
+    const updated = await tasks.cloneTask(taskId, { session });
+    maybeRevalidate();
+    return { ok: true, tasks: updated };
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "Forbidden") return { ok: false, error: "forbidden" };
+      if (error.message === "Not found" || error.message === "Task not found") {
+        return { ok: false, error: "not_found" };
+      }
+    }
+    return { ok: false, error: "failed" };
+  }
+}
+
+export async function deleteTaskInlineAction(
+  taskId: string,
+): Promise<
+  | { ok: true }
+  | { ok: false; error: "unauthorized" | "forbidden" | "not_found" | "failed" }
+> {
+  const { auth, tasks } = getServices();
+  const session = await auth.getSession();
+  if (!session) return { ok: false, error: "unauthorized" };
+
+  const existing = await tasks.getTask(taskId, { session });
+  if (!existing) return { ok: false, error: "not_found" };
+
+  try {
+    await tasks.deleteTask(taskId, { session });
+    maybeRevalidate();
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof Error && error.message === "Forbidden") {
+      return { ok: false, error: "forbidden" };
+    }
+    return { ok: false, error: "failed" };
+  }
+}
+
 export async function placeInTodoQueueAction(
   taskId: string,
   assigneeId: string,

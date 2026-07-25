@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, type DragEvent } from "react";
 import type { Task } from "@/domain/types";
 import { cn } from "@/lib/cn";
@@ -11,7 +10,7 @@ import { taskCardStyles } from "./task-card.styles";
 import type { TaskCardLabels } from "./task-card-labels";
 import { StartDoingIcon } from "./start-doing-icon";
 import { MarkDoneIcon } from "./mark-done-icon";
-import { OpenTaskIcon } from "./open-task-icon";
+import { TaskCardMenu } from "./task-card-menu";
 
 interface BoardTaskCardProps {
   task: Task;
@@ -24,8 +23,12 @@ interface BoardTaskCardProps {
     startDoing?: string;
     markDone?: string;
     completedMark?: string;
+    taskMenu: string;
+    cloneTask: string;
+    deleteTask: string;
+    deleteConfirm: string;
   };
-  /** View-only: no drag, inline edit, or status controls. */
+  /** View-only: no drag, inline edit, or status controls. Menu: Open only. */
   readOnly?: boolean;
   isDragging?: boolean;
   isQueueHead?: boolean;
@@ -37,6 +40,8 @@ interface BoardTaskCardProps {
   ) => Promise<void>;
   onStartDoing?: () => void;
   onMarkDone?: () => void;
+  onClone?: () => void | Promise<void>;
+  onDelete?: () => void | Promise<void>;
 }
 
 export function BoardTaskCard({
@@ -53,6 +58,8 @@ export function BoardTaskCard({
   onUpdateFields,
   onStartDoing,
   onMarkDone,
+  onClone,
+  onDelete,
 }: BoardTaskCardProps) {
   const overdue = isOverdue(task.dueDate);
   const [editingTitle, setEditingTitle] = useState(false);
@@ -116,6 +123,39 @@ export function BoardTaskCard({
   const dueWithOverdue =
     overdue && task.dueDate ? `${dueLabel} · ${labels.overdue}` : dueLabel;
 
+  const statusControl =
+    !readOnly && isQueueHead && onStartDoing && labels.startDoing ? (
+      <button
+        type="button"
+        className={taskCardStyles.startDoing}
+        aria-label={labels.startDoing}
+        title={labels.startDoing}
+        disabled={saving}
+        onClick={() => onStartDoing()}
+      >
+        <StartDoingIcon />
+      </button>
+    ) : !readOnly && onMarkDone && labels.markDone ? (
+      <button
+        type="button"
+        className={taskCardStyles.markDone}
+        aria-label={labels.markDone}
+        title={labels.markDone}
+        disabled={saving}
+        onClick={() => onMarkDone()}
+      >
+        <MarkDoneIcon />
+      </button>
+    ) : showCompletedMark ? (
+      <span
+        className={taskCardStyles.completedMark}
+        title={labels.completedMark}
+        aria-label={labels.completedMark}
+      >
+        <MarkDoneIcon />
+      </span>
+    ) : null;
+
   return (
     <div
       data-no-drag-scroll
@@ -175,15 +215,7 @@ export function BoardTaskCard({
               {task.title}
             </button>
           )}
-
-          <Link
-            href={href}
-            className={taskCardStyles.openLink}
-            aria-label={labels.openTask}
-            title={labels.openTask}
-          >
-            <OpenTaskIcon />
-          </Link>
+          {statusControl}
         </div>
 
         <div
@@ -237,37 +269,18 @@ export function BoardTaskCard({
               {dueWithOverdue}
             </button>
           )}
-          {!readOnly && isQueueHead && onStartDoing && labels.startDoing ? (
-            <button
-              type="button"
-              className={taskCardStyles.startDoing}
-              aria-label={labels.startDoing}
-              title={labels.startDoing}
-              disabled={saving}
-              onClick={() => onStartDoing()}
-            >
-              <StartDoingIcon />
-            </button>
-          ) : !readOnly && onMarkDone && labels.markDone ? (
-            <button
-              type="button"
-              className={taskCardStyles.markDone}
-              aria-label={labels.markDone}
-              title={labels.markDone}
-              disabled={saving}
-              onClick={() => onMarkDone()}
-            >
-              <MarkDoneIcon />
-            </button>
-          ) : showCompletedMark ? (
-            <span
-              className={taskCardStyles.completedMark}
-              title={labels.completedMark}
-              aria-label={labels.completedMark}
-            >
-              <MarkDoneIcon />
-            </span>
-          ) : null}
+          <TaskCardMenu
+            href={href}
+            openLabel={labels.openTask}
+            cloneLabel={labels.cloneTask}
+            deleteLabel={labels.deleteTask}
+            menuLabel={labels.taskMenu}
+            deleteConfirm={labels.deleteConfirm}
+            canMutate={!readOnly && Boolean(onClone && onDelete)}
+            disabled={saving}
+            onClone={() => onClone?.()}
+            onDelete={() => onDelete?.()}
+          />
         </div>
       </div>
 

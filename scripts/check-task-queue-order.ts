@@ -5,6 +5,7 @@
 import assert from "node:assert/strict";
 import {
   buildTodoQueueOrder,
+  insertIdAfter,
   placeIdAtIndex,
   pickQueueHead,
   sortByQueueOrder,
@@ -45,6 +46,10 @@ assert.equal(pickQueueHead(tasks)?.id, "a");
 assert.deepEqual(placeIdAtIndex(["a", "b", "c"], "c", 0), ["c", "a", "b"]);
 assert.deepEqual(placeIdAtIndex(["a", "b", "c"], "a", 2), ["b", "c", "a"]);
 assert.deepEqual(placeIdAtIndex(["a", "b", "c"], "b", 1), ["a", "b", "c"]);
+
+assert.deepEqual(insertIdAfter(["a", "b", "c"], "a", "x"), ["a", "x", "b", "c"]);
+assert.deepEqual(insertIdAfter(["a", "b", "c"], "c", "x"), ["a", "b", "c", "x"]);
+assert.deepEqual(insertIdAfter(["a", "b"], "missing", "x"), ["a", "b", "x"]);
 
 assert.deepEqual(buildTodoQueueOrder(tasks, "u1", "c", 0), ["c", "a", "b"]);
 assert.deepEqual(

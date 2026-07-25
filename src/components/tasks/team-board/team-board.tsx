@@ -79,6 +79,10 @@ interface TeamBoardProps {
     addTask: string;
     addDueDate: string;
     titlePlaceholder: string;
+    taskMenu: string;
+    cloneTask: string;
+    deleteTask: string;
+    deleteConfirm: string;
   };
   /** Scroll inside To do / In progress / Done when count exceeds this (default 3). */
   sectionScrollAfter?: number;
@@ -128,6 +132,8 @@ function BoardTaskItem({
   onUpdateFields,
   onStartDoing,
   onMarkDone,
+  onClone,
+  onDelete,
 }: {
   task: Task;
   locale: string;
@@ -146,6 +152,8 @@ function BoardTaskItem({
   ) => Promise<void>;
   onStartDoing?: () => void;
   onMarkDone?: () => void;
+  onClone: (taskId: string) => void;
+  onDelete: (taskId: string) => void;
 }) {
   const cardLabels: TaskCardLabels & {
     dragHandle: string;
@@ -154,6 +162,10 @@ function BoardTaskItem({
     startDoing: string;
     markDone: string;
     completedMark: string;
+    taskMenu: string;
+    cloneTask: string;
+    deleteTask: string;
+    deleteConfirm: string;
   } = {
     dueDate: labels.dueDate,
     overdue: labels.overdue,
@@ -163,6 +175,10 @@ function BoardTaskItem({
     startDoing: labels.startDoing,
     markDone: labels.markDone,
     completedMark: labels.completedMark,
+    taskMenu: labels.taskMenu,
+    cloneTask: labels.cloneTask,
+    deleteTask: labels.deleteTask,
+    deleteConfirm: labels.deleteConfirm,
   };
 
   return (
@@ -182,6 +198,8 @@ function BoardTaskItem({
       }
       onStartDoing={readOnly ? undefined : onStartDoing}
       onMarkDone={readOnly ? undefined : onMarkDone}
+      onClone={readOnly ? undefined : () => onClone(task.id)}
+      onDelete={readOnly ? undefined : () => onDelete(task.id)}
     />
   );
 }
@@ -276,6 +294,8 @@ function TaskColumn({
   onAssignToColumn,
   onUpdateFields,
   onQuickCreate,
+  onClone,
+  onDelete,
   sectionScrollAfter,
 }: {
   assigneeId: string;
@@ -312,6 +332,8 @@ function TaskColumn({
     assigneeId: string;
     assigneeName: string;
   }) => Promise<boolean>;
+  onClone: (taskId: string) => void;
+  onDelete: (taskId: string) => void;
   sectionScrollAfter: number;
 }) {
   const [doneOpen, setDoneOpen] = useState(false);
@@ -372,6 +394,8 @@ function TaskColumn({
                       ? () => onAssignToColumn(assigneeId, "doing", task.id)
                       : undefined
                   }
+                  onClone={onClone}
+                  onDelete={onDelete}
                 />
               ),
             }))}
@@ -390,6 +414,8 @@ function TaskColumn({
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
               onUpdateFields={onUpdateFields}
+              onClone={onClone}
+              onDelete={onDelete}
             />
           ))
         )}
@@ -424,6 +450,8 @@ function TaskColumn({
                 ? () => onAssignToColumn(assigneeId, "done", task.id)
                 : undefined
             }
+            onClone={onClone}
+            onDelete={onDelete}
           />
         ))}
       </DroppableSection>
@@ -487,6 +515,8 @@ function TaskColumn({
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
                 onUpdateFields={onUpdateFields}
+                onClone={onClone}
+                onDelete={onDelete}
               />
             ))}
             {hasMoreDone && (
@@ -565,7 +595,8 @@ export function TeamBoard({
   labels,
   sectionScrollAfter = DEFAULT_BOARD_SECTION_SCROLL_AFTER,
 }: TeamBoardProps) {
-  const { applyTaskUpdate, createTaskQuick, placeInTodoQueue } = useSync();
+  const { applyTaskUpdate, createTaskQuick, placeInTodoQueue, cloneTask, deleteTask } =
+    useSync();
   const { scrollRef, scrollHandlers } = useHorizontalDragScroll();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
@@ -764,6 +795,8 @@ export function TeamBoard({
           onAssignToColumn={assignToColumn}
           onUpdateFields={handleUpdateFields}
           onQuickCreate={handleQuickCreate}
+          onClone={(taskId) => void cloneTask(taskId)}
+          onDelete={(taskId) => void deleteTask(taskId)}
           sectionScrollAfter={sectionScrollAfter}
         />
         {members.map((member) => {
@@ -798,6 +831,8 @@ export function TeamBoard({
               onAssignToColumn={assignToColumn}
               onUpdateFields={handleUpdateFields}
               onQuickCreate={handleQuickCreate}
+              onClone={(taskId) => void cloneTask(taskId)}
+              onDelete={(taskId) => void deleteTask(taskId)}
               sectionScrollAfter={sectionScrollAfter}
             />
           );

@@ -15,8 +15,6 @@ export const taskCardStyles = {
   titleRow: "mb-2 flex items-start gap-2",
   titleButton:
     "line-clamp-2 flex-1 cursor-pointer rounded-[4px] text-left text-[13px] font-medium leading-tight text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
-  openLink:
-    "shrink-0 rounded p-0.5 text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-brand-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 [&_svg]:h-3 [&_svg]:w-3",
   inlineInput: "h-7 select-text px-2 py-0.5 text-[13px]",
   inlineDateInput: "h-6 w-full select-text px-1.5 py-0 text-[11px]",
   dueButton:
@@ -31,6 +29,14 @@ export const taskCardStyles = {
   /** Done column — same glyph, not interactive. */
   completedMark:
     "shrink-0 p-0.5 text-emerald-600 [&_svg]:h-3.5 [&_svg]:w-3.5",
+  menuRoot: "relative shrink-0",
+  menuButton:
+    "rounded px-1 py-0.5 text-xs leading-none text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50",
+  menuPanel:
+    "absolute right-0 bottom-full z-20 mb-1 min-w-[9rem] rounded-card border border-[var(--border)] bg-surface-card py-1 shadow-sm",
+  menuItem:
+    "block w-full px-3 py-1.5 text-left text-xs text-[var(--text-primary)] hover:bg-[var(--surface-bg)] focus-visible:bg-[var(--surface-bg)] focus-visible:outline-none",
+  menuItemDanger: "text-[var(--danger)]",
   notifyDotCorner:
     "pointer-events-none absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-brand-accent",
 } as const;

@@ -98,6 +98,11 @@ export interface TaskService {
   deleteTask(id: string, ctx: { session: Session }): Promise<void>;
   renotifyTask(id: string, ctx: { session: Session }): Promise<Task>;
   /**
+   * Clone task: same title/description/due/assignee/status, inserted
+   * immediately below the source in that assignee+status queue.
+   */
+  cloneTask(sourceId: string, ctx: { session: Session }): Promise<Task[]>;
+  /**
    * Place task in an assignee's To do queue at the given order (ids top → bottom).
    * May reassign + set status todo. Operator: any member; teammate: own queue only.
    */

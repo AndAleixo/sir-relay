@@ -225,11 +225,11 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 **Done column (My work):** same preview as Team — show last **5** cards; **Show more** loads **+10** older each click; list scrolls when visible cards exceed the section scroll threshold (default 3). Header count stays total Done.
 
-**Card contents:** title (truncate 2 lines), due date (overdue in red). No “updated” time on board cards. Queue head (top To do): accent **→ Start** → In progress; In progress: neutral **✓** → Done; Done: green **✓** mark (not clickable).
+**Card contents:** title (truncate 2 lines), due date (overdue in red). No “updated” time on board cards. Queue head (top To do): accent **→ Start** on the **title row**; In progress: neutral **✓** → Done (same row); Done: green **✓** mark. Footer: due + **⋯** menu (**Open** · **Clone** · **Delete**). Clone copies title/description/due/assignee/status and inserts **immediately below** the source. Read-only cards: menu shows **Open** only.
 
 **Interactions:**
 
-- ↗ on card → task detail (edit form)
+- ⋯ → Open (detail) · Clone · Delete (confirm); replaces the old ↗ control
 - Card body: no text selection / default cursor; move task only via ⠿
 - Click title / due → inline edit (same as Team board editable columns)
 - **Quick add** at bottom of To do → creates a **self-assigned** task (same gate as `/tasks/new`)
@@ -624,6 +624,7 @@ Toolbar offers **My work | Team** and **Board | List** for both roles.
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
 | 2026-07-23 | Member identity: name · icons (inactive + Telegram); hide role chips on board/list/detail |
 | 2026-07-23 | Teammates list: Name · Email · Role · Account · Telegram; name opens detail; export on detail |
+| 2026-07-25 | Board cards: ⋯ menu (Open · Clone · Delete); status controls on title row; clone inserts below source |
 | 2026-07-25 | My work Kanban Done: preview 5 + Show more +10 + section scroll (same caps as Team) |
 | 2026-07-25 | Tasks: empty My work copy; scope/view URL + flash banners on save/delete/create; preserve scope through detail/new |
 | 2026-07-23 | Tasks: My work \| Team scope; teammate Team board read-only on others; group task read for all members |

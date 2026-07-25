@@ -34,10 +34,12 @@ import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { taskDetailHref } from "@/lib/tasks-url";
 import {
   DEFAULT_BOARD_SECTION_SCROLL_AFTER,
-  DONE_PREVIEW_INITIAL,
-  DONE_PREVIEW_STEP,
   sectionListMaxHeight,
 } from "@/components/tasks/board-section-scroll";
+import {
+  DONE_PREVIEW_INITIAL,
+  DONE_PREVIEW_STEP,
+} from "@/components/tasks/done-preview";
 import { teamBoardStyles } from "./team-board.styles";
 
 interface BoardSelfMember {
@@ -461,10 +463,7 @@ function TaskColumn({
           {labels.done} ({grouped.done.length})
         </button>
         {doneOpen && (
-          <SectionCardList
-            itemCount={doneVisible.length}
-            scrollAfter={sectionScrollAfter}
-          >
+          <div className={teamBoardStyles.cardList}>
             {doneVisible.map((task) => (
               <BoardTaskItem
                 key={task.id}
@@ -494,7 +493,7 @@ function TaskColumn({
                 {labels.showMore}
               </button>
             )}
-          </SectionCardList>
+          </div>
         )}
       </div>
     </article>

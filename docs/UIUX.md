@@ -223,7 +223,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 | In progress | `doing` | `--status-progress` | In progress / En progreso / Em progresso |
 | Done | `done` | `--status-done` | Done / Hecho / Concluído |
 
-**Done column (My work):** same preview as Team — show last **5** cards; **Show more** loads **+10** older each click; list scrolls when visible cards exceed the section scroll threshold (default 3). Header count stays total Done.
+**Done (My work column + Team accordion):** show last **5** cards; **Show more** loads **+10** older each click. No inner scroll pane — the list grows with Show more. Header / section count stays total Done.
 
 **Card contents:** title (truncate 2 lines), due date (overdue in red). No “updated” time on board cards. Queue head (top To do): accent **→** icon on the **title row** (aria/tooltip `startDoing`); In progress: neutral **✓** icon → Done (same row, `markDone`); Done: green **✓** mark (`completedMark`). Footer: due + **⋯** control. Open **⋯** reveals a borderless horizontal segment to the left of the trigger (**Open · Clone · Delete**), without shifting the button. Clone copies title/description/due/assignee/status and inserts **immediately below** the source. Read-only cards: **Open** only. Telegram notify-failed: accent corner dot with `telegramFailed` tooltip.
 
@@ -282,7 +282,7 @@ First column: the **signed-in member**. Then other members ordered by **To do co
 |---------|--------|----------|---------------|-------------|
 | **To do** | `todo` | High — **top card** has start icon (→ In progress); order = queue | Expanded | All cards |
 | **In progress** | `doing` | High — each card has neutral ✓ → Done | Expanded | All cards |
-| **Done** | `done` | Low — green ✓ mark (not clickable; flow complete) | **Collapsed** | Count in header; expand shows last **5** cards; “Show more” loads **+10** older cards each click until exhausted |
+| **Done** | `done` | Low — green ✓ mark (not clickable; flow complete) | **Collapsed** | Count in header; expand shows last **5** cards; “Show more” loads **+10** older until exhausted |
 
 **Visual weight:**
 
@@ -625,7 +625,7 @@ Toolbar offers **My work | Team** and **Board | List** for both roles.
 | 2026-07-23 | Member identity: name · icons (inactive + Telegram); hide role chips on board/list/detail |
 | 2026-07-23 | Teammates list: Name · Email · Role · Account · Telegram; name opens detail; export on detail |
 | 2026-07-25 | Board cards: ⋯ borderless segment (Open · Clone · Delete) left of trigger; status on title row; clone inserts below source |
-| 2026-07-25 | My work Kanban Done: preview 5 + Show more +10 + section scroll (same caps as Team) |
+| 2026-07-25 | My work / Team Done: preview 5 + Show more +10 (no inner scroll pane) |
 | 2026-07-25 | Tasks: empty My work copy; scope/view URL + flash banners on save/delete/create; preserve scope through detail/new |
 | 2026-07-23 | Tasks: My work \| Team scope; teammate Team board read-only on others; group task read for all members |
 | 2026-07-23 | Drop dead ExportDataButton link variant; wire demote success banner |

@@ -24,11 +24,9 @@ import {
 import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
 import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
 import {
-  DEFAULT_BOARD_SECTION_SCROLL_AFTER,
   DONE_PREVIEW_INITIAL,
   DONE_PREVIEW_STEP,
-  sectionListMaxHeight,
-} from "@/components/tasks/board-section-scroll";
+} from "@/components/tasks/done-preview";
 import { kanbanStyles } from "./status-kanban.styles";
 
 interface StatusKanbanProps {
@@ -45,8 +43,6 @@ interface StatusKanbanProps {
     titlePlaceholder: string;
     showMore: string;
   };
-  /** Scroll Done list when visible cards exceed this (default 3). */
-  sectionScrollAfter?: number;
 }
 
 const columns: TaskStatus[] = ["todo", "doing", "done"];
@@ -58,7 +54,6 @@ export function StatusKanban({
   view,
   self,
   labels,
-  sectionScrollAfter = DEFAULT_BOARD_SECTION_SCROLL_AFTER,
 }: StatusKanbanProps) {
   const { applyTaskUpdate, createTaskQuick, placeInTodoQueue, cloneTask, deleteTask } =
     useSync();
@@ -72,10 +67,6 @@ export function StatusKanban({
   const labelMap = { todo: labels.todo, doing: labels.doing, done: labels.done };
   const doneVisible = grouped.done.slice(-doneLimit);
   const hasMoreDone = grouped.done.length > doneLimit;
-  const doneListMaxHeight = sectionListMaxHeight(
-    doneVisible.length,
-    sectionScrollAfter,
-  );
 
   function handleDragStart(taskId: string) {
     setDraggingTaskId(taskId);
@@ -209,17 +200,7 @@ export function StatusKanban({
             <span className={kanbanStyles.count}>{grouped[status].length}</span>
           </header>
           {status === "done" ? (
-            <div
-              className={cn(
-                kanbanStyles.cardList,
-                doneListMaxHeight !== undefined && kanbanStyles.cardListScrollable,
-              )}
-              style={
-                doneListMaxHeight !== undefined
-                  ? { maxHeight: doneListMaxHeight }
-                  : undefined
-              }
-            >
+            <div className={kanbanStyles.cardList}>
               {doneVisible.map((task) => (
                 <div key={task.id}>{renderCard(task, "done")}</div>
               ))}

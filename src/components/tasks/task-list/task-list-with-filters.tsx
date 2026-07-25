@@ -24,6 +24,7 @@ type TaskListWithFiltersProps = {
     dueDate: string;
     updated: string;
     overdue: string;
+    statusColumn: string;
     filterAssignee: string;
     filterStatus: string;
     filterSort: string;
@@ -120,6 +121,7 @@ export function TaskListWithFilters({
           dueDate: labels.dueDate,
           updated: labels.updated,
           overdue: labels.overdue,
+          statusColumn: labels.statusColumn,
           status: labels.status,
         }}
       />

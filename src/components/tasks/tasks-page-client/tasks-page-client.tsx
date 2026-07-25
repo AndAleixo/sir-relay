@@ -69,6 +69,7 @@ interface TasksPageClientProps {
     sortDue: string;
     sortStatus: string;
     sortUpdated: string;
+    statusColumn: string;
     status: { todo: string; doing: string; done: string };
   };
 }
@@ -175,6 +176,7 @@ export function TasksPageClient({
     sortDue: labels.sortDue,
     sortStatus: labels.sortStatus,
     sortUpdated: labels.sortUpdated,
+    statusColumn: labels.statusColumn,
     status: labels.status,
   };
 

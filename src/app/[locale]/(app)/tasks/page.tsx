@@ -124,6 +124,7 @@ export default async function TasksPage({
           sortDue: t("tasks.sortDue"),
           sortStatus: t("tasks.sortStatus"),
           sortUpdated: t("tasks.sortUpdated"),
+          statusColumn: t("tasks.status"),
           status: {
             todo: t("status.todo"),
             doing: t("status.doing"),

@@ -20,6 +20,7 @@ interface TaskListProps {
     dueDate: string;
     updated: string;
     overdue: string;
+    statusColumn: string;
     status: Record<TaskStatus, string>;
   };
 }
@@ -39,7 +40,7 @@ export function TaskList({
           <tr className={taskListStyles.headRow}>
             <th className={taskListStyles.th}>{labels.titleColumn}</th>
             {showAssignee && <th className={taskListStyles.th}>{labels.assignee}</th>}
-            <th className={taskListStyles.th}>Status</th>
+            <th className={taskListStyles.th}>{labels.statusColumn}</th>
             <th className={taskListStyles.th}>{labels.dueDate}</th>
             <th className={taskListStyles.th}>{labels.updated}</th>
           </tr>

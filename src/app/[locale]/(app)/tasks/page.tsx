@@ -93,6 +93,7 @@ export default async function TasksPage({
           myWork: t("tasks.myWork"),
           team: t("tasks.team"),
           scopeAria: t("tasks.scopeAria"),
+          viewAria: t("tasks.viewAria"),
           newTask: t("common.newTask"),
           assignee: t("tasks.assignee"),
           dueDate: t("tasks.dueDate"),
@@ -124,7 +125,6 @@ export default async function TasksPage({
           filterSort: t("tasks.filterSort"),
           filterAll: t("tasks.filterAll"),
           sortDue: t("tasks.sortDue"),
-          sortStatus: t("tasks.sortStatus"),
           sortUpdated: t("tasks.sortUpdated"),
           statusColumn: t("tasks.status"),
           status: {

@@ -484,7 +484,7 @@ Teammates do not have this route (redirect to `/tasks`).
 |---------|----------------------|-----|
 | No groups | “You are not in any group yet.” | Create group |
 | No tasks (My work) | “No tasks assigned to you yet.” (`tasks.emptyMyWork`) | — (toolbar New task) |
-| No members (Team board) | “Add members to start coordinating work.” | Add teammate |
+| No members (Team board) | “Add members to start coordinating work.” | — (use Teammates to invite) |
 | No events / alerts (Operator) | “No alerts yet…” | — |
 | Empty todo column | Light placeholder in column | — |
 | Login failed | “Invalid email or password.” | — |
@@ -626,6 +626,7 @@ Toolbar offers **My work | Team** and **Board | List** for both roles.
 | 2026-07-23 | Teammates list: Name · Email · Role · Account · Telegram; name opens detail; export on detail |
 | 2026-07-25 | Board cards: ⋯ borderless segment (Open · Clone · Delete) left of trigger; status on title row; clone inserts below source |
 | 2026-07-25 | My work / Team Done: preview 5 + Show more +10 (no inner scroll pane) |
+| 2026-07-25 | Team To do / In progress section scroll: ~3 mobile / ~4 desktop; drop duplicate `sortStatus`; ViewToggle `viewAria` |
 | 2026-07-25 | Tasks: empty My work copy; scope/view URL + flash banners on save/delete/create; preserve scope through detail/new |
 | 2026-07-23 | Tasks: My work \| Team scope; teammate Team board read-only on others; group task read for all members |
 | 2026-07-23 | Drop dead ExportDataButton link variant; wire demote success banner |

@@ -9,6 +9,7 @@ interface ViewToggleProps {
   onChange: (view: TasksView) => void;
   boardLabel: string;
   listLabel: string;
+  ariaLabel: string;
 }
 
 export function ViewToggle({
@@ -16,9 +17,10 @@ export function ViewToggle({
   onChange,
   boardLabel,
   listLabel,
+  ariaLabel,
 }: ViewToggleProps) {
   return (
-    <div className={viewToggleStyles.root} role="tablist">
+    <div className={viewToggleStyles.root} role="tablist" aria-label={ariaLabel}>
       {(["board", "list"] as const).map((view) => (
         <button
           key={view}

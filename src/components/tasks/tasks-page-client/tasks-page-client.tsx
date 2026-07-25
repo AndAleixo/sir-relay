@@ -39,6 +39,7 @@ interface TasksPageClientProps {
     myWork: string;
     team: string;
     scopeAria: string;
+    viewAria: string;
     newTask: string;
     assignee: string;
     updated: string;
@@ -57,7 +58,6 @@ interface TasksPageClientProps {
     filterSort: string;
     filterAll: string;
     sortDue: string;
-    sortStatus: string;
     sortUpdated: string;
     statusColumn: string;
     status: { todo: string; doing: string; done: string };
@@ -183,7 +183,6 @@ export function TasksPageClient({
     filterSort: labels.filterSort,
     filterAll: labels.filterAll,
     sortDue: labels.sortDue,
-    sortStatus: labels.sortStatus,
     sortUpdated: labels.sortUpdated,
     statusColumn: labels.statusColumn,
     status: labels.status,
@@ -207,6 +206,7 @@ export function TasksPageClient({
             onChange={setView}
             boardLabel={labels.board}
             listLabel={labels.list}
+            ariaLabel={labels.viewAria}
           />
         </div>
         <Link href={taskNewHref(locale, { scope, view })}>

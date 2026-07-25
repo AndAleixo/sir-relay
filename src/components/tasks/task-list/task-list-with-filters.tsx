@@ -30,7 +30,6 @@ type TaskListWithFiltersProps = {
     filterSort: string;
     filterAll: string;
     sortDue: string;
-    sortStatus: string;
     sortUpdated: string;
     status: Record<TaskStatus, string>;
   };
@@ -104,7 +103,7 @@ export function TaskListWithFilters({
             className="mt-1.5"
           >
             <option value="due">{labels.sortDue}</option>
-            <option value="status">{labels.sortStatus}</option>
+            <option value="status">{labels.statusColumn}</option>
             <option value="updated">{labels.sortUpdated}</option>
           </Select>
         </div>

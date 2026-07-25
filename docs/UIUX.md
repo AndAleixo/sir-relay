@@ -248,7 +248,7 @@ First column: the **signed-in member**. Then other members ordered by **To do co
 
 **Operator:** full edit on every column (reassign via drop, quick-add, inline edit). Member names link to `/teammates/[id]`.
 
-**Teammate:** same layout; **only own column editable**. Other columns: no interactive drag handle (spacer keeps title alignment) / no status controls; ↗ opens read-only detail. Member names are plain text (no teammates admin link).
+**Teammate:** same layout; **only own column editable**. Other columns: no interactive drag handle (spacer keeps title alignment) / no status controls; **⋯ → Open** for read-only detail. Member names are plain text (no teammates admin link).
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
@@ -316,8 +316,8 @@ Shared compact card on boards; list view uses a table row.
 
 ```
 ┌────────────────────────────────┐
-│ ⠿  Task title            [↗] │
-│    Due: Mar 12               │
+│ ⠿  Task title            →/✓ │
+│    Due: Mar 12           ⋯   │
 │                         ●    │  ← Telegram fail dot (bottom-right)
 └────────────────────────────────┘
 ```
@@ -327,7 +327,7 @@ Shared compact card on boards; list view uses a table row.
 | Default | Compact white card, `--border`, `--radius-card` |
 | Overdue | Red due date (`--danger`) |
 | Telegram notify failed | Small accent dot, bottom-right corner |
-| Operator / teammate board cards | Inline edit when editable; **+ Add task** in editable To do; ↗ opens detail (read-only if not assignee / not operator) |
+| Operator / teammate board cards | Inline edit when editable; **+ Add task** in editable To do; **⋯** → Open · Clone · Delete (Open only when read-only) |
 
 Assignee only in list view (column implies assignee on the Team board).
 
@@ -624,8 +624,7 @@ Toolbar offers **My work | Team** and **Board | List** for both roles.
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
 | 2026-07-23 | Member identity: name · icons (inactive + Telegram); hide role chips on board/list/detail |
 | 2026-07-23 | Teammates list: Name · Email · Role · Account · Telegram; name opens detail; export on detail |
-| 2026-07-25 | Board card ⋯: horizontal segment (Open · Clone · Delete), same shell as scope/view toggles |
-| 2026-07-25 | Board cards: ⋯ menu (Open · Clone · Delete); status controls on title row; clone inserts below source |
+| 2026-07-25 | Board cards: ⋯ borderless segment (Open · Clone · Delete) left of trigger; status on title row; clone inserts below source |
 | 2026-07-25 | My work Kanban Done: preview 5 + Show more +10 + section scroll (same caps as Team) |
 | 2026-07-25 | Tasks: empty My work copy; scope/view URL + flash banners on save/delete/create; preserve scope through detail/new |
 | 2026-07-23 | Tasks: My work \| Team scope; teammate Team board read-only on others; group task read for all members |

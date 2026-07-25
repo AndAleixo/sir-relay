@@ -42,8 +42,11 @@ interface StatusKanbanProps {
     doing: string;
     done: string;
     dragHandle: string;
-    openTask: string;
+    taskMenu: string;
     menuOpen: string;
+    menuClone: string;
+    menuDelete: string;
+    deleteConfirm: string;
     addDueDate: string;
     startDoing: string;
     markDone: string;
@@ -51,10 +54,6 @@ interface StatusKanbanProps {
     addTask: string;
     titlePlaceholder: string;
     showMore: string;
-    taskMenu: string;
-    cloneTask: string;
-    deleteTask: string;
-    deleteConfirm: string;
   };
   /** Scroll Done list when visible cards exceed this (default 3). */
   sectionScrollAfter?: number;
@@ -172,15 +171,14 @@ export function StatusKanban({
     dueDate: labels.dueDate,
     overdue: labels.overdue,
     dragHandle: labels.dragHandle,
-    openTask: labels.openTask,
-    menuOpen: labels.menuOpen,
     addDueDate: labels.addDueDate,
     startDoing: labels.startDoing,
     markDone: labels.markDone,
     completedMark: labels.completedMark,
     taskMenu: labels.taskMenu,
-    cloneTask: labels.cloneTask,
-    deleteTask: labels.deleteTask,
+    menuOpen: labels.menuOpen,
+    menuClone: labels.menuClone,
+    menuDelete: labels.menuDelete,
     deleteConfirm: labels.deleteConfirm,
   };
 

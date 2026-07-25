@@ -75,14 +75,13 @@ interface TeamBoardProps {
     showMore: string;
     emptyBoard: string;
     dragHandle: string;
-    openTask: string;
     addTask: string;
     addDueDate: string;
     titlePlaceholder: string;
     taskMenu: string;
     menuOpen: string;
-    cloneTask: string;
-    deleteTask: string;
+    menuClone: string;
+    menuDelete: string;
     deleteConfirm: string;
   };
   /** Scroll inside To do / In progress / Done when count exceeds this (default 3). */
@@ -158,29 +157,27 @@ function BoardTaskItem({
 }) {
   const cardLabels: TaskCardLabels & {
     dragHandle: string;
-    openTask: string;
-    menuOpen: string;
     addDueDate: string;
     startDoing: string;
     markDone: string;
     completedMark: string;
     taskMenu: string;
-    cloneTask: string;
-    deleteTask: string;
+    menuOpen: string;
+    menuClone: string;
+    menuDelete: string;
     deleteConfirm: string;
   } = {
     dueDate: labels.dueDate,
     overdue: labels.overdue,
     dragHandle: labels.dragHandle,
-    openTask: labels.openTask,
-    menuOpen: labels.menuOpen,
     addDueDate: labels.addDueDate,
     startDoing: labels.startDoing,
     markDone: labels.markDone,
     completedMark: labels.completedMark,
     taskMenu: labels.taskMenu,
-    cloneTask: labels.cloneTask,
-    deleteTask: labels.deleteTask,
+    menuOpen: labels.menuOpen,
+    menuClone: labels.menuClone,
+    menuDelete: labels.menuDelete,
     deleteConfirm: labels.deleteConfirm,
   };
 

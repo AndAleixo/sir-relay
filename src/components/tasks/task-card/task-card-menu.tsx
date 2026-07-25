@@ -7,10 +7,10 @@ import { taskCardStyles } from "./task-card.styles";
 
 type TaskCardMenuProps = {
   href: string;
+  menuLabel: string;
   openLabel: string;
   cloneLabel: string;
   deleteLabel: string;
-  menuLabel: string;
   deleteConfirm: string;
   /** When false, only Open is shown (read-only columns). */
   canMutate: boolean;
@@ -23,10 +23,10 @@ const CLOSE_MS = 150;
 
 export function TaskCardMenu({
   href,
+  menuLabel,
   openLabel,
   cloneLabel,
   deleteLabel,
-  menuLabel,
   deleteConfirm,
   canMutate,
   disabled,

@@ -57,16 +57,15 @@ interface TasksPageClientProps {
     inactive: string;
     showMore: string;
     dragHandle: string;
-    openTask: string;
+    taskMenu: string;
     menuOpen: string;
+    menuClone: string;
+    menuDelete: string;
+    deleteConfirm: string;
     addTask: string;
     addDueDate: string;
     titlePlaceholder: string;
     titleColumn: string;
-    taskMenu: string;
-    cloneTask: string;
-    deleteTask: string;
-    deleteConfirm: string;
     filterAssignee: string;
     filterStatus: string;
     filterSort: string;
@@ -162,15 +161,14 @@ export function TasksPageClient({
     showMore: labels.showMore,
     emptyBoard: labels.emptyBoard,
     dragHandle: labels.dragHandle,
-    openTask: labels.openTask,
+    taskMenu: labels.taskMenu,
     menuOpen: labels.menuOpen,
+    menuClone: labels.menuClone,
+    menuDelete: labels.menuDelete,
+    deleteConfirm: labels.deleteConfirm,
     addTask: labels.addTask,
     addDueDate: labels.addDueDate,
     titlePlaceholder: labels.titlePlaceholder,
-    taskMenu: labels.taskMenu,
-    cloneTask: labels.cloneTask,
-    deleteTask: labels.deleteTask,
-    deleteConfirm: labels.deleteConfirm,
   };
 
   const listLabels = {
@@ -197,8 +195,6 @@ export function TasksPageClient({
     dueDate: labels.dueDate,
     overdue: labels.overdue,
     dragHandle: labels.dragHandle,
-    openTask: labels.openTask,
-    menuOpen: labels.menuOpen,
     addDueDate: labels.addDueDate,
     startDoing: labels.startDoing,
     markDone: labels.markDone,
@@ -207,8 +203,9 @@ export function TasksPageClient({
     titlePlaceholder: labels.titlePlaceholder,
     showMore: labels.showMore,
     taskMenu: labels.taskMenu,
-    cloneTask: labels.cloneTask,
-    deleteTask: labels.deleteTask,
+    menuOpen: labels.menuOpen,
+    menuClone: labels.menuClone,
+    menuDelete: labels.menuDelete,
     deleteConfirm: labels.deleteConfirm,
   };
 

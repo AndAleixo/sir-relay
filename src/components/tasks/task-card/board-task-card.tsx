@@ -18,15 +18,14 @@ interface BoardTaskCardProps {
   href: string;
   labels: TaskCardLabels & {
     dragHandle: string;
-    openTask: string;
-    menuOpen: string;
     addDueDate: string;
     startDoing?: string;
     markDone?: string;
     completedMark?: string;
     taskMenu: string;
-    cloneTask: string;
-    deleteTask: string;
+    menuOpen: string;
+    menuClone: string;
+    menuDelete: string;
     deleteConfirm: string;
   };
   /** View-only: no drag, inline edit, or status controls. Menu: Open only. */
@@ -272,10 +271,10 @@ export function BoardTaskCard({
           )}
           <TaskCardMenu
             href={href}
-            openLabel={labels.menuOpen}
-            cloneLabel={labels.cloneTask}
-            deleteLabel={labels.deleteTask}
             menuLabel={labels.taskMenu}
+            openLabel={labels.menuOpen}
+            cloneLabel={labels.menuClone}
+            deleteLabel={labels.menuDelete}
             deleteConfirm={labels.deleteConfirm}
             canMutate={!readOnly && Boolean(onClone && onDelete)}
             disabled={saving}

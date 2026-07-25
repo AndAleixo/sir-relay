@@ -6,7 +6,7 @@ import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 
 type TaskFormActionsProps = {
-  locale: string;
+  cancelHref: string;
   saveLabel: string;
   cancelLabel: string;
   deleteLabel?: string;
@@ -24,7 +24,7 @@ function SubmitButton({ label }: { label: string }) {
 }
 
 export function TaskFormActions({
-  locale,
+  cancelHref,
   saveLabel,
   cancelLabel,
   deleteLabel,
@@ -44,7 +44,7 @@ export function TaskFormActions({
   return (
     <div className="flex flex-wrap items-center gap-2 pt-2">
       <SubmitButton label={saveLabel} />
-      <Link href={`/${locale}/tasks`}>
+      <Link href={cancelHref}>
         <Button variant="secondary" type="button">
           {cancelLabel}
         </Button>

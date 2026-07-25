@@ -1,26 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { Task } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
 import { groupMemberLabel } from "@/lib/group-member-label";
+import type { TasksScope, TasksView } from "@/lib/tasks-url";
+import { taskNewHref, tasksListHref } from "@/lib/tasks-url";
 import { useSync } from "@/components/sync";
 import { Button } from "@/components/ui/button";
 import { StatusKanban } from "@/components/tasks/status-kanban";
 import { TaskListWithFilters } from "@/components/tasks/task-list/task-list-with-filters";
 import { TeamBoard } from "@/components/tasks/team-board";
-import {
-  ScopeToggle,
-  ViewToggle,
-  type TasksScope,
-  type TasksView,
-} from "@/components/tasks/view-toggle";
+import { ScopeToggle, ViewToggle } from "@/components/tasks/view-toggle";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 
 interface TasksPageClientProps {
   locale: string;
   role: "operator" | "teammate";
+  initialScope: TasksScope;
+  initialView: TasksView;
   /** Signed-in user for Team board self column + My work Kanban. */
   self: {
     id: string;
@@ -37,12 +37,14 @@ interface TasksPageClientProps {
     list: string;
     myWork: string;
     team: string;
+    scopeAria: string;
     newTask: string;
     assignee: string;
     dueDate: string;
     updated: string;
     overdue: string;
     emptyBoard: string;
+    emptyMyWork: string;
     sectionTodo: string;
     sectionDoing: string;
     sectionDone: string;
@@ -74,21 +76,44 @@ interface TasksPageClientProps {
 export function TasksPageClient({
   locale,
   role,
+  initialScope,
+  initialView,
   self,
   tasks: serverTasks,
   members,
   labels,
 }: TasksPageClientProps) {
+  const router = useRouter();
   const { tasks, syncFromServer } = useSync();
-  const [view, setView] = useState<TasksView>("board");
-  const [scope, setScope] = useState<TasksScope>(
-    role === "operator" ? "team" : "mine",
-  );
+  const [view, setViewState] = useState<TasksView>(initialView);
+  const [scope, setScopeState] = useState<TasksScope>(initialScope);
   const isOperator = role === "operator";
+
+  useEffect(() => {
+    setScopeState(initialScope);
+  }, [initialScope]);
+
+  useEffect(() => {
+    setViewState(initialView);
+  }, [initialView]);
 
   useEffect(() => {
     syncFromServer(serverTasks);
   }, [serverTasks, syncFromServer]);
+
+  function setScope(next: TasksScope) {
+    setScopeState(next);
+    router.replace(tasksListHref(locale, { scope: next, view }), {
+      scroll: false,
+    });
+  }
+
+  function setView(next: TasksView) {
+    setViewState(next);
+    router.replace(tasksListHref(locale, { scope, view: next }), {
+      scroll: false,
+    });
+  }
 
   const scopedTasks = useMemo(() => {
     if (scope === "mine") {
@@ -167,7 +192,10 @@ export function TasksPageClient({
     completedMark: labels.completedMark,
     addTask: labels.addTask,
     titlePlaceholder: labels.titlePlaceholder,
+    showMore: labels.showMore,
   };
+
+  const emptyMyWork = scope === "mine" && scopedTasks.length === 0;
 
   return (
     <div className="space-y-4">
@@ -178,6 +206,7 @@ export function TasksPageClient({
             onChange={setScope}
             mineLabel={labels.myWork}
             teamLabel={labels.team}
+            ariaLabel={labels.scopeAria}
           />
           <ViewToggle
             value={view}
@@ -186,18 +215,22 @@ export function TasksPageClient({
             listLabel={labels.list}
           />
         </div>
-        <Link href={`/${locale}/tasks/new`}>
+        <Link href={taskNewHref(locale, { scope, view })}>
           <Button>{labels.newTask}</Button>
         </Link>
       </div>
 
-      {view === "board" ? (
+      {emptyMyWork ? (
+        <p className="text-sm text-[var(--text-muted)]">{labels.emptyMyWork}</p>
+      ) : view === "board" ? (
         scope === "team" ? (
           <TeamBoard
             self={self}
             members={members}
             tasks={scopedTasks}
             locale={locale}
+            scope={scope}
+            view={view}
             editMode={isOperator ? "all" : "self-only"}
             linkMemberProfiles={isOperator}
             labels={boardLabels}
@@ -206,6 +239,8 @@ export function TasksPageClient({
           <StatusKanban
             tasks={scopedTasks}
             locale={locale}
+            scope={scope}
+            view={view}
             self={{
               id: self.id,
               name: groupMemberLabel({
@@ -221,6 +256,8 @@ export function TasksPageClient({
         <TaskListWithFilters
           tasks={scopedTasks}
           locale={locale}
+          scope={scope}
+          view={view}
           assigneeOptions={scope === "team" ? assigneeOptions : []}
           labels={listLabels}
         />

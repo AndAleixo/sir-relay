@@ -1,9 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/cn";
+import type { TasksView } from "@/lib/tasks-url";
 import { viewToggleStyles } from "./view-toggle.styles";
-
-export type TasksView = "board" | "list";
 
 interface ViewToggleProps {
   value: TasksView;

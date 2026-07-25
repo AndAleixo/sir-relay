@@ -30,12 +30,14 @@ import {
 } from "@/components/tasks/task-card";
 import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
 import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
+import type { TasksScope, TasksView } from "@/lib/tasks-url";
+import { taskDetailHref } from "@/lib/tasks-url";
 import {
   DEFAULT_BOARD_SECTION_SCROLL_AFTER,
   DONE_PREVIEW_INITIAL,
   DONE_PREVIEW_STEP,
   sectionListMaxHeight,
-} from "./board-section-scroll";
+} from "@/components/tasks/board-section-scroll";
 import { teamBoardStyles } from "./team-board.styles";
 
 interface BoardSelfMember {
@@ -53,6 +55,8 @@ interface TeamBoardProps {
   members: OrganizationUser[];
   tasks: Task[];
   locale: string;
+  scope: TasksScope;
+  view: TasksView;
   /** `all` = edit every column; `self-only` = edit own column, view others. */
   editMode?: "all" | "self-only";
   /** Operator-only: name links to /teammates/[id]. */
@@ -112,6 +116,8 @@ function SectionCardList({
 function BoardTaskItem({
   task,
   locale,
+  scope,
+  view,
   labels,
   readOnly,
   draggingTaskId,
@@ -125,6 +131,8 @@ function BoardTaskItem({
 }: {
   task: Task;
   locale: string;
+  scope: TasksScope;
+  view: TasksView;
   labels: TeamBoardProps["labels"];
   readOnly?: boolean;
   draggingTaskId: string | null;
@@ -161,7 +169,7 @@ function BoardTaskItem({
     <BoardTaskCard
       task={task}
       locale={locale}
-      href={`/${locale}/tasks/${task.id}`}
+      href={taskDetailHref(locale, task.id, { scope, view })}
       labels={cardLabels}
       readOnly={readOnly}
       isDragging={!readOnly && draggingTaskId === task.id}
@@ -254,6 +262,8 @@ function TaskColumn({
   header,
   tasks,
   locale,
+  scope,
+  view,
   labels,
   editable,
   draggingTaskId,
@@ -273,6 +283,8 @@ function TaskColumn({
   header: React.ReactNode;
   tasks: Task[];
   locale: string;
+  scope: TasksScope;
+  view: TasksView;
   labels: TeamBoardProps["labels"];
   editable: boolean;
   draggingTaskId: string | null;
@@ -347,6 +359,8 @@ function TaskColumn({
                 <BoardTaskItem
                   task={task}
                   locale={locale}
+                  scope={scope}
+                  view={view}
                   labels={labels}
                   draggingTaskId={draggingTaskId}
                   isQueueHead={index === 0}
@@ -368,6 +382,8 @@ function TaskColumn({
               key={task.id}
               task={task}
               locale={locale}
+              scope={scope}
+              view={view}
               labels={labels}
               readOnly
               draggingTaskId={null}
@@ -395,6 +411,8 @@ function TaskColumn({
             key={task.id}
             task={task}
             locale={locale}
+            scope={scope}
+            view={view}
             labels={labels}
             readOnly={!editable}
             draggingTaskId={draggingTaskId}
@@ -460,6 +478,8 @@ function TaskColumn({
                 key={task.id}
                 task={task}
                 locale={locale}
+                scope={scope}
+                view={view}
                 labels={labels}
                 readOnly={!editable}
                 draggingTaskId={draggingTaskId}
@@ -538,6 +558,8 @@ export function TeamBoard({
   members,
   tasks,
   locale,
+  scope,
+  view,
   editMode = "all",
   linkMemberProfiles = true,
   labels,
@@ -728,6 +750,8 @@ export function TeamBoard({
           }
           tasks={selfTasks}
           locale={locale}
+          scope={scope}
+          view={view}
           labels={labels}
           editable={columnEditable(self.id)}
           draggingTaskId={draggingTaskId}
@@ -760,6 +784,8 @@ export function TeamBoard({
               }
               tasks={columnTasks}
               locale={locale}
+              scope={scope}
+              view={view}
               labels={labels}
               editable={columnEditable(member.id)}
               draggingTaskId={draggingTaskId}

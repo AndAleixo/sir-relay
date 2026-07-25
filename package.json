@@ -11,6 +11,7 @@
     "check:teammates": "tsx scripts/check-teammate-lifecycle.ts",
     "check:telegram": "node scripts/check-telegram-link.mjs",
     "check:queue": "tsx scripts/check-task-queue-order.ts",
+    "check:tasks-url": "tsx scripts/check-tasks-url.ts",
     "check:sec": "tsx scripts/check-sec-base.ts",
     "check:csrf": "tsx scripts/check-csrf-origin.ts",
     "check:rate": "tsx scripts/check-rate-limit.ts",

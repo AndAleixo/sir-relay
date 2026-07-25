@@ -5,9 +5,17 @@ import { redirect } from "next/navigation";
 import type { Task, TaskStatus } from "@/domain/types";
 import type { SyncActionOptions, TaskActionResult } from "@/domain/sync";
 import { assertCanCreateTask } from "@/lib/authz";
+import { loginPath } from "@/lib/entry-route";
 import { requireAppSession, requireOperatorSession } from "@/lib/require-session";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { isGroupTimezone } from "@/lib/group-timezones";
+import {
+  coerceTasksScope,
+  coerceTasksView,
+  taskDetailHref,
+  taskNewHref,
+  tasksListHrefFromReturn,
+} from "@/lib/tasks-url";
 import { getServices, serviceMode } from "@/services";
 import {
   getAppliedMutation,
@@ -20,10 +28,26 @@ function maybeRevalidate() {
   }
 }
 
+function returnFields(formData: FormData) {
+  return {
+    scope: String(formData.get("returnScope") ?? "") || undefined,
+    view: String(formData.get("returnView") ?? "") || undefined,
+  };
+}
+
+function returnHrefOpts(formData: FormData) {
+  const { scope, view } = returnFields(formData);
+  return {
+    scope: coerceTasksScope(scope),
+    view: coerceTasksView(view),
+  };
+}
+
 export async function createTaskForm(locale: string, formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const dueRaw = String(formData.get("dueDate") ?? "").trim();
+  const returnOpts = returnHrefOpts(formData);
 
   const session = await requireAppSession(locale);
   const assigneeId =
@@ -32,7 +56,12 @@ export async function createTaskForm(locale: string, formData: FormData) {
       : String(formData.get("assigneeId") ?? "").trim();
 
   if (!title || !assigneeId) {
-    redirect(`/${locale}/tasks/new`);
+    redirect(
+      taskNewHref(locale, {
+        ...returnOpts,
+        error: !title ? "title" : "assignee",
+      }),
+    );
   }
 
   const { tasks } = getServices();
@@ -48,7 +77,15 @@ export async function createTaskForm(locale: string, formData: FormData) {
   );
 
   revalidatePath(`/${locale}/tasks`);
-  redirect(`/${locale}/tasks`);
+  redirect(
+    tasksListHrefFromReturn(
+      locale,
+      session.user.role,
+      returnOpts.scope,
+      returnOpts.view,
+      { saved: true },
+    ),
+  );
 }
 
 export async function updateOperatorAlertPrefs(formData: FormData) {
@@ -283,92 +320,179 @@ export async function saveTaskDetailAction(
   taskId: string,
   formData: FormData,
 ): Promise<void> {
+  const returnOpts = returnHrefOpts(formData);
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const dueRaw = String(formData.get("dueDate") ?? "").trim();
   const status = String(formData.get("status") ?? "") as TaskStatus;
   const assigneeId = String(formData.get("assigneeId") ?? "").trim();
 
-  if (!title) return;
-  if (!["todo", "doing", "done"].includes(status)) return;
+  function detailError(error: string): never {
+    redirect(taskDetailHref(locale, taskId, { ...returnOpts, error }));
+  }
+
+  if (!title) detailError("title");
+  if (!["todo", "doing", "done"].includes(status)) detailError("status");
 
   const { auth, tasks, teammates, alerts } = getServices();
   const session = await auth.getSession();
-  if (!session) return;
+  if (!session) redirect(loginPath(locale, { session: "expired" }));
 
   const existing = await tasks.getTask(taskId, { session });
-  if (!existing) return;
-
-  await tasks.updateTaskFields(
-    taskId,
-    {
-      title,
-      description,
-      dueDate: dueRaw || null,
-    },
-    { session },
-  );
-
-  if (existing.status !== status) {
-    const updated = await tasks.updateTaskStatus(taskId, status, { session });
-    if (existing.status !== "done" && status === "done") {
-      await alerts.notifyTaskDone(updated, { session });
-    }
+  if (!existing) {
+    redirect(
+      tasksListHrefFromReturn(
+        locale,
+        session.user.role,
+        returnOpts.scope,
+        returnOpts.view,
+        { error: "not_found" },
+      ),
+    );
   }
 
-  if (
-    session.user.role === "operator" &&
-    assigneeId &&
-    assigneeId !== existing.assigneeId
-  ) {
-    let assigneeName = groupMemberLabel(session.user);
-    if (assigneeId !== session.user.id) {
-      const member = await teammates.getOrganizationUser(assigneeId, { session });
-      if (!member) return;
-      assigneeName = groupMemberLabel(member);
-    } else {
-      const orgUsers = await teammates.listOrganizationUsers({ session });
-      const me = orgUsers.find((user) => user.id === session.user.id);
-      assigneeName = groupMemberLabel({
-        ...session.user,
-        displayName: me?.displayName,
-      });
+  try {
+    await tasks.updateTaskFields(
+      taskId,
+      {
+        title,
+        description,
+        dueDate: dueRaw || null,
+      },
+      { session },
+    );
+
+    if (existing.status !== status) {
+      const updated = await tasks.updateTaskStatus(taskId, status, { session });
+      if (existing.status !== "done" && status === "done") {
+        await alerts.notifyTaskDone(updated, { session });
+      }
     }
-    await tasks.reassignTask(taskId, assigneeId, assigneeName, { session });
+
+    if (
+      session.user.role === "operator" &&
+      assigneeId &&
+      assigneeId !== existing.assigneeId
+    ) {
+      let assigneeName = groupMemberLabel(session.user);
+      if (assigneeId !== session.user.id) {
+        const member = await teammates.getOrganizationUser(assigneeId, {
+          session,
+        });
+        if (!member) detailError("assignee");
+        assigneeName = groupMemberLabel(member);
+      } else {
+        const orgUsers = await teammates.listOrganizationUsers({ session });
+        const me = orgUsers.find((user) => user.id === session.user.id);
+        assigneeName = groupMemberLabel({
+          ...session.user,
+          displayName: me?.displayName,
+        });
+      }
+      await tasks.reassignTask(taskId, assigneeId, assigneeName, { session });
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message === "Forbidden") {
+      detailError("forbidden");
+    }
+    detailError("failed");
   }
 
   revalidatePath(`/${locale}/tasks`);
   revalidatePath(`/${locale}/tasks/${taskId}`);
-  redirect(`/${locale}/tasks`);
+  redirect(
+    tasksListHrefFromReturn(
+      locale,
+      session.user.role,
+      returnOpts.scope,
+      returnOpts.view,
+      { saved: true },
+    ),
+  );
 }
 
-export async function deleteTaskAction(locale: string, taskId: string): Promise<void> {
+export async function deleteTaskAction(
+  locale: string,
+  taskId: string,
+  returnTo?: { scope?: string; view?: string },
+): Promise<void> {
   const { auth, tasks } = getServices();
   const session = await auth.getSession();
-  if (!session) return;
+  if (!session) redirect(loginPath(locale, { session: "expired" }));
+
+  const returnOpts = {
+    scope: coerceTasksScope(returnTo?.scope),
+    view: coerceTasksView(returnTo?.view),
+  };
 
   const existing = await tasks.getTask(taskId, { session });
-  if (!existing) return;
+  if (!existing) {
+    redirect(
+      tasksListHrefFromReturn(
+        locale,
+        session.user.role,
+        returnOpts.scope,
+        returnOpts.view,
+        { error: "not_found" },
+      ),
+    );
+  }
 
-  await tasks.deleteTask(taskId, { session });
+  try {
+    await tasks.deleteTask(taskId, { session });
+  } catch (error) {
+    redirect(
+      taskDetailHref(locale, taskId, {
+        ...returnOpts,
+        error:
+          error instanceof Error && error.message === "Forbidden"
+            ? "forbidden"
+            : "failed",
+      }),
+    );
+  }
+
   revalidatePath(`/${locale}/tasks`);
-  redirect(`/${locale}/tasks`);
+  redirect(
+    tasksListHrefFromReturn(
+      locale,
+      session.user.role,
+      returnOpts.scope,
+      returnOpts.view,
+      { deleted: true },
+    ),
+  );
 }
 
-export async function renotifyTaskAction(locale: string, taskId: string) {
+export async function renotifyTaskAction(
+  locale: string,
+  taskId: string,
+  formData: FormData,
+) {
+  const returnOpts = returnHrefOpts(formData);
   const session = await requireOperatorSession(locale);
   const { tasks, teammates } = getServices();
 
   const task = await tasks.getTask(taskId, { session });
   if (!task) {
-    redirect(`/${locale}/tasks`);
+    redirect(
+      tasksListHrefFromReturn(
+        locale,
+        session.user.role,
+        returnOpts.scope,
+        returnOpts.view,
+        { error: "not_found" },
+      ),
+    );
   }
-  const assignee = await teammates.getOrganizationUser(task.assigneeId, { session });
+  const assignee = await teammates.getOrganizationUser(task.assigneeId, {
+    session,
+  });
   if (!assignee) {
-    redirect(`/${locale}/tasks/${taskId}`);
+    redirect(taskDetailHref(locale, taskId, { ...returnOpts, error: "failed" }));
   }
 
   await tasks.renotifyTask(taskId, { session });
   revalidatePath(`/${locale}/tasks/${taskId}`);
-  redirect(`/${locale}/tasks/${taskId}?renotify=1`);
+  redirect(taskDetailHref(locale, taskId, { ...returnOpts, renotify: true }));
 }

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import type { Task, TaskStatus } from "@/domain/types";
+import type { TasksScope, TasksView } from "@/lib/tasks-url";
+import { taskDetailHref } from "@/lib/tasks-url";
 import { formatDueDate, formatRelativeTime, isOverdue } from "@/lib/dates";
 import { StatusBadge } from "@/components/ui/badge";
 import { taskListStyles } from "./task-list.styles";
@@ -9,6 +11,8 @@ import { taskListStyles } from "./task-list.styles";
 interface TaskListProps {
   tasks: Task[];
   locale: string;
+  scope: TasksScope;
+  view: TasksView;
   showAssignee: boolean;
   labels: {
     titleColumn: string;
@@ -20,7 +24,14 @@ interface TaskListProps {
   };
 }
 
-export function TaskList({ tasks, locale, showAssignee, labels }: TaskListProps) {
+export function TaskList({
+  tasks,
+  locale,
+  scope,
+  view,
+  showAssignee,
+  labels,
+}: TaskListProps) {
   return (
     <div className={taskListStyles.wrapper}>
       <table className={taskListStyles.table}>
@@ -39,7 +50,10 @@ export function TaskList({ tasks, locale, showAssignee, labels }: TaskListProps)
             return (
               <tr key={task.id} className={taskListStyles.row}>
                 <td className={taskListStyles.td}>
-                  <Link href={`/${locale}/tasks/${task.id}`} className={taskListStyles.link}>
+                  <Link
+                    href={taskDetailHref(locale, task.id, { scope, view })}
+                    className={taskListStyles.link}
+                  >
                     {task.title}
                   </Link>
                 </td>

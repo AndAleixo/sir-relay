@@ -13,4 +13,8 @@ export const kanbanStyles = {
   columnTitle: "text-sm font-semibold text-[var(--text-primary)]",
   count: "text-xs font-medium text-[var(--text-muted)]",
   cardList: "flex flex-col gap-1.5 p-1.5",
+  cardListScrollable:
+    "overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] [scrollbar-width:thin]",
+  showMore:
+    "w-full cursor-pointer px-2 py-1 text-center text-xs text-brand-accent-hover hover:underline",
 } as const;

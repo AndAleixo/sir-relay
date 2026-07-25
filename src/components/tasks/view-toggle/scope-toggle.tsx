@@ -1,15 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/cn";
+import type { TasksScope } from "@/lib/tasks-url";
 import { viewToggleStyles } from "./view-toggle.styles";
-
-export type TasksScope = "mine" | "team";
 
 interface ScopeToggleProps {
   value: TasksScope;
   onChange: (scope: TasksScope) => void;
   mineLabel: string;
   teamLabel: string;
+  ariaLabel: string;
 }
 
 export function ScopeToggle({
@@ -17,9 +17,10 @@ export function ScopeToggle({
   onChange,
   mineLabel,
   teamLabel,
+  ariaLabel,
 }: ScopeToggleProps) {
   return (
-    <div className={viewToggleStyles.root} role="tablist" aria-label="Task scope">
+    <div className={viewToggleStyles.root} role="tablist" aria-label={ariaLabel}>
       {(
         [
           { id: "mine", label: mineLabel },

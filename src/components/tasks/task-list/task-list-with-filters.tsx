@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { Task, TaskStatus } from "@/domain/types";
+import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { sortTasksForList, type TaskListSort } from "@/lib/task-list-sort";
 import { TaskList } from "@/components/tasks/task-list";
 import { Label, Select } from "@/components/ui/input";
@@ -14,6 +15,8 @@ type AssigneeFilterOption = {
 type TaskListWithFiltersProps = {
   tasks: Task[];
   locale: string;
+  scope: TasksScope;
+  view: TasksView;
   assigneeOptions?: AssigneeFilterOption[];
   labels: {
     titleColumn: string;
@@ -35,6 +38,8 @@ type TaskListWithFiltersProps = {
 export function TaskListWithFilters({
   tasks,
   locale,
+  scope,
+  view,
   assigneeOptions = [],
   labels,
 }: TaskListWithFiltersProps) {
@@ -106,6 +111,8 @@ export function TaskListWithFilters({
       <TaskList
         tasks={visible}
         locale={locale}
+        scope={scope}
+        view={view}
         showAssignee={showAssigneeFilter}
         labels={{
           titleColumn: labels.titleColumn,

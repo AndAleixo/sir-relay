@@ -3,7 +3,7 @@
 **Purpose:** Layout, interaction, and visual behavior for the **public landing**, signed-in web app, and Telegram experience.  
 **Companion docs:** [REQUIREMENTS.md](./REQUIREMENTS.md) (what must work) · [BRAND.md](./BRAND.md) (colors, logos, tokens) · [ARCHITECTURE.md](./ARCHITECTURE.md) (code layout)
 
-**Last updated:** 2026-07-23
+**Last updated:** 2026-07-25
 
 ### Status naming
 
@@ -192,6 +192,8 @@ Sidebar hidden. Sticky top bar + tab navigation.
 
 Both roles use `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · New task. Either role may switch scope.
 
+**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Toggle, open detail/new, Back/Cancel, and save/delete/create redirects preserve these params. Flash banners: `?saved=1`, `?deleted=1`, `?error=…` (list or detail).
+
 | Scope | Default | Board | List |
 |-------|---------|-------|------|
 | **My work** | Teammate | Status Kanban (own tasks) | Own tasks (no assignee filter) |
@@ -201,7 +203,7 @@ Both roles use `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List*
 
 ### 3.1 My work — status Kanban
 
-Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **assigned to me** (both roles when scope = My work).
+Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **assigned to me** (both roles when scope = My work). When there are **no** assigned tasks, show the empty copy from §9 instead of empty columns (toolbar **New task** remains).
 
 ```
 ┌─────────────┬─────────────┬─────────────┐
@@ -214,11 +216,14 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 └─────────────┴─────────────┴─────────────┘
 ```
 
+*(Diagram = layout when My work has at least one task; quick-add lives in To do.)*
 | Column | Code | Header color | Label (en / es / pt) |
 |--------|------|--------------|----------------------|
 | To do | `todo` | `--status-todo` | To do / Por hacer / A fazer |
 | In progress | `doing` | `--status-progress` | In progress / En progreso / Em progresso |
 | Done | `done` | `--status-done` | Done / Hecho / Concluído |
+
+**Done column (My work):** same preview as Team — show last **5** cards; **Show more** loads **+10** older each click; list scrolls when visible cards exceed the section scroll threshold (default 3). Header count stays total Done.
 
 **Card contents:** title (truncate 2 lines), due date (overdue in red). No “updated” time on board cards. Queue head (top To do): accent **→ Start** → In progress; In progress: neutral **✓** → Done; Done: green **✓** mark (not clickable).
 
@@ -478,7 +483,7 @@ Teammates do not have this route (redirect to `/tasks`).
 | Context | Message (EN example) | CTA |
 |---------|----------------------|-----|
 | No groups | “You are not in any group yet.” | Create group |
-| No tasks (My work) | “No tasks assigned to you yet.” | — |
+| No tasks (My work) | “No tasks assigned to you yet.” (`tasks.emptyMyWork`) | — (toolbar New task) |
 | No members (Team board) | “Add members to start coordinating work.” | Add teammate |
 | No events / alerts (Operator) | “No alerts yet…” | — |
 | Empty todo column | Light placeholder in column | — |
@@ -582,7 +587,7 @@ Toolbar offers **My work | Team** and **Board | List** for both roles.
 | Team board + inline edit + quick add | 1 | Shipped |
 | Task create + edit + delete forms | 1 | Shipped |
 | Status Kanban + list toggle | 1 | Shipped |
-| My work / Team scope | 1 | Shipped |
+| My work / Team scope | 1 | Shipped (`?scope=` / `?view=` URL) |
 | Profile vs Settings split | 1 | Shipped |
 | Join + change-password + privacy | 1 | Shipped |
 | Operator alerts + **Events** page | 1 | Shipped |
@@ -619,6 +624,8 @@ Toolbar offers **My work | Team** and **Board | List** for both roles.
 | 2026-07-18 | Board cards: queue start / complete controls; Done shows completed mark; no “updated” on cards |
 | 2026-07-23 | Member identity: name · icons (inactive + Telegram); hide role chips on board/list/detail |
 | 2026-07-23 | Teammates list: Name · Email · Role · Account · Telegram; name opens detail; export on detail |
+| 2026-07-25 | My work Kanban Done: preview 5 + Show more +10 + section scroll (same caps as Team) |
+| 2026-07-25 | Tasks: empty My work copy; scope/view URL + flash banners on save/delete/create; preserve scope through detail/new |
 | 2026-07-23 | Tasks: My work \| Team scope; teammate Team board read-only on others; group task read for all members |
 | 2026-07-23 | Drop dead ExportDataButton link variant; wire demote success banner |
 | 2026-07-23 | Board column header: drop active-task count under name |

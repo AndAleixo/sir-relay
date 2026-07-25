@@ -4,6 +4,8 @@ import { useState } from "react";
 import type { DragEvent } from "react";
 import type { Task, TaskStatus } from "@/domain/types";
 import { cn } from "@/lib/cn";
+import type { TasksScope, TasksView } from "@/lib/tasks-url";
+import { taskDetailHref } from "@/lib/tasks-url";
 import {
   clearTaskDragData,
   getTaskIdFromDragEvent,
@@ -21,11 +23,19 @@ import {
 } from "@/components/tasks/task-card";
 import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
 import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
+import {
+  DEFAULT_BOARD_SECTION_SCROLL_AFTER,
+  DONE_PREVIEW_INITIAL,
+  DONE_PREVIEW_STEP,
+  sectionListMaxHeight,
+} from "@/components/tasks/board-section-scroll";
 import { kanbanStyles } from "./status-kanban.styles";
 
 interface StatusKanbanProps {
   tasks: Task[];
   locale: string;
+  scope: TasksScope;
+  view: TasksView;
   self: { id: string; name: string };
   labels: TaskCardLabels & {
     todo: string;
@@ -39,7 +49,10 @@ interface StatusKanbanProps {
     completedMark: string;
     addTask: string;
     titlePlaceholder: string;
+    showMore: string;
   };
+  /** Scroll Done list when visible cards exceed this (default 3). */
+  sectionScrollAfter?: number;
 }
 
 const columns: TaskStatus[] = ["todo", "doing", "done"];
@@ -47,17 +60,27 @@ const columns: TaskStatus[] = ["todo", "doing", "done"];
 export function StatusKanban({
   tasks,
   locale,
+  scope,
+  view,
   self,
   labels,
+  sectionScrollAfter = DEFAULT_BOARD_SECTION_SCROLL_AFTER,
 }: StatusKanbanProps) {
   const { applyTaskUpdate, createTaskQuick, placeInTodoQueue } = useSync();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<TaskStatus | null>(
     null,
   );
+  const [doneLimit, setDoneLimit] = useState(DONE_PREVIEW_INITIAL);
 
   const grouped = groupTasksByStatusOrdered(tasks);
   const labelMap = { todo: labels.todo, doing: labels.doing, done: labels.done };
+  const doneVisible = grouped.done.slice(-doneLimit);
+  const hasMoreDone = grouped.done.length > doneLimit;
+  const doneListMaxHeight = sectionListMaxHeight(
+    doneVisible.length,
+    sectionScrollAfter,
+  );
 
   function handleDragStart(taskId: string) {
     setDraggingTaskId(taskId);
@@ -158,7 +181,7 @@ export function StatusKanban({
       <BoardTaskCard
         task={task}
         locale={locale}
-        href={`/${locale}/tasks/${task.id}`}
+        href={taskDetailHref(locale, task.id, { scope, view })}
         labels={cardLabels}
         isDragging={draggingTaskId === task.id}
         isQueueHead={isQueueHead}
@@ -199,34 +222,63 @@ export function StatusKanban({
             <h2 className={kanbanStyles.columnTitle}>{labelMap[status]}</h2>
             <span className={kanbanStyles.count}>{grouped[status].length}</span>
           </header>
-          <div
-            className={cn(kanbanStyles.cardList, "min-h-0 flex-1 overflow-y-auto")}
-            data-todo-scroll={status === "todo" ? "" : undefined}
-          >
-            {status === "todo" ? (
-              <TodoReorderList
-                draggingTaskId={draggingTaskId}
-                onPlace={placeInTodo}
-                items={grouped.todo.map((task, index) => ({
-                  id: task.id,
-                  node: renderCard(task, "todo", index),
-                }))}
-              />
-            ) : (
-              grouped[status].map((task) => (
-                <div key={task.id}>{renderCard(task, status)}</div>
-              ))
-            )}
-            {status === "todo" ? (
-              <BoardQuickAddTask
-                assigneeId={self.id}
-                assigneeName={self.name}
-                addLabel={labels.addTask}
-                titlePlaceholder={labels.titlePlaceholder}
-                onCreate={(input) => createTaskQuick(locale, input)}
-              />
-            ) : null}
-          </div>
+          {status === "done" ? (
+            <div
+              className={cn(
+                kanbanStyles.cardList,
+                doneListMaxHeight !== undefined && kanbanStyles.cardListScrollable,
+              )}
+              style={
+                doneListMaxHeight !== undefined
+                  ? { maxHeight: doneListMaxHeight }
+                  : undefined
+              }
+            >
+              {doneVisible.map((task) => (
+                <div key={task.id}>{renderCard(task, "done")}</div>
+              ))}
+              {hasMoreDone ? (
+                <button
+                  type="button"
+                  className={kanbanStyles.showMore}
+                  onClick={() =>
+                    setDoneLimit((n) => n + DONE_PREVIEW_STEP)
+                  }
+                >
+                  {labels.showMore}
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <div
+              className={cn(kanbanStyles.cardList, "min-h-0 flex-1 overflow-y-auto")}
+              data-todo-scroll={status === "todo" ? "" : undefined}
+            >
+              {status === "todo" ? (
+                <TodoReorderList
+                  draggingTaskId={draggingTaskId}
+                  onPlace={placeInTodo}
+                  items={grouped.todo.map((task, index) => ({
+                    id: task.id,
+                    node: renderCard(task, "todo", index),
+                  }))}
+                />
+              ) : (
+                grouped.doing.map((task) => (
+                  <div key={task.id}>{renderCard(task, "doing")}</div>
+                ))
+              )}
+              {status === "todo" ? (
+                <BoardQuickAddTask
+                  assigneeId={self.id}
+                  assigneeName={self.name}
+                  addLabel={labels.addTask}
+                  titlePlaceholder={labels.titlePlaceholder}
+                  onCreate={(input) => createTaskQuick(locale, input)}
+                />
+              ) : null}
+            </div>
+          )}
         </section>
       ))}
     </div>

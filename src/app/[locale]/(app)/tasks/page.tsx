@@ -3,15 +3,35 @@ import { PageHeader } from "@/components/layout/app-shell";
 import { orderMembersByTodoCount } from "@/lib/board-member-order";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { requireAppSession } from "@/lib/require-session";
+import {
+  parseTasksScope,
+  parseTasksView,
+} from "@/lib/tasks-url";
 import { getServices } from "@/services";
 import { TasksPageClient } from "@/components/tasks/tasks-page-client";
+import { Banner } from "@/components/ui/banner";
 
 export default async function TasksPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{
+    scope?: string;
+    view?: string;
+    saved?: string;
+    deleted?: string;
+    error?: string;
+  }>;
 }) {
   const { locale } = await params;
+  const {
+    scope: scopeRaw,
+    view: viewRaw,
+    saved,
+    deleted,
+    error,
+  } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
   const { tasks, teammates, alerts } = getServices();
@@ -31,12 +51,32 @@ export default async function TasksPage({
     await alerts.syncDueAlerts(taskList, { session });
   }
 
+  const initialScope = parseTasksScope(scopeRaw, session.user.role);
+  const initialView = parseTasksView(viewRaw);
+
   return (
     <>
       <PageHeader title={t("common.tasks")} />
+      {saved === "1" ? (
+        <Banner variant="info" className="mb-4">
+          {t("tasks.saved")}
+        </Banner>
+      ) : null}
+      {deleted === "1" ? (
+        <Banner variant="info" className="mb-4">
+          {t("tasks.deleted")}
+        </Banner>
+      ) : null}
+      {error === "not_found" ? (
+        <Banner variant="danger" className="mb-4">
+          {t("tasks.errorNotFound")}
+        </Banner>
+      ) : null}
       <TasksPageClient
         locale={locale}
         role={session.user.role}
+        initialScope={initialScope}
+        initialView={initialView}
         self={{
           id: session.user.id,
           name: session.user.name,
@@ -52,12 +92,14 @@ export default async function TasksPage({
           list: t("common.list"),
           myWork: t("tasks.myWork"),
           team: t("tasks.team"),
+          scopeAria: t("tasks.scopeAria"),
           newTask: t("common.newTask"),
           assignee: t("tasks.assignee"),
           dueDate: t("tasks.dueDate"),
           updated: t("tasks.updated"),
           overdue: t("tasks.overdue"),
           emptyBoard: t("tasks.emptyBoard"),
+          emptyMyWork: t("tasks.emptyMyWork"),
           sectionTodo: t("tasks.sectionTodo"),
           sectionDoing: t("tasks.sectionDoing"),
           sectionDone: t("tasks.sectionDone"),

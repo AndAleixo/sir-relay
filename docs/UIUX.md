@@ -225,7 +225,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 **Done (My work column + Team accordion):** show last **5** cards; **Show more** loads **+10** older each click. No inner scroll pane — the list grows with Show more. Header / section count stays total Done.
 
-**Card contents:** title (truncate 2 lines), due date (overdue in red). No “updated” time on board cards. Queue head (top To do): accent **→** icon on the **title row** (aria/tooltip `startDoing`); In progress: neutral **✓** icon → Done (same row, `markDone`); Done: green **✓** mark (`completedMark`). Footer: due + **⋯** control. Open **⋯** reveals a borderless horizontal segment to the left of the trigger (**Open · Clone · Delete**), without shifting the button. Clone copies title/description/due/assignee/status and inserts **immediately below** the source. Read-only cards: **Open** only. Telegram notify-failed: accent corner dot with `telegramFailed` tooltip.
+**Card contents:** title (truncate 2 lines). Description preview (one muted truncated line): under the title when a due date is set (slight inset before status icons); in the **due footer slot** when there is no due date (uses that width). Due date (overdue in red) or **Add due date** when empty and no description. No “updated” time on board cards. Queue head (top To do): accent **→** icon on the **title row** (aria/tooltip `startDoing`); In progress: neutral **✓** icon → Done (same row, `markDone`); Done: green **✓** mark (`completedMark`). Footer: due or description + **⋯** control. Open **⋯** reveals a borderless horizontal segment to the left of the trigger (**Open · Clone · Delete**), without shifting the button. Clone copies title/description/due/assignee/status and inserts **immediately below** the source. Read-only cards: **Open** only. Telegram notify-failed: accent corner dot with `telegramFailed` tooltip.
 
 **Interactions:**
 
@@ -316,9 +316,10 @@ Shared compact card on boards; list view uses a table row.
 
 ```
 ┌────────────────────────────────┐
-│ ⠿  Task title              → │  ← icon-only status control (title row)
-│    Due: Mar 12           ⋯   │
-│                         ●    │  ← Telegram fail dot (bottom-right)
+│ ⠿  Task title              → │
+│    Description… (if due set) │
+│    Due / description     ⋯   │  ← description uses due slot when no date
+│                         ●    │
 └────────────────────────────────┘
 ```
 
@@ -630,6 +631,7 @@ Toolbar offers **My work | Team** and **Board | List** for both roles.
 | 2026-07-23 | Teammates list: Name · Email · Role · Account · Telegram; name opens detail; export on detail |
 | 2026-07-25 | Board cards: ⋯ borderless segment (Open · Clone · Delete) left of trigger; status on title row; clone inserts below source |
 | 2026-07-25 | My work / Team Done: preview 5 + Show more +10 (no inner scroll pane) |
+| 2026-07-25 | Board cards: one-line muted description preview when body text present |
 | 2026-07-25 | Family A: custom `Select` (filters/forms/settings) on popover tokens; `useDismissable` + shared Chevron/Check; drop native `<select>` |
 | 2026-07-25 | Family A popovers: `useFadeOpen` + `popoverStyles` on User / Locale / Group; compact `min-h-9` rows; ~200ms fade |
 | 2026-07-25 | Team To do / In progress section scroll: ~3 mobile / ~4 desktop; drop duplicate `sortStatus`; ViewToggle `viewAria` |

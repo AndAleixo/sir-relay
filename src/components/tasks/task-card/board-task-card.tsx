@@ -111,6 +111,10 @@ export function BoardTaskCard({
     : labels.addDueDate;
   const dueWithOverdue =
     overdue && task.dueDate ? `${dueLabel} · ${labels.overdue}` : dueLabel;
+  const descriptionPreview = task.description.replace(/\s+/g, " ").trim();
+  const hasDue = Boolean(task.dueDate);
+  const descriptionUnderTitle = Boolean(descriptionPreview && hasDue);
+  const descriptionInFooter = Boolean(descriptionPreview && !hasDue);
 
   const statusControl =
     !readOnly && isQueueHead && onStartDoing ? (
@@ -207,23 +211,17 @@ export function BoardTaskCard({
           {statusControl}
         </div>
 
+        {descriptionUnderTitle ? (
+          <p className={taskCardStyles.descriptionPreview}>{descriptionPreview}</p>
+        ) : null}
+
         <div
           className={cn(
             taskCardStyles.footer,
             task.telegramNotifyFailed && "pr-3",
           )}
         >
-          {readOnly ? (
-            <p
-              className={cn(
-                taskCardStyles.dueReadonly,
-                "min-w-0 flex-1",
-                overdue && taskCardStyles.overdue,
-              )}
-            >
-              {task.dueDate ? dueWithOverdue : null}
-            </p>
-          ) : editingDue ? (
+          {editingDue && !readOnly ? (
             <Input
               autoFocus
               type="date"
@@ -245,17 +243,41 @@ export function BoardTaskCard({
                 void saveDueDate();
               }}
             />
+          ) : hasDue ? (
+            readOnly ? (
+              <p
+                className={cn(
+                  taskCardStyles.dueReadonly,
+                  "min-w-0 flex-1",
+                  overdue && taskCardStyles.overdue,
+                )}
+              >
+                {dueWithOverdue}
+              </p>
+            ) : (
+              <button
+                type="button"
+                className={cn(
+                  taskCardStyles.dueButton,
+                  "min-w-0 flex-1",
+                  overdue && taskCardStyles.overdue,
+                )}
+                onClick={() => setEditingDue(true)}
+              >
+                {dueWithOverdue}
+              </button>
+            )
+          ) : descriptionInFooter ? (
+            <p className={taskCardStyles.descriptionInFooter}>{descriptionPreview}</p>
+          ) : readOnly ? (
+            <p className={cn(taskCardStyles.dueReadonly, "min-w-0 flex-1")} />
           ) : (
             <button
               type="button"
-              className={cn(
-                taskCardStyles.dueButton,
-                "min-w-0 flex-1",
-                overdue && taskCardStyles.overdue,
-              )}
+              className={cn(taskCardStyles.dueButton, "min-w-0 flex-1")}
               onClick={() => setEditingDue(true)}
             >
-              {dueWithOverdue}
+              {labels.addDueDate}
             </button>
           )}
           <TaskCardMenu

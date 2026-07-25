@@ -16,18 +16,7 @@ interface BoardTaskCardProps {
   task: Task;
   locale: string;
   href: string;
-  labels: TaskCardLabels & {
-    dragHandle: string;
-    addDueDate: string;
-    startDoing?: string;
-    markDone?: string;
-    completedMark?: string;
-    taskMenu: string;
-    menuOpen: string;
-    menuClone: string;
-    menuDelete: string;
-    deleteConfirm: string;
-  };
+  labels: TaskCardLabels;
   /** View-only: no drag, inline edit, or status controls. Menu: Open only. */
   readOnly?: boolean;
   isDragging?: boolean;
@@ -124,7 +113,7 @@ export function BoardTaskCard({
     overdue && task.dueDate ? `${dueLabel} · ${labels.overdue}` : dueLabel;
 
   const statusControl =
-    !readOnly && isQueueHead && onStartDoing && labels.startDoing ? (
+    !readOnly && isQueueHead && onStartDoing ? (
       <button
         type="button"
         className={taskCardStyles.startDoing}
@@ -135,7 +124,7 @@ export function BoardTaskCard({
       >
         <StartDoingIcon />
       </button>
-    ) : !readOnly && onMarkDone && labels.markDone ? (
+    ) : !readOnly && onMarkDone ? (
       <button
         type="button"
         className={taskCardStyles.markDone}
@@ -271,10 +260,10 @@ export function BoardTaskCard({
           )}
           <TaskCardMenu
             href={href}
-            menuLabel={labels.taskMenu}
-            openLabel={labels.menuOpen}
-            cloneLabel={labels.menuClone}
-            deleteLabel={labels.menuDelete}
+            taskMenu={labels.taskMenu}
+            menuOpen={labels.menuOpen}
+            menuClone={labels.menuClone}
+            menuDelete={labels.menuDelete}
             deleteConfirm={labels.deleteConfirm}
             canMutate={!readOnly && Boolean(onClone && onDelete)}
             disabled={saving}
@@ -287,7 +276,7 @@ export function BoardTaskCard({
       {task.telegramNotifyFailed && (
         <span
           className={taskCardStyles.notifyDotCorner}
-          title="Telegram delivery failed"
+          title={labels.telegramFailed}
         />
       )}
     </div>

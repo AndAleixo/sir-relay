@@ -41,16 +41,6 @@ interface StatusKanbanProps {
     todo: string;
     doing: string;
     done: string;
-    dragHandle: string;
-    taskMenu: string;
-    menuOpen: string;
-    menuClone: string;
-    menuDelete: string;
-    deleteConfirm: string;
-    addDueDate: string;
-    startDoing: string;
-    markDone: string;
-    completedMark: string;
     addTask: string;
     titlePlaceholder: string;
     showMore: string;
@@ -167,21 +157,6 @@ export function StatusKanban({
     await assignStatus(taskId, targetStatus);
   }
 
-  const cardLabels = {
-    dueDate: labels.dueDate,
-    overdue: labels.overdue,
-    dragHandle: labels.dragHandle,
-    addDueDate: labels.addDueDate,
-    startDoing: labels.startDoing,
-    markDone: labels.markDone,
-    completedMark: labels.completedMark,
-    taskMenu: labels.taskMenu,
-    menuOpen: labels.menuOpen,
-    menuClone: labels.menuClone,
-    menuDelete: labels.menuDelete,
-    deleteConfirm: labels.deleteConfirm,
-  };
-
   function renderCard(task: Task, status: TaskStatus, todoIndex?: number) {
     const isTodo = status === "todo";
     const isQueueHead = isTodo && todoIndex === 0;
@@ -191,7 +166,7 @@ export function StatusKanban({
         task={task}
         locale={locale}
         href={taskDetailHref(locale, task.id, { scope, view })}
-        labels={cardLabels}
+        labels={labels}
         isDragging={draggingTaskId === task.id}
         isQueueHead={isQueueHead}
         showCompletedMark={status === "done"}

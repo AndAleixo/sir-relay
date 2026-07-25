@@ -10,6 +10,7 @@ import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { taskNewHref, tasksListHref } from "@/lib/tasks-url";
 import { useSync } from "@/components/sync";
 import { Button } from "@/components/ui/button";
+import type { TaskCardLabels } from "@/components/tasks/task-card";
 import { StatusKanban } from "@/components/tasks/status-kanban";
 import { TaskListWithFilters } from "@/components/tasks/task-list/task-list-with-filters";
 import { TeamBoard } from "@/components/tasks/team-board";
@@ -32,7 +33,7 @@ interface TasksPageClientProps {
   tasks: Task[];
   /** Other members already ordered at page load (Team board). */
   members: OrganizationUser[];
-  labels: {
+  labels: TaskCardLabels & {
     board: string;
     list: string;
     myWork: string;
@@ -40,32 +41,17 @@ interface TasksPageClientProps {
     scopeAria: string;
     newTask: string;
     assignee: string;
-    dueDate: string;
     updated: string;
-    overdue: string;
     emptyBoard: string;
     emptyMyWork: string;
-    sectionTodo: string;
-    sectionDoing: string;
-    sectionDone: string;
-    startDoing: string;
-    markDone: string;
-    completedMark: string;
     linked: string;
     pending: string;
     invited: string;
     inactive: string;
     showMore: string;
-    dragHandle: string;
-    taskMenu: string;
-    menuOpen: string;
-    menuClone: string;
-    menuDelete: string;
-    deleteConfirm: string;
     addTask: string;
-    addDueDate: string;
     titlePlaceholder: string;
-    titleColumn: string;
+    title: string;
     filterAssignee: string;
     filterStatus: string;
     filterSort: string;
@@ -145,34 +131,49 @@ export function TasksPageClient({
     [self, members],
   );
 
-  const boardLabels = {
-    sectionTodo: labels.sectionTodo,
-    sectionDoing: labels.sectionDoing,
-    sectionDone: labels.sectionDone,
+  const cardLabels: TaskCardLabels = {
+    dueDate: labels.dueDate,
+    overdue: labels.overdue,
+    dragHandle: labels.dragHandle,
+    addDueDate: labels.addDueDate,
     startDoing: labels.startDoing,
     markDone: labels.markDone,
     completedMark: labels.completedMark,
-    linked: labels.linked,
-    pending: labels.pending,
-    invited: labels.invited,
-    inactive: labels.inactive,
-    dueDate: labels.dueDate,
-    overdue: labels.overdue,
-    showMore: labels.showMore,
-    emptyBoard: labels.emptyBoard,
-    dragHandle: labels.dragHandle,
     taskMenu: labels.taskMenu,
     menuOpen: labels.menuOpen,
     menuClone: labels.menuClone,
     menuDelete: labels.menuDelete,
     deleteConfirm: labels.deleteConfirm,
+    telegramFailed: labels.telegramFailed,
+  };
+
+  const boardLabels = {
+    ...cardLabels,
+    todo: labels.status.todo,
+    doing: labels.status.doing,
+    done: labels.status.done,
+    linked: labels.linked,
+    pending: labels.pending,
+    invited: labels.invited,
+    inactive: labels.inactive,
+    showMore: labels.showMore,
+    emptyBoard: labels.emptyBoard,
     addTask: labels.addTask,
-    addDueDate: labels.addDueDate,
     titlePlaceholder: labels.titlePlaceholder,
   };
 
+  const kanbanLabels = {
+    ...cardLabels,
+    todo: labels.status.todo,
+    doing: labels.status.doing,
+    done: labels.status.done,
+    addTask: labels.addTask,
+    titlePlaceholder: labels.titlePlaceholder,
+    showMore: labels.showMore,
+  };
+
   const listLabels = {
-    titleColumn: labels.titleColumn,
+    title: labels.title,
     assignee: labels.assignee,
     dueDate: labels.dueDate,
     updated: labels.updated,
@@ -186,27 +187,6 @@ export function TasksPageClient({
     sortUpdated: labels.sortUpdated,
     statusColumn: labels.statusColumn,
     status: labels.status,
-  };
-
-  const kanbanLabels = {
-    todo: labels.status.todo,
-    doing: labels.status.doing,
-    done: labels.status.done,
-    dueDate: labels.dueDate,
-    overdue: labels.overdue,
-    dragHandle: labels.dragHandle,
-    addDueDate: labels.addDueDate,
-    startDoing: labels.startDoing,
-    markDone: labels.markDone,
-    completedMark: labels.completedMark,
-    addTask: labels.addTask,
-    titlePlaceholder: labels.titlePlaceholder,
-    showMore: labels.showMore,
-    taskMenu: labels.taskMenu,
-    menuOpen: labels.menuOpen,
-    menuClone: labels.menuClone,
-    menuDelete: labels.menuDelete,
-    deleteConfirm: labels.deleteConfirm,
   };
 
   const emptyMyWork = scope === "mine" && scopedTasks.length === 0;

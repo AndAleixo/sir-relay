@@ -15,7 +15,7 @@ interface TaskListProps {
   view: TasksView;
   showAssignee: boolean;
   labels: {
-    titleColumn: string;
+    title: string;
     assignee: string;
     dueDate: string;
     updated: string;
@@ -38,7 +38,7 @@ export function TaskList({
       <table className={taskListStyles.table}>
         <thead>
           <tr className={taskListStyles.headRow}>
-            <th className={taskListStyles.th}>{labels.titleColumn}</th>
+            <th className={taskListStyles.th}>{labels.title}</th>
             {showAssignee && <th className={taskListStyles.th}>{labels.assignee}</th>}
             <th className={taskListStyles.th}>{labels.statusColumn}</th>
             <th className={taskListStyles.th}>{labels.dueDate}</th>

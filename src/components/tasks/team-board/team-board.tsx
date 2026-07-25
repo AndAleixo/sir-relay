@@ -62,27 +62,17 @@ interface TeamBoardProps {
   /** Operator-only: name links to /teammates/[id]. */
   linkMemberProfiles?: boolean;
   labels: TaskCardLabels & {
-    sectionTodo: string;
-    sectionDoing: string;
-    sectionDone: string;
-    startDoing: string;
-    markDone: string;
-    completedMark: string;
+    todo: string;
+    doing: string;
+    done: string;
     linked: string;
     pending: string;
     invited: string;
     inactive: string;
     showMore: string;
     emptyBoard: string;
-    dragHandle: string;
     addTask: string;
-    addDueDate: string;
     titlePlaceholder: string;
-    taskMenu: string;
-    menuOpen: string;
-    menuClone: string;
-    menuDelete: string;
-    deleteConfirm: string;
   };
   /** Scroll inside To do / In progress / Done when count exceeds this (default 3). */
   sectionScrollAfter?: number;
@@ -155,38 +145,12 @@ function BoardTaskItem({
   onClone: (taskId: string) => void;
   onDelete: (taskId: string) => void;
 }) {
-  const cardLabels: TaskCardLabels & {
-    dragHandle: string;
-    addDueDate: string;
-    startDoing: string;
-    markDone: string;
-    completedMark: string;
-    taskMenu: string;
-    menuOpen: string;
-    menuClone: string;
-    menuDelete: string;
-    deleteConfirm: string;
-  } = {
-    dueDate: labels.dueDate,
-    overdue: labels.overdue,
-    dragHandle: labels.dragHandle,
-    addDueDate: labels.addDueDate,
-    startDoing: labels.startDoing,
-    markDone: labels.markDone,
-    completedMark: labels.completedMark,
-    taskMenu: labels.taskMenu,
-    menuOpen: labels.menuOpen,
-    menuClone: labels.menuClone,
-    menuDelete: labels.menuDelete,
-    deleteConfirm: labels.deleteConfirm,
-  };
-
   return (
     <BoardTaskCard
       task={task}
       locale={locale}
       href={taskDetailHref(locale, task.id, { scope, view })}
-      labels={cardLabels}
+      labels={labels}
       readOnly={readOnly}
       isDragging={!readOnly && draggingTaskId === task.id}
       isQueueHead={isQueueHead}
@@ -348,7 +312,7 @@ function TaskColumn({
       <header className={teamBoardStyles.columnHeader}>{header}</header>
 
       <DroppableSection
-        title={`${labels.sectionTodo} (${grouped.todo.length})`}
+        title={`${labels.todo} (${grouped.todo.length})`}
         assigneeId={assigneeId}
         status="todo"
         editable={editable}
@@ -422,7 +386,7 @@ function TaskColumn({
       </DroppableSection>
 
       <DroppableSection
-        title={`${labels.sectionDoing} (${grouped.doing.length})`}
+        title={`${labels.doing} (${grouped.doing.length})`}
         assigneeId={assigneeId}
         status="doing"
         editable={editable}
@@ -494,7 +458,7 @@ function TaskColumn({
           }}
         >
           <span>{doneOpen ? "▾" : "▸"}</span>
-          {labels.sectionDone} ({grouped.done.length})
+          {labels.done} ({grouped.done.length})
         </button>
         {doneOpen && (
           <SectionCardList

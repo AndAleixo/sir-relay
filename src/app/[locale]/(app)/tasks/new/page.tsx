@@ -98,7 +98,7 @@ export default async function NewTaskPage({
             isOperator={isOperator}
             assigneeOptions={assigneeOptions}
             labels={{
-              title: t("tasks.titleLabel"),
+              title: t("tasks.title"),
               titlePlaceholder: t("tasks.titlePlaceholder"),
               assignee: t("tasks.assignee"),
               assigneeHint: t("tasks.assigneeHint"),

@@ -225,7 +225,7 @@ Three columns by **task status** (`todo` · `doing` · `done`). Only tasks **ass
 
 **Done column (My work):** same preview as Team — show last **5** cards; **Show more** loads **+10** older each click; list scrolls when visible cards exceed the section scroll threshold (default 3). Header count stays total Done.
 
-**Card contents:** title (truncate 2 lines), due date (overdue in red). No “updated” time on board cards. Queue head (top To do): accent **→ Start** on the **title row**; In progress: neutral **✓** → Done (same row); Done: green **✓** mark. Footer: due + **⋯** control. Open **⋯** reveals a borderless horizontal segment to the left of the trigger (**Open · Clone · Delete**), without shifting the button. Clone copies title/description/due/assignee/status and inserts **immediately below** the source. Read-only cards: **Open** only.
+**Card contents:** title (truncate 2 lines), due date (overdue in red). No “updated” time on board cards. Queue head (top To do): accent **→** icon on the **title row** (aria/tooltip `startDoing`); In progress: neutral **✓** icon → Done (same row, `markDone`); Done: green **✓** mark (`completedMark`). Footer: due + **⋯** control. Open **⋯** reveals a borderless horizontal segment to the left of the trigger (**Open · Clone · Delete**), without shifting the button. Clone copies title/description/due/assignee/status and inserts **immediately below** the source. Read-only cards: **Open** only. Telegram notify-failed: accent corner dot with `telegramFailed` tooltip.
 
 **Interactions:**
 
@@ -280,7 +280,7 @@ First column: the **signed-in member**. Then other members ordered by **To do co
 
 | Section | Status | Priority | Default state | Max visible |
 |---------|--------|----------|---------------|-------------|
-| **To do** | `todo` | High — **top card** has start control (→ In progress); order = queue | Expanded | All cards |
+| **To do** | `todo` | High — **top card** has start icon (→ In progress); order = queue | Expanded | All cards |
 | **In progress** | `doing` | High — each card has neutral ✓ → Done | Expanded | All cards |
 | **Done** | `done` | Low — green ✓ mark (not clickable; flow complete) | **Collapsed** | Count in header; expand shows last **5** cards; “Show more” loads **+10** older cards each click until exhausted |
 
@@ -316,7 +316,7 @@ Shared compact card on boards; list view uses a table row.
 
 ```
 ┌────────────────────────────────┐
-│ ⠿  Task title            →/✓ │
+│ ⠿  Task title              → │  ← icon-only status control (title row)
 │    Due: Mar 12           ⋯   │
 │                         ●    │  ← Telegram fail dot (bottom-right)
 └────────────────────────────────┘
@@ -326,7 +326,7 @@ Shared compact card on boards; list view uses a table row.
 |-------|-------------|
 | Default | Compact white card, `--border`, `--radius-card` |
 | Overdue | Red due date (`--danger`) |
-| Telegram notify failed | Small accent dot, bottom-right corner |
+| Telegram notify failed | Small accent dot, bottom-right corner (`telegramFailed` tooltip) |
 | Operator / teammate board cards | Inline edit when editable; **+ Add task** in editable To do; **⋯** → Open · Clone · Delete (Open only when read-only) |
 
 Assignee only in list view (column implies assignee on the Team board).
@@ -489,7 +489,7 @@ Teammates do not have this route (redirect to `/tasks`).
 | Empty todo column | Light placeholder in column | — |
 | Login failed | “Invalid email or password.” | — |
 | Session expired | Redirect to login + toast | Log in again |
-| Telegram delivery failed | Banner on task detail | — |
+| Telegram delivery failed | Banner on task detail; board card corner-dot tooltip | — |
 
 ---
 

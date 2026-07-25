@@ -19,7 +19,7 @@ type TaskListWithFiltersProps = {
   view: TasksView;
   assigneeOptions?: AssigneeFilterOption[];
   labels: {
-    titleColumn: string;
+    title: string;
     assignee: string;
     dueDate: string;
     updated: string;
@@ -116,7 +116,7 @@ export function TaskListWithFilters({
         view={view}
         showAssignee={showAssigneeFilter}
         labels={{
-          titleColumn: labels.titleColumn,
+          title: labels.title,
           assignee: labels.assignee,
           dueDate: labels.dueDate,
           updated: labels.updated,

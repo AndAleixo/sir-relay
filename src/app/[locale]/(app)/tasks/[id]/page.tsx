@@ -182,7 +182,7 @@ export default async function TaskDetailPage({
                 overdue={overdue}
                 statusLabels={statusLabels}
                 labels={{
-                  title: t("tasks.titleLabel"),
+                  title: t("tasks.title"),
                   titlePlaceholder: t("tasks.titlePlaceholder"),
                   assignee: t("tasks.assignee"),
                   assigneeHint: t("tasks.assigneeHint"),
@@ -201,7 +201,7 @@ export default async function TaskDetailPage({
           ) : (
             <dl className="space-y-3 text-sm">
               <div>
-                <dt className="text-[var(--text-muted)]">{t("tasks.titleLabel")}</dt>
+                <dt className="text-[var(--text-muted)]">{t("tasks.title")}</dt>
                 <dd className="mt-0.5 font-medium">{task.title}</dd>
               </div>
               <div>

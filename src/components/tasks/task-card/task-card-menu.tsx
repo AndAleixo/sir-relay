@@ -7,10 +7,10 @@ import { taskCardStyles } from "./task-card.styles";
 
 type TaskCardMenuProps = {
   href: string;
-  menuLabel: string;
-  openLabel: string;
-  cloneLabel: string;
-  deleteLabel: string;
+  taskMenu: string;
+  menuOpen: string;
+  menuClone: string;
+  menuDelete: string;
   deleteConfirm: string;
   /** When false, only Open is shown (read-only columns). */
   canMutate: boolean;
@@ -23,10 +23,10 @@ const CLOSE_MS = 150;
 
 export function TaskCardMenu({
   href,
-  menuLabel,
-  openLabel,
-  cloneLabel,
-  deleteLabel,
+  taskMenu,
+  menuOpen,
+  menuClone,
+  menuDelete,
   deleteConfirm,
   canMutate,
   disabled,
@@ -99,7 +99,7 @@ export function TaskCardMenu({
             className={taskCardStyles.menuItem}
             onClick={() => setOpen(false)}
           >
-            {openLabel}
+            {menuOpen}
           </Link>
           {canMutate ? (
             <>
@@ -114,7 +114,7 @@ export function TaskCardMenu({
                   void onClone();
                 }}
               >
-                {cloneLabel}
+                {menuClone}
               </button>
               <button
                 type="button"
@@ -131,7 +131,7 @@ export function TaskCardMenu({
                   void onDelete();
                 }}
               >
-                {deleteLabel}
+                {menuDelete}
               </button>
             </>
           ) : null}
@@ -143,7 +143,7 @@ export function TaskCardMenu({
           taskCardStyles.menuButton,
           open && taskCardStyles.menuButtonOpen,
         )}
-        aria-label={menuLabel}
+        aria-label={taskMenu}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={rendered ? menuId : undefined}

@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { User } from "@/domain/types";
 import { logoutAction } from "@/app/actions/auth";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
+import { useDismissable } from "@/hooks/use-dismissable";
+import { useFadeOpen } from "@/hooks/use-fade-open";
+import { ChevronDown } from "@/components/ui/icons";
+import { popoverStyles } from "@/components/ui/popover";
 import { shellStyles } from "./app-shell.styles";
 
 interface UserMenuProps {
@@ -14,48 +18,13 @@ interface UserMenuProps {
   user: User;
 }
 
-function MenuChevron({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={cn("h-4 w-4 shrink-0", className)}
-      aria-hidden
-    >
-      <path d="M6 9l6 6 6-6" />
-    </svg>
-  );
-}
-
 export function UserMenu({ locale, user }: UserMenuProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
+  const { rendered, visible, onTransitionEnd } = useFadeOpen(open);
   const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-
-    function onPointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    }
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
+  const dismiss = useCallback(() => setOpen(false), []);
+  useDismissable(open, dismiss, rootRef);
 
   return (
     <div ref={rootRef} className={shellStyles.userMenuRoot}>
@@ -68,18 +37,31 @@ export function UserMenu({ locale, user }: UserMenuProps) {
         onClick={() => setOpen((value) => !value)}
       >
         <UserAvatar userId={user.id} userName={user.name} />
-        <MenuChevron className={open ? "rotate-180" : undefined} />
+        <ChevronDown className={open ? "rotate-180" : undefined} />
       </button>
 
-      {open ? (
-        <div className={shellStyles.userMenuPanel} role="menu">
+      {rendered ? (
+        <div
+          className={cn(
+            popoverStyles.panel,
+            popoverStyles.panelDropdown,
+            shellStyles.userMenuPanelWidth,
+            visible
+              ? popoverStyles.panelMotionOpen
+              : popoverStyles.panelMotionClose,
+            visible ? popoverStyles.panelOpen : popoverStyles.panelClosed,
+          )}
+          role="menu"
+          onTransitionEnd={onTransitionEnd}
+        >
           <div className={shellStyles.userMenuHeader}>
             <p className={shellStyles.userMenuName}>{user.name}</p>
           </div>
           <Link
             href={`/${locale}/profile`}
-            className={shellStyles.userMenuItem}
+            className={cn(popoverStyles.item, shellStyles.userMenuItem)}
             role="menuitem"
+            tabIndex={visible ? 0 : -1}
             onClick={() => setOpen(false)}
           >
             {t("common.account")}
@@ -87,8 +69,13 @@ export function UserMenu({ locale, user }: UserMenuProps) {
           <form action={logoutAction.bind(null, locale)} className={shellStyles.userMenuForm}>
             <button
               type="submit"
-              className={cn(shellStyles.userMenuItem, shellStyles.userMenuLogout)}
+              className={cn(
+                popoverStyles.item,
+                shellStyles.userMenuItem,
+                shellStyles.userMenuLogout,
+              )}
               role="menuitem"
+              tabIndex={visible ? 0 : -1}
             >
               {t("common.logout")}
             </button>

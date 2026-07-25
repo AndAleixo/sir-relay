@@ -75,23 +75,17 @@ export const shellStyles = {
   localePickerTriggerCompact: "min-w-[4.5rem] gap-1.5 px-2 text-xs font-medium",
   localePickerTriggerFull: "w-full justify-between px-3",
   localePickerLabel: "truncate",
-  localePickerPanel:
-    "absolute right-0 top-full z-50 mt-1 min-w-[11rem] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card py-1 shadow-lg",
+  localePickerPanelWidth: "min-w-[11rem]",
   localePickerPanelFull: "left-0 right-0 min-w-0",
-  localePickerItem:
-    "flex min-h-11 w-full touch-manipulation items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)] active:bg-[var(--surface-bg)]",
-  localePickerItemActive:
-    "bg-brand-accent-soft text-brand-accent hover:bg-brand-accent-soft hover:text-brand-accent",
+  localePickerItem: "justify-between gap-2",
   localePickerItemMain: "flex min-w-0 items-center gap-2.5",
   userMenuRoot: "relative",
   userMenuTrigger:
     "flex h-9 items-center gap-0.5 rounded-button pl-0.5 pr-1 text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
-  userMenuPanel:
-    "absolute right-0 top-full z-50 mt-1 min-w-[12rem] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card py-1 shadow-lg",
+  userMenuPanelWidth: "min-w-[12rem]",
   userMenuHeader: "border-b border-[var(--border)] px-3 py-2",
   userMenuName: "truncate text-sm font-medium text-[var(--text-primary)]",
-  userMenuItem:
-    "block w-full px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)]",
+  userMenuItem: "block",
   userMenuForm: "border-t border-[var(--border)]",
   userMenuLogout: "text-[var(--text-muted)] hover:text-[var(--text-primary)]",
   groupSwitcherRoot: "relative min-w-0",
@@ -103,11 +97,15 @@ export const shellStyles = {
   groupSwitcherName: "block truncate font-medium text-[var(--text-primary)]",
   groupSwitcherNameCompact: "truncate font-medium text-[var(--text-primary)]",
   groupSwitcherRole: "block truncate text-xs text-[var(--text-muted)]",
+  groupSwitcherPanelWidth: "w-[min(100vw-2rem,22rem)]",
   groupSwitcherPanel:
-    "absolute left-0 top-full z-[100] mt-1 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card shadow-lg",
+    "absolute left-0 top-full z-[100] mt-1",
   groupSwitcherPanelMobile:
-    "fixed z-[200] max-h-[min(calc(100vh-5rem),32rem)] overflow-hidden rounded-button border border-[var(--border)] bg-surface-card shadow-lg",
-  groupSwitcherBackdrop: "fixed inset-0 z-[199] bg-black/25",
+    "fixed z-[200] max-h-[min(calc(100vh-5rem),32rem)]",
+  groupSwitcherBackdrop:
+    "fixed inset-0 z-[199] bg-black/25 transition-opacity duration-300 ease-in",
+  groupSwitcherBackdropOpen: "opacity-100",
+  groupSwitcherBackdropClosed: "pointer-events-none opacity-0",
   groupPanelBody: "max-h-[inherit] overflow-y-auto overscroll-contain",
   groupPanelEmpty: "px-3 py-2 text-sm text-[var(--text-muted)]",
   groupPanelError:
@@ -120,8 +118,6 @@ export const shellStyles = {
   groupPanelForm: "space-y-3",
   groupPanelActions: "flex gap-2",
   groupPanelJoinRow: "flex gap-2",
-  groupSwitcherItem:
-    "flex min-h-11 w-full touch-manipulation items-center justify-between gap-2 px-3 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)] active:bg-[var(--surface-bg)]",
   groupSwitcherItemActive: "bg-brand-accent-soft text-brand-accent",
   groupSwitcherItemRole: "shrink-0 text-xs text-[var(--text-muted)]",
   content: "flex-1 p-4 md:p-6",

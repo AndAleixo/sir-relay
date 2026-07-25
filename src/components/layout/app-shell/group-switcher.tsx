@@ -12,8 +12,11 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
 import type { GroupInvitation, UserGroup } from "@/domain/types";
+import { useDismissable } from "@/hooks/use-dismissable";
+import { useFadeOpen } from "@/hooks/use-fade-open";
+import { ChevronDown } from "@/components/ui/icons";
+import { popoverStyles } from "@/components/ui/popover";
 import { GroupPanelMenu } from "./group-panel-menu";
-
 import { shellStyles } from "./app-shell.styles";
 
 interface GroupSwitcherProps {
@@ -25,23 +28,6 @@ interface GroupSwitcherProps {
 }
 
 type PanelAnchor = { top: number; left: number; width: number };
-
-function Chevron({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={cn("h-4 w-4 shrink-0", className)}
-      aria-hidden
-    >
-      <path d="M6 9l6 6 6-6" />
-    </svg>
-  );
-}
 
 function GroupIcon({ className }: { className?: string }) {
   return (
@@ -86,6 +72,13 @@ export function GroupSwitcher({
       ? (groups.find((group) => group.id === activeGroupId) ?? null)
       : null;
 
+  const desktopOpen = open && !compact && !mdDown;
+  const mobileOpen = open && compact && mdDown;
+  const { rendered: desktopRendered, visible: desktopVisible, onTransitionEnd: onDesktopTransitionEnd } =
+    useFadeOpen(desktopOpen);
+  const { rendered: mobileRendered, visible: mobileVisible, onTransitionEnd: onMobileTransitionEnd } =
+    useFadeOpen(mobileOpen);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -108,8 +101,8 @@ export function GroupSwitcher({
   }, []);
 
   useLayoutEffect(() => {
-    if (!open || !compact || !mdDown || !rootRef.current) {
-      setPanelAnchor(null);
+    if (!mobileRendered || !compact || !mdDown || !rootRef.current) {
+      if (!mobileRendered) setPanelAnchor(null);
       return;
     }
 
@@ -130,30 +123,14 @@ export function GroupSwitcher({
       window.removeEventListener("resize", updateAnchor);
       window.removeEventListener("scroll", updateAnchor, true);
     };
-  }, [open, compact, mdDown]);
+  }, [mobileRendered, compact, mdDown]);
 
-  useEffect(() => {
-    if (!open) return;
-    if (compact !== mdDown) return;
-
-    function onPointerDown(event: PointerEvent) {
-      const target = event.target as Node;
-      if (rootRef.current?.contains(target)) return;
-      if (panelRef.current?.contains(target)) return;
-      closePanel();
-    }
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") closePanel();
-    }
-
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open, compact, mdDown, closePanel]);
+  useDismissable(
+    open && compact === mdDown,
+    closePanel,
+    rootRef,
+    panelRef,
+  );
 
   const panelMenuProps = {
     locale,
@@ -171,31 +148,60 @@ export function GroupSwitcher({
     "aria-label": t("groups.title"),
   };
 
-  const desktopPanel = (
-    <div ref={panelRef} className={shellStyles.groupSwitcherPanel} {...panelProps}>
+  const desktopPanel = desktopRendered ? (
+    <div
+      ref={panelRef}
+      className={cn(
+        popoverStyles.panel,
+        shellStyles.groupSwitcherPanel,
+        shellStyles.groupSwitcherPanelWidth,
+        desktopVisible
+          ? popoverStyles.panelMotionOpen
+          : popoverStyles.panelMotionClose,
+        desktopVisible ? popoverStyles.panelOpen : popoverStyles.panelClosed,
+      )}
+      onTransitionEnd={onDesktopTransitionEnd}
+      {...panelProps}
+    >
       <GroupPanelMenu {...panelMenuProps} />
     </div>
-  );
+  ) : null;
 
   const mobilePanel =
-    open && compact && mdDown && mounted && panelAnchor
+    mobileRendered && mounted && panelAnchor
       ? createPortal(
           <>
             <button
               type="button"
-              className={shellStyles.groupSwitcherBackdrop}
+              className={cn(
+                shellStyles.groupSwitcherBackdrop,
+                mobileVisible
+                  ? shellStyles.groupSwitcherBackdropOpen
+                  : shellStyles.groupSwitcherBackdropClosed,
+              )}
               aria-hidden
               tabIndex={-1}
               onClick={closePanel}
             />
             <div
               ref={panelRef}
-              className={shellStyles.groupSwitcherPanelMobile}
+              className={cn(
+                popoverStyles.panel,
+                shellStyles.groupSwitcherPanelMobile,
+                shellStyles.groupSwitcherPanelWidth,
+                mobileVisible
+                  ? popoverStyles.panelMotionOpen
+                  : popoverStyles.panelMotionClose,
+                mobileVisible
+                  ? popoverStyles.panelOpen
+                  : popoverStyles.panelClosed,
+              )}
               style={{
                 top: panelAnchor.top,
                 left: panelAnchor.left,
                 width: panelAnchor.width,
               }}
+              onTransitionEnd={onMobileTransitionEnd}
               {...panelProps}
             >
               <GroupPanelMenu {...panelMenuProps} />
@@ -236,7 +242,7 @@ export function GroupSwitcher({
                 {invitations.length}
               </span>
             ) : null}
-            <Chevron className={open ? "rotate-180" : undefined} />
+            <ChevronDown className={open ? "rotate-180" : undefined} />
           </>
         ) : (
           <>
@@ -254,12 +260,12 @@ export function GroupSwitcher({
                 {invitations.length}
               </span>
             ) : null}
-            <Chevron className={open ? "rotate-180" : undefined} />
+            <ChevronDown className={open ? "rotate-180" : undefined} />
           </>
         )}
       </button>
 
-      {open && !compact && !mdDown ? desktopPanel : null}
+      {desktopPanel}
       {mobilePanel}
     </div>
   );

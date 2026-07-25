@@ -1,3 +1,5 @@
+"use client";
+
 import type { Task, TaskStatus } from "@/domain/types";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 
@@ -58,13 +60,12 @@ export function TaskFormFields({
             name="assigneeId"
             required={mode === "create"}
             defaultValue={defaultValues?.assigneeId ?? assigneeOptions[0]?.id}
-          >
-            {assigneeOptions.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
+            options={assigneeOptions.map((option) => ({
+              value: option.id,
+              label: option.label,
+            }))}
+            aria-label={labels.assignee}
+          />
           <p className="mt-1.5 text-xs text-[var(--text-muted)]">
             {labels.assigneeHint}
           </p>
@@ -74,13 +75,16 @@ export function TaskFormFields({
       {mode === "edit" && statusLabels && (
         <div>
           <Label htmlFor="status">{labels.status}</Label>
-          <Select id="status" name="status" defaultValue={defaultValues?.status ?? "todo"}>
-            {(["todo", "doing", "done"] as const).map((status) => (
-              <option key={status} value={status}>
-                {statusLabels[status]}
-              </option>
-            ))}
-          </Select>
+          <Select
+            id="status"
+            name="status"
+            defaultValue={defaultValues?.status ?? "todo"}
+            options={(["todo", "doing", "done"] as const).map((status) => ({
+              value: status,
+              label: statusLabels[status],
+            }))}
+            aria-label={labels.status}
+          />
         </div>
       )}
 

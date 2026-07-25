@@ -16,18 +16,6 @@ export function Label({
   return <label className={cn(inputStyles.label, className)} {...props} />;
 }
 
-export function Select({
-  className,
-  children,
-  ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select className={cn(inputStyles.root, className)} {...props}>
-      {children}
-    </select>
-  );
-}
-
 export function Textarea({
   className,
   ...props

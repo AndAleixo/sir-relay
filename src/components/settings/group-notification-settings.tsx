@@ -96,18 +96,17 @@ export function GroupNotificationSettings({
           name="timezone"
           defaultValue={prefs.timezone}
           disabled={pending}
-          onChange={(event) => {
+          options={groupTimezones.map((zone) => ({
+            value: zone,
+            label: timezoneLabel(zone),
+          }))}
+          onChange={(timezone) => {
             const formData = new FormData();
-            formData.set("timezone", event.target.value);
+            formData.set("timezone", timezone);
             submit(formData);
           }}
-        >
-          {groupTimezones.map((zone) => (
-            <option key={zone} value={zone}>
-              {timezoneLabel(zone)}
-            </option>
-          ))}
-        </Select>
+          aria-label={t("alertTimezone")}
+        />
         <p className="text-xs text-[var(--text-muted)]">{t("alertTimezoneHint")}</p>
       </div>
 
@@ -144,16 +143,16 @@ export function GroupNotificationSettings({
                 id="quiet-start"
                 defaultValue={String(prefs.quietHoursStart ?? 22)}
                 disabled={pending}
-                onChange={(event) => {
+                options={hourOptions(formatHour)}
+                onChange={(quietHoursStart) => {
                   const formData = new FormData();
                   formData.set("quietHoursEnabled", "on");
-                  formData.set("quietHoursStart", event.target.value);
+                  formData.set("quietHoursStart", quietHoursStart);
                   formData.set("quietHoursEnd", String(prefs.quietHoursEnd ?? 8));
                   submit(formData);
                 }}
-              >
-                {hourOptions(formatHour)}
-              </Select>
+                aria-label={t("quietFrom")}
+              />
             </div>
             <div>
               <Label htmlFor="quiet-end">{t("quietTo")}</Label>
@@ -161,16 +160,16 @@ export function GroupNotificationSettings({
                 id="quiet-end"
                 defaultValue={String(prefs.quietHoursEnd ?? 8)}
                 disabled={pending}
-                onChange={(event) => {
+                options={hourOptions(formatHour)}
+                onChange={(quietHoursEnd) => {
                   const formData = new FormData();
                   formData.set("quietHoursEnabled", "on");
                   formData.set("quietHoursStart", String(prefs.quietHoursStart ?? 22));
-                  formData.set("quietHoursEnd", event.target.value);
+                  formData.set("quietHoursEnd", quietHoursEnd);
                   submit(formData);
                 }}
-              >
-                {hourOptions(formatHour)}
-              </Select>
+                aria-label={t("quietTo")}
+              />
             </div>
           </div>
         ) : null}
@@ -189,9 +188,8 @@ export function GroupNotificationSettings({
 }
 
 function hourOptions(label: (hour: number) => string) {
-  return Array.from({ length: 24 }, (_, hour) => (
-    <option key={hour} value={hour}>
-      {label(hour)}
-    </option>
-  ));
+  return Array.from({ length: 24 }, (_, hour) => ({
+    value: String(hour),
+    label: label(hour),
+  }));
 }

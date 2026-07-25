@@ -35,10 +35,10 @@ export const taskCardStyles = {
     "rounded-[4px] px-1 py-0.5 text-[11px] leading-none text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50",
   menuButtonOpen: "bg-[var(--surface-bg)] text-[var(--text-primary)]",
   menuSegment:
-    "absolute right-full top-1/2 z-20 flex -translate-y-1/2 items-center gap-0.5 pr-0.5 transition-[opacity,transform] duration-150 ease-out",
-  menuSegmentOpen: "translate-x-0 opacity-100",
+    "absolute right-full top-1/2 z-20 flex -translate-y-1/2 items-center gap-0.5 pr-0.5 transition-[opacity,transform]",
+  menuSegmentOpen: "translate-x-0 opacity-100 duration-200 ease-out",
   menuSegmentClosed:
-    "pointer-events-none translate-x-1 opacity-0",
+    "pointer-events-none translate-x-2 opacity-0 duration-300 ease-in",
   menuItem:
     "rounded-[4px] px-1.5 py-0.5 text-[10px] font-medium leading-tight text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50",
   menuItemDanger:

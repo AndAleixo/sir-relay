@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
 import { GroupInvitationActions } from "@/components/groups/group-invitation-actions";
+import { popoverStyles } from "@/components/ui/popover";
 import { shellStyles } from "./app-shell.styles";
 
 const emptyFormState: GroupFormState = { error: null };
@@ -207,7 +208,8 @@ export function GroupPanelMenu({
               {group.id === activeGroupId ? (
                 <div
                   className={cn(
-                    shellStyles.groupSwitcherItem,
+                    popoverStyles.item,
+                    "justify-between gap-2",
                     shellStyles.groupSwitcherItemActive,
                   )}
                   role="menuitem"
@@ -222,7 +224,7 @@ export function GroupPanelMenu({
                 <form action={selectGroup.bind(null, locale, group.id, returnPath)}>
                   <button
                     type="submit"
-                    className={shellStyles.groupSwitcherItem}
+                    className={cn(popoverStyles.item, "justify-between gap-2")}
                     role="menuitem"
                   >
                     <span className="truncate">{group.name}</span>

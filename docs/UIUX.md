@@ -546,6 +546,8 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `MobileTopBar` | Compact logo, group switcher, locale, avatar, tab nav |
 | `LocaleSwitcher` | Same-path locale change via URL prefix |
 | `UserMenu` | Account dropdown (Profile, Log out) |
+| `LocalePicker` | Locale dropdown |
+| `GroupSwitcher` | Active group panel |
 | `UserAvatar` / `ProfileAvatarEditor` | Initial or uploaded photo |
 | `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared create + edit forms (§5) |
 | `BoardTaskCard` | Board cards (operator + teammate): inline edit, open detail, drag handle; `readOnly` for Team others |
@@ -565,6 +567,8 @@ Localized per user `locale` (`en-gb`, `es-es`, `pt-br`; DB `en` / `es` / `pt`).
 | `SyncBar` | Session sync status (mock) |
 
 **Styling:** Tailwind + CSS variables from `brand/brand.css`. Card radius 8px, button 6px per [BRAND.md](./BRAND.md).
+
+**Family A popovers** (User · Locale · Group · `Select`): shared `useFadeOpen` + `useDismissable`; panel/trigger/item via `popoverStyles` (`h-9` triggers, `min-h-9` rows). Open ~200ms ease-out; close ~300ms ease-in with opacity + slide/scale so exit is visible. Task card ⋯ uses the same timings with a horizontal segment (Family C). Scope/View toggles remain Family B (segmented).
 
 ---
 
@@ -626,6 +630,8 @@ Toolbar offers **My work | Team** and **Board | List** for both roles.
 | 2026-07-23 | Teammates list: Name · Email · Role · Account · Telegram; name opens detail; export on detail |
 | 2026-07-25 | Board cards: ⋯ borderless segment (Open · Clone · Delete) left of trigger; status on title row; clone inserts below source |
 | 2026-07-25 | My work / Team Done: preview 5 + Show more +10 (no inner scroll pane) |
+| 2026-07-25 | Family A: custom `Select` (filters/forms/settings) on popover tokens; `useDismissable` + shared Chevron/Check; drop native `<select>` |
+| 2026-07-25 | Family A popovers: `useFadeOpen` + `popoverStyles` on User / Locale / Group; compact `min-h-9` rows; ~200ms fade |
 | 2026-07-25 | Team To do / In progress section scroll: ~3 mobile / ~4 desktop; drop duplicate `sortStatus`; ViewToggle `viewAria` |
 | 2026-07-25 | Tasks: empty My work copy; scope/view URL + flash banners on save/delete/create; preserve scope through detail/new |
 | 2026-07-23 | Tasks: My work \| Team scope; teammate Team board read-only on others; group task read for all members |

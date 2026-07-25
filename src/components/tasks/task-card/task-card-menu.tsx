@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { useDismissable } from "@/hooks/use-dismissable";
+import { useFadeOpen } from "@/hooks/use-fade-open";
 import { taskCardStyles } from "./task-card.styles";
 
 type TaskCardMenuProps = {
@@ -19,8 +21,6 @@ type TaskCardMenuProps = {
   onDelete: () => void | Promise<void>;
 };
 
-const CLOSE_MS = 150;
-
 export function TaskCardMenu({
   href,
   taskMenu,
@@ -34,50 +34,11 @@ export function TaskCardMenu({
   onDelete,
 }: TaskCardMenuProps) {
   const [open, setOpen] = useState(false);
-  const [rendered, setRendered] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const { rendered, visible, onTransitionEnd } = useFadeOpen(open);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
-
-  useEffect(() => {
-    if (open) {
-      setRendered(true);
-      setVisible(false);
-      // Double rAF so the closed style paints before fading in.
-      let inner = 0;
-      const outer = window.requestAnimationFrame(() => {
-        inner = window.requestAnimationFrame(() => setVisible(true));
-      });
-      return () => {
-        window.cancelAnimationFrame(outer);
-        window.cancelAnimationFrame(inner);
-      };
-    }
-    setVisible(false);
-    const timer = window.setTimeout(() => setRendered(false), CLOSE_MS);
-    return () => window.clearTimeout(timer);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    function onPointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    }
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
+  const dismiss = useCallback(() => setOpen(false), []);
+  useDismissable(open, dismiss, rootRef);
 
   return (
     <div ref={rootRef} className={taskCardStyles.menuRoot}>
@@ -91,6 +52,7 @@ export function TaskCardMenu({
               ? taskCardStyles.menuSegmentOpen
               : taskCardStyles.menuSegmentClosed,
           )}
+          onTransitionEnd={onTransitionEnd}
         >
           <Link
             href={href}

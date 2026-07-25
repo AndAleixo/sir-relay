@@ -48,6 +48,36 @@ export function TaskListWithFilters({
   const [sort, setSort] = useState<TaskListSort>("due");
   const showAssigneeFilter = assigneeOptions.length > 0;
 
+  const assigneeSelectOptions = useMemo(
+    () => [
+      { value: "all", label: labels.filterAll },
+      ...assigneeOptions.map((option) => ({
+        value: option.id,
+        label: option.label,
+      })),
+    ],
+    [assigneeOptions, labels.filterAll],
+  );
+
+  const statusSelectOptions = useMemo(
+    () => [
+      { value: "all", label: labels.filterAll },
+      { value: "todo", label: labels.status.todo },
+      { value: "doing", label: labels.status.doing },
+      { value: "done", label: labels.status.done },
+    ],
+    [labels.filterAll, labels.status],
+  );
+
+  const sortSelectOptions = useMemo(
+    () => [
+      { value: "due", label: labels.sortDue },
+      { value: "status", label: labels.statusColumn },
+      { value: "updated", label: labels.sortUpdated },
+    ],
+    [labels.sortDue, labels.statusColumn, labels.sortUpdated],
+  );
+
   const visible = useMemo(() => {
     const filtered = tasks.filter((task) => {
       if (showAssigneeFilter && assigneeId !== "all" && task.assigneeId !== assigneeId) {
@@ -67,45 +97,35 @@ export function TaskListWithFilters({
             <Label htmlFor="filter-assignee">{labels.filterAssignee}</Label>
             <Select
               id="filter-assignee"
-              value={assigneeId}
-              onChange={(event) => setAssigneeId(event.target.value)}
               className="mt-1.5"
-            >
-              <option value="all">{labels.filterAll}</option>
-              {assigneeOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
+              value={assigneeId}
+              onChange={setAssigneeId}
+              options={assigneeSelectOptions}
+              aria-label={labels.filterAssignee}
+            />
           </div>
         ) : null}
         <div className="min-w-[160px]">
           <Label htmlFor="filter-status">{labels.filterStatus}</Label>
           <Select
             id="filter-status"
-            value={status}
-            onChange={(event) => setStatus(event.target.value as TaskStatus | "all")}
             className="mt-1.5"
-          >
-            <option value="all">{labels.filterAll}</option>
-            <option value="todo">{labels.status.todo}</option>
-            <option value="doing">{labels.status.doing}</option>
-            <option value="done">{labels.status.done}</option>
-          </Select>
+            value={status}
+            onChange={(next) => setStatus(next as TaskStatus | "all")}
+            options={statusSelectOptions}
+            aria-label={labels.filterStatus}
+          />
         </div>
         <div className="min-w-[160px]">
           <Label htmlFor="filter-sort">{labels.filterSort}</Label>
           <Select
             id="filter-sort"
-            value={sort}
-            onChange={(event) => setSort(event.target.value as TaskListSort)}
             className="mt-1.5"
-          >
-            <option value="due">{labels.sortDue}</option>
-            <option value="status">{labels.statusColumn}</option>
-            <option value="updated">{labels.sortUpdated}</option>
-          </Select>
+            value={sort}
+            onChange={(next) => setSort(next as TaskListSort)}
+            options={sortSelectOptions}
+            aria-label={labels.filterSort}
+          />
         </div>
       </div>
       <TaskList

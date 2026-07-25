@@ -19,6 +19,8 @@ type TaskCardMenuProps = {
   onDelete: () => void | Promise<void>;
 };
 
+const CLOSE_MS = 150;
+
 export function TaskCardMenu({
   href,
   openLabel,
@@ -32,8 +34,29 @@ export function TaskCardMenu({
   onDelete,
 }: TaskCardMenuProps) {
   const [open, setOpen] = useState(false);
+  const [rendered, setRendered] = useState(false);
+  const [visible, setVisible] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
+
+  useEffect(() => {
+    if (open) {
+      setRendered(true);
+      setVisible(false);
+      // Double rAF so the closed style paints before fading in.
+      let inner = 0;
+      const outer = window.requestAnimationFrame(() => {
+        inner = window.requestAnimationFrame(() => setVisible(true));
+      });
+      return () => {
+        window.cancelAnimationFrame(outer);
+        window.cancelAnimationFrame(inner);
+      };
+    }
+    setVisible(false);
+    const timer = window.setTimeout(() => setRendered(false), CLOSE_MS);
+    return () => window.clearTimeout(timer);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -58,26 +81,21 @@ export function TaskCardMenu({
 
   return (
     <div ref={rootRef} className={taskCardStyles.menuRoot}>
-      <button
-        type="button"
-        className={cn(
-          taskCardStyles.menuButton,
-          open && taskCardStyles.menuButtonOpen,
-        )}
-        aria-label={menuLabel}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-controls={menuId}
-        disabled={disabled}
-        onClick={() => setOpen((value) => !value)}
-      >
-        ⋯
-      </button>
-      {open ? (
-        <div id={menuId} role="menu" className={taskCardStyles.menuPanel}>
+      {rendered ? (
+        <div
+          id={menuId}
+          role="menu"
+          className={cn(
+            taskCardStyles.menuSegment,
+            visible
+              ? taskCardStyles.menuSegmentOpen
+              : taskCardStyles.menuSegmentClosed,
+          )}
+        >
           <Link
             href={href}
             role="menuitem"
+            tabIndex={visible ? 0 : -1}
             className={taskCardStyles.menuItem}
             onClick={() => setOpen(false)}
           >
@@ -88,6 +106,7 @@ export function TaskCardMenu({
               <button
                 type="button"
                 role="menuitem"
+                tabIndex={visible ? 0 : -1}
                 className={taskCardStyles.menuItem}
                 disabled={disabled}
                 onClick={() => {
@@ -100,6 +119,7 @@ export function TaskCardMenu({
               <button
                 type="button"
                 role="menuitem"
+                tabIndex={visible ? 0 : -1}
                 className={cn(
                   taskCardStyles.menuItem,
                   taskCardStyles.menuItemDanger,
@@ -117,6 +137,21 @@ export function TaskCardMenu({
           ) : null}
         </div>
       ) : null}
+      <button
+        type="button"
+        className={cn(
+          taskCardStyles.menuButton,
+          open && taskCardStyles.menuButtonOpen,
+        )}
+        aria-label={menuLabel}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={rendered ? menuId : undefined}
+        disabled={disabled}
+        onClick={() => setOpen((value) => !value)}
+      >
+        ⋯
+      </button>
     </div>
   );
 }

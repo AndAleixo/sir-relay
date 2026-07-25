@@ -120,7 +120,7 @@ export default async function TasksPage({
           titleColumn: t("tasks.titleColumn"),
           taskMenu: t("tasks.taskMenu"),
           cloneTask: t("tasks.cloneTask"),
-          deleteTask: t("tasks.delete"),
+          deleteTask: t("tasks.menuDelete"),
           deleteConfirm: t("tasks.deleteConfirm"),
           filterAssignee: t("tasks.filterAssignee"),
           filterStatus: t("tasks.filterStatus"),

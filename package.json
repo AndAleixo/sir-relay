@@ -20,6 +20,7 @@
     "check:safe-log": "tsx scripts/check-safe-log.ts",
     "check:authz": "tsx scripts/check-authz.ts",
     "check:board-order": "tsx scripts/check-board-member-order.ts",
+    "check:board-scroll": "tsx scripts/check-board-section-scroll.ts",
     "check:ownership": "tsx scripts/check-group-ownership.ts",
     "check:audit": "tsx scripts/check-audit.ts",
     "check:platform-session": "tsx scripts/check-platform-session.ts",

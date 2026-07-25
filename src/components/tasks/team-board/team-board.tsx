@@ -33,8 +33,7 @@ import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
 import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { taskDetailHref } from "@/lib/tasks-url";
 import {
-  DEFAULT_BOARD_SECTION_SCROLL_AFTER,
-  sectionListMaxHeight,
+  sectionListNeedsScroll,
 } from "@/components/tasks/board-section-scroll";
 import {
   DONE_PREVIEW_INITIAL,
@@ -76,23 +75,19 @@ interface TeamBoardProps {
     addTask: string;
     titlePlaceholder: string;
   };
-  /** Scroll inside To do / In progress / Done when count exceeds this (default 3). */
-  sectionScrollAfter?: number;
 }
 
 function SectionCardList({
   itemCount,
-  scrollAfter,
   todoScroll,
   children,
 }: {
   itemCount: number;
-  scrollAfter: number;
   /** Edge auto-scroll target for TodoReorderList only. */
   todoScroll?: boolean;
   children: React.ReactNode;
 }) {
-  const maxHeight = sectionListMaxHeight(itemCount, scrollAfter);
+  const scrollable = sectionListNeedsScroll(itemCount);
 
   return (
     <div
@@ -100,9 +95,8 @@ function SectionCardList({
       data-todo-scroll={todoScroll ? "" : undefined}
       className={cn(
         teamBoardStyles.cardList,
-        maxHeight !== undefined && teamBoardStyles.cardListScrollable,
+        scrollable && teamBoardStyles.cardListScrollable,
       )}
-      style={maxHeight !== undefined ? { maxHeight } : undefined}
     >
       {children}
     </div>
@@ -180,7 +174,6 @@ function DroppableSection({
   onDrop,
   footer,
   itemCount,
-  scrollAfter,
   children,
 }: {
   title: string;
@@ -196,7 +189,6 @@ function DroppableSection({
   ) => void;
   footer?: React.ReactNode;
   itemCount: number;
-  scrollAfter: number;
   children: React.ReactNode;
 }) {
   const key = dropTargetKey(assigneeId, status);
@@ -230,7 +222,6 @@ function DroppableSection({
       <h3 className={teamBoardStyles.sectionTitle}>{title}</h3>
       <SectionCardList
         itemCount={itemCount}
-        scrollAfter={scrollAfter}
         todoScroll={editable && status === "todo"}
       >
         {children}
@@ -262,7 +253,6 @@ function TaskColumn({
   onQuickCreate,
   onClone,
   onDelete,
-  sectionScrollAfter,
 }: {
   assigneeId: string;
   assigneeName: string;
@@ -300,7 +290,6 @@ function TaskColumn({
   }) => Promise<boolean>;
   onClone: (taskId: string) => void;
   onDelete: (taskId: string) => void;
-  sectionScrollAfter: number;
 }) {
   const [doneOpen, setDoneOpen] = useState(false);
   const [doneLimit, setDoneLimit] = useState(DONE_PREVIEW_INITIAL);
@@ -322,7 +311,6 @@ function TaskColumn({
         onSectionDragOver={onSectionDragOver}
         onDrop={onDrop}
         itemCount={grouped.todo.length}
-        scrollAfter={sectionScrollAfter}
         footer={
           editable ? (
             <BoardQuickAddTask
@@ -396,7 +384,6 @@ function TaskColumn({
         onSectionDragOver={onSectionDragOver}
         onDrop={onDrop}
         itemCount={grouped.doing.length}
-        scrollAfter={sectionScrollAfter}
       >
         {grouped.doing.map((task) => (
           <BoardTaskItem
@@ -556,7 +543,6 @@ export function TeamBoard({
   editMode = "all",
   linkMemberProfiles = true,
   labels,
-  sectionScrollAfter = DEFAULT_BOARD_SECTION_SCROLL_AFTER,
 }: TeamBoardProps) {
   const { applyTaskUpdate, createTaskQuick, placeInTodoQueue, cloneTask, deleteTask } =
     useSync();
@@ -760,7 +746,6 @@ export function TeamBoard({
           onQuickCreate={handleQuickCreate}
           onClone={(taskId) => void cloneTask(taskId)}
           onDelete={(taskId) => void deleteTask(taskId)}
-          sectionScrollAfter={sectionScrollAfter}
         />
         {members.map((member) => {
           const columnTasks = tasks.filter((t) => t.assigneeId === member.id);
@@ -796,7 +781,6 @@ export function TeamBoard({
               onQuickCreate={handleQuickCreate}
               onClone={(taskId) => void cloneTask(taskId)}
               onDelete={(taskId) => void deleteTask(taskId)}
-              sectionScrollAfter={sectionScrollAfter}
             />
           );
         })}

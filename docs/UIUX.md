@@ -280,8 +280,8 @@ First column: the **signed-in member**. Then other members ordered by **To do co
 
 | Section | Status | Priority | Default state | Max visible |
 |---------|--------|----------|---------------|-------------|
-| **To do** | `todo` | High — **top card** has start icon (→ In progress); order = queue | Expanded | All cards |
-| **In progress** | `doing` | High — each card has neutral ✓ → Done | Expanded | All cards |
+| **To do** | `todo` | High — **top card** has start icon (→ In progress); order = queue | Expanded | All cards; section scrolls after **~3** (mobile) / **~4** (desktop ≥768px) |
+| **In progress** | `doing` | High — each card has neutral ✓ → Done | Expanded | All cards; same scroll window as To do |
 | **Done** | `done` | Low — green ✓ mark (not clickable; flow complete) | **Collapsed** | Count in header; expand shows last **5** cards; “Show more” loads **+10** older until exhausted |
 
 **Visual weight:**

@@ -11,8 +11,9 @@ export const teamBoardStyles = {
   sectionDropTarget: "bg-brand-accent-soft/40 ring-2 ring-inset ring-brand-accent/40",
   sectionTitle: "mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-primary)]",
   cardList: "flex flex-col gap-1.5",
+  /** Mobile ~3 cards; desktop ~4 (slot 68px). Applied when sectionListNeedsScroll. */
   cardListScrollable:
-    "overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] [scrollbar-width:thin]",
+    "max-h-[204px] overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] [scrollbar-width:thin] md:max-h-[272px]",
   doneSection: "p-2",
   doneToggle:
     "flex w-full items-center gap-2 rounded-button px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--surface-bg)]",

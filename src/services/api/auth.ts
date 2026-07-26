@@ -92,6 +92,23 @@ async function clearLoginFailures(userId: string) {
   });
 }
 
+/** P2-MON-02 — ops visibility; not shown in group activity. */
+function auditLoginFailed(input: {
+  reason: "unknown_or_inactive" | "locked" | "bad_password" | "empty";
+  email: string;
+  userId?: string;
+}) {
+  void writeAudit({
+    action: "login_failed",
+    actorType: "system",
+    actorId: input.userId ?? null,
+    metadata: {
+      reason: input.reason,
+      email: input.email,
+    },
+  });
+}
+
 export class ApiAuthService implements AuthService {
   async getSession(): Promise<Session | null> {
     const payload = await readSessionPayload();
@@ -101,7 +118,12 @@ export class ApiAuthService implements AuthService {
 
   async login(email: string, password: string): Promise<Session> {
     const normalized = email.trim().toLowerCase();
-    if (!normalized || !password) throw new Error("Invalid credentials");
+    if (!normalized || !password) {
+      if (normalized) {
+        auditLoginFailed({ reason: "empty", email: normalized });
+      }
+      throw new Error("Invalid credentials");
+    }
 
     const row = await prisma.user.findFirst({
       where: { email: normalized, active: true },
@@ -111,6 +133,7 @@ export class ApiAuthService implements AuthService {
         reason: "unknown_or_inactive",
         email: normalized,
       });
+      auditLoginFailed({ reason: "unknown_or_inactive", email: normalized });
       throw new Error("Invalid credentials");
     }
 
@@ -119,6 +142,11 @@ export class ApiAuthService implements AuthService {
         reason: "locked",
         userId: row.id,
         email: normalized,
+      });
+      auditLoginFailed({
+        reason: "locked",
+        email: normalized,
+        userId: row.id,
       });
       throw new Error("Invalid credentials");
     }
@@ -129,6 +157,11 @@ export class ApiAuthService implements AuthService {
         reason: "bad_password",
         userId: row.id,
         email: normalized,
+      });
+      auditLoginFailed({
+        reason: "bad_password",
+        email: normalized,
+        userId: row.id,
       });
       throw new Error("Invalid credentials");
     }

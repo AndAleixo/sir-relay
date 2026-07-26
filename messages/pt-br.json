@@ -421,6 +421,7 @@
       "title": "Resumo",
       "subtitle": "Sinais da plataforma nos últimos 7 dias.",
       "logins7d": "Logins",
+      "loginFailed7d": "Logins falhados",
       "exports7d": "Exportações",
       "groups7d": "Grupos com atividade",
       "recent": "Atividade recente",

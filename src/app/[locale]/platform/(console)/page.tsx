@@ -16,8 +16,9 @@ export default async function PlatformOverviewPage({
   const t = await getTranslations("platform");
 
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const [logins, exportsCount, activeGroups, recent] = await Promise.all([
+  const [logins, loginFailed, exportsCount, activeGroups, recent] = await Promise.all([
     countAuditSince(since, "login"),
+    countAuditSince(since, "login_failed"),
     countAuditSince(since, "export_data"),
     countDistinctGroupsWithAuditSince(since),
     queryAuditLogs({ page: 1, pageSize: 20 }),
@@ -30,8 +31,9 @@ export default async function PlatformOverviewPage({
         <p className="mt-1 text-sm text-[var(--text-muted)]">{t("overview.subtitle")}</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label={t("overview.logins7d")} value={logins} />
+        <Stat label={t("overview.loginFailed7d")} value={loginFailed} />
         <Stat label={t("overview.exports7d")} value={exportsCount} />
         <Stat label={t("overview.groups7d")} value={activeGroups} />
       </div>

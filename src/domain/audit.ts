@@ -10,6 +10,7 @@ export type AuditActorType = "operator" | "teammate" | "system";
 /** All recorded action codes written to `audit_logs`. */
 export type AuditAction =
   | "login"
+  | "login_failed"
   | "logout"
   | "password_change"
   | "task_create"

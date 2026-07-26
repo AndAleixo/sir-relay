@@ -407,7 +407,7 @@ Server writes append-only `audit_logs` via `writeAudit` (security + ops). Operat
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-AUD-01 | Recorded actions | Login, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** · **Done** (`writeAudit` / `writeAuditFromSession`) |
+| P2-AUD-01 | Recorded actions | Login, **login_failed**, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** · **Done** (`writeAudit` / `writeAuditFromSession`) |
 | P2-AUD-02 | Storage | `audit_logs`: id, action, actor_type, actor_id, metadata, created_at · **Done** |
 | P2-AUD-03 | Operator UI | `/[locale]/events` = alerts; `/events/activity` = group history (human language; no login/logout) · **Done** |
 | P2-AUD-04 | Platform admin | `/{locale}/platform/*` with **separate** env credentials (`PLATFORM_ADMIN_USERNAME` / `PLATFORM_ADMIN_PASSWORD`) + cookie `sirrelay_platform_session` · **Done** (no public audit API; not product login) |
@@ -454,7 +454,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P2-MON-01 | Structured app logs | JSON logs: request id, user id (if session), route, status; never log passwords or tokens · **Done** (`x-request-id` in `proxy.ts` · auto on `logJson` / `logJsonAsync`; no per-request start/end spam). Docker log rotation: `max-size` 10m × 5 |
-| P2-MON-02 | Failed login visibility | Audit event + optional Operator alert threshold (Phase 3) |
+| P2-MON-02 | Failed login visibility | **Done** — `login_failed` in `audit_logs` (reason + email; platform `/platform` + Audit filter). Operator alert threshold → Phase 3 |
 | P2-ANA-01 | Self-hosted analytics (optional) | Umami or Plausible in Docker Compose; disabled by default |
 | P2-ANA-02 | Env toggle | `ANALYTICS_ENABLED=false` default; `ANALYTICS_SCRIPT_URL` when true |
 | P2-ANA-03 | Cookie consent | If analytics uses non-essential cookies: banner on first visit — **Necessary** (session) always on · **Analytics** opt-in; store preference in `localStorage` or cookie `sirrelay_consent` |
@@ -731,6 +731,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Date | Change |
 |------|--------|
 | 2026-07-26 | Doc contract vs UIUX; slim §1 / §5.5 / §5.10; P1-TASK-14 clone; locale codes `en-gb`/`es-es`/`pt-br` |
+| 2026-07-26 | P2-MON-02 `login_failed` audit + platform overview count (7d) |
 | 2026-07-26 | P2-OPS-01–09 marked Done; monthly updates procedure in DEPLOY §9 |
 | 2026-07-26 | P1-AUTH-13/14 signup merge; invite naming; drop obsolete P3-02 (multi-operator = P1-TM-10) |
 | 2026-07-19 | Platform admin: separate ops login + session cookie (not `users.platform_admin`) |

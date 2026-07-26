@@ -335,14 +335,15 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Pendente Phase 2 follow-ups (opcional):**
 1. Nested postcss moderate inside Next (upstream; no safe force-fix)
-2. P2-MON-02 failed-login → audit event
-3. P2-ANA analytics (só se precisares de métricas de ecrã)
+2. P2-ANA analytics (só se precisares de métricas de ecrã)
 
 **Ops (feito):** P2-OPS-01–09 — [DEPLOY](./DEPLOY-DIGITALOCEAN.md) §3 firewall · §6 `.env`/`SESSION_SECRET` · §9 updates mensais · §9.1 backups. Postgres só na rede Docker `internal`; app `USER nextjs`.
 
 **Auth (feito):** signup merge `invited` — P1-AUTH-13/14 · `check:signup-merge`
 
 **Telegram (feito):** link webhook + task relay + operator alert DMs. Due alerts via `syncDueAlerts`.
+
+**Monitorização (feito):** P2-MON-01 request id · P2-MON-02 `login_failed` no audit + contagem no `/platform` overview.
 
 **Opcional:** REST `/api/v1/*` além de health + webhook (UI usa server actions).
 
@@ -352,4 +353,4 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 ---
 
-**Last updated:** 2026-07-26 (P2-OPS marked Done · monthly updates in DEPLOY)
+**Last updated:** 2026-07-26 (P2-MON-02 login_failed)

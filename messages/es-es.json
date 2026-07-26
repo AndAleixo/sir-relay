@@ -421,6 +421,7 @@
       "title": "Resumen",
       "subtitle": "Señales de la plataforma de los últimos 7 días.",
       "logins7d": "Inicios de sesión",
+      "loginFailed7d": "Inicios fallidos",
       "exports7d": "Exportaciones",
       "groups7d": "Grupos con actividad",
       "recent": "Actividad reciente",

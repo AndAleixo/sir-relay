@@ -16,6 +16,7 @@ assert.equal(actorTypeFromRole("teammate"), "teammate");
 assert.equal(actorTypeFromRole(null), "system");
 assert.equal(isGroupActivityAction("task_status"), true);
 assert.equal(isGroupActivityAction("login"), false);
+assert.equal(isGroupActivityAction("login_failed"), false);
 
 async function main() {
   process.env.NEXT_PUBLIC_SERVICE_MODE = "mock";
@@ -25,6 +26,12 @@ async function main() {
     action: "login",
     actorType: "operator",
     actorId: "u1",
+  });
+  await writeAudit({
+    action: "login_failed",
+    actorType: "system",
+    actorId: null,
+    metadata: { reason: "bad_password", email: "attacker@example.com" },
   });
   await writeAudit({
     groupId: "g-audit",
@@ -37,8 +44,16 @@ async function main() {
   const raw = await queryAuditLogs({ groupId: "g-audit", page: 1, pageSize: 10 });
   assert.equal(raw.total, 2);
 
+  const failed = await queryAuditLogs({
+    action: "login_failed",
+    page: 1,
+    pageSize: 10,
+  });
+  assert.ok(failed.total >= 1);
+  assert.equal(failed.entries[0]?.action, "login_failed");
+
   const crossGroup = await queryAuditLogs({ page: 1, pageSize: 10 });
-  assert.ok(crossGroup.total >= 2);
+  assert.ok(crossGroup.total >= 3);
 
   const activity = await listGroupActivity("g-audit", { page: 1, pageSize: 10 });
   assert.equal(activity.total, 1);

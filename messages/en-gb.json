@@ -421,6 +421,7 @@
       "title": "Overview",
       "subtitle": "Platform signals for the last 7 days.",
       "logins7d": "Logins",
+      "loginFailed7d": "Failed logins",
       "exports7d": "Exports",
       "groups7d": "Groups with activity",
       "recent": "Recent activity",

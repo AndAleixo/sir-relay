@@ -1,124 +1,59 @@
 # SirRelay
 
-**SirRelay** is an app by **Sir** — a **hosted web task relay** for small groups.
-
-Create an account, join or start a **group**, then work as **Operator** or **Teammate** inside that group. On **Telegram**, the bot delivers **one task at a time** — reply `done` and the next task in the queue is sent automatically. **No dashboards, no performance metrics** — calm coordination, not surveillance.
+Hosted **web + Telegram task relay** for small groups (by **Sir**). One active Telegram task per assignee; reply `done` → next in queue. No KPI dashboards.
 
 | | |
 |---|---|
-| **Brand** | Sir |
-| **App** | SirRelay |
-| **Repository** | `sir-relay` |
-| **Colors** | Yellow `#EAB308` + gray + black + white — [docs/BRAND.md](./docs/BRAND.md) |
-| **Icon** | `brand/icon.svg` — yellow square + **SirR** |
-| **Compact logo** | `brand/logo-compact.svg` — **SirR** + line |
-| **Full logo** | `brand/logo.svg` — **SirRelay** + line |
-| **Telegram bot** | SirRelay (e.g. `@SirRelayBot`) |
+| Brand / app / repo | **Sir** · **SirRelay** · `sir-relay` |
+| Locales | `en-gb` · `es-es` · `pt-br` |
+| Visual identity | [docs/BRAND.md](./docs/BRAND.md) |
+| Telegram bot | SirRelay (e.g. `@SirRelayBot`) |
+
+**Roles (per group):** Operator manages members/tasks on the web (+ alerts on Telegram). Teammate works mainly on Telegram; web My work / Team (edit own). Details: [docs/REQUIREMENTS.md](./docs/REQUIREMENTS.md).
 
 ---
 
-## Before you change the code
+## Docs (read before changing code)
 
-**Any developer or LLM modifying this repository must read the documentation in [`docs/`](./docs/) before writing code.**
+| File | Use for |
+|------|---------|
+| [**REQUIREMENTS.md**](./docs/REQUIREMENTS.md) | Product rules, phases, IDs, API, permissions |
+| [**UIUX.md**](./docs/UIUX.md) | Layout, boards, screens, interactions |
+| [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) | `src/`, services, mock → API |
+| [**ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) | Dev mock · hybrid · prod local · VPS |
+| [**BRAND.md**](./docs/BRAND.md) | Colors, logos, tokens |
+| [**DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | Production Droplet deploy + backups |
 
-These files define the product, UI, architecture, and brand. Skipping them leads to inconsistent implementations, out-of-scope features, or visual regressions. Recommended reading order:
-
-1. [**docs/REQUIREMENTS.md**](./docs/REQUIREMENTS.md) — what the product does, business rules, phases, API, permissions (**source of truth**)
-2. [**docs/UIUX.md**](./docs/UIUX.md) — layouts, boards, screens, interactions, components
-3. [**docs/ARCHITECTURE.md**](./docs/ARCHITECTURE.md) — code structure, mock routes, mock → API
-4. [**docs/ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) — four environments: dev mock · dev hybrid · prod local · prod VPS
-5. [**docs/BRAND.md**](./docs/BRAND.md) — colors, logos, visual tokens
-
-For deployment, read [**docs/DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) after the above.
-
----
-
-## Documentation (`docs/`)
-
-| File | Contents | When to read |
-|------|----------|--------------|
-| [**REQUIREMENTS.md**](./docs/REQUIREMENTS.md) | Full spec: roles, relay queue, tasks, Telegram, phases 1–3, schema, API, permissions | **Always** — before any product feature or bugfix |
-| [**UIUX.md**](./docs/UIUX.md) | Shell, boards (Operator vs Teammate), cards, forms, empty states, components | When changing pages, layout, or UI flows |
-| [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) | `src/` layout, mock routes, `getServices()`, sync, task forms | When changing structure, services, or mock/API integration |
-| [**ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) | Dev mock · dev hybrid · prod local · prod VPS; env vars; workflow | When setting up local DB, Docker smoke test, or planning deploy |
-| [**BRAND.md**](./docs/BRAND.md) | Sir identity, icons vs logos, palette, CSS tokens | When changing colors, typography, logos, or visual components |
-| [**DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | DigitalOcean Droplet deploy: Docker Compose, PostgreSQL, Caddy, HTTPS | When preparing or updating production |
-
-Development is split into **3 phases** — see [REQUIREMENTS.md §3](./docs/REQUIREMENTS.md#3-development-phases):
-
-- **Phase 1** — Relay workflow + deploy (usable product)
-- **Phase 2** — Security, audit storage + Events activity, VPS hardening
-- **Phase 3** — New features (backlog)
+Phases 1–3: [REQUIREMENTS §3](./docs/REQUIREMENTS.md#3-development-phases).
 
 ---
 
-## What it is
-
-Distributes operational tasks and tracks progress in one place — web for the full picture, Telegram for fast day-to-day work.
-
-| Role | How they use it |
-|------|-----------------|
-| **User** | Creates an account, then **creates a group** or **joins one by invite** |
-| **Operator** (in a group) | Web: manage members, create tasks, view Kanban/list · Telegram: **task relay** when assigned + **alerts** |
-| **Teammate** (in a group) | **Telegram** (primary): one task at a time · **Web**: My work / Team (edit own; view group in Team) |
-
-### Relay flow
-
-1. Operator **pre-creates** a teammate (email) and sends the **invite link**  
-2. Teammate **activates** via invite **or** sign-up with the same email → links Telegram on **Profile**  
-3. Operator creates tasks — **any linked assignee** (teammate or operator) gets **at most one** active Telegram task (queue)  
-4. Assignee **replies** to the message (e.g. `done`, `feito`) → task becomes `done` → **next task arrives on Telegram**  
-5. Everyone sees the same state on the web  
-
-Hosting: **DigitalOcean Droplet** (EU) with a **public domain** — Docker Compose, PostgreSQL, Caddy (HTTPS). Daily DB backup to Google Drive (`scripts/db/backup-offsite.sh`, cron 05:00). See [docs/DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md) (§9.1 backups).
-
-**Future:** native iOS/Android apps (Phase 3) will use the same API — web is the primary client for now.
-
-Languages: **English (UK), Spanish (Spain), and Portuguese (Brazil)** (`en-gb`, `es-es`, `pt-br`).
-
----
-
-## Stack (summary)
-
-- **Next.js 16** (App Router) + TypeScript + React 19
-- **PostgreSQL** + Prisma
-- **Telegram** (grammy, webhook)
-- **Docker Compose** + Caddy
-
-Details in [REQUIREMENTS.md §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-layout).
-
----
-
-## Project status
-
-**UI mock complete** — landing + app shell + group panel (switch/create/join); leave/delete in Settings; promote on teammate detail. **Phase 1 backend (Prisma + `services/api`)** — use **dev-hybrid** with Postgres.
-
-| Ambiente | Comando | Estado |
-|----------|---------|--------|
-| Dev mock | `npm run dev-mock` | Active — in-memory, any password |
-| Dev híbrido | `npm run dev-hybrid` | Active — Postgres + API, `SirRelay1`, resume last group |
-| Prod local | `npm run prod-local` | Active — Docker stack (smoke OK) |
-| Prod VPS | `bash scripts/env/prod-vps.sh` | Active — deploy + backups |
+## Run locally
 
 ```bash
 npm install && npm run dev-mock && npm run check:routes
 ```
 
-Open `http://localhost:3000` · demo: `sam@example.com` · `ana@example.com` (tasks) · Settings → leave (owner succession) · signup → `/groups`
+Open `http://localhost:3000` · demo `sam@example.com` / `ana@example.com` (any password in mock).
+
+| Environment | Command |
+|-------------|---------|
+| Dev mock | `npm run dev-mock` |
+| Dev hybrid (Postgres + API) | `npm run dev-hybrid` |
+| Prod local (Docker) | `npm run prod-local` |
+| Prod VPS | `bash scripts/env/prod-vps.sh` |
+
+Stack: Next.js 16 · React 19 · Prisma · PostgreSQL · grammy · Docker Compose + Caddy — [REQUIREMENTS §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-layout).
 
 ---
 
 ## Dependency audit (P2-SEC-10)
 
-`npm audit` reports **known security advisories** in installed packages — **not** “deprecated” warnings.
-
 ```bash
-npm run audit:prod   # same as: npm audit --omit=dev
+npm run audit:prod   # npm audit --omit=dev
 ```
 
-**Deploy rule:** no **critical** in prod deps. **High** → upgrade if possible without a major break; otherwise record and schedule.
-
-**Today:** on **Next 16.2** — prod `audit:prod` has **no critical/high**. Remaining: **moderate** nested `postcss` inside Next (no safe bump without `audit fix --force` downgrade). Image Optimizer stays off (`next.config.mjs`) — app does not use `next/image`.
+No **critical** in prod deps. **High** → upgrade if safe, else record. On Next 16.2: no critical/high; remaining moderate nested `postcss` (no safe bump without force). Image Optimizer off — app does not use `next/image`.
 
 ---
 

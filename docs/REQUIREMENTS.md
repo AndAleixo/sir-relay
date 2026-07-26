@@ -3,36 +3,34 @@
 **Product:** SirRelay · **Brand:** Sir  
 **Status:** Living spec — 3 phases, implement one at a time  
 **Audience:** Developer / AI implementer  
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-26
 
-Related docs: [BRAND.md](./BRAND.md) · [UIUX.md](./UIUX.md) · [README.md](../README.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
+**Doc contract:** Source of truth for **what must work** — product rules, acceptance IDs, permissions, schema, API. **Layout / interaction / screen chrome** → [UIUX.md](./UIUX.md). **Visual tokens** → [BRAND.md](./BRAND.md). Do not restate wireframes or component inventories here.
+
+Related docs: [UIUX.md](./UIUX.md) · [ARCHITECTURE.md](./ARCHITECTURE.md) · [BRAND.md](./BRAND.md) · [ENVIRONMENTS.md](./ENVIRONMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) · [README.md](../README.md)
 
 ---
 
 ## 1. Product summary
 
-**SirRelay** is a **hosted web task relay** for small teams (typically **2–5 people per group**), built by **Sir**. Deployed on a **public domain** (DigitalOcean + HTTPS); data lives in **PostgreSQL** on the server.
+**SirRelay** is a **hosted web task relay** for small teams (typically **2–5 people per group**), built by **Sir**. Public domain (DigitalOcean + HTTPS); data in **PostgreSQL**.
 
 | Piece | Description |
 |-------|-------------|
-| **Marketing site** | Public landing at `/[locale]` — product story, demo, Sign up / Log in |
-| **Web app** | One account per person; work happens inside a **group**. **Role** (`operator` / `teammate`) is **per group**, not a global account type |
-| **Telegram bot** | Delivers tasks one at a time to linked assignees; they reply to report progress |
-| **Relay queue** | When a task is marked `done`, the next `todo` task is sent automatically |
+| **Marketing site** | Public `/[locale]` — layout in [UIUX.md §2.0](./UIUX.md#20-marketing-landing) |
+| **Web app** | One account; work inside a **group**. Role (`operator` / `teammate`) is **per group** |
+| **Telegram bot** | One task at a time to linked assignees; reply to update status |
+| **Relay queue** | On `done`, next `todo` for that assignee is sent automatically |
 
-**Account model:** Anyone can **sign up**. After login they **create a group** (becoming **operator** there) or **join a group** as **teammate** — via **invite link**, **group panel paste**, or (intended) **sign-up email match** (see §5.1.2; P1-AUTH-13 not shipped yet). The **same user** can be operator in one group and teammate in another — switch active group via the **header group switcher panel** or `/groups` when no group is active.
+**Account model:** Sign up → **create a group** (become operator) or **join** as teammate (invite link, panel paste; sign-up email match = P1-AUTH-13, **not shipped**). Same user may hold different roles in different groups. Active group via header switcher or `/groups`.
 
-**Pre-created teammate (operator):** The operator **does not create a login** for someone else. They **pre-register** by **email only** → placeholder user (`account_status: invited`, no password, no operator-chosen name) + **teammate** membership in the active group → **invite link** to share. The person sets their own **account name** on activation via **`/join/<token>`** (sign-up merge with the same email is specified in §5.1.2 Path B but **not shipped**).
+**Pre-create:** Operator registers **email only** → `invited` user + teammate membership + invite link. Person activates via `/join/<token>` (sets name + password). Details: §5.1.2.
 
-**Positioning:** Simple team coordination — **no performance dashboards, leaderboards, or surveillance-style metrics.**
+**In a group:** **Operator** — manage members/tasks, monitor web, Telegram relay + alerts. **Teammate** — Telegram primary; web My work / Team (edit own); may create self-assigned tasks. No web comment thread.
 
-**Operator (in a group)** creates teammates and tasks (including self-assigned), monitors on the web, and can use Telegram for **task relay** plus **alerts**.
+**Positioning:** No KPI dashboards, leaderboards, or surveillance metrics. **Clients:** web first (Phase 1); native apps → Phase 3 (P3-13).
 
-**Teammate (in a group)** works via Telegram (primary) or web: can **create self-assigned tasks**, use **My work** / **Team** scopes (edit own; view group in Team), updates status on the web. Telegram replies are stored server-side for relay; there is **no web comment thread**.
-
-**Clients:** Responsive **web first** (Phase 1). Native **iOS/Android** → Phase 3 (P3-13), same `/api/v1`.
-
-**Languages:** English, Spanish, Portuguese (`en`, `es`, `pt`).
+**Languages:** UI locales `en-gb` · `es-es` · `pt-br` (DB may store short `en` / `es` / `pt`).
 
 ---
 
@@ -230,6 +228,7 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TASK-11 | Queue order | Next / head: `sort_order ASC`, then `due_date ASC NULLS LAST`, then `created_at ASC`. Web: drag to place/reorder in editable To do columns; drop inside scroll list = insert by Y, drop on section chrome = append; Telegram follows queue head |
 | P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). Same for teammate **and** operator assignees. |
 | P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves (or other operators); visible on web board in the **self column** (member label, not “Me”) and other member columns; **Telegram relay** when linked (same queue rules as teammates) |
+| P1-TASK-14 | Clone | Who can **create** a task for that assignee may clone an editable task. Copy title, description, due, assignee, status; insert **immediately below** source in that status queue (`sort_order`). Does not copy Telegram message ids. UI: board **⋯** menu — [UIUX.md §4](./UIUX.md#4-task-card) |
 
 ### 5.4 Telegram activity (no web comment UI)
 
@@ -244,20 +243,20 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-UI-01 | Branding | Login/header logos per [BRAND.md](./BRAND.md); favicon `icon.svg`; tokens `brand/brand.css` |
-| P1-UI-02 | Role-based nav | Nav reflects **role in active group**: Operator → Tasks · Teammates · Events · Settings · Teammate → Tasks · Settings; **Profile** via avatar / sidebar footer |
-| P1-UI-03 | Marketing landing | Public `/[locale]` when logged out — hero, product demo, feature highlights, footer — [UIUX.md §2.0](./UIUX.md#20-marketing-landing) |
-| P1-UI-04 | Landing header | `logo.svg`, locale switcher, **Sign up** + **Log in** → `/signup` · `/login` |
-| P1-UI-05 | Product demo | **`public/brand/demo.webm`** in hero (muted, loop); CSS board fallback |
+| P1-UI-01 | Branding | Logos / tokens per [BRAND.md](./BRAND.md) |
+| P1-UI-02 | Role-based nav | Active-group role: Operator → Tasks · Teammates · Events · Settings · Teammate → Tasks · Settings; Profile via avatar / sidebar footer — [UIUX.md §2.2](./UIUX.md#22-app-shell) |
+| P1-UI-03 | Marketing landing | Public `/[locale]` when logged out — [UIUX.md §2.0](./UIUX.md#20-marketing-landing) |
+| P1-UI-04 | Landing entry | Locale switcher + **Sign up** / **Log in** — details in UIUX §2.0 |
+| P1-UI-05 | Product demo | Hero demo video + CSS fallback — details in UIUX §2.0 |
 | P1-UI-06 | No metric UI | No velocity charts, leaderboards, or employee KPI dashboards in Phase 1–2 |
 | P1-UI-07 | App store links | **None** in Phase 1 — web only; native store badges → P3-13 |
 | P1-VIEW-01 | List sort | By due date, status, updated_at |
-| P1-VIEW-02 | Task boards | **My work:** 3-column Kanban. **Team:** self column + others by To do count at page load — [UIUX.md §3](./UIUX.md#3-task-boards--scope--layout). Operator edits all; teammate edits own column only |
+| P1-VIEW-02 | Task boards | **My work** Kanban · **Team** member columns — layout [UIUX.md §3](./UIUX.md#3-task-boards--scope--layout). Operator edits all; teammate edits own only |
 | P1-VIEW-03 | List view | Both roles; My work / Team scope; sort/filter; mobile fallback |
-| P1-VIEW-04 | Responsive | Usable at 375px; Team board → list on mobile per UIUX.md |
-| P1-I18N-01 | Locales | Full UI in `en`, `es`, `pt` via next-intl |
-| P1-I18N-02 | User locale | Persisted; selector on login, header, and **Profile** (`PATCH /me`) |
-| P1-I18N-03 | Telegram copy | Per-user locale (Profile or join URL); fallback `en-gb` |
+| P1-VIEW-04 | Responsive | Usable at 375px — [UIUX.md §12](./UIUX.md#12-responsive-summary) |
+| P1-I18N-01 | Locales | Full UI in `en-gb` · `es-es` · `pt-br` via next-intl |
+| P1-I18N-02 | User locale | Persisted on account; selectors on login, header (URL), and **Profile** (`PATCH /me`) |
+| P1-I18N-03 | Telegram copy | Per-user locale; fallback `en-gb` — message shapes in [UIUX.md §10](./UIUX.md#10-telegram-ux-companion-to-web) |
 
 ### 5.6 Telegram bot
 
@@ -362,26 +361,25 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 ### 5.10 Routes
 
-**Web** (`/[locale]/`):
+**Access matrix** (`/[locale]/`). Screen chrome and empty states: [UIUX.md §6](./UIUX.md#6-screen-inventory).
 
 | Route | Operator in group | Teammate in group | Notes |
 |-------|-------------------|-------------------|-------|
-| `/` (locale home) | Redirect if session | Redirect if session | **Public landing** when logged out |
-| `login`, `signup` | Public | Public | Account entry; **AuthPageHeader** → back to landing |
-| `groups` | Yes | Yes | No active group landing (panel opens); create/join in switcher |
-| `privacy`, `terms` | Public | Public | Footer links; **AuthPageHeader** on legal pages |
+| `/` (locale home) | Redirect if session | Redirect if session | Public landing when logged out |
+| `login`, `signup` | Public | Public | Account entry |
+| `groups` | Yes | Yes | No active group; panel opens |
+| `privacy`, `terms` | Public | Public | Legal |
 | `join/[token]`, `change-password` | — | — | Auth flows |
-| `profile` | Yes | Yes | Account is global; accessible without active group; no role badge |
-| `tasks` | My work / Team (Board \| List) | My work / Team (Board \| List; Team = view others, edit own) |
-| `tasks/new` | Yes | Yes (self-assign only) |
-| `tasks/[id]` | Yes | Own editable · others read-only | Edit form + delete when allowed |
-| `teammates`, `teammates/new`, `teammates/[id]` | Yes (list includes operators in group) | — |
-| `events` | Yes | — | Operator alerts (done / due) |
-| `events/activity` | Yes | — | Group activity (human language; no login) |
-| `settings` | Yes | Yes | Alert prefs, leave/delete group |
-| `platform/login`, `platform`, `platform/audit`, … | — | — | Ops cookie + `PLATFORM_ADMIN_*` (not product session) |
+| `profile` | Yes | Yes | Global account; OK without active group |
+| `tasks` | My work / Team | My work / Team (edit own) | Board \| List |
+| `tasks/new` | Yes | Yes (self only) | |
+| `tasks/[id]` | Yes | Own editable · others read-only | |
+| `teammates`, `teammates/new`, `teammates/[id]` | Yes | — | |
+| `events`, `events/activity` | Yes | — | Alerts · group history |
+| `settings` | Yes | Yes | Group prefs, leave/delete |
+| `platform/*` | — | — | Ops cookie (`PLATFORM_ADMIN_*`), not product session |
 
-**Phase 1 acceptance test:** Landing → sign up → create group → pre-create teammate → share invite → teammate activates via `/join/<token>` → links Telegram on Profile → two tasks → relay `done` on Telegram. **Or:** demo `sam@example.com` → Demo Shop → same loop. Stack on VPS with HTTPS. (Sign-up merge Path B is out of scope until P1-AUTH-13.)
+**Phase 1 acceptance test:** Landing → sign up → create group → pre-create teammate → invite → `/join/<token>` → link Telegram on Profile → two tasks → relay `done` on Telegram. **Or** demo `sam@example.com` → Demo Shop. VPS + HTTPS. (Sign-up merge Path B until P1-AUTH-13.)
 
 ---
 
@@ -573,6 +571,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Demote operator → teammate | Yes (not owner / not last operator) | — | — |
 | Manage teammates | Yes | — | — |
 | Create / edit / delete tasks | Yes | Own tasks only | — |
+| Clone task | Yes (any editable) | Own tasks only | — |
 | View tasks | All in group | All in group (edit own only) | Current notification |
 | Change status | Yes | Own tasks (`done` → relay) | Keywords (`done` → relay) |
 | Telegram reply log | — | — | Reply (stored server-side) |
@@ -620,6 +619,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | GET | `/tasks/:id` | 1 | Any member in group (read) |
 | PATCH | `/tasks/:id` | 1 | Operator (full) · Teammate (own tasks) |
 | DELETE | `/tasks/:id` | 1 | Operator (any in group) · Teammate (if assignee) |
+| POST | `/tasks/:id/clone` | 1 | Optional REST — today: server action `cloneTask` (P1-TASK-14) |
 | POST | `/tasks/:id/notify` | 1 | Operator in active group |
 | POST | `/telegram/webhook` | 1 | Webhook secret |
 | GET | `/health` | 1 | Public |
@@ -729,6 +729,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-07-26 | Doc contract vs UIUX; slim §1 / §5.5 / §5.10; P1-TASK-14 clone; locale codes `en-gb`/`es-es`/`pt-br` |
 | 2026-07-19 | Platform admin: separate ops login + session cookie (not `users.platform_admin`) |
 | 2026-07-19 | Platform admin UI: `/platform/*` (P2-AUD-04) |
 | 2026-07-19 | Split activity vs audit: `lib/activity` for `/events/activity`; `lib/audit` = store write/query only |

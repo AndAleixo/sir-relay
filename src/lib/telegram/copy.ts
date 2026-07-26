@@ -17,13 +17,13 @@ export function welcomeLinked(name: string, locale: DbLocale, operator: boolean)
     return pick(locale, {
       en: `Welcome to SirRelay, ${name}!\nYour Telegram is linked — you'll receive assigned tasks here one at a time, plus operator alerts.\nWhen a task arrives, reply to THAT message (not a new chat line) with done or in progress.`,
       es: `Bienvenido a SirRelay, ${name}.\nTelegram vinculado — recibirás tareas asignadas de una en una, más alertas de operador.\nCuando llegue una tarea, responde a ESE mensaje (no una línea nueva) con listo o en progreso.`,
-      pt: `Bem-vindo ao SirRelay, ${name}!\nTelegram ligado — receberá tarefas atribuídas uma de cada vez, e também alertas de operador.\nQuando chegar uma tarefa, responda a ESSA mensagem (não uma linha nova) com feito ou em progresso.`,
+      pt: `Bem-vindo ao SirRelay, ${name}!\nTelegram vinculado — você receberá tarefas atribuídas uma de cada vez, e também alertas de operador.\nQuando chegar uma tarefa, responda a ESSA mensagem (não uma linha nova) com feito ou em progresso.`,
     });
   }
   return pick(locale, {
     en: `Welcome to SirRelay, ${name}!\nYou'll receive tasks here one at a time.\nWhen a task arrives, reply to THAT message (not a new chat line) with done or in progress.`,
     es: `Bienvenido a SirRelay, ${name}.\nRecibirás tareas aquí de una en una.\nCuando llegue una tarea, responde a ESE mensaje (no una línea nueva) con listo o en progreso.`,
-    pt: `Bem-vindo ao SirRelay, ${name}!\nReceberá tarefas aqui uma de cada vez.\nQuando chegar uma tarefa, responda a ESSA mensagem (não uma linha nova) com feito ou em progresso.`,
+    pt: `Bem-vindo ao SirRelay, ${name}!\nVocê receberá tarefas aqui uma de cada vez.\nQuando chegar uma tarefa, responda a ESSA mensagem (não uma linha nova) com feito ou em progresso.`,
   });
 }
 
@@ -31,7 +31,7 @@ export function alreadyLinked(name: string, locale: DbLocale): string {
   return pick(locale, {
     en: `Hi ${name} — this SirRelay account is already linked to Telegram.`,
     es: `Hola ${name}: esta cuenta SirRelay ya está vinculada a Telegram.`,
-    pt: `Olá ${name} — esta conta SirRelay já está ligada ao Telegram.`,
+    pt: `Olá ${name} — esta conta SirRelay já está vinculada ao Telegram.`,
   });
 }
 
@@ -47,7 +47,7 @@ export function chatTaken(locale: DbLocale): string {
   return pick(locale, {
     en: "This Telegram chat is already linked to another SirRelay account.",
     es: "Este chat de Telegram ya está vinculado a otra cuenta SirRelay.",
-    pt: "Este chat Telegram já está ligado a outra conta SirRelay.",
+    pt: "Este chat Telegram já está vinculado a outra conta SirRelay.",
   });
 }
 
@@ -55,7 +55,7 @@ export function startWithoutCode(locale: DbLocale): string {
   return pick(locale, {
     en: "Open the Telegram link from your SirRelay Profile to connect this chat.",
     es: "Abre el enlace de Telegram desde tu Cuenta en SirRelay para conectar este chat.",
-    pt: "Abra o link Telegram a partir da sua Conta no SirRelay para ligar este chat.",
+    pt: "Abra o link do Telegram pela sua Conta no SirRelay para vincular este chat.",
   });
 }
 
@@ -105,7 +105,7 @@ export function replyToTaskHint(locale: DbLocale): string {
   return pick(locale, {
     en: "To update a task, reply to the task message (tap and hold → Reply) with done or in progress.",
     es: "Para actualizar una tarea, responde al mensaje de la tarea (mantener pulsado → Responder) con listo o en progreso.",
-    pt: "Para actualizar uma tarefa, responda à mensagem da tarefa (manter premido → Responder) com feito ou em progresso.",
+    pt: "Para atualizar uma tarefa, responda à mensagem da tarefa (manter pressionado → Responder) com feito ou em progresso.",
   });
 }
 

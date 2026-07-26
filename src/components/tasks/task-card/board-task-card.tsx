@@ -56,6 +56,7 @@ export function BoardTaskCard({
   const [editingDue, setEditingDue] = useState(false);
   const [dueDraft, setDueDraft] = useState(task.dueDate ?? "");
   const [saving, setSaving] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setTitleDraft(task.title);
@@ -221,65 +222,71 @@ export function BoardTaskCard({
             task.telegramNotifyFailed && "pr-3",
           )}
         >
-          {editingDue && !readOnly ? (
-            <Input
-              autoFocus
-              type="date"
-              className={cn(taskCardStyles.inlineDateInput, "flex-1")}
-              value={dueDraft}
-              disabled={saving}
-              onChange={(event) => setDueDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
+          <div
+            className={cn(
+              taskCardStyles.footerSlot,
+              menuOpen && taskCardStyles.footerSlotHidden,
+            )}
+          >
+            {editingDue && !readOnly ? (
+              <Input
+                autoFocus
+                type="date"
+                className={cn(taskCardStyles.inlineDateInput, "w-full")}
+                value={dueDraft}
+                disabled={saving}
+                onChange={(event) => setDueDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    void saveDueDate();
+                  }
+                  if (event.key === "Escape") {
+                    setDueDraft(task.dueDate ?? "");
+                    setEditingDue(false);
+                  }
+                }}
+                onBlur={() => {
                   void saveDueDate();
-                }
-                if (event.key === "Escape") {
-                  setDueDraft(task.dueDate ?? "");
-                  setEditingDue(false);
-                }
-              }}
-              onBlur={() => {
-                void saveDueDate();
-              }}
-            />
-          ) : hasDue ? (
-            readOnly ? (
-              <p
-                className={cn(
-                  taskCardStyles.dueReadonly,
-                  "min-w-0 flex-1",
-                  overdue && taskCardStyles.overdue,
-                )}
-              >
-                {dueWithOverdue}
+                }}
+              />
+            ) : hasDue ? (
+              readOnly ? (
+                <p
+                  className={cn(
+                    taskCardStyles.dueReadonly,
+                    overdue && taskCardStyles.overdue,
+                  )}
+                >
+                  {dueWithOverdue}
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  className={cn(
+                    taskCardStyles.dueButton,
+                    "w-full",
+                    overdue && taskCardStyles.overdue,
+                  )}
+                  onClick={() => setEditingDue(true)}
+                >
+                  {dueWithOverdue}
+                </button>
+              )
+            ) : descriptionInFooter ? (
+              <p className={taskCardStyles.descriptionInFooter}>
+                {descriptionPreview}
               </p>
-            ) : (
+            ) : readOnly ? null : (
               <button
                 type="button"
-                className={cn(
-                  taskCardStyles.dueButton,
-                  "min-w-0 flex-1",
-                  overdue && taskCardStyles.overdue,
-                )}
+                className={cn(taskCardStyles.dueButton, "w-full")}
                 onClick={() => setEditingDue(true)}
               >
-                {dueWithOverdue}
+                {labels.addDueDate}
               </button>
-            )
-          ) : descriptionInFooter ? (
-            <p className={taskCardStyles.descriptionInFooter}>{descriptionPreview}</p>
-          ) : readOnly ? (
-            <p className={cn(taskCardStyles.dueReadonly, "min-w-0 flex-1")} />
-          ) : (
-            <button
-              type="button"
-              className={cn(taskCardStyles.dueButton, "min-w-0 flex-1")}
-              onClick={() => setEditingDue(true)}
-            >
-              {labels.addDueDate}
-            </button>
-          )}
+            )}
+          </div>
           <TaskCardMenu
             href={href}
             taskMenu={labels.taskMenu}
@@ -289,6 +296,7 @@ export function BoardTaskCard({
             deleteConfirm={labels.deleteConfirm}
             canMutate={!readOnly && Boolean(onClone && onDelete)}
             disabled={saving}
+            onOpenChange={setMenuOpen}
             onClone={() => onClone?.()}
             onDelete={() => onDelete?.()}
           />

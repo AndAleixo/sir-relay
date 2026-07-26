@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { useDismissable } from "@/hooks/use-dismissable";
 import { useFadeOpen } from "@/hooks/use-fade-open";
@@ -17,6 +17,8 @@ type TaskCardMenuProps = {
   /** When false, only Open is shown (read-only columns). */
   canMutate: boolean;
   disabled?: boolean;
+  /** True while the menu is mounted (incl. close fade). */
+  onOpenChange?: (open: boolean) => void;
   onClone: () => void | Promise<void>;
   onDelete: () => void | Promise<void>;
 };
@@ -30,6 +32,7 @@ export function TaskCardMenu({
   deleteConfirm,
   canMutate,
   disabled,
+  onOpenChange,
   onClone,
   onDelete,
 }: TaskCardMenuProps) {
@@ -37,6 +40,11 @@ export function TaskCardMenu({
   const { rendered, visible, onTransitionEnd } = useFadeOpen(open);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
+
+  useEffect(() => {
+    onOpenChange?.(rendered);
+  }, [rendered, onOpenChange]);
+
   const dismiss = useCallback(() => setOpen(false), []);
   useDismissable(open, dismiss, rootRef);
 

@@ -70,7 +70,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 
-**Backend (Phase 1–2):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `proxy.ts` · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · (optional full REST) · **Phase 2 remaining:** P2-OPS checklist polish.
+**Backend (Phase 1–2):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `proxy.ts` · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS) · (optional full REST).
 
 ## Entry redirects
 

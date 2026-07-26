@@ -8,7 +8,7 @@ Visitantes acedem à **landing** (`https://app.sirrelay.com/en-gb`); utilizadore
 
 **Ambientes (4):** dev mock · dev híbrido · prod local · prod VPS — [ENVIRONMENTS.md](./ENVIRONMENTS.md). Este guia cobre **prod VPS**.
 
-**Estado (2026-07):** prod VPS em `app.sirrelay.com` — Docker + Caddy + Postgres; backups diários 05:00 → Google Drive (rclone); restore testado; DNS na Network Solutions.
+**Estado (2026-07):** prod VPS em `app.sirrelay.com` — Docker + Caddy + Postgres; backups diários 05:00 → Google Drive; restore testado; P2-OPS-01–09 documentados (§3 · §6 · §9).
 
 ---
 
@@ -192,12 +192,28 @@ curl -s "${APP_URL}/api/v1/health"
 | Tarefa | Comando |
 |--------|---------|
 | Actualizar app | `git pull && bash scripts/env/prod-vps.sh` (como `deploy`) |
-| Logs | `docker compose logs -f app caddy` · rotação `10m`×5 ficheiros (`docker-compose.yml`) · correlacionar com `x-request-id` / campo `requestId` no JSON |
-
+| Logs | `docker compose logs -f app caddy` · rotação `10m`×5 · correlacionar com `x-request-id` / `requestId` |
 | Backup DB | `bash scripts/db/backup.sh` |
 | Backup + Drive | `bash scripts/db/backup-offsite.sh` — §9.1 |
 | Restore DB | `bash scripts/db/restore.sh backups/….sql.gz` |
 | Reiniciar | `docker compose restart` |
+
+### Updates mensais (P2-OPS-09)
+
+Uma vez por mês (ou após aviso de segurança):
+
+```bash
+# Host (Ubuntu)
+sudo apt update && sudo apt upgrade -y
+
+# App images + rebuild
+cd ~/sir-relay
+git pull
+bash scripts/env/prod-vps.sh   # rebuild app + migrate + up
+docker image prune -f
+```
+
+Confirmar depois: `curl -s "${APP_URL}/api/v1/health"` · login produto · (se aplicável) Telegram `getWebhookInfo`.
 
 ### 9.1 Backups off-VPS (Google Drive via rclone)
 
@@ -249,6 +265,7 @@ Retenção local 7 dias (`BACKUP_RETAIN_DAYS`); no Drive limpa manualmente ou `r
 3. Se `PLATFORM_ADMIN_*` no `.env`: `/{locale}/platform/login` → Overview / Audit
 4. Telegram: `getWebhookInfo` OK (se bot activo)
 5. Backup: `bash scripts/db/backup.sh` (ou confirmar cron offsite §9.1)
+6. Ops checklist (P2-OPS): firewall §3 · `chmod 600 .env` · `SESSION_SECRET` · Postgres só na rede `internal` · `USER nextjs` · updates mensais §9
 
 ---
 
@@ -256,7 +273,8 @@ Retenção local 7 dias (`BACKUP_RETAIN_DAYS`); no Drive limpa manualmente ou `r
 
 | Ficheiro | Função |
 |----------|--------|
-| `docker-compose.yml` | app + postgres + caddy |
+| `docker-compose.yml` | app + postgres + caddy (`internal`; só 80/443 públicos) |
+| `Dockerfile` | app non-root (`USER nextjs`) |
 | `Caddyfile` | HTTPS + redirect apex/www |
 | `scripts/bootstrap-droplet.sh` | user deploy + Docker + rclone |
 | `scripts/env/prod-vps.sh` | git pull + migrate + compose up |

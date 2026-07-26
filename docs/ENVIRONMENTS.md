@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** Quatro ambientes **Active** (mock · híbrido · prod local · VPS). Phase 2 SEC + AUD · **Next 16** · P2-MON-01. AUTH-13/14 shipped. Próximo: P2-OPS polish.
+**Estado actual:** Quatro ambientes **Active** (mock · híbrido · prod local · VPS). Phase 2 SEC + AUD + OPS · **Next 16** · P2-MON-01 · AUTH-13/14.
 
 ---
 
@@ -333,18 +333,18 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 - Checks: `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `check:platform-session` · `audit:prod`
 - Demo seed password: **`SirRelay1`**
 
-**Pendente Phase 2 SEC / follow-ups:**
-1. P2-OPS checklist polish (só gaps remanescentes no runbook)
-2. Nested postcss moderate inside Next (upstream; no safe force-fix)
-3. P2-MON-02 failed-login → audit event (opcional)
+**Pendente Phase 2 follow-ups (opcional):**
+1. Nested postcss moderate inside Next (upstream; no safe force-fix)
+2. P2-MON-02 failed-login → audit event
+3. P2-ANA analytics (só se precisares de métricas de ecrã)
 
-**Opcional:** REST `/api/v1/*` além de health + webhook (UI usa server actions).
+**Ops (feito):** P2-OPS-01–09 — [DEPLOY](./DEPLOY-DIGITALOCEAN.md) §3 firewall · §6 `.env`/`SESSION_SECRET` · §9 updates mensais · §9.1 backups. Postgres só na rede Docker `internal`; app `USER nextjs`.
 
 **Auth (feito):** signup merge `invited` — P1-AUTH-13/14 · `check:signup-merge`
 
 **Telegram (feito):** link webhook + task relay + operator alert DMs. Due alerts via `syncDueAlerts`.
 
-**Ops (feito no VPS):** backups diários → Drive; restore testado. Ver [DEPLOY §9.1](./DEPLOY-DIGITALOCEAN.md).
+**Opcional:** REST `/api/v1/*` além de health + webhook (UI usa server actions).
 
 **Smoke (feito):** prod local + VPS · Telegram · fila · SEC (checks acima) · `/platform/login` com `PLATFORM_ADMIN_*`.
 
@@ -352,4 +352,4 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 ---
 
-**Last updated:** 2026-07-26 (AUTH-13/14 · drop P3-02)
+**Last updated:** 2026-07-26 (P2-OPS marked Done · monthly updates in DEPLOY)

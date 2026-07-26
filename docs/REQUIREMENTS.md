@@ -423,19 +423,21 @@ audit_logs
   actor_type: operator | teammate | system
 ```
 
-### 6.3 VPS operations (document in README)
+### 6.3 VPS operations
 
-| ID | Requirement |
-|----|-------------|
-| P2-OPS-01 | Firewall: ports 22 (SSH restricted), 80, 443 |
-| P2-OPS-02 | Postgres not public; Docker internal network |
-| P2-OPS-03 | SSH key-only |
-| P2-OPS-04 | Daily SQL backup — §6.5.1 |
-| P2-OPS-05 | Restore procedure tested once — §6.5.1 |
-| P2-OPS-06 | Containers run as non-root |
-| P2-OPS-07 | `.env` file mode `600` |
-| P2-OPS-08 | `SESSION_SECRET` ≥ 32 random bytes |
-| P2-OPS-09 | Monthly OS and image updates |
+Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · `.env` · backups · updates). README aponta para esse guia.
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| P2-OPS-01 | Firewall: ports 22 (SSH restricted), 80, 443 | **Done** — DEPLOY §3 |
+| P2-OPS-02 | Postgres not public; Docker internal network | **Done** — `docker-compose.yml` (`internal`; só Caddy publica 80/443) |
+| P2-OPS-03 | SSH key-only | **Done** — DEPLOY §1–2 · `bootstrap-droplet.sh` |
+| P2-OPS-04 | Daily SQL backup — §6.5.1 | **Done** — cron 05:00 → Drive |
+| P2-OPS-05 | Restore procedure tested once — §6.5.1 | **Done** — DEPLOY §9.1 |
+| P2-OPS-06 | Containers run as non-root | **Done** — `Dockerfile` `USER nextjs` |
+| P2-OPS-07 | `.env` file mode `600` | **Done** — DEPLOY §6 · ENVIRONMENTS |
+| P2-OPS-08 | `SESSION_SECRET` ≥ 32 random bytes | **Done** — `openssl rand -base64 32` in DEPLOY / `.env.example` |
+| P2-OPS-09 | Monthly OS and image updates | **Done** (procedure) — DEPLOY §9 “Updates mensais” |
 
 ### 6.4 Monitoring & analytics
 
@@ -729,6 +731,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Date | Change |
 |------|--------|
 | 2026-07-26 | Doc contract vs UIUX; slim §1 / §5.5 / §5.10; P1-TASK-14 clone; locale codes `en-gb`/`es-es`/`pt-br` |
+| 2026-07-26 | P2-OPS-01–09 marked Done; monthly updates procedure in DEPLOY §9 |
 | 2026-07-26 | P1-AUTH-13/14 signup merge; invite naming; drop obsolete P3-02 (multi-operator = P1-TM-10) |
 | 2026-07-19 | Platform admin: separate ops login + session cookie (not `users.platform_admin`) |
 | 2026-07-19 | Platform admin UI: `/platform/*` (P2-AUD-04) |

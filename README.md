@@ -22,7 +22,7 @@ Hosted **web + Telegram task relay** for small groups (by **Sir**). One active T
 | [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) | `src/`, services, mock → API |
 | [**ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) | Dev mock · hybrid · prod local · VPS |
 | [**BRAND.md**](./docs/BRAND.md) | Colors, logos, tokens |
-| [**DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | Production Droplet deploy + backups |
+| [**DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | Production Droplet: firewall, SSH, deploy, backups, monthly updates (P2-OPS) |
 
 Phases 1–3: [REQUIREMENTS §3](./docs/REQUIREMENTS.md#3-development-phases).
 
@@ -44,6 +44,8 @@ Open `http://localhost:3000` · demo `sam@example.com` / `ana@example.com` (any 
 | Prod VPS | `bash scripts/env/prod-vps.sh` |
 
 Stack: Next.js 16 · React 19 · Prisma · PostgreSQL · grammy · Docker Compose + Caddy — [REQUIREMENTS §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-layout).
+
+**Production ops:** [DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md) — firewall, `.env` `chmod 600`, backups, monthly OS/image updates (P2-OPS-01–09).
 
 ---
 

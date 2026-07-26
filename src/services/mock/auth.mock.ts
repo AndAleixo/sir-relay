@@ -7,13 +7,18 @@ import { assertPasswordForSet } from "@/lib/password-policy";
 import { isLoginLocked } from "@/lib/login-lockout";
 import type { AuthService } from "@/services/contracts";
 import {
+  findAnyMockUserByEmail,
   findMockUserByEmail,
   findMockUserById,
   patchMockUser,
   registerDynamicUser,
 } from "@/services/mock/users.mock";
 import { mockGroupMembershipLookup, rememberMockLastActiveGroup } from "@/services/mock/groups.mock";
-import { consumeInvite, resolveInvite } from "@/services/mock/tokens.mock";
+import {
+  consumeAllInvitesForUser,
+  consumeInvite,
+  resolveInvite,
+} from "@/services/mock/tokens.mock";
 
 const MOCK_SESSION_COOKIE = "sirrelay_mock_session";
 
@@ -140,14 +145,40 @@ export class MockAuthService implements AuthService {
     }
     assertPasswordForSet(password);
 
-    if (findMockUserByEmail(email)) {
-      throw new Error("Email taken");
+    const normalized = email.trim().toLowerCase();
+    const existing = findAnyMockUserByEmail(normalized);
+    const trimmedName = name.trim();
+
+    if (existing) {
+      // P1-AUTH-13: invited placeholder only (operators have no accountStatus → taken).
+      const status =
+        "accountStatus" in existing
+          ? (existing as { accountStatus: string }).accountStatus
+          : "active";
+      if (status !== "invited" || !existing.active) {
+        throw new Error("Email taken");
+      }
+
+      const updated = patchUser(existing.id, {
+        name: trimmedName,
+        locale,
+        mustChangePassword: false,
+      });
+      if (!updated) throw new Error("Invalid signup");
+      (updated as unknown as { accountStatus: string }).accountStatus = "active";
+      consumeAllInvitesForUser(existing.id);
+      sec(existing.id);
+
+      // P1-AUTH-14: auto-pick group → teammate /tasks via resolveEntryPath.
+      const session = buildSession(updated);
+      await writeSession(session);
+      return session;
     }
 
     const user: User = {
       id: `user-${Date.now().toString(36)}`,
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
+      name: trimmedName,
+      email: normalized,
       role: "operator",
       locale,
       active: true,

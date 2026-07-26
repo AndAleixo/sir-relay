@@ -157,14 +157,57 @@ export class ApiAuthService implements AuthService {
 
     const normalized = email.trim().toLowerCase();
     const existing = await prisma.user.findUnique({ where: { email: normalized } });
-    if (existing) throw new Error("Email taken");
-
     const passwordHash = await hashPassword(password);
+    const trimmedName = name.trim();
+
+    if (existing) {
+      // P1-AUTH-13: activate invited placeholder; active emails stay “taken”.
+      if (existing.accountStatus !== "invited" || !existing.active) {
+        throw new Error("Email taken");
+      }
+
+      await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          where: { id: existing.id },
+          data: {
+            name: trimmedName,
+            passwordHash,
+            accountStatus: "active",
+            mustChangePassword: false,
+            locale: fromLocale(locale),
+          },
+        });
+        await tx.teammateInviteToken.updateMany({
+          where: { userId: existing.id, usedAt: null },
+          data: { usedAt: new Date() },
+        });
+      });
+
+      // P1-AUTH-14: pick active group (single / last) → role home via resolveEntryPath.
+      const activeGroupId = await pickDefaultGroupIdAsync(existing.id);
+      if (activeGroupId) {
+        await prisma.user.update({
+          where: { id: existing.id },
+          data: { lastActiveGroupId: activeGroupId },
+        });
+      }
+      const row = await loadDbUser(existing.id);
+      if (!row) throw new Error("Invalid signup");
+      const session = await persistSession(
+        existing.id,
+        activeGroupId,
+        row.tokenVersion,
+        { autoPickGroup: true },
+      );
+      void writeAuditFromSession(session, "login");
+      return session;
+    }
+
     const id = `user-${Date.now().toString(36)}`;
     await prisma.user.create({
       data: {
         id,
-        name: name.trim(),
+        name: trimmedName,
         email: normalized,
         passwordHash,
         locale: fromLocale(locale),

@@ -81,10 +81,6 @@ export function getGroup(groupId: string): Group | null {
   return allGroups().find((group) => group.id === groupId) ?? null;
 }
 
-export function findMockGroupById(groupId: string): Group | null {
-  return getGroup(groupId);
-}
-
 function listGroupsForUser(userId: string): Group[] {
   const ids = new Set(
     allMemberships()

@@ -84,6 +84,16 @@ export function consumeInvite(token: string): InviteRecord | null {
   return record;
 }
 
+/** Mark all open invites for a user used (signup merge / activation). */
+export function consumeAllInvitesForUser(userId: string): void {
+  const store = tokenStore();
+  for (const [token, record] of Array.from(store.inviteTokens.entries())) {
+    if (record.userId === userId) {
+      store.inviteTokens.delete(token);
+    }
+  }
+}
+
 export function getInviteTokenForUser(userId: string, groupId?: string): string | null {
   for (const [token, record] of Array.from(tokenStore().inviteTokens.entries())) {
     if (

@@ -181,7 +181,7 @@ export class ApiTeammateService implements TeammateService {
         return created;
       });
       void writeAuditFromSession(ctx.session, "teammate_create", {
-        kind: "precreate",
+        kind: "membership",
         userId: id,
       });
       return {

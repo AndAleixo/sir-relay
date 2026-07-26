@@ -22,9 +22,9 @@ Related docs: [UIUX.md](./UIUX.md) · [ARCHITECTURE.md](./ARCHITECTURE.md) · [B
 | **Telegram bot** | One task at a time to linked assignees; reply to update status |
 | **Relay queue** | On `done`, next `todo` for that assignee is sent automatically |
 
-**Account model:** Sign up → **create a group** (become operator) or **join** as teammate (invite link, panel paste; sign-up email match = P1-AUTH-13, **not shipped**). Same user may hold different roles in different groups. Active group via header switcher or `/groups`.
+**Account model:** Sign up → **create a group** (become operator) or **join** as teammate (invite link, panel paste, or **sign up with the invited email** — P1-AUTH-13). Same user may hold different roles in different groups. Active group via header switcher or `/groups`.
 
-**Pre-create:** Operator registers **email only** → `invited` user + teammate membership + invite link. Person activates via `/join/<token>` (sets name + password). Details: §5.1.2.
+**Invite:** Operator sends invite by **email only** → `invited` user + teammate membership + invite link. Person activates via `/join/<token>` **or** `/signup` with the same email. Details: §5.1.2.
 
 **In a group:** **Operator** — manage members/tasks, monitor web, Telegram relay + alerts. **Teammate** — Telegram primary; web My work / Team (edit own); may create self-assigned tasks. No web comment thread.
 
@@ -43,9 +43,9 @@ sequenceDiagram
   participant TG as Telegram
   participant TM as Teammate
 
-  OP->>APP: Pre-create teammate + send invite
+  OP->>APP: Invite teammate by email
   TM->>APP: Open /join/{token} · set password
-  Note over TM,APP: Sign-up merge (same email) is P1-AUTH-13 — not shipped
+  Note over TM,APP: Or sign up with same email (P1-AUTH-13)
   APP->>APP: Activate account · group membership already exists
   TM->>APP: Link Telegram (Profile)
   OP->>APP: Create tasks A, B (assigned to TM)
@@ -94,7 +94,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | Web app | Single Next.js app; permissions scoped by **active group** + **membership role** |
 | Roles | **Operator** — full edit in that group · **Teammate** — edit own tasks; may **view** all group tasks (Team scope) |
 | Bootstrap (deploy) | On empty DB, seed one **user** from `ADMIN_EMAIL` + `ADMIN_PASSWORD` (may create first group manually) |
-| Joining a group | **Create group** → creator is operator · **Invite link** (or panel paste) → join as teammate; **sign-up email match** specified but not shipped (P1-AUTH-13) |
+| Joining a group | **Create group** → creator is operator · **Invite** by email (link or panel paste) → join as teammate; **sign-up with invited email** activates the placeholder (P1-AUTH-13) |
 | Task assignee | One user per task — any **active member** of the same group (teammate or operator, including other operators) |
 | Relay scope | Telegram relay queue applies to **any linked assignee** in the group (teammate or operator, including self) |
 | Operator alerts | Optional Telegram on Profile; notify on teammate **task done** and **due/overdue** (§5.6) |
@@ -114,7 +114,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | **Sign up / Log in** | `/[locale]/signup` · `/[locale]/login` — any user creates an account |
 | **No active group** | `/[locale]/groups` — placeholder; group panel opens automatically |
 | **Data** | **PostgreSQL** on the deployment; tasks, users, groups, and settings persisted server-side |
-| **Accounts (Phase 1)** | Self-serve **sign-up** (anyone). User **creates a group** (operator) **or joins** as teammate — invite link or panel paste (sign-up email match §5.1.2 Path B not shipped). Role is **per group membership**, not stored on the user row. |
+| **Accounts (Phase 1)** | Self-serve **sign-up** (anyone). User **creates a group** (operator) **or joins** as teammate — invite by email (link / panel / signup merge P1-AUTH-13). Role is **per group membership**, not stored on the user row. |
 | **Session** | `{ userId, activeGroupId }`; effective `role` derived from `group_memberships` for the active group |
 | **Multi-group** | One account may belong to many groups; **group switcher panel** or `/groups` when no active group |
 | **Mobile** | Responsive web in Phase 1; native iOS/Android → Phase 3 (P3-13), same `/api/v1` |
@@ -138,12 +138,12 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-06 | Password storage | bcrypt; minimum 8 characters |
 | P1-AUTH-07 | Change password | Available on **Profile** (all users); optional forced flow via `/change-password` |
 | P1-AUTH-08 | Update profile | `PATCH /me` — update own `name`, `locale` (`en-gb` \| `es-es` \| `pt-br`); avatar in later phase. **Only the account owner** may change `users.name` |
-| P1-AUTH-09 | Group invite | Operator pre-creates by **email** → invite link (72h) → `/join/<token>` → set password + name (sign-up same email when P1-AUTH-13 ships) |
+| P1-AUTH-09 | Group invite | Operator invites by **email** → invite link (72h) → `/join/<token>` → set password + name · **or** sign-up with same email (P1-AUTH-13) |
 | P1-AUTH-10 | Post-login routing | No group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` |
-| P1-AUTH-11 | Sign up | `/signup` — name, email, password; **new email** → user with **no group** until create or join. Invited-email merge → P1-AUTH-13 (**not shipped**) |
+| P1-AUTH-11 | Sign up | `/signup` — name, email, password; **new email** → user with **no group** until create or join. **Invited email** → P1-AUTH-13 |
 | P1-AUTH-12 | Active group | Session holds `activeGroupId`; all app data (tasks, teammates, alerts) scoped to active group |
-| P1-AUTH-13 | Sign-up merge | **Not shipped** — signup currently rejects any existing email (“Email taken”), including `invited`. Intended: match **`invited`** pre-create → set password on that row, `account_status → active`, keep memberships, consume open invite tokens; **reject** if email is already **`active`** |
-| P1-AUTH-14 | Post merge routing | **Not shipped** (depends on P1-AUTH-13). Intended: after merge with ≥1 group → set `activeGroupId` (single → that group; multiple → resume §5.1.1 P1-GRP-04/11) → teammate home `/tasks` when role is teammate |
+| P1-AUTH-13 | Sign-up merge | Match **`invited`** placeholder → set name + password on that row, `account_status → active`, keep memberships, consume open invite tokens; **reject** if email is already **`active`** (“Email taken”) |
+| P1-AUTH-14 | Post merge routing | After merge: set `activeGroupId` via pick-default (single group → that group; 2+ → last valid / null → `/groups`) → `resolveEntryPath` (teammate → `/tasks`) |
 
 ### 5.1.1 Groups
 
@@ -154,30 +154,30 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-GRP-03 | Select | **Group switcher** sets `activeGroupId` → role home |
 | P1-GRP-04 | Auto-select | Single group + no active group → `GET /groups/auto` persiste cookie → role home; 2+ groups → `/groups` + panel open |
 | P1-GRP-05 | Manage | **Group switcher panel** — switch, create, join · **Settings** — leave (active group), delete (**owner** only, active group) |
-| P1-GRP-06 | Join via invite | `/join/<token>` (set password if `invited`) **or** paste in group panel (signed in, same email). Sign-up email match (§5.1.2 Path B) when P1-AUTH-13 ships |
+| P1-GRP-06 | Join via invite | `/join/<token>` (set password if `invited`) **or** paste in group panel (signed in, same email) **or** sign-up email match (§5.1.2 Path B) |
 | P1-GRP-07 | Join from panel | Paste invite in group panel → accept when signed in; adds membership if missing |
 | P1-GRP-08 | Existing active email | Operator adds teammate email that already has an **`active`** account → create/refresh one pending `group_invitation`; **do not** create membership until the user accepts |
 | P1-GRP-09 | Leave group | Any member may leave **active** group. If leaver is **owner** and others remain: ownership → longest-standing other **operator**, else longest-standing **teammate** (auto-promoted to operator). Last member leave deletes the group |
 | P1-GRP-10 | Delete group | **Owner** only; cascade tasks/teammates/alerts; session picks next group or `/groups` |
 | P1-GRP-11 | Resume last group | `users.last_active_group_id` + session cookie; login with 2+ groups opens last valid group (not picker) |
-| P1-GRP-12 | Invited email at operator add | Operator adds email with existing **`invited`** pre-create (same or other group) → add membership only; do not create duplicate user row |
+| P1-GRP-12 | Invited email at operator add | Operator adds email with existing **`invited`** placeholder (same or other group) → add membership only; do not create duplicate user row |
 | P1-GRP-13 | Invitation consent | Existing active user sees pending requests in the group switcher and may accept or decline; accept creates teammate membership transactionally, decline does not |
 | P1-GRP-14 | Invitation lifecycle | One row per group/user; 72h expiry; operator sees pending/declined/expired and may resend; accepted requests are retained as history |
 | P1-GRP-15 | Transfer ownership | **Owner** only; pick any **active** member; target becomes operator if needed; previous owner stays operator. Owner not shown as a separate UI role |
 
-### 5.1.2 Pre-created teammate activation
+### 5.1.2 Invite activation
 
-Operator **pre-create** ≠ operator-owned login. The operator reserves **email + group role only**; the **person** chooses name and how to activate.
+Operator **invite** ≠ operator-owned login. The operator reserves **email + group role only**; the **person** chooses name and how to activate.
 
 | Path | Who | Result |
 |------|-----|--------|
 | **A — Invite link** | Person opens `/join/<token>` | Set **name + password** (if `invited`) or accept (if already logged in with matching email) → `active` → already in group |
-| **B — Sign up (email match)** | Person uses `/signup` with **same email** as pre-create | **Not shipped (P1-AUTH-13).** Intended: merge into existing `invited` row — signup **name + password** win, memberships kept, `active`, tokens consumed → auto-join per P1-AUTH-14. Today: signup fails with “Email taken” |
+| **B — Sign up (email match)** | Person uses `/signup` with **same email** as invite | Merge into existing `invited` row — signup **name + password** win, memberships kept, `active`, tokens consumed → auto-join per P1-AUTH-14 |
 | **C — Already active account** | Person already signed up elsewhere | Operator creates a pending request (email only; opaque success); person accepts in the group switcher before membership is created (P1-GRP-08/13/14) |
 
-**When P1-AUTH-13 ships:** sign-up must **not** fail with “email taken” when the only existing row is **`invited`** from operator pre-create. Sign-up must **fail** when email belongs to an **`active`** user — they should log in instead. **Until then:** activation is Path A (`/join/<token>`) or Path C (consent invite).
+Sign-up must **not** fail with “email taken” when the only existing row is **`invited`**. Sign-up must **fail** when email belongs to an **`active`** user — they should log in instead.
 
-**Operator visibility:** invite link + account/Telegram **status** on teammate detail; **no** operator access to the teammate’s Telegram link (self-service on **Profile** — P1-TG-11 / P1-TM-07). Create-by-email must not reveal whether the address already exists beyond group-scoped outcomes (`already_in_group` / pending invite created).
+**Operator visibility:** invite link + account/Telegram **status** on teammate detail; **no** operator access to the teammate’s Telegram link (self-service on **Profile** — P1-TG-11 / P1-TM-07). Invite-by-email must not reveal whether the address already exists beyond group-scoped outcomes (`already_in_group` / pending invite created).
 
 ### 5.1.3 Identity & display names
 
@@ -197,11 +197,11 @@ Operator-only management **within the active group** (except fantasy name, which
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-TM-01 | Pre-create | **Email only**; creates **`invited`** user (no password; account name unset until activation) + teammate membership — **not** an operator-created login |
+| P1-TM-01 | Invite | **Email only**; creates **`invited`** user (no password; account name unset until activation) + teammate membership — **not** an operator-created login |
 | P1-TM-02 | List | Group label (`display_name ?? name`, or email while pending), email, account (`invited` / `active`), Telegram (`linked` / `pending`) |
 | P1-TM-03 | Remove from group | In one transaction, permanently delete tasks assigned to that user in the active group, invalidate open group invites, and delete the membership. Preserve the global account and tasks assigned to other users. The same email can be added again. |
 | P1-TM-04 | Edit (operator) | Set/clear **group `display_name`**; change email only while `invited`. **Never** patch another user’s `users.name` |
-| P1-TM-05 | Invite | One-time token (72h); share link; activation via `/join/<token>` (sign-up email match when P1-AUTH-13 ships) |
+| P1-TM-05 | Invite link | One-time token (72h); share link; activation via `/join/<token>` or signup merge (P1-AUTH-13) |
 | P1-TM-06 | Regenerate invite | New token if expired and account still `invited` |
 | P1-TM-07 | Link Telegram | Self-service on **Profile** — one-time code (72h); `t.me/<bot>?start=<code>`. Linked users get **task relay** when assigned; operators **also** get **alert** DMs |
 | P1-TM-08 | Regenerate Telegram link | **Profile** — new code if expired (operators + teammates) |
@@ -379,7 +379,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `settings` | Yes | Yes | Group prefs, leave/delete |
 | `platform/*` | — | — | Ops cookie (`PLATFORM_ADMIN_*`), not product session |
 
-**Phase 1 acceptance test:** Landing → sign up → create group → pre-create teammate → invite → `/join/<token>` → link Telegram on Profile → two tasks → relay `done` on Telegram. **Or** demo `sam@example.com` → Demo Shop. VPS + HTTPS. (Sign-up merge Path B until P1-AUTH-13.)
+**Phase 1 acceptance test:** Landing → sign up → create group → invite teammate → activate via `/join/<token>` **or** signup with same email → link Telegram on Profile → two tasks → relay `done` on Telegram. **Or** demo `sam@example.com` → Demo Shop. VPS + HTTPS.
 
 ---
 
@@ -491,7 +491,7 @@ audit_logs
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-DATA-01 | Export | Operator via **server action** (UI on Teammates); full org or per-person scope · **Done** (REST `GET /api/v1/export` optional / not shipped) |
+| P2-DATA-01 | Export | Operator via **server action** (UI on Teammates); full org or per-person scope · **Done** (optional REST `GET /api/v1/export` unused — UI uses actions) |
 | P2-DATA-02 | Payload | Versioned JSON (below); never include `password_hash`, token hashes, `telegram_chat_id`, `telegram_message_id` · **Done** |
 | P2-DATA-03 | UI | [UIUX.md §7](./UIUX.md#7-teammates-operator) · **Done** |
 
@@ -521,7 +521,6 @@ audit_logs
 
 | ID | Feature |
 |----|---------|
-| P3-02 | Multiple operators per group |
 | P3-03 | Kanban DnD polish (touch / keyboard a11y) — core To do reorder + status/reassign drops shipped in Phase 1 |
 | P3-04 | Web comment thread (view/add on task detail) |
 | P3-05 | Due date reminders **to teammate** (Telegram, 24h before) — Operator overdue alerts → P1-TG-10 |
@@ -589,7 +588,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Method | Path | Phase | Auth |
 |--------|------|-------|------|
 | POST | `/auth/login` | 1 | Public |
-| POST | `/auth/signup` | 1 | Public — new email today; merge `invited` pre-create when P1-AUTH-13 ships |
+| POST | `/auth/signup` | 1 | Public — new email · or merge `invited` placeholder (P1-AUTH-13) |
 | POST | `/auth/join` | 1 | Public `{ token, password }` |
 | POST | `/auth/logout` | 1 | Session |
 | POST | `/auth/change-password` | 1 | Session |
@@ -685,7 +684,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Prisma + `services/api/*` + `/api/v1/health` | Done |
 | Task queue (`sort_order`) + To do DnD + status drops | Done — P1-TASK-11 · `check:queue` |
 | Group invitations (consent for active emails) | Done — P1-GRP-08/13/14 |
-| Sign-up merge (`invited` email) | **Not shipped** — P1-AUTH-13/14 |
+| Sign-up merge (`invited` email) | Done — P1-AUTH-13/14 · `check:signup-merge` |
 | Dev híbrido smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina) |
 | Telegram webhook (link) | Done — P1-TG-01, P1-TG-06 |
 | Telegram task relay + alert DMs | Done — P1-TG-02–05, 08–10 · create/done/renotify · replies · operator DMs |
@@ -705,10 +704,10 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | **Teammate** | Limited role **in a group** + Telegram relay; UI: Teammate / Compañero / Colega |
 | Relay queue | One active Telegram task per assignee; order = To do visual priority (`sort_order`); next sent on `done` or head sync |
 | Task status | Code: `todo` · `doing` · `done`. UI (en): To do · In progress · Done — see [UIUX.md](./UIUX.md#status-naming) |
-| Account status | `invited` (operator pre-create; no password yet) · `active` (can log in) |
-| Pre-create | Operator reserves email + group membership; person sets account name on activation |
+| Account status | `invited` (operator invite; no password yet) · `active` (can log in) |
+| Invite | Operator reserves email + group membership; person sets account name on `/join` or signup merge |
 | Fantasy name | Optional per-membership label (`display_name`); operator edits on member detail; member edits own on **Settings**; UI uses it over account name when set |
-| Sign-up merge | Intended (P1-AUTH-13, not shipped): sign-up with same email as `invited` row activates account and keeps group memberships |
+| Sign-up merge | Sign-up with same email as `invited` row activates account and keeps group memberships (P1-AUTH-13) |
 | Telegram status | `linked` · `pending` |
 | Phase | Delivery milestone — not a version number |
 
@@ -730,6 +729,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Date | Change |
 |------|--------|
 | 2026-07-26 | Doc contract vs UIUX; slim §1 / §5.5 / §5.10; P1-TASK-14 clone; locale codes `en-gb`/`es-es`/`pt-br` |
+| 2026-07-26 | P1-AUTH-13/14 signup merge; invite naming; drop obsolete P3-02 (multi-operator = P1-TM-10) |
 | 2026-07-19 | Platform admin: separate ops login + session cookie (not `users.platform_admin`) |
 | 2026-07-19 | Platform admin UI: `/platform/*` (P2-AUD-04) |
 | 2026-07-19 | Split activity vs audit: `lib/activity` for `/events/activity`; `lib/audit` = store write/query only |
@@ -747,7 +747,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-07-19 | Docs sync: health JSON shape; `PLATFORM_ADMIN_*` in §5.8; export via server action (P2-DATA) |
 | 2026-07-19 | Phase 2 CSRF: Origin/Referer same-origin guard (P2-SEC-06) on top of SameSite=Lax |
 | 2026-07-19 | Phase 2 SEC base: token_version, login lockout, password policy (grandfather), security headers |
-| 2026-07-19 | Phase 1 sync: self column (not “Me”); To do drop index rules; AUTH-13/14 marked not shipped; P3-03 narrowed; board column order by To do load |
+| 2026-07-19 | Phase 1 sync: self column (not “Me”); To do drop index rules; P3-03 narrowed; board column order by To do load |
 | 2026-07-18 | Telegram task relay + operator alert DMs (P1-TG-02–05, 08–10) |
 | 2026-07-18 | Task queue priority: `sort_order` + To do drag place/reorder; Telegram follows queue head (P1-TASK-11) |
 | 2026-07-18 | SQL backups ops done on prod VPS: daily cron 05:00 → Drive; restore tested (P2-BAK-01–04) |
@@ -756,4 +756,4 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | 2026-06-27 | Operator + Teammate roles; relay queue; unified `users` model; spec cleanup; [UIUX.md](./UIUX.md); P3-07 offline web sync (§7.1) |
 | 2026-07-11 | User → group → role model: groups hub, membership-scoped permissions, data model without `users.role` |
 | 2026-07-11 | §6.5 backup + JSON export; hosted web app model (landing, §4.1); P1-UI-03–07; P3-12–15 backlog |
-| 2026-07-14 | Pre-create teammate model (§5.1.2); sign-up merge with `invited` email (P1-AUTH-13/14); Telegram self-link on Profile only |
+| 2026-07-14 | Invite teammate model (§5.1.2); sign-up merge with `invited` email (P1-AUTH-13/14); Telegram self-link on Profile only |

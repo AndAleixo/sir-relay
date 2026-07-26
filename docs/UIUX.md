@@ -98,7 +98,7 @@ Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeade
 
 | Page | Route | Header | Purpose |
 |------|-------|--------|---------|
-| Sign up | `/signup` | Yes | New email → `/groups`. Invited-email merge not shipped — use `/join/<token>` |
+| Sign up | `/signup` | Yes | New email → `/groups`. Invited email → activates placeholder (P1-AUTH-13) |
 | Log in | `/login` | Yes | → role home or `/groups` |
 | Join group | `/join/[token]` | Yes | Set password / accept invite |
 | Privacy / Terms | `/privacy`, `/terms` | Yes | Legal stubs |
@@ -506,5 +506,5 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | 2026-07-22 | Invisible owner transfer / succession UX |
 | 2026-07-21 | `TeamBoard` / `BoardTaskCard` rename; board pan via chrome only |
 | 2026-07-20–18 | Self column naming; queue DnD; Telegram on Profile; landing voice |
-| 2026-07-14–11 | Pre-create join UX; user→group→role model; marketing landing |
+| 2026-07-14–11 | Invite join UX; user→group→role model; marketing landing |
 | 2026-06-28–27 | Shell, Profile/Settings split, status labels, operator board |

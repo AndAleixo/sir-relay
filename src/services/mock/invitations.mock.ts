@@ -3,7 +3,7 @@ import type { GroupInvitation } from "@/domain/types";
 import type { GroupInvitationService } from "@/services/contracts";
 import {
   addGroupMember,
-  findMockGroupById,
+  getGroup,
   mockGroupMembershipLookup,
 } from "@/services/mock/groups.mock";
 import { findMockUserById } from "@/services/mock/users.mock";
@@ -49,7 +49,7 @@ export function createOrRefreshMockGroupInvitation(input: {
   invitedUserId: string;
   invitedByUserId: string;
 }): GroupInvitation {
-  const group = findMockGroupById(input.groupId);
+  const group = getGroup(input.groupId);
   const user = findMockUserById(input.invitedUserId);
   if (!group || !user) throw new Error("invitation_invalid");
   if (
@@ -148,7 +148,7 @@ export class MockGroupInvitationService implements GroupInvitationService {
     }
     addGroupMember(invitation.groupId, userId, invitation.role);
     invitation.storedStatus = "accepted";
-    const group = findMockGroupById(invitation.groupId);
+    const group = getGroup(invitation.groupId);
     if (!group) throw new Error("invitation_invalid");
     return group;
   }

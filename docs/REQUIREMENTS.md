@@ -476,7 +476,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | Layer | Purpose | Who |
 |-------|---------|-----|
 | **SQL backup** | Full disaster recovery | Admin via SSH / cron |
-| **JSON export** | Portable snapshot of business data | Operator via Teammates UI |
+| **App export** | CSV snapshot (members + tasks; alert prefs on full) | Operator via Teammates UI |
 
 #### 6.5.1 SQL backup (ops)
 
@@ -487,35 +487,18 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | P2-BAK-03 | Off-VPS copy | **Done:** Google Drive via rclone (`gdrive:sirrelay-backups`) |
 | P2-BAK-04 | Restore tested | **Done:** restore exercised; rely on offsite + local `.sql.gz` for recovery |
 
-**Out of scope:** in-app SQL download · JSON import (Phase 3 P3-12).
+**Out of scope:** in-app SQL download · import/restore from export (not planned).
 
-#### 6.5.2 JSON export (app)
+#### 6.5.2 App export (CSV)
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-DATA-01 | Export | Operator via **server action** (UI on Teammates); full org or per-person scope · **Done** (optional REST `GET /api/v1/export` unused — UI uses actions) |
-| P2-DATA-02 | Payload | Versioned JSON (below); never include `password_hash`, token hashes, `telegram_chat_id`, `telegram_message_id` · **Done** |
+| P2-DATA-01 | Export | Operator via **server action** (Teammates UI); full group or per-person · **Done** |
+| P2-DATA-02 | CSV download | UTF-8 BOM · RFC4180 · sections: Members, Tasks, Alert preferences (full only) · never include password/token hashes or Telegram chat/message ids · **Done** (`toExportCsv`; `check:export-csv`) |
 | P2-DATA-03 | UI | [UIUX.md §7](./UIUX.md#7-teammates-operator) · **Done** |
 
-**Export envelope (version 1):**
-
-```json
-{
-  "version": 1,
-  "exportedAt": "2026-07-11T16:00:00.000Z",
-  "app": "sirrelay",
-  "scope": "full",
-  "scopeUserId": null,
-  "users": [],
-  "tasks": [],
-  "telegramActivity": [],
-  "alertPrefs": { "taskDone": true, "taskDue": true }
-}
-```
-
-- **`scope: full`** — all users, tasks, `telegram_activity`, `alertPrefs`.
-- **`scope: user`** (`?userId`) — one user, their assigned tasks and related `telegram_activity`; no `alertPrefs`.
-- **Field rules:** `users` — id, name, email, locale, active, timestamps (no global role) · `group_memberships` — group_id, user_id, role · `tasks` — §5.9 minus Telegram internals.
+- **`scope: full`** — active members + all group tasks + operator alert prefs.
+- **`scope: user`** — one member + their assigned tasks (no alert prefs).
 
 ---
 
@@ -525,14 +508,12 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 |----|---------|
 | P3-03 | Kanban DnD polish (touch / keyboard a11y) — core To do reorder + status/reassign drops shipped in Phase 1 |
 | P3-04 | Web comment thread (view/add on task detail) |
-| P3-05 | Due date reminders **to teammate** (Telegram, 24h before) — Operator overdue alerts → P1-TG-10 |
 | P3-06 | Daily digest to Operator Telegram |
 | P3-07 | Offline web sync |
 | P3-08 | Slack integration |
 | P3-09 | 2FA / TOTP for Operator |
 | P3-10 | Custom branding overrides |
 | P3-11 | Logo collapse animation ([BRAND.md](./BRAND.md) §3.3) |
-| P3-12 | JSON import (restore from §6.5.2 export) |
 | P3-13 | Native mobile apps (iOS / Android) — same `/api/v1`; web remains primary until shipped |
 | P3-14 | PWA install + optional push notifications |
 | P3-15 | Public organization signup (multi-tenant or self-serve deploy) |
@@ -579,7 +560,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Re-notify | Yes | — | — |
 | Link Telegram | Self-link on **Profile** (relay + alerts if operator) | Self-link on **Profile** (relay) | `/start <code>` |
 | Group activity | Yes (`/events/activity`) | — | — |
-| Export data (JSON) | Yes (Phase 2) | — | — |
+| Export data (CSV) | Yes | — | — |
 
 ---
 
@@ -624,7 +605,6 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/tasks/:id/notify` | 1 | Operator in active group |
 | POST | `/telegram/webhook` | 1 | Webhook secret |
 | GET | `/health` | 1 | Public |
-| GET | `/export` | 2 | Optional REST — today: server action + Teammates UI · §6.5.2 |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
 ---
@@ -719,7 +699,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 1. Read the target phase — implement **only that phase**.
 2. Phase 1 before Phase 2 or 3.
-3. Phase 2 extends Phase 1 (migrations for `audit_logs`, `token_version`; backup scripts + JSON export per §6.5).
+3. Phase 2 extends Phase 1 (migrations for `audit_logs`, `token_version`; backup scripts + CSV export per §6.5).
 4. Phase 3: one backlog item at a time unless told otherwise.
 
 **Example prompt:** *Implement Phase 1 per [docs/REQUIREMENTS.md](./REQUIREMENTS.md). Do not implement Phase 2 or 3.*
@@ -730,6 +710,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-07-26 | Export: CSV only (drop JSON product envelope / phantom `GET /export`); P3-12 folded into P2-DATA-02; drop P3-05 teammate due reminders; import out of scope |
 | 2026-07-26 | Doc contract vs UIUX; slim §1 / §5.5 / §5.10; P1-TASK-14 clone; locale codes `en-gb`/`es-es`/`pt-br` |
 | 2026-07-26 | P2-MON-02 `login_failed` audit + platform overview count (7d) |
 | 2026-07-26 | P2-OPS-01–09 marked Done; monthly updates procedure in DEPLOY §9 |

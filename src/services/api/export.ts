@@ -1,4 +1,4 @@
-import type { SirRelayExport, ExportUser } from "@/domain/export";
+import type { ExportPayload, ExportUser } from "@/domain/export";
 import { toExportTask } from "@/domain/export";
 import type { Session, Teammate, User } from "@/domain/types";
 import type { ExportService } from "@/services/contracts";
@@ -13,7 +13,6 @@ function toExportUser(user: User | Teammate): ExportUser {
   if (user.role === "teammate") {
     const teammate = user as Teammate;
     return {
-      id: teammate.id,
       name: teammate.name,
       email: teammate.email,
       role: teammate.role,
@@ -25,7 +24,6 @@ function toExportUser(user: User | Teammate): ExportUser {
     };
   }
   return {
-    id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
@@ -40,7 +38,7 @@ export class ApiExportService implements ExportService {
   async buildExport(
     ctx: { session: Session },
     userId?: string,
-  ): Promise<SirRelayExport> {
+  ): Promise<ExportPayload> {
     requireOperator(ctx.session);
     const groupId = ctx.session.activeGroupId!;
 
@@ -63,31 +61,22 @@ export class ApiExportService implements ExportService {
     if (userId) {
       const user = users.find((entry) => entry.id === userId);
       if (!user) throw new Error("User not found");
-      const payload = {
-        version: 1 as const,
+      void writeAuditFromSession(ctx.session, "export_data", { scope: "user", userId });
+      return {
         exportedAt,
-        app: "sirrelay" as const,
-        scope: "user" as const,
-        scopeUserId: userId,
+        scope: "user",
         users: [toExportUser(user)],
         tasks: tasks.filter((task) => task.assigneeId === userId).map(toExportTask),
-        telegramActivity: [] as [],
       };
-      void writeAuditFromSession(ctx.session, "export_data", { scope: "user", userId });
-      return payload;
     }
 
     const alertPrefs = await apiOperatorAlertService.getPrefs(ctx);
     void writeAuditFromSession(ctx.session, "export_data", { scope: "full" });
     return {
-      version: 1,
       exportedAt,
-      app: "sirrelay",
       scope: "full",
-      scopeUserId: null,
       users: users.map(toExportUser),
       tasks: tasks.map(toExportTask),
-      telegramActivity: [],
       alertPrefs,
     };
   }
@@ -95,8 +84,8 @@ export class ApiExportService implements ExportService {
   filename(userId?: string): string {
     const day = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     return userId
-      ? `sirrelay-export-${userId}-${day}.json`
-      : `sirrelay-export-${day}.json`;
+      ? `sirrelay-export-${userId}-${day}.csv`
+      : `sirrelay-export-${day}.csv`;
   }
 }
 

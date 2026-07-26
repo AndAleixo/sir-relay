@@ -1,4 +1,4 @@
-import type { SirRelayExport } from "@/domain/export";
+import type { ExportPayload } from "@/domain/export";
 import type {
   Group,
   GroupInvitation,
@@ -155,7 +155,7 @@ export interface GroupInvitationService {
 }
 
 export interface ExportService {
-  buildExport(ctx: { session: Session }, userId?: string): Promise<SirRelayExport>;
+  buildExport(ctx: { session: Session }, userId?: string): Promise<ExportPayload>;
   filename(userId?: string): string;
 }
 

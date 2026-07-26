@@ -29,7 +29,7 @@ src/
 │   ├── invitations.ts    # Accept / decline pending group invites
 │   ├── teammates.ts      # Teammate CRUD + promote
 │   ├── tasks.ts          # Tasks + alert prefs + placeInTodoQueue
-│   ├── export.ts         # JSON export
+│   ├── export.ts         # CSV export (server action)
 │   └── settings.ts       # Locale preference
 └── app/[locale]/
     ├── groups/auto/      # Route handler: persist sole-group auto-select

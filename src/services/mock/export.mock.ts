@@ -1,4 +1,4 @@
-import type { SirRelayExport, ExportUser } from "@/domain/export";
+import type { ExportPayload, ExportUser } from "@/domain/export";
 import { toExportTask } from "@/domain/export";
 import type { Session, Task, Teammate, User } from "@/domain/types";
 import type { ExportService } from "@/services/contracts";
@@ -19,7 +19,6 @@ function toExportUser(
   if (user.role === "teammate") {
     const teammate = user as Teammate;
     return {
-      id: teammate.id,
       name: teammate.name,
       email: teammate.email,
       role: teammate.role,
@@ -32,7 +31,6 @@ function toExportUser(
   }
 
   return {
-    id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
@@ -71,7 +69,7 @@ export class MockExportService implements ExportService {
   async buildExport(
     ctx: { session: Session },
     userId?: string,
-  ): Promise<SirRelayExport> {
+  ): Promise<ExportPayload> {
     requireOperator(ctx.session);
     const groupId = ctx.session.activeGroupId!;
 
@@ -84,28 +82,20 @@ export class MockExportService implements ExportService {
       if (!entry) throw new Error("User not found");
 
       return {
-        version: 1,
         exportedAt,
-        app: "sirrelay",
         scope: "user",
-        scopeUserId: userId,
         users: [toExportUser(entry.user, entry.displayName)],
         tasks: tasks.filter((task) => task.assigneeId === userId).map(toExportTask),
-        telegramActivity: [],
       };
     }
 
     const alertPrefs = await mockOperatorAlertService.getPrefs(ctx);
 
     return {
-      version: 1,
       exportedAt,
-      app: "sirrelay",
       scope: "full",
-      scopeUserId: null,
       users: users.map((entry) => toExportUser(entry.user, entry.displayName)),
       tasks: tasks.map(toExportTask),
-      telegramActivity: [],
       alertPrefs,
     };
   }
@@ -113,8 +103,8 @@ export class MockExportService implements ExportService {
   filename(userId?: string): string {
     const day = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     return userId
-      ? `sirrelay-export-${userId}-${day}.json`
-      : `sirrelay-export-${day}.json`;
+      ? `sirrelay-export-${userId}-${day}.csv`
+      : `sirrelay-export-${day}.csv`;
   }
 }
 

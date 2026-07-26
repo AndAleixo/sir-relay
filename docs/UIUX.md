@@ -351,7 +351,7 @@ Rules: [REQUIREMENTS §5.2](./REQUIREMENTS.md#52-teammates).
 
 Table: **Name** · **Email** · **Role** · **Account** · **Telegram**. Name → **You** = Settings; else `/teammates/[id]`.
 
-**Add** → `/teammates/new` (email only). Pending invitations: Resend. **Export** (Phase 2): [REQUIREMENTS §6.5.2](./REQUIREMENTS.md#652-json-export-app).
+**Add** → `/teammates/new` (email only). Pending invitations: Resend. **Export** → CSV (group or one person): [REQUIREMENTS §6.5.2](./REQUIREMENTS.md#652-app-export-csv).
 
 ### Detail `/teammates/[id]`
 

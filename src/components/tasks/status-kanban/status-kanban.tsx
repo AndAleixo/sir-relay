@@ -218,7 +218,7 @@ export function StatusKanban({
             </div>
           ) : (
             <div
-              className={kanbanStyles.cardList}
+              className={cn(kanbanStyles.cardList, "min-h-0 flex-1 overflow-y-auto")}
               data-todo-scroll={status === "todo" ? "" : undefined}
             >
               {status === "todo" ? (

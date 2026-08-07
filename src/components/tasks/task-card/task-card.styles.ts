@@ -1,5 +1,6 @@
 export const taskCardStyles = {
-  root: "relative overflow-visible block rounded-card border border-[var(--border)] bg-surface-card shadow-sm transition-colors",
+  // min-w-0: long description/title must not widen the column (esp. mobile stack).
+  root: "relative block min-w-0 max-w-full overflow-visible rounded-card border border-[var(--border)] bg-surface-card shadow-sm transition-colors",
   /** Row layout: default cursor + no text select; move via dragHandle; board pan outside cards. */
   layout: "flex cursor-default gap-0.5 p-1 select-none",
   dragging: "opacity-40 ring-2 ring-brand-accent/40",
@@ -12,20 +13,20 @@ export const taskCardStyles = {
     "line-clamp-2 min-w-0 flex-1 text-left text-xs font-medium leading-snug text-[var(--text-primary)]",
   dueReadonly: "text-left text-[10px] text-[var(--text-muted)]",
   boardBody: "relative min-w-0 flex-1 overflow-visible",
-  titleRow: "mb-0.5 flex items-start gap-1",
+  titleRow: "mb-0.5 flex min-w-0 items-start gap-1",
   titleButton:
-    "line-clamp-2 flex-1 cursor-pointer rounded-[4px] text-left text-xs font-medium leading-snug text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
+    "line-clamp-2 min-w-0 flex-1 cursor-pointer rounded-[4px] text-left text-xs font-medium leading-snug text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
   /** Under title when due is set — slight inset so it doesn’t run under status icons. */
   descriptionPreview:
-    "mb-0.5 truncate pr-2 text-left text-[10px] leading-tight text-[var(--text-muted)]",
+    "mb-0.5 min-w-0 truncate pr-2 text-left text-[10px] leading-tight text-[var(--text-muted)]",
   /** In footer when no due — uses the due slot width (menu stays on the right). */
   descriptionInFooter:
-    "min-w-0 flex-1 truncate text-left text-[10px] leading-tight text-[var(--text-muted)]",
+    "min-w-0 truncate text-left text-[10px] leading-tight text-[var(--text-muted)]",
   inlineInput: "h-6 select-text px-1.5 py-0 text-xs",
   inlineDateInput: "h-5 w-full select-text px-1 py-0 text-[10px]",
   dueButton:
     "truncate text-left text-[10px] leading-tight text-[var(--text-muted)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 rounded-[4px]",
-  footer: "relative flex items-center justify-between gap-1 overflow-visible",
+  footer: "relative flex min-w-0 items-center justify-between gap-1 overflow-visible",
   overdue: "font-medium text-[var(--danger)]",
   startDoing:
     "shrink-0 rounded p-0.5 text-[#F5C518] hover:bg-brand-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3 [&_svg]:w-3",

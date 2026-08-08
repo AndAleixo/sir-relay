@@ -49,16 +49,9 @@ export function GroupNotificationSettings({
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-sm font-medium text-[var(--text-primary)]">
-          {t("operatorAlerts")}
-        </p>
-        <p className="mt-1 text-xs text-[var(--text-muted)]">{t("operatorAlertsHint")}</p>
-      </div>
-
-      <label className="flex items-start justify-between gap-4 text-sm">
-        <span>
+    <div className="space-y-4">
+      <label className="flex items-start justify-between gap-3 text-sm">
+        <span className="min-w-0">
           <span className="block text-[var(--text-primary)]">{t("alertTaskDone")}</span>
           <span className="mt-0.5 block text-xs text-[var(--text-muted)]">
             {t("alertTaskDoneHint")}
@@ -73,8 +66,8 @@ export function GroupNotificationSettings({
         />
       </label>
 
-      <label className="flex items-start justify-between gap-4 text-sm">
-        <span>
+      <label className="flex items-start justify-between gap-3 text-sm">
+        <span className="min-w-0">
           <span className="block text-[var(--text-primary)]">{t("alertTaskDue")}</span>
           <span className="mt-0.5 block text-xs text-[var(--text-muted)]">
             {t("alertTaskDueHint")}
@@ -89,7 +82,7 @@ export function GroupNotificationSettings({
         />
       </label>
 
-      <div className="space-y-2 border-t border-[var(--border)] pt-4">
+      <div className="space-y-1.5 border-t border-[var(--border)] pt-3">
         <Label htmlFor="alert-timezone">{t("alertTimezone")}</Label>
         <Select
           id="alert-timezone"
@@ -110,10 +103,10 @@ export function GroupNotificationSettings({
         <p className="text-xs text-[var(--text-muted)]">{t("alertTimezoneHint")}</p>
       </div>
 
-      <div className="space-y-3 border-t border-[var(--border)] pt-4">
+      <div className="space-y-2 border-t border-[var(--border)] pt-3">
         <div>
           <p className="text-sm font-medium text-[var(--text-primary)]">{t("quietHours")}</p>
-          <p className="mt-1 text-xs text-[var(--text-muted)]">{t("quietHoursHint")}</p>
+          <p className="mt-0.5 text-xs text-[var(--text-muted)]">{t("quietHoursHint")}</p>
         </div>
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -136,8 +129,8 @@ export function GroupNotificationSettings({
           {t("quietHoursEnabled")}
         </label>
         {quietEnabled ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="min-w-0">
               <Label htmlFor="quiet-start">{t("quietFrom")}</Label>
               <Select
                 id="quiet-start"
@@ -154,7 +147,7 @@ export function GroupNotificationSettings({
                 aria-label={t("quietFrom")}
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <Label htmlFor="quiet-end">{t("quietTo")}</Label>
               <Select
                 id="quiet-end"

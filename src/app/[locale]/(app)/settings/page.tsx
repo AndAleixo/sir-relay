@@ -52,9 +52,9 @@ export default async function SettingsPage({
           activeGroup ? t("settings.pageSubtitle", { group: activeGroup.name }) : undefined
         }
       />
-      <div className="grid max-w-xl gap-4">
+      <div className="grid max-w-3xl gap-3 md:max-w-4xl md:grid-cols-2 md:gap-4">
         {session.user.telegramStatus === "pending" ? (
-          <Banner variant="warning">
+          <Banner variant="warning" className="md:col-span-2">
             {t(
               isOperator ? "settings.linkTelegramOperator" : "settings.linkTelegramTeammate",
             )}{" "}
@@ -68,11 +68,14 @@ export default async function SettingsPage({
         ) : null}
 
         {activeGroup ? (
-          <Card>
+          <Card className="min-w-0">
             <CardHeader>
               <h2 className="text-sm font-semibold">{t("settings.general")}</h2>
+              <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+                {t("settings.generalHint")}
+              </p>
             </CardHeader>
-            <CardBody className="space-y-6">
+            <CardBody className="space-y-4">
               <GroupGeneralSettings
                 locale={locale}
                 group={activeGroup}
@@ -84,50 +87,56 @@ export default async function SettingsPage({
               />
               <form
                 action={updateOwnDisplayNameForm.bind(null, locale)}
-                className="space-y-3 border-t border-[var(--border)] pt-4"
+                className="space-y-2 border-t border-[var(--border)] pt-3"
               >
-                <div>
-                  <Label htmlFor="displayName">{t("teammate.fantasyName")}</Label>
+                <Label htmlFor="displayName">{t("teammate.fantasyName")}</Label>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                   <Input
                     id="displayName"
                     name="displayName"
+                    className="min-w-0 flex-1"
                     defaultValue={membershipSelf?.displayName ?? ""}
                     placeholder={t("teammate.fantasyNamePlaceholder")}
                   />
-                  <p className="mt-1 text-xs text-[var(--text-muted)]">
-                    {t("teammate.fantasyNameHint")}
-                  </p>
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    className="w-full shrink-0 sm:w-auto"
+                  >
+                    {t("common.save")}
+                  </Button>
                 </div>
+                <p className="text-xs text-[var(--text-muted)]">
+                  {t("teammate.fantasyNameHint")}
+                </p>
                 {displayNameSaved === "1" ? (
                   <Banner variant="info">{t("settings.fantasyNameSaved")}</Banner>
                 ) : null}
                 {displayNameError === "1" ? (
                   <Banner variant="danger">{t("settings.fantasyNameFailed")}</Banner>
                 ) : null}
-                <Button type="submit" variant="secondary">
-                  {t("settings.saveFantasyName")}
-                </Button>
               </form>
             </CardBody>
           </Card>
         ) : null}
 
         {isOperator && alertPrefs ? (
-          <>
-            <Card>
-              <CardHeader>
-                <h2 className="text-sm font-semibold">{t("settings.notifications")}</h2>
-              </CardHeader>
-              <CardBody>
-                <GroupNotificationSettings
-                  prefs={alertPrefs}
-                  viewEventsHref={`/${locale}/events`}
-                />
-              </CardBody>
-            </Card>
-          </>
+          <Card className="min-w-0">
+            <CardHeader>
+              <h2 className="text-sm font-semibold">{t("settings.notifications")}</h2>
+              <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+                {t("settings.operatorAlertsHint")}
+              </p>
+            </CardHeader>
+            <CardBody>
+              <GroupNotificationSettings
+                prefs={alertPrefs}
+                viewEventsHref={`/${locale}/events`}
+              />
+            </CardBody>
+          </Card>
         ) : (
-          <Card>
+          <Card className="min-w-0">
             <CardHeader>
               <h2 className="text-sm font-semibold">{t("settings.notifications")}</h2>
             </CardHeader>
@@ -140,9 +149,14 @@ export default async function SettingsPage({
         )}
 
         {activeGroup ? (
-          <Card>
+          <Card className="min-w-0 md:col-span-2">
             <CardHeader>
-              <h2 className="text-sm font-semibold">{t("settings.membership")}</h2>
+              <h2 className="text-sm font-semibold">
+                {t("settings.dangerZone", { group: activeGroup.name })}
+              </h2>
+              <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+                {t("settings.dangerZoneHint", { group: activeGroup.name })}
+              </p>
             </CardHeader>
             <CardBody>
               <GroupDangerSettings

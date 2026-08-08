@@ -49,16 +49,7 @@ export function GroupDangerSettings({
     formErrorMessage(deleteState?.error, t);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <p className="text-sm font-medium text-[var(--text-primary)]">
-          {t("settings.dangerZone", { group: group.name })}
-        </p>
-        <p className="mt-1 text-xs text-[var(--text-muted)]">
-          {t("settings.dangerZoneHint", { group: group.name })}
-        </p>
-      </div>
-
+    <div className="space-y-3">
       {showLeaveSuccessionHint ? (
         <Banner variant="warning">{t("settings.leaveSuccessionHint")}</Banner>
       ) : null}
@@ -69,9 +60,9 @@ export function GroupDangerSettings({
         </p>
       ) : null}
 
-      <div className="space-y-3">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-[var(--text-muted)]">
+      <div className={isOwner ? "grid gap-3 sm:grid-cols-2" : "space-y-3"}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+          <p className="min-w-0 text-sm text-[var(--text-muted)]">
             {t("settings.leaveHint", { group: group.name })}
           </p>
           <form
@@ -91,8 +82,8 @@ export function GroupDangerSettings({
         </div>
 
         {isOwner ? (
-          <div className="flex flex-col gap-2 border-t border-[var(--border)] pt-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-[var(--text-muted)]">
+          <div className="flex flex-col gap-2 border-t border-[var(--border)] pt-3 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            <p className="min-w-0 text-sm text-[var(--text-muted)]">
               {t("settings.deleteHint", { group: group.name })}
             </p>
             <form

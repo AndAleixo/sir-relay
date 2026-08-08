@@ -237,14 +237,12 @@
     "memberCountValue": "{count, plural, one {# pessoa} other {# pessoas}}",
     "groupRenamed": "Nome do grupo atualizado.",
     "renameFailed": "Não foi possível renomear este grupo.",
-    "membership": "Membros",
     "leaveSuccessionHint": "Se você sair, a propriedade passa para o outro operador mais antigo ou, se não houver, para o colega mais antigo (que passa a operador).",
     "notifications": "Notificações",
     "teammateNotificationsHint": "As preferências de alertas são configuradas pelos operadores deste grupo.",
     "linkTelegramOperator": "Vincule o Telegram em Conta para receber tarefas atribuídas e notificações de alertas.",
     "linkTelegramTeammate": "Vincule o Telegram em Conta para receber tarefas atribuídas.",
     "viewEvents": "Ver eventos",
-    "operatorAlerts": "Alertas do operador",
     "operatorAlertsHint": "Só para este grupo. Alertas na web sempre; o Telegram respeita o horário silencioso.",
     "alertTimezone": "Fuso horário dos prazos",
     "alertTimezoneHint": "Alertas de vencimento usam este fuso para definir “hoje”.",
@@ -268,12 +266,10 @@
     "alertTaskDue": "Tarefa de colega vencida ou a vencer",
     "alertTaskDueHint": "Uma vez por dia por tarefa quando o prazo é hoje ou já passou.",
     "fantasyNameSaved": "Nome neste grupo atualizado.",
-    "fantasyNameFailed": "Não foi possível atualizar o nome neste grupo.",
-    "saveFantasyName": "Salvar nome neste grupo"
+    "fantasyNameFailed": "Não foi possível atualizar o nome neste grupo."
   },
   "profile": {
     "accountScopeHint": "Estas configurações valem para sua conta em todos os grupos.",
-    "photo": "Foto de perfil",
     "uploadPhoto": "Enviar foto",
     "changePhoto": "Alterar foto",
     "removePhoto": "Remover foto",

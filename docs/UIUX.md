@@ -369,7 +369,7 @@ Fantasy name · email (while invited) · promote / demote / transfer ownership /
 
 | Section | Content |
 |---------|---------|
-| Photo | Upload / change / remove |
+| Photo | Click avatar to upload / change / remove; crop square; ≤1 MB on device |
 | Account | Own name; email read-only |
 | Language | Locale picker (persisted) |
 | Password | Change form |
@@ -381,9 +381,8 @@ Fantasy name · email (while invited) · promote / demote / transfer ownership /
 | Section | Content |
 |---------|---------|
 | General | Group name (operator); role (+ owner line); your fantasy name |
-| Operator alerts | Toggles + Events link; banner → Profile if unlinked |
-| Notifications | Teammate empty state; banner → Profile if unlinked |
-| Membership | Leave · delete (owner) — [P1-GRP-09/10](./REQUIREMENTS.md#511-groups) |
+| Notifications | Operator: alert toggles + Events link; teammate empty state; banner → Profile if unlinked |
+| Leave / delete | Leave · delete (owner) — [P1-GRP-09/10](./REQUIREMENTS.md#511-groups) |
 
 ### 8.3 Events (`/events`)
 

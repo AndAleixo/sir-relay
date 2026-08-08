@@ -4,7 +4,24 @@
 
 {$APP_DOMAIN} {
 	encode gzip
-	reverse_proxy app:3000
+
+	# Umami tracker (same-origin → CSP 'self')
+	handle /script.js {
+		reverse_proxy umami:3000
+	}
+	handle /api/send {
+		reverse_proxy umami:3000
+	}
+
+	handle {
+		reverse_proxy app:3000
+	}
+}
+
+# Umami dashboard (ops). DNS: A → analytics → same Droplet IP.
+analytics.{$APP_ROOT_DOMAIN} {
+	encode gzip
+	reverse_proxy umami:3000
 }
 
 # Apex + www → app (requires APP_ROOT_DOMAIN in prod VPS .env + A records for @ and www)

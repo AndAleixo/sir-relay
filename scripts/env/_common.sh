@@ -7,7 +7,15 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 COMPOSE=(docker compose)
-COMPOSE_DEV=(docker compose -f docker-compose.yml -f docker-compose.dev.yml)
+COMPOSE_LOCAL=(docker compose -f docker-compose.yml -f docker-compose.local.yml)
+
+# Prefer prod-local compose when that postgres is running.
+use_running_compose() {
+  if [[ -f docker-compose.local.yml ]] \
+    && docker compose -f docker-compose.yml -f docker-compose.local.yml ps -q postgres 2>/dev/null | grep -q .; then
+    COMPOSE=( "${COMPOSE_LOCAL[@]}" )
+  fi
+}
 
 require_env() {
   if [[ ! -f .env ]]; then
@@ -27,18 +35,6 @@ require_docker() {
   fi
 }
 
-wait_postgres() {
-  local tries=0
-  until "${COMPOSE_DEV[@]}" exec -T postgres pg_isready -U sirrelay -d sirrelay >/dev/null 2>&1; do
-    tries=$((tries + 1))
-    if [[ $tries -gt 30 ]]; then
-      echo "error: postgres not ready after 30s" >&2
-      exit 1
-    fi
-    sleep 1
-  done
-}
-
 wait_postgres_compose() {
   local -a cmd=( "${COMPOSE[@]}" )
   if [[ $# -gt 0 ]]; then
@@ -54,6 +50,21 @@ wait_postgres_compose() {
     fi
     sleep 1
   done
+}
+
+# Extra DB for Umami on the same Postgres (idempotent). Pass compose argv, e.g. ensure_umami_database "${COMPOSE[@]}".
+ensure_umami_database() {
+  local -a cmd=( "$@" )
+  if [[ ${#cmd[@]} -eq 0 ]]; then
+    cmd=( "${COMPOSE[@]}" )
+  fi
+  if "${cmd[@]}" exec -T postgres \
+    psql -U sirrelay -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname = 'umami'" | grep -q 1; then
+    return 0
+  fi
+  echo "→ create database umami"
+  "${cmd[@]}" exec -T postgres \
+    psql -U sirrelay -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE umami OWNER sirrelay;"
 }
 
 prisma_migrate_deploy_docker() {

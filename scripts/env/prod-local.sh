@@ -4,8 +4,6 @@ set -euo pipefail
 source "$(dirname "$0")/_common.sh"
 require_docker
 
-COMPOSE_LOCAL=(docker compose -f docker-compose.yml -f docker-compose.local.yml)
-
 if [[ ! -f .env ]]; then
   echo "error: copy .env.example → .env (secção Prod local)" >&2
   exit 1
@@ -22,24 +20,24 @@ if [[ -z "${POSTGRES_PASSWORD:-}" ]]; then
 fi
 
 echo "→ prod-local · postgres + migrate"
-"${COMPOSE_LOCAL[@]}" up -d postgres
-tries=0
-until "${COMPOSE_LOCAL[@]}" exec -T postgres pg_isready -U sirrelay -d sirrelay >/dev/null 2>&1; do
-  tries=$((tries + 1))
-  if [[ $tries -gt 30 ]]; then
-    echo "error: postgres not ready after 30s" >&2
-    exit 1
-  fi
-  sleep 1
-done
+wait_postgres_compose "${COMPOSE_LOCAL[@]}"
+ensure_umami_database "${COMPOSE_LOCAL[@]}"
 
 echo "→ prisma migrate deploy"
 DATABASE_URL="postgresql://sirrelay:${POSTGRES_PASSWORD}@localhost:5433/sirrelay" npx prisma migrate deploy
 
 echo "→ docker compose up --build"
 "${COMPOSE_LOCAL[@]}" up -d --build
+# Bind-mounted Caddyfile changes are not always picked up by a long-lived caddy container.
+"${COMPOSE_LOCAL[@]}" up -d --force-recreate caddy
 "${COMPOSE_LOCAL[@]}" ps
 
 echo "→ open http://localhost"
+echo "→ umami dashboard: http://localhost:3001  (admin / umami — change password)"
+if [[ -n "${UMAMI_WEBSITE_ID:-}" ]]; then
+  echo "→ umami tracker: on"
+else
+  echo "→ umami tracker: off — set UMAMI_WEBSITE_ID then: ${COMPOSE_LOCAL[*]} up -d app"
+fi
 echo "→ health: curl -s http://localhost/api/v1/health"
 echo "→ logs: npm run prod-local-logs"

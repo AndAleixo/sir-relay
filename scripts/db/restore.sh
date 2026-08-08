@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Restore from backups/sirrelay-*.sql.gz — stop app, replace DB, restart — §6.5.1
+# Restore from backups/{sirrelay,umami}-*.sql.gz — §6.5.1
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
   echo "usage: $0 backups/sirrelay-YYYYMMDD-HHMM.sql.gz" >&2
+  echo "       $0 backups/umami-YYYYMMDD-HHMM.sql.gz" >&2
   exit 1
 fi
 
@@ -14,31 +15,43 @@ if [[ ! -f "$file" ]]; then
   exit 1
 fi
 
+base=$(basename "$file")
+db=""
+case "$base" in
+  sirrelay-*.sql.gz) db=sirrelay ;;
+  umami-*.sql.gz) db=umami ;;
+  *)
+    echo "error: filename must be sirrelay-*.sql.gz or umami-*.sql.gz (got ${base})" >&2
+    exit 1
+    ;;
+esac
+
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 # shellcheck disable=SC1091
 source "$ROOT/scripts/env/_common.sh"
 
 require_docker
+use_running_compose
 
-# Prefer the compose files of the running stack (prod-local uses .local.yml).
-if [[ -f docker-compose.local.yml ]] && docker compose -f docker-compose.yml -f docker-compose.local.yml ps -q postgres 2>/dev/null | grep -q .; then
-  COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.local.yml)
+service=app
+if [[ "$db" == umami ]]; then
+  service=umami
 fi
 
-echo "→ restore-db · stopping app"
-"${COMPOSE[@]}" stop app
+echo "→ restore-db · stopping ${service}"
+"${COMPOSE[@]}" stop "$service" || true
 
-echo "→ recreating database sirrelay"
-"${COMPOSE[@]}" exec -T postgres psql -U sirrelay -d postgres -v ON_ERROR_STOP=1 <<'SQL'
-SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'sirrelay' AND pid <> pg_backend_pid();
-DROP DATABASE IF EXISTS sirrelay;
-CREATE DATABASE sirrelay;
+echo "→ recreating database ${db}"
+"${COMPOSE[@]}" exec -T postgres psql -U sirrelay -d postgres -v ON_ERROR_STOP=1 <<SQL
+SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${db}' AND pid <> pg_backend_pid();
+DROP DATABASE IF EXISTS ${db};
+CREATE DATABASE ${db} OWNER sirrelay;
 SQL
 
 echo "→ restoring from ${file}"
-gunzip -c "$file" | "${COMPOSE[@]}" exec -T postgres psql -U sirrelay -d sirrelay -v ON_ERROR_STOP=1
+gunzip -c "$file" | "${COMPOSE[@]}" exec -T postgres psql -U sirrelay -d "$db" -v ON_ERROR_STOP=1
 
-echo "→ starting app"
-"${COMPOSE[@]}" start app
+echo "→ starting ${service}"
+"${COMPOSE[@]}" start "$service"
 echo "→ done"

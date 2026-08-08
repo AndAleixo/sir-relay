@@ -11,7 +11,7 @@ import { fromLocale } from "../src/services/api/mappers";
 
 const prisma = new PrismaClient();
 
-/** Shared demo password — dev-hybrid only (see docs/ENVIRONMENTS.md). */
+/** Shared demo password — api seed (prod-local / VPS); see docs/ENVIRONMENTS.md. */
 /** Meets P2-SEC-04 (legacy `demo12345` hashes still log in — grandfather). */
 export const DEMO_PASSWORD = "SirRelay1";
 

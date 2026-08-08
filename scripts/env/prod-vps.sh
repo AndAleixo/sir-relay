@@ -15,6 +15,11 @@ if [[ -z "${POSTGRES_PASSWORD:-}" ]]; then
   exit 1
 fi
 
+if [[ -z "${UMAMI_APP_SECRET:-}" || "${UMAMI_APP_SECRET}" == "dev-umami-secret-change-me" ]]; then
+  echo "error: set UMAMI_APP_SECRET in .env (openssl rand -hex 32)" >&2
+  exit 1
+fi
+
 if [[ $(id -u) -eq 0 ]]; then
   echo "warn: running as root — prefer: su - deploy && cd ~/sir-relay && bash scripts/env/prod-vps.sh" >&2
 fi
@@ -24,6 +29,7 @@ git pull
 
 echo "→ postgres + migrate"
 wait_postgres_compose
+ensure_umami_database
 prisma_migrate_deploy_docker "$POSTGRES_PASSWORD"
 
 echo "→ docker compose up --build"

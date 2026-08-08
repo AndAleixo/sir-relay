@@ -1,49 +1,50 @@
-# Ambientes — os quatro modos de correr o SirRelay
+# Ambientes — os três modos de correr o SirRelay
 
-**Propósito:** definir **quatro ambientes** distintos — o que corre em cada um, analogia, variáveis e quando subir de degrau.
+**Propósito:** definir **três ambientes** — o que corre em cada um, variáveis e quando subir de degrau.
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** Quatro ambientes **Active** (mock · híbrido · prod local · VPS). Phase 2 SEC + AUD + OPS · **Next 16** · P2-MON-01 · AUTH-13/14.
+**Estado actual:** Três ambientes **Active** (mock · prod local · VPS). Phase 2 SEC + AUD + OPS · **Next 16** · P2-MON-01 · AUTH-13/14 · Umami.
 
 ---
 
-## Os quatro ambientes
+## Os três ambientes
 
 | # | Ambiente | Analogia | O que é |
 |---|----------|----------|---------|
 | 1 | **Dev mock** | **Maqueta** — bonita, nada é real | `npm run dev-mock` · dados em memória · zero Docker |
-| 2 | **Dev híbrido** | **Oficina** — montas o motor (API) com ferramentas rápidas | `npm run dev-hybrid` · Postgres Docker · `NEXT_PUBLIC_SERVICE_MODE=api` |
-| 3 | **Prod local** | **Test drive** — o carro completo na garagem | `docker compose up` · stack idêntico ao VPS |
-| 4 | **Prod VPS** | **Estrada** — clientes reais | Droplet + domínio + HTTPS + Telegram |
+| 2 | **Prod local** | **Test drive** — o carro completo na garagem | stack Docker idêntico ao VPS |
+| 3 | **Prod VPS** | **Estrada** — clientes reais | Droplet + domínio + HTTPS + Telegram |
 
 ```
-  Dev mock          Dev híbrido         Prod local          Prod VPS
-  (maqueta)         (oficina)           (test drive)        (estrada)
-      │                 │                   │                   │
-      │  UI polida       │  API + Prisma     │  smoke Docker     │  deploy
-      └────────────────►└──────────────────►└──────────────────►
-         mock              api                 api                 api
+  Dev mock ──────────────► Prod local ──────────────► Prod VPS
+  (maqueta)                 (test drive)               (estrada)
+      │                         │                          │
+      │  UI / i18n rápida       │  API + Postgres + Caddy  │  deploy
+      └────────────────────────►└──────────────────────────►
+         mock                         api                        api
 ```
+
+Fluxo de trabalho: **mock** para desenvolver depressa · **prod-local** para testar o ambiente completo · **VPS** para publicar. Não há modo “híbrido” (Postgres no Docker + `next dev` no host).
 
 ---
 
 ## Comparação rápida
 
-| | **1 · Dev mock** | **2 · Dev híbrido** | **3 · Prod local** | **4 · Prod VPS** |
-|---|------------------|---------------------|--------------------|------------------|
-| **Objectivo** | Polish UI, demo, i18n | Desenvolver backend | Validar deploy completo | Utilizadores reais |
-| **App** | `npm run dev-mock` | `npm run dev-hybrid` | Container `app` | Container `app` |
-| **Base de dados** | Nenhuma (memória) | Postgres Docker (:5432) | Postgres container | Postgres container |
-| **Docker** | Não | Só Postgres | Compose completo | Compose completo |
-| **Proxy / TLS** | — | — | Caddy (local) | Caddy + Let's Encrypt |
-| **`NEXT_PUBLIC_SERVICE_MODE`** | `mock` | `api` | `api` | `api` |
-| **Telegram** | — | Bot teste + tunnel* | Bot staging (opcional) | Bot produção |
-| **Persistência** | Reinicia com o Node | Volume Postgres | Volume Docker | Volume + backups |
-| **Ficheiro env** | `.env` | `.env` | `.env` | `.env` no servidor |
-| **Estado hoje** | Active | Active (API + Prisma) | Active | Active |
+| | **1 · Dev mock** | **2 · Prod local** | **3 · Prod VPS** |
+|---|------------------|--------------------|------------------|
+| **Objectivo** | Polish UI, demo, i18n | Validar stack completa | Utilizadores reais |
+| **App** | `npm run dev-mock` | Container `app` | Container `app` |
+| **Base de dados** | Nenhuma (memória) | Postgres container | Postgres container |
+| **Docker** | Não | Compose completo | Compose completo |
+| **Proxy / TLS** | — | Caddy `:80` | Caddy + Let's Encrypt |
+| **`NEXT_PUBLIC_SERVICE_MODE`** | `mock` | `api` | `api` |
+| **Telegram** | — | Staging (opcional) | Produção |
+| **Umami** | — | Serviço + tracker se `UMAMI_WEBSITE_ID` | + `analytics.<apex>` |
+| **Persistência** | Reinicia com o Node | Volume Docker | Volume + backups |
+| **Ficheiro env** | `.env` | `.env` | `.env` no servidor |
 
-\* Webhook Telegram em dev requer tunnel (ngrok / Cloudflare) ou testar só no VPS.
+\* Webhook Telegram em local requer tunnel (ngrok / Cloudflare) ou testar só no VPS.
 
 ---
 
@@ -60,99 +61,23 @@ npm run check:routes
 | Item | Valor |
 |------|-------|
 | URL | `http://localhost:3000` |
-| Login demo | `sam@example.com` → `/groups` (2 grupos, painel abre) · `ana@example.com` → `/tasks` · activation: `mock-invite-carla` como Carla |
+| Login demo | `sam@example.com` → `/groups` · `ana@example.com` → `/tasks` · activation: `mock-invite-carla` |
 | Password demo | qualquer (mock ignora) |
 
 **Usar para:** polish visual, roteiro de demo, fluxos user→group→role, gravação de vídeo.
 
-**UI actual (mock):** painel de grupos no header — switch, create, join; leave/delete em **Settings** (delete = owner; leave owner → succession); promote/demote/transfer ownership na ficha membro; actions em `app/actions/*`.
-
-**Não usar para:** provar persistência, migrations, Telegram real, performance de build Docker.
+**Não usar para:** provar persistência, migrations, Telegram real, build Docker.
 
 ---
 
-## 2 · Dev híbrido *(oficina)*
+## 2 · Prod local *(test drive)*
 
-Postgres em Docker; app com hot reload no host. **`NEXT_PUBLIC_SERVICE_MODE=api`** — liga a `src/services/api/*` (Prisma).
-
-```bash
-cp .env.example .env
-npm run dev-hybrid
-# só postgres: npm run dev-hybrid-db
-```
-
-Exemplo `.env` (dev híbrido):
-
-```env
-NEXT_PUBLIC_SERVICE_MODE=api
-DATABASE_URL=postgresql://sirrelay:DEV_PASSWORD@localhost:5432/sirrelay
-POSTGRES_PASSWORD=DEV_PASSWORD
-SESSION_SECRET=...   # openssl rand -base64 32
-APP_URL=http://localhost:3000
-```
-
-| Item | Valor |
-|------|-------|
-| Postgres | `localhost:5432` via `docker-compose.dev.yml` |
-| App | Node local — alterações em segundos |
-| Telegram | Opcional; webhook precisa URL pública |
-
-**Usar para:** implementar auth, groups, tasks, Prisma, debug SQL — dia-a-dia do backend.
-
-**Hoje:** `npm run dev-hybrid` sobe Postgres, corre migrate + seed, e `next dev`. Login demo usa password **`SirRelay1`** (não qualquer string como no mock).
-
-**Smoke mínimo:**
-
-```bash
-cp .env.example .env
-npm run dev-hybrid
-curl -s http://localhost:3000/api/v1/health
-# browser: sam@example.com / SirRelay1
-```
-
-### Dev híbrido — checklist de prontidão
-
-O script `scripts/env/dev-hybrid.sh` faz: validar env · subir Postgres · `prisma migrate deploy` · `prisma generate` · seed · `next dev`.
-
-| # | Item | Estado | Notas |
-|---|------|--------|-------|
-| 1 | Docker + `docker-compose.dev.yml` | Done | Postgres exposto em `:5432` |
-| 2 | Scripts `dev-hybrid` / `dev-hybrid-db` | Done | `package.json` |
-| 3 | `.env.example` secção 2 | Done | `DATABASE_URL`, `POSTGRES_PASSWORD`, `SESSION_SECRET` |
-| 4 | UI + contratos (`UserGroup`, `GroupService`) | Done | Mock implementa; UI não muda no swap |
-| 5 | Server actions `app/actions/*` | Done | Thin layer → `getServices()` |
-| 6 | **`prisma/schema.prisma`** + migrations | Done | incl. `last_active_group_id` |
-| 7 | **`prisma/seed.ts`** | Done | Paridade mock · password `SirRelay1` |
-| 8 | Deps npm: `prisma`, `@prisma/client`, `bcrypt`, `jose`, `zod` | Done | Prisma 6.19 |
-| 9 | **`src/services/api/*`** | Done | auth · groups · tasks · teammates · alerts · export |
-| 10 | Ramo `api` em **`getServices()`** | Done | |
-| 11 | **`GET /api/v1/health`** | Done | |
-| 12 | Auth API + cookie jose | Done | Cookie `sirrelay_session` |
-| 13 | Actions mode-agnostic | Done | `auth`, `groups`, `teammates`, `tasks`, `export`, `settings` |
-| 14 | Sync bar → API tasks | Done | `apiTaskService` |
-| 15 | Telegram webhook (link) | Done | `POST /api/v1/telegram/webhook` · P1-TG-01/06 |
-| 16 | Telegram task relay + alert DMs | Done | P1-TG-02–05, 08–10 · `src/lib/telegram/relay.ts` |
-
-**Smoke mínimo:**
-
-```bash
-npm run dev-hybrid
-curl -s http://localhost:3000/api/v1/health   # → 200
-# browser: sam@example.com / SirRelay1 → tasks (resume last group)
-# Settings → leave group (owner succession) · delete group (owner only)
-# PLATFORM_ADMIN_* no .env → /en-gb/platform/login → Overview / Audit
-```
-
----
-
-## 3 · Prod local *(test drive)*
-
-Réplica do stack de produção **na tua máquina**. Valida Dockerfile, Caddy, build standalone e migrations antes do VPS.
+Réplica do stack de produção **na tua máquina**. Valida Dockerfile, Caddy, Umami, build standalone e migrations antes do VPS.
 
 ```bash
 cp .env.example .env
 chmod 600 .env
-# Secção 3: Prod local
+# Secção 2: Prod local (+ Umami no fim)
 
 npm run prod-local
 npm run prod-local-logs
@@ -161,9 +86,10 @@ npm run prod-local-down
 
 | Serviço | Função |
 |---------|--------|
-| `postgres` | PostgreSQL 16 · volume `postgres_data` |
+| `postgres` | PostgreSQL 16 · volume `postgres_data` (DBs `sirrelay` + `umami`) |
+| `umami` | Analytics · dashboard `:3001` · tracker via Caddy `/script.js` |
 | `app` | Next.js standalone (`Dockerfile`) |
-| `caddy` | Reverse proxy :80/:443 → `app:3000` |
+| `caddy` | Reverse proxy :80 → app; `/script.js` + `/api/send` → umami |
 
 **URLs locais:**
 
@@ -172,19 +98,27 @@ npm run prod-local-down
 | `APP_DOMAIN=localhost` | `http://localhost` |
 | `/etc/hosts`: `127.0.0.1 app.local` | `http://app.local` |
 
+Login demo (após seed): `sam@example.com` / **`SirRelay1`**.
+
 **Checklist antes de ir ao VPS:**
 
 - [ ] `NEXT_PUBLIC_SERVICE_MODE=api`
-- [ ] Migrations aplicadas (`prisma migrate deploy`)
 - [ ] `curl http://localhost/api/v1/health` → 200
-- [ ] Signup → grupo → tasks (acceptance test reduzido)
+- [ ] Signup → grupo → tasks
+- [ ] Umami (opcional): dashboard + `UMAMI_WEBSITE_ID`
 - [ ] Build Docker sem erros
 
 **Reset de dados:** `docker compose down` mantém volume; `docker volume rm sir-relay_postgres_data` para limpar.
 
+**Seed / prisma no host** (Postgres publicado em `:5433`):
+
+```bash
+DATABASE_URL=postgresql://sirrelay:$POSTGRES_PASSWORD@localhost:5433/sirrelay npx prisma db seed
+```
+
 ---
 
-## 4 · Prod VPS *(estrada)*
+## 3 · Prod VPS *(estrada)*
 
 Deploy público. Guia completo: **[DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)**.
 
@@ -209,27 +143,28 @@ Checklist: [DEPLOY-DIGITALOCEAN.md §10](./DEPLOY-DIGITALOCEAN.md#10-checklist-p
 
 ## Variáveis de ambiente
 
-Modelo: **`.env.example`** → copiar para **`.env`** (único ficheiro local; gitignored). Nunca commitar `.env` com segredos.
+Modelo: **`.env.example`** → **`.env`** (gitignored). Nunca commitar segredos.
 
 ### Matriz `NEXT_PUBLIC_SERVICE_MODE`
 
 | Valor | `getServices()` | BD | Ambiente(s) |
 |-------|-----------------|-----|-------------|
 | `mock` | `src/services/mock/*` | Não | Dev mock |
-| `api` | `src/services/api/*` | Sim | Dev híbrido · prod local · VPS |
+| `api` | `src/services/api/*` | Sim | Prod local · VPS |
 
 Troca sem alterar UI — [ARCHITECTURE.md §Mock → API](./ARCHITECTURE.md#mock--api).
 
-### Prod local vs VPS (mesmo `.env`, valores diferentes)
+### Prod local vs VPS
 
 | Variável | Prod local | Prod VPS |
 |----------|------------|----------|
-| `APP_URL` | `http://app.local` | `https://app.sirrelay.com` |
-| `APP_DOMAIN` | `app.local` | `app.sirrelay.com` |
+| `APP_URL` | `http://localhost` | `https://app.sirrelay.com` |
+| `APP_DOMAIN` | `localhost` | `app.sirrelay.com` |
+| `APP_ROOT_DOMAIN` | — | `sirrelay.com` |
 | `CADDY_EMAIL` | opcional | email real (Let's Encrypt) |
-| Resto | iguais | iguais |
+| `UMAMI_APP_SECRET` | opt (default fraco no compose) | obrigatório (`prod-vps.sh`) |
 
-`DATABASE_URL` no compose é injectada automaticamente:
+`DATABASE_URL` no container `app` é injectada pelo compose:
 
 ```yaml
 DATABASE_URL: postgresql://sirrelay:${POSTGRES_PASSWORD}@postgres:5432/sirrelay
@@ -242,40 +177,33 @@ DATABASE_URL: postgresql://sirrelay:${POSTGRES_PASSWORD}@postgres:5432/sirrelay
 | Ficheiro | Ambiente(s) |
 |----------|-------------|
 | `docker-compose.yml` | Prod local · VPS |
-| `docker-compose.dev.yml` | Dev híbrido (expõe Postgres :5432) |
+| `docker-compose.local.yml` | Prod local (ports + Caddyfile.local) |
 | `Dockerfile` | Prod local · VPS |
-| `Caddyfile` | Prod local · VPS |
+| `Caddyfile` / `Caddyfile.local` | VPS / prod local |
 | `.env.example` | Template (commitado) |
 | `.env` | Local + prod (gitignored) |
-| `scripts/env/dev-*.sh` · `prod-*.sh` | Um script por ambiente — ver tabela abaixo |
-| `scripts/check-entry-routes.mjs` | Dev mock (CI) |
-| `scripts/db/backup.sh` · `backup-offsite.sh` · `restore.sh` | VPS |
+| `scripts/env/dev-mock.sh` · `prod-local.sh` · `prod-vps.sh` | Um script por ambiente |
+| `scripts/db/backup.sh` · `backup-offsite.sh` · `restore.sh` | VPS (+ prod-local) |
 
 ---
 
 ## Fluxo de trabalho
 
 ```
-Dev mock ──► Dev híbrido ──► Prod local ──► Prod VPS
-(maqueta)     (oficina)       (test drive)   (estrada)
-  UI            API             Docker         público
- mock          api              api            api
+Dev mock ──► Prod local ──► Prod VPS
+(maqueta)     (test drive)   (estrada)
+  UI            Docker         público
+ mock          api            api
 ```
 
-### Dia-a-dia (Phase 1)
-
-1. **Dev mock** — `npm run dev-mock` (UI rápida sem Docker)
-2. **Dev híbrido** — `npm run dev-hybrid` (API + Postgres) — ver [checklist §2](./ENVIRONMENTS.md#dev-híbrido--checklist-de-prontidão)
-3. `npm run lint` + `npm run check:routes` (+ `npm run check:queue` se mexeres na fila) antes de commit
-4. **Prod local** — antes de merge grande ou release
-5. **Prod VPS** — após smoke local OK
-
-### Critérios para subir de degrau
+1. **Dev mock** — `npm run dev-mock` (UI rápida)
+2. `npm run lint` + checks relevantes antes de commit
+3. **Prod local** — testar API, Postgres, Caddy, Umami
+4. **Prod VPS** — após smoke local OK
 
 | De → Para | Critério |
 |-----------|----------|
-| Mock → Híbrido | `services/api` com auth + groups + tasks; migrations + seed |
-| Híbrido → Prod local | `docker compose up --build` OK; health + acceptance test |
+| Mock → Prod local | Feature estável em mock; smoke Docker + health |
 | Prod local → VPS | Checklist [DEPLOY §10](./DEPLOY-DIGITALOCEAN.md#10-checklist-pos-deploy) |
 
 ---
@@ -285,7 +213,6 @@ Dev mock ──► Dev híbrido ──► Prod local ──► Prod VPS
 | Ambiente | Bot | Webhook |
 |----------|-----|---------|
 | Dev mock | — | — |
-| Dev híbrido | Teste (@BotFather) | Tunnel → localhost |
 | Prod local | Staging | Tunnel ou skip |
 | Prod VPS | Produção | `https://APP_DOMAIN/api/v1/telegram/webhook` |
 
@@ -297,16 +224,13 @@ Registo webhook: [DEPLOY-DIGITALOCEAN.md §7](./DEPLOY-DIGITALOCEAN.md#7-telegra
 
 | Comando | Ambiente | O que faz |
 |---------|----------|-----------|
-| `npm run dev-mock` | Dev mock | Força `NEXT_PUBLIC_SERVICE_MODE=mock` · `next dev` |
-| `npm run dev-hybrid` | Dev híbrido | Postgres + prisma (se existir) + `next dev` |
-| `npm run dev-hybrid-db` | Dev híbrido | Só Postgres (:5432) |
-| `npm run dev-hybrid-db-down` | Dev híbrido | Para containers dev |
-| `npm run prod-local` | Prod local | `docker compose up --build` |
+| `npm run dev-mock` | Dev mock | Força `mock` · `next dev` |
+| `npm run prod-local` | Prod local | Stack Docker completa |
 | `npm run prod-local-down` | Prod local | Para stack |
-| `npm run prod-local-logs` | Prod local | Logs app + caddy |
-| `npm run prod-vps` | Prod VPS (local) | Atalho → `scripts/env/prod-vps.sh` |
+| `npm run prod-local-logs` | Prod local | Logs app + caddy + umami |
+| `npm run prod-vps` | Prod VPS | Atalho → `scripts/env/prod-vps.sh` |
 
-Fonte: `scripts/env/dev-mock.sh` · `dev-hybrid.sh` · `prod-local.sh` · `prod-vps.sh`
+Fonte: `scripts/env/dev-mock.sh` · `prod-local.sh` · `prod-vps.sh`
 
 ---
 
@@ -315,9 +239,8 @@ Fonte: `scripts/env/dev-mock.sh` · `dev-hybrid.sh` · `prod-local.sh` · `prod-
 | Quero… | Ambiente | Comando |
 |--------|----------|---------|
 | Polir UI / demo | **Dev mock** | `npm run dev-mock` |
-| Desenvolver API | **Dev híbrido** | `npm run dev-hybrid` |
-| Testar deploy | **Prod local** | `npm run prod-local` |
-| Publicar | **Prod VPS** | `bash scripts/env/prod-vps.sh` no servidor (sem npm no host) |
+| Testar stack completa | **Prod local** | `npm run prod-local` |
+| Publicar | **Prod VPS** | `bash scripts/env/prod-vps.sh` no servidor |
 
 ---
 
@@ -329,28 +252,17 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Feito (Phase 2 SEC parcial):**
 - P2-SEC-01–11 — incl. IDOR · safe JSON logging · **Next 16.2** (SEC-10 highs closed)
-- P2-AUD-01–04 — `audit_logs` · `/events/activity` · `/platform` (ops login + session) · `check:audit` · `check:platform-session`
-- Checks: `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `check:platform-session` · `audit:prod`
+- P2-AUD-01–04 — `audit_logs` · `/events/activity` · `/platform`
 - Demo seed password: **`SirRelay1`**
 
-**Pendente Phase 2 follow-ups (opcional):**
-1. Nested postcss moderate inside Next (upstream; no safe force-fix)
-2. P2-ANA analytics (só se precisares de métricas de ecrã)
+**Ops (feito):** P2-OPS-01–09 — [DEPLOY](./DEPLOY-DIGITALOCEAN.md).
 
-**Ops (feito):** P2-OPS-01–09 — [DEPLOY](./DEPLOY-DIGITALOCEAN.md) §3 firewall · §6 `.env`/`SESSION_SECRET` · §9 updates mensais · §9.1 backups. Postgres só na rede Docker `internal`; app `USER nextjs`.
+**Umami:** P2-ANA-01–03 · tracker com `UMAMI_WEBSITE_ID` · DB via `ensure_umami_database`.
 
-**Auth (feito):** signup merge `invited` — P1-AUTH-13/14 · `check:signup-merge`
-
-**Telegram (feito):** link webhook + task relay + operator alert DMs. Due alerts via `syncDueAlerts`.
-
-**Monitorização (feito):** P2-MON-01 request id · P2-MON-02 `login_failed` no audit + contagem no `/platform` overview.
-
-**Opcional:** REST `/api/v1/*` além de health + webhook (UI usa server actions).
-
-**Smoke (feito):** prod local + VPS · Telegram · fila · SEC (checks acima) · `/platform/login` com `PLATFORM_ADMIN_*`.
+**Smoke (feito):** prod local + VPS · Telegram · fila · SEC · `/platform/login`.
 
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*`.
 
 ---
 
-**Last updated:** 2026-07-26 (P2-MON-02 login_failed)
+**Last updated:** 2026-08-09 (removed dev-hybrid; three environments)

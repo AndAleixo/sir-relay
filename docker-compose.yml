@@ -16,6 +16,27 @@ services:
     networks:
       - internal
 
+  # Self-hosted analytics (dashboard). Tracker is same-origin via Caddy → /script.js + /api/send.
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://sirrelay:${POSTGRES_PASSWORD}@postgres:5432/umami
+      # Local smoke default. VPS: prod-vps.sh exige UMAMI_APP_SECRET real.
+      APP_SECRET: ${UMAMI_APP_SECRET:-dev-umami-secret-change-me}
+      DISABLE_TELEMETRY: "1"
+      DISABLE_UPDATES: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - internal
+
   app:
     build: .
     restart: unless-stopped
@@ -49,6 +70,7 @@ services:
       - caddy_config:/config
     depends_on:
       - app
+      - umami
     logging:
       driver: json-file
       options:
@@ -56,19 +78,6 @@ services:
         max-file: "5"
     networks:
       - internal
-
-  # Phase 2 — self-hosted analytics (optional)
-  # umami:
-  #   image: ghcr.io/umami-software/umami:postgresql-latest
-  #   restart: unless-stopped
-  #   environment:
-  #     DATABASE_URL: postgresql://sirrelay:${POSTGRES_PASSWORD}@postgres:5432/umami
-  #     APP_SECRET: ${UMAMI_APP_SECRET}
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   networks:
-  #     - internal
 
 volumes:
   postgres_data:

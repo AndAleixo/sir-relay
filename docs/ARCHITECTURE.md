@@ -11,7 +11,7 @@ src/
 │   ├── contracts.ts      # AuthService, GroupService, InvitationService, …
 │   ├── index.ts          # getServices() — mock | api
 │   ├── mock/             # dev-mock
-│   └── api/              # dev-hybrid (Prisma)
+│   └── api/              # prod-local / VPS (Prisma)
 ├── lib/
 │   ├── entry-route.ts    # Post-auth redirects
 │   ├── session-hydrate.ts # Role + resume group on login
@@ -92,7 +92,7 @@ Unauthenticated access to app routes → `/login?session=expired`.
 
 ## Landing demo
 
-Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `SirRelay1` (dev-hybrid) · 2 groups → login resume **Demo Shop** · `ana@example.com` (active teammate → tasks) · activation: `mock-invite-carla` for invited Carla.
+Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `SirRelay1` (api / prod-local) · 2 groups → login resume **Demo Shop** · `ana@example.com` (active teammate → tasks) · activation: `mock-invite-carla` for invited Carla.
 
 ## Task queue & boards
 
@@ -107,23 +107,14 @@ Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `SirRelay1` (dev-h
 
 ## Mock → API
 
-| Camada | Mock (hoje) | API (dev-hybrid) |
-|--------|-------------|------------------|
+| Camada | Mock | API (prod-local / VPS) |
+|--------|------|------------------------|
 | Entrada | `getServices()` → `mock/*` | `getServices()` → `api/*` |
 | Sessão | Cookie `sirrelay_mock_session` | jose + httpOnly cookie |
 | Grupos | `MockGroupService` | Prisma `group_memberships` |
 | Actions | `app/actions/*` | Mode-agnostic — chamam `getServices()` |
 
-Passos:
-
-1. Implementar `src/services/api/*` (contratos em `contracts.ts`).
-2. `prisma/schema.prisma` + migrate + seed.
-3. Ramo `api` em `getServices()` + `GET /api/v1/health`.
-4. `NEXT_PUBLIC_SERVICE_MODE=api` em `.env` · `npm run dev-hybrid`.
-
-Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina).
-
-**API layer:** `src/services/api/` — Prisma-backed implementations of `contracts.ts`. Health: `GET /api/v1/health` · Telegram link: `POST /api/v1/telegram/webhook`. Full REST `/api/v1/*` beyond those routes is optional — the UI uses server actions.
+**API layer:** `src/services/api/` — Prisma-backed implementations of `contracts.ts`. Run via **prod-local** or **VPS** (`NEXT_PUBLIC_SERVICE_MODE=api`). Health: `GET /api/v1/health` · Telegram: `POST /api/v1/telegram/webhook`. Full REST `/api/v1/*` beyond those routes is optional — the UI uses server actions. Ambientes: [ENVIRONMENTS.md](./ENVIRONMENTS.md).
 
 ## Session & security (Phase 2 SEC)
 
@@ -153,7 +144,7 @@ Checklist completa: [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-ofic
 
 ```bash
 npm install && npm run dev-mock && npm run check:routes
-# dev-hybrid: npm run dev-hybrid   # Postgres + API · SirRelay1
+# full stack: npm run prod-local   # API + Postgres · SirRelay1
 ```
 
-`http://localhost:3000` — landing · `/en-gb/login` — sign in · **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `SirRelay1` · activation: `mock-invite-carla` as carla@example.com
+`http://localhost:3000` (mock) · `http://localhost` (prod-local) — **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `SirRelay1` · activation: `mock-invite-carla` as carla@example.com

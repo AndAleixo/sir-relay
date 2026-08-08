@@ -292,7 +292,7 @@ Full hardening → Phase 2.
 
 | ID | Requirement |
 |----|-------------|
-| P1-DEP-01 | `docker-compose.yml`: app, postgres, Caddy |
+| P1-DEP-01 | `docker-compose.yml`: app, postgres, umami, Caddy |
 | P1-DEP-02 | `docker compose up -d` starts the stack |
 | P1-DEP-03 | Postgres persistent volume |
 | P1-DEP-04 | README + deploy doc | Env setup, DNS, first login, landing at `/`, Telegram webhook — [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) |
@@ -439,37 +439,26 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | P2-OPS-08 | `SESSION_SECRET` ≥ 32 random bytes | **Done** — `openssl rand -base64 32` in DEPLOY / `.env.example` |
 | P2-OPS-09 | Monthly OS and image updates | **Done** (procedure) — DEPLOY §9 “Updates mensais” |
 
-### 6.4 Monitoring & analytics
+### 6.4 Monitoring
 
 **Two layers** — do not conflate them:
 
-| Layer | Answers | Tooling | Cookie consent |
-|-------|---------|---------|----------------|
-| **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` · `/events/activity` · `/platform` | No — server-side |
-| **Access / ops** | Is the app up? Who hit the server? | Caddy access logs, `GET /health`, JSON app logs | No — infrastructure |
-| **Web analytics** (optional) | Which screens are used? Mobile vs desktop? | Self-hosted **Umami** or **Plausible** (recommended) | **Yes** — unless provider is cookieless and legal review confirms exemption |
+| Layer | Answers | Tooling |
+|-------|---------|---------|
+| **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` · `/events/activity` · `/platform` |
+| **Access / ops** | Is the app up? Who hit the server? | Caddy access logs, `GET /health`, JSON app logs |
 
-**Locked decision:** No Google Analytics or third-party SaaS that sends data outside the VPS. Analytics, if enabled, runs **self-hosted** on the same deployment (subdomain e.g. `analytics.<APP_URL>` or path proxy).
+**Product analytics:** self-hosted **Umami** in Docker Compose (service always present in prod-local/VPS; DB `umami` via `ensure_umami_database` in `scripts/env/_common.sh`). Tracker same-origin via Caddy (`/script.js`, `/api/send`) — CSP stays `'self'`. Dashboard: local `:3001` · VPS `analytics.<APP_ROOT_DOMAIN>`. Script injects only when `UMAMI_WEBSITE_ID` is set (tracker optional). No Google Analytics / third-party SaaS. No consent banner (cookieless tracker; privacy page discloses).
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P2-MON-01 | Structured app logs | JSON logs: request id, user id (if session), route, status; never log passwords or tokens · **Done** (`x-request-id` in `proxy.ts` · auto on `logJson` / `logJsonAsync`; no per-request start/end spam). Docker log rotation: `max-size` 10m × 5 |
 | P2-MON-02 | Failed login visibility | **Done** — `login_failed` in `audit_logs` (reason + email; platform `/platform` + Audit filter). Operator alert threshold → Phase 3 |
-| P2-ANA-01 | Self-hosted analytics (optional) | Umami or Plausible in Docker Compose; disabled by default |
-| P2-ANA-02 | Env toggle | `ANALYTICS_ENABLED=false` default; `ANALYTICS_SCRIPT_URL` when true |
-| P2-ANA-03 | Cookie consent | If analytics uses non-essential cookies: banner on first visit — **Necessary** (session) always on · **Analytics** opt-in; store preference in `localStorage` or cookie `sirrelay_consent` |
-| P2-ANA-04 | Privacy policy | `/privacy` links cookies used, analytics (if on), retention, self-hosted controller |
-| P2-ANA-05 | Load script only after consent | No analytics network calls until user accepts (or cookieless mode documented) |
+| P2-ANA-01 | Self-hosted Umami | Compose service `umami` · DB `umami` · `UMAMI_APP_SECRET` |
+| P2-ANA-02 | Same-origin tracker | Caddy proxies `/script.js` + `/api/send` · app loads `/script.js` when `UMAMI_WEBSITE_ID` set (`src/lib/umami.ts`) |
+| P2-ANA-03 | Privacy disclosure | `/privacy` states optional self-hosted usage analytics · no ad cookies |
 
-**Phase 1 minimum (before analytics):** session cookie + login notice + privacy page stub. **Phase 2:** `audit_logs` + group activity cover operational monitoring; enable product analytics when usage insights are needed.
-
-**Environment variables (when analytics enabled):**
-
-| Variable | Required | Notes |
-|----------|----------|-------|
-| `ANALYTICS_ENABLED` | No | Default `false` |
-| `ANALYTICS_SCRIPT_URL` | If enabled | e.g. `https://analytics.example.com/script.js` |
-| `ANALYTICS_SITE_ID` | If enabled | Provider site id |
+**Cookies (current):** one essential session cookie + login notice + privacy page. Umami tracker is cookieless (no advertising cookies).
 
 ### 6.5 Data backup & export
 
@@ -482,7 +471,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-BAK-01 | Scripts | `scripts/db/backup.sh` (`pg_dump` → gzip `backups/sirrelay-YYYYMMDD-HHMM.sql.gz`) · `scripts/db/restore.sh` (stop app → restore → restart) · `scripts/db/backup-offsite.sh` (rclone); documented in README + [DEPLOY-DIGITALOCEAN.md §9.1](./DEPLOY-DIGITALOCEAN.md) |
+| P2-BAK-01 | Scripts | `scripts/db/backup.sh` (`pg_dump` → gzip `backups/{sirrelay,umami}-YYYYMMDD-HHMM.sql.gz`; skips `umami` if DB missing) · `scripts/db/restore.sh` (stop app/umami → restore matching DB → restart) · `scripts/db/backup-offsite.sh` (rclone both patterns); documented in README + [DEPLOY-DIGITALOCEAN.md §9.1](./DEPLOY-DIGITALOCEAN.md) |
 | P2-BAK-02 | Schedule & retention | **Done (prod VPS):** daily cron `0 5 * * *` → `backup-offsite.sh`; prune local copies older than 7 days (`BACKUP_RETAIN_DAYS`) |
 | P2-BAK-03 | Off-VPS copy | **Done:** Google Drive via rclone (`gdrive:sirrelay-backups`) |
 | P2-BAK-04 | Restore tested | **Done:** restore exercised; rely on offsite + local `.sql.gz` for recovery |
@@ -637,7 +626,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 ├── Dockerfile
 ├── prisma/              # schema + migrations + seed
 ├── scripts/
-│   ├── env/             # dev-mock · dev-hybrid · prod-local · prod-vps
+│   ├── env/             # dev-mock · prod-local · prod-vps
 │   ├── db/              # backup.sh · backup-offsite.sh · restore.sh
 │   └── check-entry-routes.mjs
 └── src/
@@ -667,7 +656,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Task queue (`sort_order`) + To do DnD + status drops | Done — P1-TASK-11 · `check:queue` |
 | Group invitations (consent for active emails) | Done — P1-GRP-08/13/14 |
 | Sign-up merge (`invited` email) | Done — P1-AUTH-13/14 · `check:signup-merge` |
-| Dev híbrido smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--dev-híbrido-oficina) |
+| Prod local smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--prod-local-test-drive) |
 | Telegram webhook (link) | Done — P1-TG-01, P1-TG-06 |
 | Telegram task relay + alert DMs | Done — P1-TG-02–05, 08–10 · create/done/renotify · replies · operator DMs |
 | REST `/api/v1/*` (beyond health + Telegram webhook) | Optional — UI uses server actions |

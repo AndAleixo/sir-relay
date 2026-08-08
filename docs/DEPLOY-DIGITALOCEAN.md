@@ -6,7 +6,7 @@ Visitantes acedem à **landing** (`https://app.sirrelay.com/en-gb`); utilizadore
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [ENVIRONMENTS.md](./ENVIRONMENTS.md) · [README.md](../README.md)
 
-**Ambientes (4):** dev mock · dev híbrido · prod local · prod VPS — [ENVIRONMENTS.md](./ENVIRONMENTS.md). Este guia cobre **prod VPS**.
+**Ambientes (3):** dev mock · prod local · prod VPS — [ENVIRONMENTS.md](./ENVIRONMENTS.md). Este guia cobre **prod VPS**.
 
 **Estado (2026-07):** prod VPS em `app.sirrelay.com` — Docker + Caddy + Postgres; backups diários 05:00 → Google Drive; restore testado; P2-OPS-01–09 documentados (§3 · §6 · §9).
 
@@ -16,8 +16,8 @@ Visitantes acedem à **landing** (`https://app.sirrelay.com/en-gb`); utilizadore
 
 | Opção | Spec | Quando |
 |-------|------|--------|
-| **Recomendado** | **4 GB RAM · 2 vCPU · 80 GB SSD** | Produção (app + Postgres + Caddy; Umami opcional depois) |
-| Mínimo | 2 GB RAM · 1 vCPU | Testes / só app mock sem analytics |
+| **Recomendado** | **4 GB RAM · 2 vCPU · 80 GB SSD** | Produção (app + Postgres + Caddy + Umami) |
+| Mínimo | 2 GB RAM · 1 vCPU | Smoke apertado (Umami incluído no compose — monitoriza RAM) |
 
 **Imagem:** Ubuntu **24.04+** LTS (26.04 ok se Docker instalar)  
 **Região:** **FRA1** (Frankfurt) ou **AMS3** (Amsterdam) — latência EU + RGPD  
@@ -67,16 +67,17 @@ Registador actual: **Network Solutions** (não obrigatório usar DO DNS).
 | A | `app` | IP do Droplet |
 | A | `@` | IP do Droplet (apex — Caddy redirecciona para `app`) |
 | A | `www` | IP do Droplet (Caddy redirecciona para `app`) |
+| A | `analytics` | IP do Droplet (dashboard Umami — opcional) |
 
-Subdomínio **`app`** (`app.sirrelay.com`) serve a aplicação. **`sirrelay.com`** e **`www`** redireccionam via Caddy (`APP_ROOT_DOMAIN`).
+Subdomínio **`app`** (`app.sirrelay.com`) serve a aplicação. **`sirrelay.com`** e **`www`** redireccionam via Caddy (`APP_ROOT_DOMAIN`). Tracker Umami é same-origin em `app` (`/script.js`); o dashboard fica em **`analytics.sirrelay.com`**.
 
 ```env
 APP_URL=https://app.sirrelay.com
 APP_DOMAIN=app.sirrelay.com
 APP_ROOT_DOMAIN=sirrelay.com
+UMAMI_APP_SECRET=...   # openssl rand -hex 32 (obrigatório no prod-vps.sh)
+UMAMI_WEBSITE_ID=...   # após criar o site no Umami (domain = APP_DOMAIN)
 ```
-
-Para analytics self-hosted (Fase 2, opcional): `A` → `analytics` → mesmo IP.
 
 ---
 
@@ -195,7 +196,7 @@ curl -s "${APP_URL}/api/v1/health"
 | Logs | `docker compose logs -f app caddy` · rotação `10m`×5 · correlacionar com `x-request-id` / `requestId` |
 | Backup DB | `bash scripts/db/backup.sh` |
 | Backup + Drive | `bash scripts/db/backup-offsite.sh` — §9.1 |
-| Restore DB | `bash scripts/db/restore.sh backups/….sql.gz` |
+| Restore DB | `bash scripts/db/restore.sh backups/sirrelay-….sql.gz` (ou `umami-….sql.gz`) |
 | Reiniciar | `docker compose restart` |
 
 ### Updates mensais (P2-OPS-09)
@@ -243,7 +244,9 @@ Cria pasta no Drive: **`sirrelay-backups`**.
 cd ~/sir-relay
 RCLONE_REMOTE=gdrive:sirrelay-backups bash scripts/db/backup-offsite.sh
 rclone ls gdrive:sirrelay-backups
-# restore dry-run / real: bash scripts/db/restore.sh backups/sirrelay-YYYYMMDD-HHMM.sql.gz
+# backup: produz sirrelay-*.sql.gz + umami-*.sql.gz (se a DB umami existir)
+# restore: bash scripts/db/restore.sh backups/sirrelay-YYYYMMDD-HHMM.sql.gz
+#          bash scripts/db/restore.sh backups/umami-YYYYMMDD-HHMM.sql.gz
 ```
 
 **Cron (activo no VPS — 05:00 no relógio do Droplet):**
@@ -252,7 +255,7 @@ rclone ls gdrive:sirrelay-backups
 0 5 * * * cd /home/deploy/sir-relay && RCLONE_REMOTE=gdrive:sirrelay-backups bash scripts/db/backup-offsite.sh >>/home/deploy/sir-relay/backups/cron.log 2>&1
 ```
 
-Retenção local 7 dias (`BACKUP_RETAIN_DAYS`); no Drive limpa manualmente ou `rclone delete gdrive:sirrelay-backups --min-age 30d`.
+Retenção local 7 dias (`BACKUP_RETAIN_DAYS`); offsite inclui `sirrelay-*.sql.gz` e `umami-*.sql.gz`. No Drive limpa manualmente ou `rclone delete gdrive:sirrelay-backups --min-age 30d`.
 
 **Estado:** P2-BAK-01–04 cumpridos — scripts · cron diário · offsite Drive · restore testado.
 
@@ -273,7 +276,8 @@ Retenção local 7 dias (`BACKUP_RETAIN_DAYS`); no Drive limpa manualmente ou `r
 
 | Ficheiro | Função |
 |----------|--------|
-| `docker-compose.yml` | app + postgres + caddy (`internal`; só 80/443 públicos) |
+| `docker-compose.yml` | app + postgres + umami + caddy (`internal`; só 80/443 públicos) |
+| `scripts/env/_common.sh` | `ensure_umami_database` — cria DB `umami` se faltar (prod-local / VPS) |
 | `Dockerfile` | app non-root (`USER nextjs`) |
 | `Caddyfile` | HTTPS + redirect apex/www |
 | `scripts/bootstrap-droplet.sh` | user deploy + Docker + rclone |

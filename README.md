@@ -20,7 +20,7 @@ Hosted **web + Telegram task relay** for small groups (by **Sir**). One active T
 | [**REQUIREMENTS.md**](./docs/REQUIREMENTS.md) | Product rules, phases, IDs, API, permissions |
 | [**UIUX.md**](./docs/UIUX.md) | Layout, boards, screens, interactions |
 | [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) | `src/`, services, mock → API |
-| [**ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) | Dev mock · hybrid · prod local · VPS |
+| [**ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) | Dev mock · prod local · VPS |
 | [**BRAND.md**](./docs/BRAND.md) | Colors, logos, tokens |
 | [**DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | Production Droplet: firewall, SSH, deploy, backups, monthly updates (P2-OPS) |
 
@@ -39,8 +39,7 @@ Open `http://localhost:3000` · demo `sam@example.com` / `ana@example.com` (any 
 | Environment | Command |
 |-------------|---------|
 | Dev mock | `npm run dev-mock` |
-| Dev hybrid (Postgres + API) | `npm run dev-hybrid` |
-| Prod local (Docker) | `npm run prod-local` |
+| Prod local (Docker stack) | `npm run prod-local` |
 | Prod VPS | `bash scripts/env/prod-vps.sh` |
 
 Stack: Next.js 16 · React 19 · Prisma · PostgreSQL · grammy · Docker Compose + Caddy — [REQUIREMENTS §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-layout).

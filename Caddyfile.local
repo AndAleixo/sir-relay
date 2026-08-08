@@ -1,4 +1,15 @@
 :80 {
 	encode gzip
-	reverse_proxy app:3000
+
+	# Umami tracker (same-origin → CSP 'self')
+	handle /script.js {
+		reverse_proxy umami:3000
+	}
+	handle /api/send {
+		reverse_proxy umami:3000
+	}
+
+	handle {
+		reverse_proxy app:3000
+	}
 }

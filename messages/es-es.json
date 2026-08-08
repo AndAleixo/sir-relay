@@ -106,8 +106,8 @@
   },
   "privacy": {
     "title": "Privacidad",
-    "stub": "SirRelay guarda tu cuenta, tareas y datos de enlace Telegram en nuestros servidores. Usamos una cookie esencial de sesión para entrar.",
-    "cookies": "Usamos una cookie esencial para la sesión autenticada. Sin analytics de terceros salvo que los actives en Ajustes."
+    "stub": "SirRelay guarda tu cuenta, tareas y datos de enlace Telegram en nuestros servidores. Usamos una cookie esencial de sesión para entrar. El análisis de uso opcional corre self-hosted (Umami).",
+    "cookies": "Usamos una cookie esencial para la sesión autenticada. El análisis de uso (Umami self-hosted) no usa cookies de publicidad y no vende tus datos."
   },
   "roles": {
     "operator": "Operador",

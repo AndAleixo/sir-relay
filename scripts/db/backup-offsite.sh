@@ -23,5 +23,8 @@ fi
 
 BACKUP_DIR="${BACKUP_DIR:-backups}"
 echo "→ rclone copy ${BACKUP_DIR}/ → ${REMOTE}"
-rclone copy "$BACKUP_DIR" "$REMOTE" --include 'sirrelay-*.sql.gz' --verbose
+rclone copy "$BACKUP_DIR" "$REMOTE" \
+  --include 'sirrelay-*.sql.gz' \
+  --include 'umami-*.sql.gz' \
+  --verbose
 echo "→ offsite done"

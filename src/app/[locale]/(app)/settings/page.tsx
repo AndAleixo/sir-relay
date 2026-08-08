@@ -89,7 +89,14 @@ export default async function SettingsPage({
                 action={updateOwnDisplayNameForm.bind(null, locale)}
                 className="space-y-2 border-t border-[var(--border)] pt-3"
               >
-                <Label htmlFor="displayName">{t("teammate.fantasyName")}</Label>
+                <div>
+                  <Label htmlFor="displayName" className="mb-0">
+                    {t("teammate.fantasyName")}
+                  </Label>
+                  <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+                    {t("teammate.fantasyNameHint")}
+                  </p>
+                </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                   <Input
                     id="displayName"
@@ -106,9 +113,6 @@ export default async function SettingsPage({
                     {t("common.save")}
                   </Button>
                 </div>
-                <p className="text-xs text-[var(--text-muted)]">
-                  {t("teammate.fantasyNameHint")}
-                </p>
                 {displayNameSaved === "1" ? (
                   <Banner variant="info">{t("settings.fantasyNameSaved")}</Banner>
                 ) : null}

@@ -83,7 +83,12 @@ export function GroupNotificationSettings({
       </label>
 
       <div className="space-y-1.5 border-t border-[var(--border)] pt-3">
-        <Label htmlFor="alert-timezone">{t("alertTimezone")}</Label>
+        <div>
+          <Label htmlFor="alert-timezone" className="mb-0">
+            {t("alertTimezone")}
+          </Label>
+          <p className="mt-0.5 text-xs text-[var(--text-muted)]">{t("alertTimezoneHint")}</p>
+        </div>
         <Select
           id="alert-timezone"
           name="timezone"
@@ -100,7 +105,6 @@ export function GroupNotificationSettings({
           }}
           aria-label={t("alertTimezone")}
         />
-        <p className="text-xs text-[var(--text-muted)]">{t("alertTimezoneHint")}</p>
       </div>
 
       <div className="space-y-2 border-t border-[var(--border)] pt-3">

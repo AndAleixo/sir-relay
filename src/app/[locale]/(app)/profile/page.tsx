@@ -93,7 +93,14 @@ export default async function ProfilePage({
               action={profileUpdateNameForm.bind(null, locale)}
               className="space-y-2 border-t border-[var(--border)] pt-3"
             >
-              <Label htmlFor="name">{t("profile.accountName")}</Label>
+              <div>
+                <Label htmlFor="name" className="mb-0">
+                  {t("profile.accountName")}
+                </Label>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+                  {t("profile.accountNameHint")}
+                </p>
+              </div>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                 <Input
                   id="name"
@@ -107,9 +114,6 @@ export default async function ProfilePage({
                   {t("common.save")}
                 </Button>
               </div>
-              <p className="text-xs text-[var(--text-muted)]">
-                {t("profile.accountNameHint")}
-              </p>
               {nameError === "short" ? (
                 <Banner variant="danger">{t("profile.nameTooShort")}</Banner>
               ) : null}

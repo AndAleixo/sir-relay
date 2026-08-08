@@ -152,16 +152,19 @@ export default async function TeammateDetailPage({
           <CardBody>
             <form action={updateTeammateForm.bind(null, locale, id)} className="space-y-4">
               <div>
-                <Label htmlFor="displayName">{t("teammate.fantasyName")}</Label>
+                <Label htmlFor="displayName" className="mb-0">
+                  {t("teammate.fantasyName")}
+                </Label>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+                  {t("teammate.fantasyNameHint")}
+                </p>
                 <Input
                   id="displayName"
                   name="displayName"
+                  className="mt-1.5"
                   defaultValue={member.displayName ?? ""}
                   placeholder={t("teammate.fantasyNamePlaceholder")}
                 />
-                <p className="mt-1 text-xs text-[var(--text-muted)]">
-                  {t("teammate.fantasyNameHint")}
-                </p>
               </div>
               {teammate?.accountStatus === "invited" ? (
                 <div>

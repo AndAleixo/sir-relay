@@ -363,6 +363,8 @@ Fantasy name · email (while invited) · promote / demote / transfer ownership /
 
 **Profile** = account across SirRelay. **Settings** = **active group**. Telegram link on Profile only (relay for assignees; operators also get alerts).
 
+**Help copy:** title or label → muted `text-xs` hint → control. Do not place field hints below the control (same pattern as CardHeader section hints).
+
 ### 8.1 Profile (`/profile`)
 
 | Section | Content |

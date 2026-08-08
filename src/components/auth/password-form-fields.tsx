@@ -29,16 +29,19 @@ export function PasswordFormFields({
         </div>
       ) : null}
       <div>
-        <Label htmlFor="newPassword">{labels.newPassword}</Label>
+        <Label htmlFor="newPassword" className="mb-0">
+          {labels.newPassword}
+        </Label>
+        <p className="mt-0.5 text-xs text-[var(--text-muted)]">{labels.passwordHint}</p>
         <Input
           id="newPassword"
           name="newPassword"
+          className="mt-1.5"
           type="password"
           required
           minLength={8}
           autoComplete="new-password"
         />
-        <p className="mt-1.5 text-xs text-[var(--text-muted)]">{labels.passwordHint}</p>
       </div>
       <div>
         <Label htmlFor="confirmPassword">{labels.confirmPassword}</Label>

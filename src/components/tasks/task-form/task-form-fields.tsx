@@ -54,21 +54,25 @@ export function TaskFormFields({
 
       {isOperator && (
         <div>
-          <Label htmlFor="assigneeId">{labels.assignee}</Label>
-          <Select
-            id="assigneeId"
-            name="assigneeId"
-            required={mode === "create"}
-            defaultValue={defaultValues?.assigneeId ?? assigneeOptions[0]?.id}
-            options={assigneeOptions.map((option) => ({
-              value: option.id,
-              label: option.label,
-            }))}
-            aria-label={labels.assignee}
-          />
-          <p className="mt-1.5 text-xs text-[var(--text-muted)]">
+          <Label htmlFor="assigneeId" className="mb-0">
+            {labels.assignee}
+          </Label>
+          <p className="mt-0.5 text-xs text-[var(--text-muted)]">
             {labels.assigneeHint}
           </p>
+          <div className="mt-1.5">
+            <Select
+              id="assigneeId"
+              name="assigneeId"
+              required={mode === "create"}
+              defaultValue={defaultValues?.assigneeId ?? assigneeOptions[0]?.id}
+              options={assigneeOptions.map((option) => ({
+                value: option.id,
+                label: option.label,
+              }))}
+              aria-label={labels.assignee}
+            />
+          </div>
         </div>
       )}
 

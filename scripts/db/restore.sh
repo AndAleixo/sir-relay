@@ -7,9 +7,10 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
-file=$1
+# Resolve before cd — relative paths are vs caller cwd, not repo root.
+file=$(cd "$(dirname "$1")" && pwd)/$(basename "$1")
 if [[ ! -f "$file" ]]; then
-  echo "error: file not found: $file" >&2
+  echo "error: file not found: $1" >&2
   exit 1
 fi
 
@@ -19,6 +20,11 @@ cd "$ROOT"
 source "$ROOT/scripts/env/_common.sh"
 
 require_docker
+
+# Prefer the compose files of the running stack (prod-local uses .local.yml).
+if [[ -f docker-compose.local.yml ]] && docker compose -f docker-compose.yml -f docker-compose.local.yml ps -q postgres 2>/dev/null | grep -q .; then
+  COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.local.yml)
+fi
 
 echo "→ restore-db · stopping app"
 "${COMPOSE[@]}" stop app

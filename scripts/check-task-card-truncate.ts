@@ -5,8 +5,10 @@ assert.match(taskCardStyles.root, /\bmin-w-0\b/);
 assert.match(taskCardStyles.root, /\bmax-w-full\b/);
 assert.match(taskCardStyles.descriptionPreview, /\bmin-w-0\b/);
 assert.match(taskCardStyles.descriptionPreview, /\btruncate\b/);
+assert.match(taskCardStyles.descriptionPreview, /\bmax-w-full\b/);
 assert.match(taskCardStyles.descriptionInFooter, /\bmin-w-0\b/);
 assert.match(taskCardStyles.descriptionInFooter, /\btruncate\b/);
+assert.match(taskCardStyles.descriptionInFooter, /\bmax-w-full\b/);
 assert.doesNotMatch(
   taskCardStyles.descriptionInFooter,
   /\bflex-1\b/,

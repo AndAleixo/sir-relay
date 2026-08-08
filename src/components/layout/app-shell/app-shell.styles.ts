@@ -120,8 +120,9 @@ export const shellStyles = {
   groupPanelJoinRow: "flex gap-2",
   groupSwitcherItemActive: "bg-brand-accent-soft text-brand-accent",
   groupSwitcherItemRole: "shrink-0 text-xs text-[var(--text-muted)]",
-  content: "flex-1 p-4 md:p-6",
-  contentWide: "max-w-[100vw] overflow-x-hidden",
+  content: "min-w-0 flex-1 p-4 md:p-6",
+  // max-w-full (not 100vw): 100vw can exceed the layout width on mobile and clip chrome.
+  contentWide: "max-w-full overflow-x-hidden",
   pageHeader: "mb-6 flex flex-wrap items-center justify-between gap-4",
   pageHeaderActionOnly: "mb-4 flex justify-end",
   pageTitle: "text-2xl font-semibold tracking-tight text-[var(--text-primary)]",

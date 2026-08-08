@@ -2,7 +2,7 @@ import type { TaskStatus } from "@/domain/types";
 
 export const kanbanStyles = {
   grid: "grid gap-4 md:grid-cols-3",
-  column: "flex min-h-[200px] flex-col rounded-card border border-[var(--border)] bg-[var(--surface-bg)]/50 transition-shadow",
+  column: "flex min-h-[200px] min-w-0 flex-col rounded-card border border-[var(--border)] bg-[var(--surface-bg)]/50 transition-shadow",
   columnDropTarget: "bg-brand-accent-soft/12 ring-2 ring-inset ring-brand-accent/40",
   columnHeader: {
     todo: "flex items-center justify-between border-b border-[var(--border)] bg-surface-card px-3 py-2.5 rounded-t-card",
@@ -12,7 +12,7 @@ export const kanbanStyles = {
   } satisfies Record<TaskStatus, string>,
   columnTitle: "text-sm font-semibold text-[var(--text-primary)]",
   count: "text-xs font-medium text-[var(--text-muted)]",
-  cardList: "flex flex-col gap-1.5 p-1.5",
+  cardList: "flex min-w-0 flex-col gap-1.5 p-1.5",
   showMore:
     "w-full cursor-pointer px-2 py-1 text-center text-xs text-brand-accent-hover hover:underline",
 } as const;

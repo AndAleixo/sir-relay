@@ -18,10 +18,10 @@ export const taskCardStyles = {
     "line-clamp-2 min-w-0 flex-1 cursor-pointer rounded-[4px] text-left text-xs font-medium leading-snug text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
   /** Under title when due is set — slight inset so it doesn’t run under status icons. */
   descriptionPreview:
-    "mb-0.5 min-w-0 truncate pr-2 text-left text-[10px] leading-tight text-[var(--text-muted)]",
+    "mb-0.5 block min-w-0 max-w-full truncate pr-2 text-left text-[10px] leading-tight text-[var(--text-muted)]",
   /** In footer when no due — uses the due slot width (menu stays on the right). */
   descriptionInFooter:
-    "min-w-0 truncate text-left text-[10px] leading-tight text-[var(--text-muted)]",
+    "block min-w-0 max-w-full truncate text-left text-[10px] leading-tight text-[var(--text-muted)]",
   inlineInput: "h-6 select-text px-1.5 py-0 text-xs",
   inlineDateInput: "h-5 w-full select-text px-1 py-0 text-[10px]",
   dueButton:

@@ -27,7 +27,11 @@ export async function signupForm(locale: string, formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const newPassword = String(formData.get("newPassword") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
+  const acceptLegal = formData.get("acceptLegal") === "1";
 
+  if (!acceptLegal) {
+    redirect(`/${locale}/signup?error=legal`);
+  }
   if (checkPasswordPolicy(newPassword)) {
     redirect(`/${locale}/signup?error=weak`);
   }
@@ -60,6 +64,23 @@ export async function logoutAction(locale: string) {
   await getServices().auth.logout();
   revalidatePath("/", "layout");
   redirect(`/${locale}`);
+}
+
+export async function acceptLegalForm(locale: string, formData: FormData) {
+  const acceptLegal = formData.get("acceptLegal") === "1";
+  if (!acceptLegal) {
+    redirect(`/${locale}/accept-terms`);
+  }
+
+  const { auth } = getServices();
+  const session = await auth.getSession();
+  if (!session) {
+    redirect(loginPath(locale, { session: "expired" }));
+  }
+
+  const next = await auth.acceptLegalTerms(session.user.id);
+  revalidatePath("/", "layout");
+  redirect(resolveEntryPath(locale, next));
 }
 
 export async function changePasswordForm(locale: string, formData: FormData) {

@@ -1,0 +1,84 @@
+{
+  "version": "2026-08-09",
+  "termsTitle": "Terms of Service",
+  "privacyTitle": "Privacy Policy",
+  "updated": "Last updated: 9 August 2026",
+  "termsIntro": "These Terms govern access to and use of SirRelay, a hosted web and Telegram task-relay service for small teams. By creating an account or using the service, you agree to these Terms.",
+  "privacyIntro": "This Privacy Policy explains how SirRelay collects and uses personal data when you use our hosted web app and optional Telegram integration.",
+  "terms": [
+    {
+      "title": "1. Acceptance",
+      "body": "If you do not agree to these Terms, do not use SirRelay. If you use the service on behalf of an organisation, you confirm that you have authority to bind that organisation."
+    },
+    {
+      "title": "2. The service",
+      "body": "SirRelay helps small groups coordinate tasks via a web app and an optional Telegram bot. Features may change as the product evolves. SirRelay is not a general messaging platform, CRM, or guaranteed enterprise SLA."
+    },
+    {
+      "title": "3. Accounts",
+      "body": "You must provide accurate account details and keep your password confidential. You are responsible for activity under your account. Operators are responsible for who they invite into a group and for content they create or assign."
+    },
+    {
+      "title": "4. Acceptable use",
+      "body": "You may not misuse the service: no unlawful content, no attempts to break security or access other groups’ data, no abuse of Telegram or our infrastructure. We may suspend accounts that violate these rules."
+    },
+    {
+      "title": "5. Telegram",
+      "body": "Telegram features depend on Telegram’s availability and your link between SirRelay and Telegram. We are not responsible for Telegram outages, policy changes, or account bans on Telegram’s side."
+    },
+    {
+      "title": "6. Availability",
+      "body": "We aim for reliable hosting but do not guarantee uninterrupted access. Keep your own copies of critical information where needed."
+    },
+    {
+      "title": "7. Liability",
+      "body": "SirRelay is provided “as is” and “as available”. To the fullest extent permitted by law, we disclaim warranties and are not liable for indirect or consequential damages arising from use of the service. Nothing limits liability that cannot be limited under applicable law."
+    },
+    {
+      "title": "8. Termination",
+      "body": "You may stop using the service and leave or delete groups according to in-product controls. We may suspend or terminate access for breach of these Terms or to protect the service and other users."
+    },
+    {
+      "title": "9. Changes",
+      "body": "We may update these Terms. The version identifier and “Last updated” date will change when we do. Continued use after changes, or explicit re-acceptance when prompted, means you accept the updated Terms."
+    }
+  ],
+  "privacy": [
+    {
+      "title": "1. Who is responsible",
+      "body": "SirRelay is operated as a hosted service. The operator of your deployment is the controller of personal data processed for that instance."
+    },
+    {
+      "title": "2. Data we collect",
+      "body": "Account data (email, name, password hash, locale), group and task data, optional Telegram link data, session and security logs, and optional self-hosted usage analytics when enabled."
+    },
+    {
+      "title": "3. Why we use data",
+      "body": "To provide and secure the service, send task and alert messages you enable, maintain operations, and—if analytics are enabled—understand aggregate product usage. We do not use your data for advertising."
+    },
+    {
+      "title": "4. Cookies",
+      "body": "We use one essential cookie for your signed-in session. We do not use advertising cookies."
+    },
+    {
+      "title": "5. Analytics",
+      "body": "When enabled, we run self-hosted Umami on our infrastructure. The tracker is designed to avoid advertising cookies and does not sell your data to third-party ad networks."
+    },
+    {
+      "title": "6. Telegram",
+      "body": "Linking Telegram is optional. Telegram’s own privacy policy also applies to data Telegram processes as an independent service."
+    },
+    {
+      "title": "7. Retention and security",
+      "body": "We keep data while your account and groups remain active, and for a reasonable period afterward for backups, security logs, and legal obligations."
+    },
+    {
+      "title": "8. Sharing",
+      "body": "We do not sell personal data. We may share data with infrastructure providers needed to host the service, with Telegram when you use bot features, or when required by law."
+    },
+    {
+      "title": "9. Your rights",
+      "body": "Depending on where you live, you may have rights to access, correct, delete, or export personal data. Use in-product controls where available, or contact us using the address published in the product."
+    }
+  ]
+}

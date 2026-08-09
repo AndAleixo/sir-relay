@@ -1,4 +1,5 @@
 import type { Task, Teammate, User } from "@/domain/types";
+import { CURRENT_LEGAL_VERSION } from "@/lib/legal";
 
 export const MOCK_OPERATORS: User[] = [
   {
@@ -9,6 +10,7 @@ export const MOCK_OPERATORS: User[] = [
     locale: "en-gb",
     active: true,
     mustChangePassword: false,
+    termsVersion: CURRENT_LEGAL_VERSION,
     telegramStatus: "linked",
   },
 ];
@@ -23,6 +25,7 @@ export const MOCK_TEAMMATES: Teammate[] = [
     locale: "pt-br",
     active: true,
     accountStatus: "active",
+    termsVersion: CURRENT_LEGAL_VERSION,
     telegramStatus: "linked",
   },
   {
@@ -33,6 +36,7 @@ export const MOCK_TEAMMATES: Teammate[] = [
     locale: "pt-br",
     active: true,
     accountStatus: "active",
+    termsVersion: CURRENT_LEGAL_VERSION,
     telegramStatus: "pending",
   },
   {
@@ -43,6 +47,7 @@ export const MOCK_TEAMMATES: Teammate[] = [
     locale: "es-es",
     active: true,
     accountStatus: "invited",
+    termsVersion: null,
     telegramStatus: "pending",
   },
 ];

@@ -5,6 +5,7 @@ import { defaultLocale } from "@/i18n/config";
 import { hydrateSession } from "@/lib/session-hydrate";
 import { assertPasswordForSet } from "@/lib/password-policy";
 import { isLoginLocked } from "@/lib/login-lockout";
+import { CURRENT_LEGAL_VERSION, needsLegalAccept } from "@/lib/legal";
 import type { AuthService } from "@/services/contracts";
 import {
   findAnyMockUserByEmail,
@@ -60,7 +61,10 @@ async function readSession(): Promise<Session | null> {
     if ((parsed.tokenVersion ?? 0) !== sec(fresh.id).tokenVersion) return null;
     return hydrateSession(
       {
-        user: { ...fresh },
+        user: {
+          ...fresh,
+          needsLegalAccept: needsLegalAccept(fresh.termsVersion),
+        },
         activeGroupId: parsed.activeGroupId ?? null,
       },
       mockGroupMembershipLookup,
@@ -98,7 +102,13 @@ function patchUser(userId: string, patch: Partial<User>) {
 
 function buildSession(user: User, activeGroupId: string | null = null): Session {
   return hydrateSession(
-    { user: { ...user }, activeGroupId },
+    {
+      user: {
+        ...user,
+        needsLegalAccept: needsLegalAccept(user.termsVersion),
+      },
+      activeGroupId,
+    },
     mockGroupMembershipLookup,
     { autoPickGroup: true },
   )!;
@@ -163,6 +173,8 @@ export class MockAuthService implements AuthService {
         name: trimmedName,
         locale,
         mustChangePassword: false,
+        termsVersion: CURRENT_LEGAL_VERSION,
+        needsLegalAccept: false,
       });
       if (!updated) throw new Error("Invalid signup");
       (updated as unknown as { accountStatus: string }).accountStatus = "active";
@@ -183,6 +195,8 @@ export class MockAuthService implements AuthService {
       locale,
       active: true,
       mustChangePassword: false,
+      termsVersion: CURRENT_LEGAL_VERSION,
+      needsLegalAccept: false,
     };
     registerDynamicUser(user);
     sec(user.id);
@@ -306,6 +320,18 @@ export class MockAuthService implements AuthService {
 
   async isInviteTokenValid(token: string): Promise<boolean> {
     return Boolean(resolveInvite(token));
+  }
+
+  async acceptLegalTerms(userId: string): Promise<Session> {
+    const updated = patchUser(userId, {
+      termsVersion: CURRENT_LEGAL_VERSION,
+      needsLegalAccept: false,
+    });
+    if (!updated) throw new Error("User not found");
+    const current = await readSession();
+    const session = buildSession(updated, current?.activeGroupId ?? null);
+    await writeSession(session, { autoPickGroup: false });
+    return session;
   }
 }
 

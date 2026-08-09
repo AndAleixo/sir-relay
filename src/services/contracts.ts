@@ -53,6 +53,8 @@ export interface AuthService {
   setActiveGroup(userId: string, groupId: string | null): Promise<Session>;
   refreshSessionUser(user: User): Promise<void>;
   isInviteTokenValid(token: string): Promise<boolean>;
+  /** Record acceptance of CURRENT_LEGAL_VERSION (English legal/en.json). */
+  acceptLegalTerms(userId: string): Promise<Session>;
 }
 
 export interface GroupService {

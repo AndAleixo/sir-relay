@@ -59,6 +59,10 @@ export interface User {
   locale: Locale;
   active: boolean;
   mustChangePassword?: boolean;
+  /** Accepted legal pack version (legal/en.json). */
+  termsVersion?: string | null;
+  /** True when termsVersion ≠ CURRENT_LEGAL_VERSION (or never accepted). */
+  needsLegalAccept?: boolean;
   telegramStatus?: TelegramLinkStatus;
   /** Populated for group-scoped views from `group_memberships.display_name`. */
   displayName?: string | null;

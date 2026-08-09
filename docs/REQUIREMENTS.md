@@ -456,9 +456,10 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | P2-MON-02 | Failed login visibility | **Done** — `login_failed` in `audit_logs` (reason + email; platform `/platform` + Audit filter). Operator alert threshold → Phase 3 |
 | P2-ANA-01 | Self-hosted Umami | Compose service `umami` · DB `umami` · `UMAMI_APP_SECRET` |
 | P2-ANA-02 | Same-origin tracker | Caddy proxies `/script.js` + `/api/send` · app loads `/script.js` when `UMAMI_WEBSITE_ID` set (`src/lib/umami.ts`) |
-| P2-ANA-03 | Privacy disclosure | `/privacy` states optional self-hosted usage analytics · no ad cookies |
+| P2-ANA-03 | Privacy disclosure | `/privacy` + `/terms` from canonical English pack `legal/en.json` · contact via `CONTACT_EMAIL` (default `contact@sirrelay.com`) |
+| P2-LEGAL-01 | Legal acceptance | `users.terms_version` + `terms_accepted_at` · signup checkbox · `/accept-terms` gate when version ≠ `CURRENT_LEGAL_VERSION` · bump version in `legal/en.json` to force re-accept |
 
-**Cookies (current):** one essential session cookie + login notice + privacy page. Umami tracker is cookieless (no advertising cookies).
+**Cookies (current):** one essential session cookie + login notice + Privacy Policy. Umami tracker is cookieless (no advertising cookies). Contact: `CONTACT_EMAIL` (e.g. `contact@sirrelay.com`). Canonical acceptance language: **English** (`legal/en.json`).
 
 ### 6.5 Data backup & export
 

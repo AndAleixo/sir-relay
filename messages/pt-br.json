@@ -53,11 +53,19 @@
     "passwordTooWeak": "A senha deve ter pelo menos 8 caracteres, uma maiúscula e um número, e não pode ser uma senha comum.",
     "passwordMismatch": "As senhas não coincidem.",
     "passwordChanged": "Senha atualizada.",
-    "currentPasswordInvalid": "A senha atual está incorreta."
+    "currentPasswordInvalid": "A senha atual está incorreta.",
+    "legalRequired": "Você precisa aceitar os Termos e a Política de Privacidade para criar a conta."
   },
   "legal": {
     "privacy": "Privacidade",
-    "terms": "Termos"
+    "terms": "Termos",
+    "signupAccept": "Concordo com os <terms>Termos de serviço</terms> e a <privacy>Política de Privacidade</privacy> (versão legal em inglês).",
+    "acceptTitle": "Aceitar Termos e Privacidade",
+    "acceptIntro": "Revise e aceite a versão {version} para continuar. Contas existentes precisam aceitar atualizações quando alterarmos o pacote legal.",
+    "acceptCheckbox": "Aceito os Termos de serviço e a Política de Privacidade, versão {version}.",
+    "acceptSubmit": "Aceitar e continuar",
+    "contact": "Contacto: {email}.",
+    "canonicalNote": "Texto jurídico vinculativo em inglês (versão canónica)."
   },
   "groups": {
     "title": "Seus grupos",
@@ -86,10 +94,6 @@
     "notMember": "Você não é membro desse grupo.",
     "actionFailed": "Algo deu errado. Tente novamente."
   },
-  "terms": {
-    "title": "Termos de serviço",
-    "stub": "O SirRelay é fornecido como está para coordenação de tarefas em equipe. Os termos completos serão publicados antes do lançamento."
-  },
   "join": {
     "title": "Entrar em um grupo",
     "subtitle": "Defina seu nome e uma senha para ativar a conta e entrar no grupo.",
@@ -103,11 +107,6 @@
     "wrongAccount": "Este convite é para {email}. Saia da conta e entre com essa conta.",
     "emailMismatch": "Este convite pertence a outra conta.",
     "invalidToken": "Este link de convite é inválido ou expirou."
-  },
-  "privacy": {
-    "title": "Privacidade",
-    "stub": "O SirRelay guarda sua conta, tarefas e vínculo com o Telegram nos nossos servidores. Usamos um cookie de sessão essencial para você entrar. A análise de uso opcional corre self-hosted (Umami).",
-    "cookies": "Usamos um cookie essencial para a sessão autenticada. A análise de uso (Umami self-hosted) não usa cookies de publicidade e não vende os seus dados."
   },
   "roles": {
     "operator": "Operador",

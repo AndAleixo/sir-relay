@@ -13,6 +13,7 @@ function parseInviteToken(input) {
 function resolveEntryPath(locale, session) {
   if (!session) return `/${locale}`;
   if (session.user.mustChangePassword) return `/${locale}/change-password`;
+  if (session.user.needsLegalAccept) return `/${locale}/accept-terms`;
   if (!session.activeGroupId) return `/${locale}/groups`;
   if (session.user.role === "operator") return `/${locale}/teammates`;
   return `/${locale}/tasks`;
@@ -20,6 +21,7 @@ function resolveEntryPath(locale, session) {
 
 function resolveRoleHomePath(locale, session) {
   if (session.user.mustChangePassword) return `/${locale}/change-password`;
+  if (session.user.needsLegalAccept) return `/${locale}/accept-terms`;
   if (!session.activeGroupId) return `/${locale}/groups`;
   if (session.user.role === "operator") return `/${locale}/teammates`;
   return `/${locale}/tasks`;
@@ -33,6 +35,17 @@ assert.equal(
     activeGroupId: "g1",
   }),
   "/en-gb/change-password",
+);
+assert.equal(
+  resolveEntryPath(locale, {
+    user: {
+      role: "operator",
+      mustChangePassword: false,
+      needsLegalAccept: true,
+    },
+    activeGroupId: "g1",
+  }),
+  "/en-gb/accept-terms",
 );
 assert.equal(
   resolveEntryPath(locale, {

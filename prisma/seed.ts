@@ -8,6 +8,7 @@ import {
 } from "../src/services/mock/data";
 import { MOCK_GROUPS, MOCK_MEMBERSHIPS } from "../src/services/mock/groups.mock";
 import { fromLocale } from "../src/services/api/mappers";
+import { CURRENT_LEGAL_VERSION } from "../src/lib/legal";
 
 const prisma = new PrismaClient();
 
@@ -44,6 +45,8 @@ async function main() {
         active: op.active,
         mustChangePassword: op.mustChangePassword ?? false,
         accountStatus: "active",
+        termsVersion: CURRENT_LEGAL_VERSION,
+        termsAcceptedAt: new Date(),
         lastActiveGroupId: op.id === "user-operator-2" ? "group-demo" : null,
         telegramChatId: op.telegramStatus === "linked" ? "demo-chat-op" : null,
       },
@@ -51,6 +54,7 @@ async function main() {
   }
 
   for (const teammate of MOCK_TEAMMATES) {
+    const accepted = teammate.accountStatus !== "invited";
     await prisma.user.create({
       data: {
         id: teammate.id,
@@ -61,6 +65,8 @@ async function main() {
         locale: fromLocale(teammate.locale),
         active: teammate.active,
         accountStatus: teammate.accountStatus,
+        termsVersion: accepted ? CURRENT_LEGAL_VERSION : null,
+        termsAcceptedAt: accepted ? new Date() : null,
         telegramChatId:
           teammate.telegramStatus === "linked" ? `demo-chat-${teammate.id}` : null,
       },

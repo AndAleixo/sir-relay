@@ -53,11 +53,19 @@
     "passwordTooWeak": "La contraseña debe tener al menos 8 caracteres, una mayúscula y un número, y no ser una contraseña común.",
     "passwordMismatch": "Las contraseñas no coinciden.",
     "passwordChanged": "Contraseña actualizada.",
-    "currentPasswordInvalid": "La contraseña actual no es correcta."
+    "currentPasswordInvalid": "La contraseña actual no es correcta.",
+    "legalRequired": "Debes aceptar los Términos y la Política de Privacidad para crear la cuenta."
   },
   "legal": {
     "privacy": "Privacidad",
-    "terms": "Términos"
+    "terms": "Términos",
+    "signupAccept": "Acepto los <terms>Términos de servicio</terms> y la <privacy>Política de Privacidad</privacy> (versión legal en inglés).",
+    "acceptTitle": "Aceptar Términos y Privacidad",
+    "acceptIntro": "Revisa y acepta la versión {version} para continuar. Las cuentas existentes deben aceptar actualizaciones cuando cambiemos el paquete legal.",
+    "acceptCheckbox": "Acepto los Términos de servicio y la Política de Privacidad, versión {version}.",
+    "acceptSubmit": "Aceptar y continuar",
+    "contact": "Contacto: {email}.",
+    "canonicalNote": "Texto jurídico vinculante en inglés (versión canónica)."
   },
   "groups": {
     "title": "Tus grupos",
@@ -86,10 +94,6 @@
     "notMember": "No eres miembro de ese grupo.",
     "actionFailed": "Algo salió mal. Inténtalo de nuevo."
   },
-  "terms": {
-    "title": "Términos de servicio",
-    "stub": "SirRelay se ofrece tal cual para coordinar tareas en equipo. Los términos completos se publicarán antes del lanzamiento."
-  },
   "join": {
     "title": "Unirse a un grupo",
     "subtitle": "Define tu nombre y una contraseña para activar tu cuenta y unirte al grupo.",
@@ -103,11 +107,6 @@
     "wrongAccount": "Esta invitación es para {email}. Cierra sesión e inicia con esa cuenta.",
     "emailMismatch": "Esta invitación pertenece a otra cuenta.",
     "invalidToken": "Este enlace de invitación no es válido o expiró."
-  },
-  "privacy": {
-    "title": "Privacidad",
-    "stub": "SirRelay guarda tu cuenta, tareas y datos de enlace Telegram en nuestros servidores. Usamos una cookie esencial de sesión para entrar. El análisis de uso opcional corre self-hosted (Umami).",
-    "cookies": "Usamos una cookie esencial para la sesión autenticada. El análisis de uso (Umami self-hosted) no usa cookies de publicidad y no vende tus datos."
   },
   "roles": {
     "operator": "Operador",

@@ -2,6 +2,7 @@ import type { Locale, Session, User } from "@/domain/types";
 import { defaultLocale } from "@/i18n/config";
 import type { AuthService } from "@/services/contracts";
 import { writeAudit, writeAuditFromSession } from "@/lib/audit";
+import { CURRENT_LEGAL_VERSION } from "@/lib/legal";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { assertPasswordForSet } from "@/lib/password-policy";
 import { isLoginLocked, nextFailedLoginState } from "@/lib/login-lockout";
@@ -208,6 +209,8 @@ export class ApiAuthService implements AuthService {
             accountStatus: "active",
             mustChangePassword: false,
             locale: fromLocale(locale),
+            termsVersion: CURRENT_LEGAL_VERSION,
+            termsAcceptedAt: new Date(),
           },
         });
         await tx.teammateInviteToken.updateMany({
@@ -245,6 +248,8 @@ export class ApiAuthService implements AuthService {
         passwordHash,
         locale: fromLocale(locale),
         accountStatus: "active",
+        termsVersion: CURRENT_LEGAL_VERSION,
+        termsAcceptedAt: new Date(),
       },
     });
 
@@ -413,6 +418,26 @@ export class ApiAuthService implements AuthService {
       },
     });
     return Boolean(invite);
+  }
+
+  async acceptLegalTerms(userId: string): Promise<Session> {
+    const row = await loadDbUser(userId);
+    if (!row || !row.active) throw new Error("User not found");
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        termsVersion: CURRENT_LEGAL_VERSION,
+        termsAcceptedAt: new Date(),
+      },
+    });
+
+    const payload = await readSessionPayload();
+    const activeGroupId =
+      payload?.userId === userId ? payload.activeGroupId : null;
+    return persistSession(userId, activeGroupId, row.tokenVersion, {
+      autoPickGroup: false,
+    });
   }
 }
 

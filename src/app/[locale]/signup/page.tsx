@@ -17,6 +17,7 @@ const errorKeys = {
   weak: "passwordTooWeak",
   mismatch: "passwordMismatch",
   taken: "emailTaken",
+  legal: "legalRequired",
 } as const;
 
 export default async function SignupPage({
@@ -73,6 +74,35 @@ export default async function SignupPage({
                   passwordHint: t("auth.passwordHint"),
                 }}
               />
+              <label className="flex items-start gap-2 text-sm text-[var(--text-primary)]">
+                <input
+                  type="checkbox"
+                  name="acceptLegal"
+                  value="1"
+                  required
+                  className="mt-1"
+                />
+                <span>
+                  {t.rich("legal.signupAccept", {
+                    terms: (chunks) => (
+                      <Link
+                        href={`/${locale}/terms`}
+                        className="font-medium text-brand-accent hover:text-brand-accent-hover"
+                      >
+                        {chunks}
+                      </Link>
+                    ),
+                    privacy: (chunks) => (
+                      <Link
+                        href={`/${locale}/privacy`}
+                        className="font-medium text-brand-accent hover:text-brand-accent-hover"
+                      >
+                        {chunks}
+                      </Link>
+                    ),
+                  })}
+                </span>
+              </label>
               <Button type="submit" className="w-full">
                 {t("auth.signup")}
               </Button>

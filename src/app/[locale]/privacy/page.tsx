@@ -1,9 +1,6 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { AuthPageHeader } from "@/components/auth/auth-page-header";
-import { authShellStyles } from "@/components/layout/auth-shell.styles";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { Card, CardBody } from "@/components/ui/card";
+import { LegalDoc } from "@/components/legal/legal-doc";
+import { LEGAL_DOCUMENT, resolveContactEmail } from "@/lib/legal";
 
 export default async function PrivacyPage({
   params,
@@ -12,28 +9,18 @@ export default async function PrivacyPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations();
+  const doc = LEGAL_DOCUMENT;
 
   return (
-    <div className={`${authShellStyles.shell} flex min-h-screen flex-col`}>
-      <div className="mx-auto w-full max-w-2xl flex-1 py-12">
-        <AuthPageHeader locale={locale} />
-        <Card>
-          <CardBody className="space-y-4">
-            <h1 className="text-xl font-semibold text-[var(--text-primary)]">
-              {t("privacy.title")}
-            </h1>
-            <p className="text-sm text-[var(--text-primary)]">{t("privacy.stub")}</p>
-            <p className="text-sm text-[var(--text-muted)]">{t("privacy.cookies")}</p>
-            <Link
-              href={`/${locale}/login`}
-              className="inline-block text-sm font-medium text-brand-accent hover:text-brand-accent-hover"
-            >
-              {t("auth.login")}
-            </Link>
-          </CardBody>
-        </Card>
-      </div>
-      <SiteFooter locale={locale} />
-    </div>
+    <LegalDoc
+      locale={locale}
+      title={doc.privacyTitle}
+      updated={doc.updated}
+      note={t("legal.canonicalNote")}
+      intro={doc.privacyIntro}
+      sections={doc.privacy}
+      contact={t("legal.contact", { email: resolveContactEmail() })}
+      loginLabel={t("auth.login")}
+    />
   );
 }

@@ -15,6 +15,9 @@ export default async function AppLayout({
   if (session.user.mustChangePassword) {
     redirect(`/${locale}/change-password`);
   }
+  if (session.user.needsLegalAccept) {
+    redirect(`/${locale}/accept-terms`);
+  }
   const { groups, invitations } = getServices();
   const [groupList, pendingInvitations] = await Promise.all([
     groups.listForUser(session.user.id),

@@ -162,6 +162,7 @@ Troca sem alterar UI — [ARCHITECTURE.md §Mock → API](./ARCHITECTURE.md#mock
 | `APP_DOMAIN` | `localhost` | `app.sirrelay.com` |
 | `APP_ROOT_DOMAIN` | — | `sirrelay.com` |
 | `CADDY_EMAIL` | opcional | email real (Let's Encrypt) |
+| `CONTACT_EMAIL` | opt (`contact@sirrelay.com`) | Privacy/Terms mailto |
 | `UMAMI_APP_SECRET` | opt (default fraco no compose) | obrigatório (`prod-vps.sh`) |
 
 `DATABASE_URL` no container `app` é injectada pelo compose:
@@ -258,6 +259,8 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 **Ops (feito):** P2-OPS-01–09 — [DEPLOY](./DEPLOY-DIGITALOCEAN.md).
 
 **Umami:** P2-ANA-01–03 · tracker com `UMAMI_WEBSITE_ID` · DB via `ensure_umami_database`.
+
+**Legal:** pacote canónico inglês [`legal/en.json`](../legal/en.json) · `users.terms_version` · gate `/accept-terms` · bump `version` para forçar re-aceite.
 
 **Smoke (feito):** prod local + VPS · Telegram · fila · SEC · `/platform/login`.
 

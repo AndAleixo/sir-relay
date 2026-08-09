@@ -101,7 +101,7 @@ Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeade
 | Sign up | `/signup` | Yes | New email → `/groups`. Invited email → activates placeholder (P1-AUTH-13) |
 | Log in | `/login` | Yes | → role home or `/groups` |
 | Join group | `/join/[token]` | Yes | Set password / accept invite |
-| Privacy / Terms | `/privacy`, `/terms` | Yes | Legal stubs |
+| Privacy / Terms | `/privacy`, `/terms` | Yes | Canonical English pack `legal/en.json` · `CONTACT_EMAIL` |
 | No active group | `/groups` | App shell | Placeholder; **group panel opens** |
 
 **Group panel** (header): switch · create · join. Leave/delete → **Settings**. Rules: [REQUIREMENTS §5.1.1–5.1.2](./REQUIREMENTS.md#511-groups).
@@ -336,7 +336,8 @@ Route: `/[locale]/tasks/[id]`. Same field order as **New task**; plus status and
 | Events / activity | `/events…` | Yes | — |
 | Profile / Settings | `/profile`, `/settings` | Yes | Yes |
 | Join / change-password | `/join/[token]`, `/change-password` | Auth flows | Auth flows |
-| Privacy / Terms | `/privacy`, `/terms` | Public | Public |
+| Privacy / Terms | `/privacy`, `/terms` | Public | Public (English pack) |
+| Accept terms | `/accept-terms` | Signed-in | When `needsLegalAccept` |
 | Platform admin | `/platform/*` | Ops credentials | — |
 
 Profile via avatar / sidebar footer (not primary nav). Group switcher = change active group.

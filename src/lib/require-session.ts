@@ -24,6 +24,7 @@ export async function requireSession(locale: string): Promise<Session> {
 export async function requireAppSession(locale: string): Promise<Session> {
   const session = await requireSession(locale);
   if (session.user.mustChangePassword) redirect(`/${locale}/change-password`);
+  if (session.user.needsLegalAccept) redirect(`/${locale}/accept-terms`);
   if (!session.activeGroupId) redirect(`/${locale}/groups`);
   return session;
 }

@@ -75,9 +75,20 @@ Subdomínio **`app`** (`app.sirrelay.com`) serve a aplicação. **`sirrelay.com`
 APP_URL=https://app.sirrelay.com
 APP_DOMAIN=app.sirrelay.com
 APP_ROOT_DOMAIN=sirrelay.com
+CONTACT_EMAIL=contact@sirrelay.com
 UMAMI_APP_SECRET=...   # openssl rand -hex 32 (obrigatório no prod-vps.sh)
 UMAMI_WEBSITE_ID=...   # após criar o site no Umami (domain = APP_DOMAIN)
 ```
+
+### Email (`contact@sirrelay.com`)
+
+**Não** corras mail no Droplet. DNS continua no **Network Solutions**; só os `A` da app apontam para a DigitalOcean.
+
+1. Cria forwarding `contact@sirrelay.com` → o teu email pessoal (painel Network Solutions, ou ImprovMX / Forward Email com MX no mesmo DNS).
+2. Define `CONTACT_EMAIL=contact@sirrelay.com` no `.env` do VPS (Privacy / Terms usam este endereço).
+3. Cloudflare Email Routing só se mudares nameservers para a Cloudflare — opcional, não obrigatório.
+
+Até o MX propagar, o endereço pode já aparecer nas páginas legais; a inbox só recebe depois.
 
 ---
 

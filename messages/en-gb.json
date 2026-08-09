@@ -53,11 +53,19 @@
     "passwordTooWeak": "Password must be at least 8 characters, include an uppercase letter and a number, and not be a common password.",
     "passwordMismatch": "Passwords do not match.",
     "passwordChanged": "Password updated.",
-    "currentPasswordInvalid": "Current password is incorrect."
+    "currentPasswordInvalid": "Current password is incorrect.",
+    "legalRequired": "You must accept the Terms and Privacy Policy to create an account."
   },
   "legal": {
     "privacy": "Privacy",
-    "terms": "Terms"
+    "terms": "Terms",
+    "signupAccept": "I agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy> (English legal version).",
+    "acceptTitle": "Accept Terms & Privacy",
+    "acceptIntro": "Please review and accept version {version} to continue. Existing accounts must accept updates after we change the legal pack.",
+    "acceptCheckbox": "I accept the Terms of Service and Privacy Policy, version {version}.",
+    "acceptSubmit": "Accept and continue",
+    "contact": "Contact: {email}.",
+    "canonicalNote": "Binding legal text is English (canonical version)."
   },
   "groups": {
     "title": "Your groups",
@@ -86,10 +94,6 @@
     "notMember": "You are not a member of that group.",
     "actionFailed": "Something went wrong. Try again."
   },
-  "terms": {
-    "title": "Terms of Service",
-    "stub": "SirRelay is provided as-is for team task coordination. Full terms will be published before public launch."
-  },
   "join": {
     "title": "Join a group",
     "subtitle": "Set your name and password to activate your account and join the group.",
@@ -103,11 +107,6 @@
     "wrongAccount": "This invite is for {email}. Log out and sign in with that account.",
     "emailMismatch": "This invite belongs to a different account.",
     "invalidToken": "This invite link is invalid or has expired."
-  },
-  "privacy": {
-    "title": "Privacy",
-    "stub": "SirRelay stores your account, tasks, and Telegram link data on our servers. We use one essential session cookie for sign-in. Optional privacy-friendly usage analytics runs self-hosted (Umami).",
-    "cookies": "We use one essential cookie for your signed-in session. Usage analytics (self-hosted Umami) does not use advertising cookies and does not sell your data."
   },
   "roles": {
     "operator": "Operator",

@@ -18,6 +18,7 @@ import type {
   User as DbUser,
 } from "@prisma/client";
 import { toAppLocale, toDbLocale, type DbLocale } from "@/i18n/config";
+import { needsLegalAccept } from "@/lib/legal";
 
 export function toLocale(value: PrismaLocale): Locale {
   return toAppLocale(value as DbLocale);
@@ -56,6 +57,8 @@ export function toUser(
     locale: toLocale(user.locale),
     active: user.active,
     mustChangePassword: user.mustChangePassword,
+    termsVersion: user.termsVersion,
+    needsLegalAccept: needsLegalAccept(user.termsVersion),
     telegramStatus: telegramStatus(user),
     displayName,
   };

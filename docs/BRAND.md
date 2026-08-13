@@ -63,7 +63,7 @@ Optional field; tint only the drag handle (not the whole card).
 
 Do not invent ad-hoc Tailwind greens/roses in task UI — use these tokens from [`brand/brand.css`](../brand/brand.css).
 
-**UI variants:** Button / Banner / Badge use `variant` or `tone` **`severity`** (not `danger`) for this red. Settings “danger zone” copy stays as product language only.
+**UI variants:** Button / Banner use `variant="severity"` for this red. Settings “danger zone” copy stays as product language only.
 
 ### 2.3 Contrast rules
 

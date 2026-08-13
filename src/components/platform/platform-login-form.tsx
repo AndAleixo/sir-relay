@@ -33,7 +33,7 @@ export function PlatformLoginForm({
   return (
     <form action={action} className="space-y-4">
       {state.error === "invalid" ? (
-        <p className="text-sm text-red-600">{t("login.invalid")}</p>
+        <p className="text-sm text-[var(--severity)]">{t("login.invalid")}</p>
       ) : null}
       <div>
         <Label htmlFor="platform-username">{t("login.username")}</Label>

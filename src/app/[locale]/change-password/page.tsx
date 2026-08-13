@@ -62,12 +62,12 @@ export default async function ChangePasswordPage({
               </p>
             </div>
             {error === "invalid" ? (
-              <p className="rounded-button border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-700">
+              <p className="rounded-button border border-[var(--severity-soft-hover)] bg-[var(--severity-soft)] px-3 py-2 text-center text-sm text-[var(--severity)]">
                 {t("auth.currentPasswordInvalid")}
               </p>
             ) : null}
             {errorKey ? (
-              <p className="rounded-button border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-700">
+              <p className="rounded-button border border-[var(--severity-soft-hover)] bg-[var(--severity-soft)] px-3 py-2 text-center text-sm text-[var(--severity)]">
                 {t(`auth.${errorKey}`)}
               </p>
             ) : null}

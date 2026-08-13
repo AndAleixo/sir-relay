@@ -1,10 +1,10 @@
 import { logoutAction } from "@/app/actions/auth";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonVariant } from "@/components/ui/button";
 
 type LogoutButtonProps = {
   locale: string;
   label: string;
-  variant?: "primary" | "secondary" | "ghost" | "severity";
+  variant?: ButtonVariant;
   className?: string;
 };
 

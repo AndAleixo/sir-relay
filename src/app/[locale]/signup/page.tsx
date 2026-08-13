@@ -52,7 +52,7 @@ export default async function SignupPage({
               <p className="mt-1 text-sm text-[var(--text-muted)]">{t("auth.signupSubtitle")}</p>
             </div>
             {errorKey ? (
-              <p className="rounded-button border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-700">
+              <p className="rounded-button border border-[var(--severity-soft-hover)] bg-[var(--severity-soft)] px-3 py-2 text-center text-sm text-[var(--severity)]">
                 {t(`auth.${errorKey}`)}
               </p>
             ) : null}

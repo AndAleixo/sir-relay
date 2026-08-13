@@ -5,8 +5,6 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Card, CardBody } from "@/components/ui/card";
 import type { LegalSection } from "@/lib/legal";
 
-export type { LegalSection };
-
 type LegalDocProps = {
   locale: string;
   title: string;

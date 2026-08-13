@@ -109,7 +109,7 @@ export const shellStyles = {
   groupPanelBody: "max-h-[inherit] overflow-y-auto overscroll-contain",
   groupPanelEmpty: "px-3 py-2 text-sm text-[var(--text-muted)]",
   groupPanelError:
-    "mx-3 mt-2 rounded-button border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700",
+    "mx-3 mt-2 rounded-button border border-[var(--severity-soft-hover)] bg-[var(--severity-soft)] px-3 py-2 text-sm text-[var(--severity)]",
   groupPanelSection: "border-t border-[var(--border)] px-3 py-3",
   groupPanelLabel: "text-sm font-medium text-[var(--text-primary)]",
   groupPanelHint: "mt-1 text-xs text-[var(--text-muted)]",

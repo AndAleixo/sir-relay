@@ -1,4 +1,5 @@
-import type { Locale as DbLocale } from "@prisma/client";
+import type { DbLocale } from "@/i18n/config";
+import type { TaskDifficulty } from "@/domain/types";
 
 type Copy = Record<DbLocale, string>;
 
@@ -65,7 +66,7 @@ export function taskNotify(
     title: string;
     description: string;
     dueDate: string | null;
-    difficulty: "easy" | "medium" | "hard" | null;
+    difficulty: TaskDifficulty | null;
     groupName: string;
     taskUrl: string;
   },

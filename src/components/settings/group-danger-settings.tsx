@@ -55,7 +55,7 @@ export function GroupDangerSettings({
       ) : null}
 
       {errorMessage ? (
-        <p className="rounded-button border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-button border border-[var(--severity-soft-hover)] bg-[var(--severity-soft)] px-3 py-2 text-sm text-[var(--severity)]">
           {errorMessage}
         </p>
       ) : null}

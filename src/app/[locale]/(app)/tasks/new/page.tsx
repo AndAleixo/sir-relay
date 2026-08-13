@@ -107,6 +107,11 @@ export default async function NewTaskPage({
               descriptionPlaceholder: t("tasks.descriptionPlaceholder"),
               status: t("tasks.status"),
               overdue: t("tasks.overdue"),
+              difficulty: t("tasks.difficulty"),
+              difficultyNone: t("tasks.difficultyNone"),
+              difficultyEasy: t("tasks.difficultyEasy"),
+              difficultyMedium: t("tasks.difficultyMedium"),
+              difficultyHard: t("tasks.difficultyHard"),
               save: t("common.save"),
               cancel: t("common.cancel"),
             }}

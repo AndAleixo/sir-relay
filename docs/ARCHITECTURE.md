@@ -103,7 +103,7 @@ Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `SirRelay1` (api /
 
 ## Task forms
 
-`src/components/tasks/task-form/` — `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditTaskForm`. Create: title → assignee → due → description. Edit adds status + delete.
+`src/components/tasks/task-form/` — `TaskFormFields`, `TaskFormActions`, `CreateTaskForm`, `EditTaskForm`. Create: title → assignee → difficulty → due → description. Edit adds status + delete.
 
 ## Mock → API
 

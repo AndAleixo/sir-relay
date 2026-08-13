@@ -223,7 +223,12 @@
     "addDueDate": "Adicionar prazo",
     "startDoing": "Começar — mover para Em progresso",
     "markDone": "Concluir — mover para Concluído",
-    "completedMark": "Concluída"
+    "completedMark": "Concluída",
+    "difficulty": "Dificuldade",
+    "difficultyNone": "Nenhuma",
+    "difficultyEasy": "Fácil",
+    "difficultyMedium": "Média",
+    "difficultyHard": "Difícil"
   },
   "settings": {
     "title": "Configurações",

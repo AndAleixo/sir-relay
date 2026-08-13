@@ -1,4 +1,4 @@
-import type { Session, Task, TaskStatus } from "@/domain/types";
+import type { Session, Task, TaskDifficulty, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
 import { writeAuditFromSession } from "@/lib/audit";
 import { assertCanCreateTask, assertCanMutateTask } from "@/lib/authz";
@@ -106,6 +106,7 @@ export class ApiTaskService implements TaskService {
         createdById: ctx.session.user.id,
         status: "todo",
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
+        difficulty: input.difficulty ?? null,
         sortOrder,
       },
     });
@@ -207,7 +208,12 @@ export class ApiTaskService implements TaskService {
 
   async updateTaskFields(
     id: string,
-    fields: { title?: string; dueDate?: string | null; description?: string },
+    fields: {
+      title?: string;
+      dueDate?: string | null;
+      description?: string;
+      difficulty?: TaskDifficulty | null;
+    },
     ctx: { session: Session },
   ): Promise<Task> {
     const existing = await loadTask(id, ctx.session);
@@ -225,6 +231,8 @@ export class ApiTaskService implements TaskService {
             : fields.dueDate
               ? new Date(fields.dueDate)
               : null,
+        difficulty:
+          fields.difficulty === undefined ? undefined : fields.difficulty,
       },
     });
     void writeAuditFromSession(ctx.session, "task_update", {
@@ -309,6 +317,7 @@ export class ApiTaskService implements TaskService {
         createdById: ctx.session.user.id,
         status: existing.status,
         dueDate: existing.dueDate ? new Date(existing.dueDate) : null,
+        difficulty: existing.difficulty,
         sortOrder: nextIds.indexOf(id),
       },
     });

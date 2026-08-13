@@ -308,6 +308,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
         assigneeId: input.assigneeId,
         assigneeName: input.assigneeName,
         status: "todo",
+        difficulty: null,
         dueDate: null,
         telegramNotifyFailed: false,
         sortOrder: Number.MAX_SAFE_INTEGER,

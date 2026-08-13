@@ -105,6 +105,7 @@ async function main() {
         assigneeId: task.assigneeId,
         createdById: operatorId,
         status: task.status,
+        difficulty: task.difficulty,
         dueDate: task.dueDate ? new Date(task.dueDate) : null,
         sortOrder: task.sortOrder,
         createdAt: new Date(task.createdAt),

@@ -117,6 +117,23 @@ export function BoardTaskCard({
   const descriptionUnderTitle = Boolean(descriptionPreview && hasDue);
   const descriptionInFooter = Boolean(descriptionPreview && !hasDue);
 
+  const dragDifficultyClass =
+    task.difficulty === "easy"
+      ? taskCardStyles.dragHandleEasy
+      : task.difficulty === "medium"
+        ? taskCardStyles.dragHandleMedium
+        : task.difficulty === "hard"
+          ? taskCardStyles.dragHandleHard
+          : undefined;
+  const spacerDifficultyClass =
+    task.difficulty === "easy"
+      ? taskCardStyles.dragHandleSpacerEasy
+      : task.difficulty === "medium"
+        ? taskCardStyles.dragHandleSpacerMedium
+        : task.difficulty === "hard"
+          ? taskCardStyles.dragHandleSpacerHard
+          : undefined;
+
   const statusControl =
     !readOnly && isQueueHead && onStartDoing ? (
       <button
@@ -161,12 +178,18 @@ export function BoardTaskCard({
       )}
     >
       {readOnly ? (
-        <span className={taskCardStyles.dragHandleSpacer} aria-hidden />
+        <span
+          className={cn(
+            taskCardStyles.dragHandleSpacer,
+            spacerDifficultyClass,
+          )}
+          aria-hidden
+        />
       ) : (
         <button
           type="button"
           draggable
-          className={taskCardStyles.dragHandle}
+          className={cn(taskCardStyles.dragHandle, dragDifficultyClass)}
           aria-label={labels.dragHandle}
           onDragStart={handleDragStart}
           onDragEnd={onDragHandleEnd}

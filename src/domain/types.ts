@@ -1,6 +1,7 @@
 export type Role = "operator" | "teammate";
 
 export type TaskStatus = "todo" | "doing" | "done";
+export type TaskDifficulty = "easy" | "medium" | "hard";
 
 export type Locale = "en-gb" | "es-es" | "pt-br";
 
@@ -94,6 +95,8 @@ export interface Task {
   assigneeId: string;
   assigneeName: string;
   status: TaskStatus;
+  /** Optional effort label — null when unset. */
+  difficulty: TaskDifficulty | null;
   dueDate: string | null;
   telegramNotifyFailed: boolean;
   /** Lower = higher priority in the assignee To do queue. */

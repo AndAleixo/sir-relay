@@ -1,4 +1,4 @@
-import type { Session, Task, TaskStatus } from "@/domain/types";
+import type { Session, Task, TaskDifficulty, TaskStatus } from "@/domain/types";
 import type { CreateTaskInput, TaskService } from "@/services/contracts";
 import { assertCanCreateTask, assertCanMutateTask } from "@/lib/authz";
 import { insertIdAfter, sortByQueueOrder } from "@/lib/task-queue";
@@ -97,6 +97,7 @@ export class MockTaskService implements TaskService {
       assigneeName,
       status: "todo",
       dueDate: input.dueDate ?? null,
+      difficulty: input.difficulty ?? null,
       telegramNotifyFailed: false,
       sortOrder,
       updatedAt: now,
@@ -168,7 +169,12 @@ export class MockTaskService implements TaskService {
 
   async updateTaskFields(
     id: string,
-    fields: { title?: string; dueDate?: string | null; description?: string },
+    fields: {
+      title?: string;
+      dueDate?: string | null;
+      description?: string;
+      difficulty?: TaskDifficulty | null;
+    },
     ctx: { session: Session },
   ): Promise<Task> {
     const task = await this.getTask(id, ctx);
@@ -187,11 +193,15 @@ export class MockTaskService implements TaskService {
         ? fields.description.trim().slice(0, 10_000)
         : task.description;
 
+    const difficulty =
+      fields.difficulty !== undefined ? fields.difficulty : task.difficulty;
+
     const updated = {
       ...task,
       title,
       description,
       dueDate,
+      difficulty,
       updatedAt: new Date().toISOString(),
     };
     this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
@@ -250,6 +260,7 @@ export class MockTaskService implements TaskService {
       assigneeName: existing.assigneeName,
       status: existing.status,
       dueDate: existing.dueDate,
+      difficulty: existing.difficulty,
       telegramNotifyFailed: false,
       sortOrder: nextIds.indexOf(id),
       updatedAt: now,

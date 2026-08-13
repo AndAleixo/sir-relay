@@ -7,6 +7,7 @@ import type {
   Role,
   Session,
   Task,
+  TaskDifficulty,
   TaskStatus,
   Teammate,
   User,
@@ -23,6 +24,7 @@ export interface CreateTaskInput {
   description?: string;
   assigneeId: string;
   dueDate?: string | null;
+  difficulty?: TaskDifficulty | null;
 }
 
 export interface CreateTeammateInput {
@@ -94,13 +96,18 @@ export interface TaskService {
   ): Promise<Task>;
   updateTaskFields(
     id: string,
-    fields: { title?: string; dueDate?: string | null; description?: string },
+    fields: {
+      title?: string;
+      dueDate?: string | null;
+      description?: string;
+      difficulty?: TaskDifficulty | null;
+    },
     ctx: { session: Session },
   ): Promise<Task>;
   deleteTask(id: string, ctx: { session: Session }): Promise<void>;
   renotifyTask(id: string, ctx: { session: Session }): Promise<Task>;
   /**
-   * Clone task: same title/description/due/assignee/status, inserted
+   * Clone task: same title/description/due/difficulty/assignee/status, inserted
    * immediately below the source in that assignee+status queue.
    */
   cloneTask(sourceId: string, ctx: { session: Session }): Promise<Task[]>;

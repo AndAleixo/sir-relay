@@ -65,6 +65,7 @@ export function taskNotify(
     title: string;
     description: string;
     dueDate: string | null;
+    difficulty: "easy" | "medium" | "hard" | null;
     groupName: string;
     taskUrl: string;
   },
@@ -82,6 +83,25 @@ export function taskNotify(
         pt: `Prazo: ${input.dueDate}`,
       })
     : null;
+  const difficultyLine = input.difficulty
+    ? pick(locale, {
+        en: {
+          easy: "Difficulty: Easy",
+          medium: "Difficulty: Medium",
+          hard: "Difficulty: Hard",
+        }[input.difficulty],
+        es: {
+          easy: "Dificultad: Fácil",
+          medium: "Dificultad: Media",
+          hard: "Dificultad: Difícil",
+        }[input.difficulty],
+        pt: {
+          easy: "Dificuldade: Fácil",
+          medium: "Dificuldade: Média",
+          hard: "Dificuldade: Difícil",
+        }[input.difficulty],
+      })
+    : null;
   const replyHint = pick(locale, {
     en: "Reply to THIS message with: done · in progress (or hecho / feito / working).",
     es: "Responde a ESTE mensaje con: listo · en progreso (o done / feito / working).",
@@ -96,6 +116,7 @@ export function taskNotify(
   const parts = [input.title, groupLine];
   if (desc) parts.push(desc);
   if (dueLine) parts.push(dueLine);
+  if (difficultyLine) parts.push(difficultyLine);
   parts.push(openLine, "", replyHint);
   return parts.join("\n");
 }

@@ -215,11 +215,11 @@ Operator-only management **within the active group** (except fantasy name, which
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-TASK-01 | Create | **Operator:** title + assignee (any active group member, including self and other operators). **Teammate:** title + self only (assignee forced to signed-in user). Optional description, due_date |
+| P1-TASK-01 | Create | **Operator:** title + assignee (any active group member, including self and other operators). **Teammate:** title + self only (assignee forced to signed-in user). Optional description, due_date, difficulty (`easy`/`medium`/`hard`) |
 | P1-TASK-02 | Notify on create | Send Telegram if assignee is **linked** **and** their queue is empty (§2) |
 | P1-TASK-03 | Re-notify | Operator only; resend Telegram; update `telegram_message_id` (replies bind to latest message) |
 | P1-TASK-04 | List / Kanban | Both roles: **My work** (own) · **Team** (group). Teammate Team = view others, edit own only |
-| P1-TASK-05 | Update / delete | Operator: any field on any task · Teammate: edit + delete own tasks (title, status, due, description) |
+| P1-TASK-05 | Update / delete | Operator: any field on any task · Teammate: edit + delete own tasks (title, status, due, description, difficulty) |
 | P1-TASK-06 | Detail | Editable form when allowed + Telegram delivery banner; teammate **read-only** on others’ tasks; **no web comment UI** |
 | P1-TASK-07 | Due date | Optional `DATE`; overdue when `due_date` < today UTC |
 | P1-TASK-08 | Limits | Title ≤ 200 · description ≤ 10 000 |
@@ -228,7 +228,7 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TASK-11 | Queue order | Next / head: `sort_order ASC`, then `due_date ASC NULLS LAST`, then `created_at ASC`. Web: drag to place/reorder in editable To do columns; drop inside scroll list = insert by Y, drop on section chrome = append; Telegram follows queue head |
 | P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). Same for teammate **and** operator assignees. |
 | P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves (or other operators); visible on web board in the **self column** (member label, not “Me”) and other member columns; **Telegram relay** when linked (same queue rules as teammates) |
-| P1-TASK-14 | Clone | Who can **create** a task for that assignee may clone an editable task. Copy title, description, due, assignee, status; insert **immediately below** source in that status queue (`sort_order`). Does not copy Telegram message ids. UI: board **⋯** menu — [UIUX.md §4](./UIUX.md#4-task-card) |
+| P1-TASK-14 | Clone | Who can **create** a task for that assignee may clone an editable task. Copy title, description, due, difficulty, assignee, status; insert **immediately below** source in that status queue (`sort_order`). Does not copy Telegram message ids. UI: board **⋯** menu — [UIUX.md §4](./UIUX.md#4-task-card) |
 
 ### 5.4 Telegram activity (no web comment UI)
 
@@ -263,7 +263,7 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-TG-01 | Webhook | `POST /api/v1/telegram/webhook` |
-| P1-TG-02 | Task message | Title, description (truncated to 500 chars + `…`), due date, reply instruction |
+| P1-TG-02 | Task message | Title, description (truncated to 500 chars + `…`), due date, optional difficulty, reply instruction |
 | P1-TG-03 | Reply → comment | Reply to latest notification creates comment |
 | P1-TG-04 | Status keywords | Case-insensitive match on reply: **→ `done`:** `done`, `hecho`, `concluída`, `feito`, `listo` · **→ `doing`:** `in progress`, `em progresso`, `en progreso`, `working` · Persist comment + status in one transaction; `done` triggers P1-TASK-12 |
 | P1-TG-05 | Authorization | Ignore unlinked chats; ignore replies to tasks not assigned to sender |
@@ -346,7 +346,7 @@ telegram_link_tokens
 
 tasks
   id, group_id, title, description, assignee_id, created_by_id,
-  status (todo|doing|done), due_date, sort_order,
+  status (todo|doing|done), difficulty (easy|medium|hard|null), due_date, sort_order,
   telegram_message_id, telegram_chat_id, telegram_notified_at, telegram_notify_failed,
   created_at, updated_at
 

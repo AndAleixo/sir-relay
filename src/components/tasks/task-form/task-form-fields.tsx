@@ -1,6 +1,7 @@
 "use client";
 
 import type { Task, TaskStatus } from "@/domain/types";
+import { TASK_DIFFICULTIES } from "@/lib/task-difficulty";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 
 export type TaskFormAssigneeOption = {
@@ -18,6 +19,11 @@ export type TaskFormLabels = {
   descriptionPlaceholder: string;
   status: string;
   overdue: string;
+  difficulty: string;
+  difficultyNone: string;
+  difficultyEasy: string;
+  difficultyMedium: string;
+  difficultyHard: string;
 };
 
 type TaskFormFieldsProps = {
@@ -26,7 +32,10 @@ type TaskFormFieldsProps = {
   isOperator: boolean;
   assigneeOptions: TaskFormAssigneeOption[];
   statusLabels?: Record<TaskStatus, string>;
-  defaultValues?: Pick<Task, "title" | "description" | "dueDate" | "status" | "assigneeId">;
+  defaultValues?: Pick<
+    Task,
+    "title" | "description" | "dueDate" | "status" | "assigneeId" | "difficulty"
+  >;
   overdue?: boolean;
 };
 
@@ -39,6 +48,12 @@ export function TaskFormFields({
   defaultValues,
   overdue = false,
 }: TaskFormFieldsProps) {
+  const difficultyLabels = {
+    easy: labels.difficultyEasy,
+    medium: labels.difficultyMedium,
+    hard: labels.difficultyHard,
+  } as const;
+
   return (
     <>
       <div>
@@ -91,6 +106,23 @@ export function TaskFormFields({
           />
         </div>
       )}
+
+      <div>
+        <Label htmlFor="difficulty">{labels.difficulty}</Label>
+        <Select
+          id="difficulty"
+          name="difficulty"
+          defaultValue={defaultValues?.difficulty ?? ""}
+          options={[
+            { value: "", label: labels.difficultyNone },
+            ...TASK_DIFFICULTIES.map((value) => ({
+              value,
+              label: difficultyLabels[value],
+            })),
+          ]}
+          aria-label={labels.difficulty}
+        />
+      </div>
 
       <div>
         <Label htmlFor="dueDate">{labels.dueDate}</Label>

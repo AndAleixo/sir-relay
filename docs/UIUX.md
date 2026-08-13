@@ -288,6 +288,7 @@ Shared compact card on boards; list uses a table row. Clone rule: [P1-TASK-14](.
 
 | Element | Behavior |
 |---------|----------|
+| **⠿** drag | Cursor grab; optional soft tint when difficulty is set (easy / medium / hard) |
 | Title | Truncate 2 lines; click → inline edit when editable |
 | Description | One muted truncated line: under title when due set (`pr-2`); else in footer due slot |
 | Due | Overdue in `--danger`; empty + no description → **Add due date** (editable) |
@@ -308,7 +309,7 @@ Route: `/[locale]/tasks/[id]`. Same field order as **New task**; plus status and
 ┌─────────────────────────────────────────────────────────┐
 │  Edit task                              [← Back]        │
 │  [Banner]: delivery failed (if applicable)              │
-│  Title · Assignee* · Status · Due · Description         │
+│  Title · Assignee* · Status · Difficulty · Due · Description         │
 │  [Save]  [Cancel]                    [Delete task]      │
 └─────────────────────────────────────────────────────────┘
 
@@ -419,6 +420,7 @@ Group: Demo Shop
 Description (truncated…)
 
 Due: 2026-03-15
+Difficulty: Medium
 Open: https://app.example.com/en-gb/tasks/{id}
 
 Reply to THIS message with: done · in progress (or hecho / feito / working).

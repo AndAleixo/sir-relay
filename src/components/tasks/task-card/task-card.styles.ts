@@ -2,12 +2,22 @@ export const taskCardStyles = {
   // min-w-0: long description/title must not widen the column (esp. mobile stack).
   root: "relative block min-w-0 max-w-full overflow-visible rounded-card border border-[var(--border)] bg-surface-card shadow-sm transition-colors",
   /** Row layout: default cursor + no text select; move via dragHandle; board pan outside cards. */
-  layout: "flex cursor-default gap-0.5 p-1 select-none",
+  layout: "flex cursor-default gap-1 p-1 select-none",
   dragging: "opacity-40 ring-2 ring-brand-accent/40",
   dragHandle:
     "shrink-0 cursor-grab touch-none rounded px-0.5 text-[10px] leading-none text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] active:cursor-grabbing",
+  /** Soft tint on drag handle when task has difficulty. */
+  dragHandleEasy:
+    "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 hover:text-emerald-900",
+  dragHandleMedium:
+    "bg-amber-100 text-amber-900 hover:bg-amber-200 hover:text-amber-950",
+  dragHandleHard:
+    "bg-rose-100 text-rose-800 hover:bg-rose-200 hover:text-rose-900",
   /** Light inset so read-only titles aren’t flush left (narrower than the ⠿ handle). */
-  dragHandleSpacer: "inline-block w-1.5 shrink-0",
+  dragHandleSpacer: "inline-block w-1.5 shrink-0 rounded",
+  dragHandleSpacerEasy: "bg-emerald-200",
+  dragHandleSpacerMedium: "bg-amber-200",
+  dragHandleSpacerHard: "bg-rose-200",
   readOnly: "opacity-90",
   titleReadonly:
     "line-clamp-2 min-w-0 flex-1 text-left text-xs font-medium leading-snug text-[var(--text-primary)]",

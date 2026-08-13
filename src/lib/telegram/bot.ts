@@ -166,6 +166,7 @@ function createBot(token: string): Bot {
           assigneeId: taskRow.assigneeId,
           assigneeName: assigneeLabel,
           status: "done",
+          difficulty: taskRow.difficulty,
           dueDate: taskRow.dueDate
             ? taskRow.dueDate.toISOString().slice(0, 10)
             : null,

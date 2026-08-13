@@ -64,6 +64,7 @@ async function sendAndPersistTaskNotify(taskId: string): Promise<boolean> {
     title: task.title,
     description: task.description,
     dueDate: dueDateLabel(task.dueDate),
+    difficulty: task.difficulty,
     groupName: task.group.name,
     taskUrl: taskWebUrl(locale, task.id),
   });

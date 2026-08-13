@@ -4,6 +4,7 @@ import type {
   Role,
   Session,
   Task,
+  TaskDifficulty,
   TaskStatus,
   Teammate,
   User,
@@ -14,6 +15,7 @@ import type {
   Locale as PrismaLocale,
   Role as DbRole,
   Task as DbTask,
+  TaskDifficulty as DbTaskDifficulty,
   TaskStatus as DbTaskStatus,
   User as DbUser,
 } from "@prisma/client";
@@ -37,6 +39,12 @@ export function toAccountStatus(value: DbAccountStatus): AccountStatus {
 }
 
 export function toTaskStatus(value: DbTaskStatus): TaskStatus {
+  return value;
+}
+
+export function toTaskDifficulty(
+  value: DbTaskDifficulty | null,
+): TaskDifficulty | null {
   return value;
 }
 
@@ -85,6 +93,7 @@ export function toTask(row: DbTask, assigneeName: string): Task {
     assigneeId: row.assigneeId,
     assigneeName,
     status: toTaskStatus(row.status),
+    difficulty: toTaskDifficulty(row.difficulty),
     dueDate: row.dueDate ? row.dueDate.toISOString().slice(0, 10) : null,
     telegramNotifyFailed: row.telegramNotifyFailed,
     sortOrder: row.sortOrder,

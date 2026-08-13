@@ -18,6 +18,12 @@ enum TaskStatus {
   done
 }
 
+enum TaskDifficulty {
+  easy
+  medium
+  hard
+}
+
 enum Locale {
   en
   es
@@ -146,8 +152,9 @@ model Task {
   description          String     @default("")
   assigneeId           String     @map("assignee_id")
   createdById          String     @map("created_by_id")
-  status               TaskStatus @default(todo)
-  dueDate              DateTime?  @map("due_date") @db.Date
+  status               TaskStatus      @default(todo)
+  difficulty           TaskDifficulty?
+  dueDate              DateTime?       @map("due_date") @db.Date
   telegramMessageId    String?    @map("telegram_message_id")
   telegramChatId       String?    @map("telegram_chat_id")
   telegramNotifiedAt   DateTime?  @map("telegram_notified_at")

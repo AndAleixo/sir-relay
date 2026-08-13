@@ -193,6 +193,11 @@ export default async function TaskDetailPage({
                   save: t("common.save"),
                   cancel: t("common.cancel"),
                   overdue: t("tasks.overdue"),
+                  difficulty: t("tasks.difficulty"),
+                  difficultyNone: t("tasks.difficultyNone"),
+                  difficultyEasy: t("tasks.difficultyEasy"),
+                  difficultyMedium: t("tasks.difficultyMedium"),
+                  difficultyHard: t("tasks.difficultyHard"),
                   delete: t("tasks.delete"),
                   deleteConfirm: t("tasks.deleteConfirm"),
                 }}
@@ -211,6 +216,20 @@ export default async function TaskDetailPage({
               <div>
                 <dt className="text-[var(--text-muted)]">{t("tasks.status")}</dt>
                 <dd className="mt-0.5">{statusLabels[task.status]}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--text-muted)]">{t("tasks.difficulty")}</dt>
+                <dd className="mt-0.5">
+                  {task.difficulty
+                    ? t(
+                        task.difficulty === "easy"
+                          ? "tasks.difficultyEasy"
+                          : task.difficulty === "medium"
+                            ? "tasks.difficultyMedium"
+                            : "tasks.difficultyHard",
+                      )
+                    : "—"}
+                </dd>
               </div>
               <div>
                 <dt className="text-[var(--text-muted)]">{t("tasks.dueDate")}</dt>

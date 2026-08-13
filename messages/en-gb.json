@@ -223,7 +223,12 @@
     "addDueDate": "Add due date",
     "startDoing": "Start — move to In progress",
     "markDone": "Complete — move to Done",
-    "completedMark": "Completed"
+    "completedMark": "Completed",
+    "difficulty": "Difficulty",
+    "difficultyNone": "None",
+    "difficultyEasy": "Easy",
+    "difficultyMedium": "Medium",
+    "difficultyHard": "Hard"
   },
   "settings": {
     "title": "Settings",

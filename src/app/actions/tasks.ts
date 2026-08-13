@@ -16,6 +16,7 @@ import {
   taskNewHref,
   tasksListHrefFromReturn,
 } from "@/lib/tasks-url";
+import { parseTaskDifficulty } from "@/lib/task-difficulty";
 import { getServices, serviceMode } from "@/services";
 import {
   getAppliedMutation,
@@ -47,6 +48,7 @@ export async function createTaskForm(locale: string, formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const dueRaw = String(formData.get("dueDate") ?? "").trim();
+  const difficulty = parseTaskDifficulty(formData.get("difficulty"));
   const returnOpts = returnHrefOpts(formData);
 
   const session = await requireAppSession(locale);
@@ -72,6 +74,7 @@ export async function createTaskForm(locale: string, formData: FormData) {
       assigneeId,
       description,
       dueDate: dueRaw || null,
+      difficulty,
     },
     { session },
   );
@@ -374,6 +377,7 @@ export async function saveTaskDetailAction(
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const dueRaw = String(formData.get("dueDate") ?? "").trim();
+  const difficulty = parseTaskDifficulty(formData.get("difficulty"));
   const status = String(formData.get("status") ?? "") as TaskStatus;
   const assigneeId = String(formData.get("assigneeId") ?? "").trim();
 
@@ -408,6 +412,7 @@ export async function saveTaskDetailAction(
         title,
         description,
         dueDate: dueRaw || null,
+        difficulty,
       },
       { session },
     );

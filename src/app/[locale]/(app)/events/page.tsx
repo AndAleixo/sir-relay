@@ -36,6 +36,7 @@ export default async function EventsPage({
           taskDue: t("events.taskDue"),
           sentToTelegram: t("events.sentToTelegram"),
           webOnly: t("events.webOnly"),
+          showMore: t("common.showMore"),
         }}
       />
       <p className="mt-8 border-t border-[var(--border)] pt-4 text-sm text-[var(--text-muted)]">

@@ -388,7 +388,7 @@ Fantasy name · email (while invited) · promote / demote / transfer ownership /
 
 ### 8.3 Events (`/events`)
 
-Operator only. Teammate done / due alerts; delivery badge; link to **Group activity**. Prefs on Settings. Teammates redirected to `/tasks`.
+Operator only. Teammate done / due alerts; delivery badge; **Show more** after the first 8 (same pattern as Done on the board); link to **Group activity**. Prefs on Settings. Teammates redirected to `/tasks`.
 
 ---
 

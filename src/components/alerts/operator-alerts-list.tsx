@@ -1,8 +1,15 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import type { OperatorAlert } from "@/domain/types";
 import { formatDueDate, formatRelativeTime } from "@/lib/dates";
 import { Card, CardBody } from "@/components/ui/card";
 import { ToneBadge } from "@/components/ui/badge";
+import {
+  ALERTS_PREVIEW_INITIAL,
+  ALERTS_PREVIEW_STEP,
+} from "@/components/alerts/alerts-preview";
 
 interface OperatorAlertsListProps {
   alerts: OperatorAlert[];
@@ -13,10 +20,17 @@ interface OperatorAlertsListProps {
     taskDue: string;
     sentToTelegram: string;
     webOnly: string;
+    showMore: string;
   };
 }
 
-export function OperatorAlertsList({ alerts, locale, labels }: OperatorAlertsListProps) {
+export function OperatorAlertsList({
+  alerts,
+  locale,
+  labels,
+}: OperatorAlertsListProps) {
+  const [visibleCount, setVisibleCount] = useState(ALERTS_PREVIEW_INITIAL);
+
   if (alerts.length === 0) {
     return (
       <Card>
@@ -27,9 +41,12 @@ export function OperatorAlertsList({ alerts, locale, labels }: OperatorAlertsLis
     );
   }
 
+  const visible = alerts.slice(0, visibleCount);
+  const hasMore = visibleCount < alerts.length;
+
   return (
     <ul className="space-y-2">
-      {alerts.map((alert) => (
+      {visible.map((alert) => (
         <li
           key={alert.id}
           className="rounded-[var(--radius-card)] border border-[var(--border)] bg-surface-card px-4 py-3"
@@ -57,6 +74,19 @@ export function OperatorAlertsList({ alerts, locale, labels }: OperatorAlertsLis
           </div>
         </li>
       ))}
+      {hasMore ? (
+        <li>
+          <button
+            type="button"
+            className="w-full cursor-pointer px-2 py-2 text-center text-xs text-brand-accent-hover hover:underline"
+            onClick={() =>
+              setVisibleCount((n) => n + ALERTS_PREVIEW_STEP)
+            }
+          >
+            {labels.showMore}
+          </button>
+        </li>
+      ) : null}
     </ul>
   );
 }

@@ -41,12 +41,29 @@
 
 ### 2.2 Status (Kanban & badges)
 
-| Status | Color | Hex |
-|--------|-------|-----|
-| To do | Gray | `#A3A3A3` |
-| In progress (`doing`) | **Brand yellow** | `#EAB308` |
-| Done | Dark gray | `#404040` |
-| Error / overdue | Red | `#DC2626` |
+| Status | Color | Hex / token |
+|--------|-------|-------------|
+| To do | Gray | `#A3A3A3` · `--status-todo` |
+| In progress (`doing`) | **Brand yellow** | `#EAB308` · `--status-progress` |
+| Done | Dark gray | `#404040` · `--status-done` |
+| Error / overdue / hard difficulty text | Red | `#DC2626` · `--severity` |
+
+**Overdue due dates** and **hard** difficulty use the **same** red (`--severity`). Soft fill for hard handle: `--severity-soft` `#FEE2E2`.
+
+### 2.2.1 Task difficulty (board ⠿ handle)
+
+Optional field; tint only the drag handle (not the whole card).
+
+| Difficulty | Background | Text | Tokens |
+|------------|------------|------|--------|
+| Easy | `#D1FAE5` | `#065F46` | `--difficulty-easy-bg` / `--difficulty-easy-fg` |
+| Medium | `#FEF3C7` | `#78350F` | `--difficulty-medium-bg` / `--difficulty-medium-fg` |
+| Hard | `#FEE2E2` (`--severity-soft`) | `#DC2626` (`--severity`) | `--difficulty-hard-bg` / `--difficulty-hard-fg` |
+| Unset | none | muted gray | default handle |
+
+Do not invent ad-hoc Tailwind greens/roses in task UI — use these tokens from [`brand/brand.css`](../brand/brand.css).
+
+**UI variants:** Button / Banner / Badge use `variant` or `tone` **`severity`** (not `danger`) for this red. Settings “danger zone” copy stays as product language only.
 
 ### 2.3 Contrast rules
 
@@ -252,5 +269,7 @@ public/
 
 | Date | Change |
 |------|--------|
+| 2026-08-13 | Renamed `--danger` → `--severity` (overdue, hard, errors, destructive) |
+| 2026-08-13 | Task difficulty tokens; overdue shares `--severity` with hard |
 | 2026-06-25 | Initial draft (navy palette) |
 | 2026-06-25 | Icon (yellow) vs logo (transparent text+track); logo-compact SirR / logo SirRelay |

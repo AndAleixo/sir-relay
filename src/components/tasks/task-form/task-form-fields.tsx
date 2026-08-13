@@ -133,7 +133,7 @@ export function TaskFormFields({
           defaultValue={defaultValues?.dueDate ?? ""}
         />
         {mode === "edit" && overdue && defaultValues?.dueDate && (
-          <p className="mt-1.5 text-xs font-medium text-[var(--danger)]">
+          <p className="mt-1.5 text-xs font-medium text-[var(--severity)]">
             {labels.overdue}
           </p>
         )}

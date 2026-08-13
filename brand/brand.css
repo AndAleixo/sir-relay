@@ -16,11 +16,30 @@
   --border: #e5e5e5;
   --gray-strong: #525252;
 
-  /* Status */
+  /* Status (Kanban) */
   --status-todo: #a3a3a3;
   --status-progress: #eab308;
   --status-done: #404040;
-  --danger: #dc2626;
+
+  /*
+   * Severity red — shared attention colour for:
+   * overdue due dates, hard difficulty, validation/errors, destructive controls.
+   * Prefer this name over “danger” (which only meant delete).
+   */
+  --severity: #dc2626;
+  --severity-soft: #fee2e2;
+  --severity-soft-hover: #fecaca;
+
+  /* Task difficulty (board ⠿ handle); hard reuses --severity */
+  --difficulty-easy-bg: #d1fae5;
+  --difficulty-easy-fg: #065f46;
+  --difficulty-easy-bg-hover: #a7f3d0;
+  --difficulty-medium-bg: #fef3c7;
+  --difficulty-medium-fg: #78350f;
+  --difficulty-medium-bg-hover: #fde68a;
+  --difficulty-hard-bg: var(--severity-soft);
+  --difficulty-hard-fg: var(--severity);
+  --difficulty-hard-bg-hover: var(--severity-soft-hover);
 
   /* Shape */
   --radius-card: 8px;

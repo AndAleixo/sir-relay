@@ -115,7 +115,7 @@ export default async function ProfilePage({
                 </Button>
               </div>
               {nameError === "short" ? (
-                <Banner variant="danger">{t("profile.nameTooShort")}</Banner>
+                <Banner variant="severity">{t("profile.nameTooShort")}</Banner>
               ) : null}
             </form>
             <div className="space-y-2 border-t border-[var(--border)] pt-3">
@@ -141,7 +141,7 @@ export default async function ProfilePage({
           </CardHeader>
           <CardBody className="space-y-3">
             {passwordErrorMessage ? (
-              <Banner variant="danger">{passwordErrorMessage}</Banner>
+              <Banner variant="severity">{passwordErrorMessage}</Banner>
             ) : null}
             <form
               action={profileChangePasswordForm.bind(null, locale)}

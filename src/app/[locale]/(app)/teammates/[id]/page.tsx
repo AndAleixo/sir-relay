@@ -100,32 +100,32 @@ export default async function TeammateDetailPage({
         </Banner>
       ) : null}
       {error === "promote" ? (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {t("teammate.promoteFailed")}
         </Banner>
       ) : null}
       {error === "demote" ? (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {t("teammate.demoteFailed")}
         </Banner>
       ) : null}
       {error === "transfer" ? (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {t("teammate.transferFailed")}
         </Banner>
       ) : null}
       {error === "edit" ? (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {t("teammate.editFailed")}
         </Banner>
       ) : null}
       {error === "remove" ? (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {t("teammate.removeFailed")}
         </Banner>
       ) : null}
       {error === "invite" ? (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {t("teammate.inviteFailed")}
         </Banner>
       ) : null}

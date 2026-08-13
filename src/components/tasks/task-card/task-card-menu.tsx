@@ -92,7 +92,7 @@ export function TaskCardMenu({
                 tabIndex={visible ? 0 : -1}
                 className={cn(
                   taskCardStyles.menuItem,
-                  taskCardStyles.menuItemDanger,
+                  taskCardStyles.menuItemSeverity,
                 )}
                 disabled={disabled}
                 onClick={() => {

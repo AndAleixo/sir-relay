@@ -85,7 +85,7 @@ export default async function NewTaskPage({
         }
       />
       {errorMessage ? (
-        <Banner variant="danger" className="mb-4 max-w-xl">
+        <Banner variant="severity" className="mb-4 max-w-xl">
           {errorMessage}
         </Banner>
       ) : null}

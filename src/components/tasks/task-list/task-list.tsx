@@ -64,7 +64,7 @@ export function TaskList({
                 <td className={taskListStyles.td}>
                   <StatusBadge status={task.status} label={labels.status[task.status]} />
                 </td>
-                <td className={overdue ? taskListStyles.tdDanger : taskListStyles.tdMuted}>
+                <td className={overdue ? taskListStyles.tdOverdue : taskListStyles.tdMuted}>
                   {formatDueDate(task.dueDate, locale)}
                   {overdue && ` (${labels.overdue})`}
                 </td>

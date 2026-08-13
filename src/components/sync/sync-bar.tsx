@@ -34,7 +34,7 @@ export function SyncBar() {
       className={cn(
         syncBarStyles.root,
         isConflict || syncState === "failed"
-          ? syncBarStyles.danger
+          ? syncBarStyles.severity
           : syncBarStyles.warning,
       )}
     >

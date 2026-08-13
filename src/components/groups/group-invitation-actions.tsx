@@ -32,7 +32,7 @@ export function GroupInvitationActions({
   return (
     <div className="space-y-2">
       {error ? (
-        <p className="text-xs text-[var(--danger)]">{t("groups.invitationInvalid")}</p>
+        <p className="text-xs text-[var(--severity)]">{t("groups.invitationInvalid")}</p>
       ) : null}
       <div className="flex gap-2">
         <form action={acceptAction} className="flex-1">

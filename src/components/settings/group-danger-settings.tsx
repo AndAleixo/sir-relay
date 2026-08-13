@@ -98,7 +98,7 @@ export function GroupDangerSettings({
               }}
             >
               <input type="hidden" name="groupId" value={group.id} />
-              <Button type="submit" variant="danger" className="w-full sm:w-auto">
+              <Button type="submit" variant="severity" className="w-full sm:w-auto">
                 {t("groups.delete")}
               </Button>
             </form>

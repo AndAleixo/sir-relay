@@ -6,18 +6,18 @@ export const taskCardStyles = {
   dragging: "opacity-40 ring-2 ring-brand-accent/40",
   dragHandle:
     "shrink-0 cursor-grab touch-none rounded px-0.5 text-[10px] leading-none text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] active:cursor-grabbing",
-  /** Soft tint on drag handle when task has difficulty. */
+  /** Soft tint on drag handle when task has difficulty (tokens: brand.css). */
   dragHandleEasy:
-    "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 hover:text-emerald-900",
+    "bg-[var(--difficulty-easy-bg)] text-[var(--difficulty-easy-fg)] hover:bg-[var(--difficulty-easy-bg-hover)]",
   dragHandleMedium:
-    "bg-amber-100 text-amber-900 hover:bg-amber-200 hover:text-amber-950",
+    "bg-[var(--difficulty-medium-bg)] text-[var(--difficulty-medium-fg)] hover:bg-[var(--difficulty-medium-bg-hover)]",
   dragHandleHard:
-    "bg-rose-100 text-rose-800 hover:bg-rose-200 hover:text-rose-900",
+    "bg-[var(--difficulty-hard-bg)] text-[var(--difficulty-hard-fg)] hover:bg-[var(--difficulty-hard-bg-hover)]",
   /** Light inset so read-only titles aren’t flush left (narrower than the ⠿ handle). */
   dragHandleSpacer: "inline-block w-1.5 shrink-0 rounded",
-  dragHandleSpacerEasy: "bg-emerald-200",
-  dragHandleSpacerMedium: "bg-amber-200",
-  dragHandleSpacerHard: "bg-rose-200",
+  dragHandleSpacerEasy: "bg-[var(--difficulty-easy-bg-hover)]",
+  dragHandleSpacerMedium: "bg-[var(--difficulty-medium-bg-hover)]",
+  dragHandleSpacerHard: "bg-[var(--difficulty-hard-bg-hover)]",
   readOnly: "opacity-90",
   titleReadonly:
     "line-clamp-2 min-w-0 flex-1 text-left text-xs font-medium leading-snug text-[var(--text-primary)]",
@@ -37,7 +37,7 @@ export const taskCardStyles = {
   dueButton:
     "truncate text-left text-[10px] leading-tight text-[var(--text-muted)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 rounded-[4px]",
   footer: "relative flex min-w-0 items-center justify-between gap-1 overflow-visible",
-  overdue: "font-medium text-[var(--danger)]",
+  overdue: "font-medium text-[var(--severity)]",
   startDoing:
     "shrink-0 rounded p-0.5 text-[#F5C518] hover:bg-brand-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3 [&_svg]:w-3",
   /** In progress → Done (neutral; colour reserved for completed mark). */
@@ -61,8 +61,8 @@ export const taskCardStyles = {
   /** Footer due / description — fade under ⋯ overlay (not visibility snap). */
   footerSlot: "min-w-0 flex-1 transition-opacity duration-200 ease-out",
   footerSlotHidden: "pointer-events-none opacity-30 duration-300 ease-in",
-  menuItemDanger:
-    "text-[var(--danger)] hover:bg-[var(--surface-bg)] hover:text-[var(--danger)]",
+  menuItemSeverity:
+    "text-[var(--severity)] hover:bg-[var(--surface-bg)] hover:text-[var(--severity)]",
   notifyDotCorner:
     "pointer-events-none absolute bottom-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-brand-accent",
 } as const;

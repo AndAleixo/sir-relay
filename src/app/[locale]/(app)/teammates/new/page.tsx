@@ -41,7 +41,7 @@ export default async function NewTeammatePage({
       <Card className="max-w-xl">
         <CardBody className="space-y-4">
           <p className="text-sm text-[var(--text-muted)]">{t("teammate.newSubtitle")}</p>
-          {errorMessage ? <Banner variant="danger">{errorMessage}</Banner> : null}
+          {errorMessage ? <Banner variant="severity">{errorMessage}</Banner> : null}
           <form action={createTeammateForm.bind(null, locale)} className="space-y-4">
             <div>
               <Label htmlFor="email">{t("auth.email")}</Label>

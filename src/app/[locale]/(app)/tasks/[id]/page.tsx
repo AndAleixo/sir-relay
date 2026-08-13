@@ -140,13 +140,13 @@ export default async function TaskDetailPage({
       ) : null}
 
       {errorMessage ? (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {errorMessage}
         </Banner>
       ) : null}
 
       {task.telegramNotifyFailed && (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {t("tasks.telegramFailed")}
         </Banner>
       )}
@@ -235,7 +235,7 @@ export default async function TaskDetailPage({
                 <dt className="text-[var(--text-muted)]">{t("tasks.dueDate")}</dt>
                 <dd className="mt-0.5">
                   {task.dueDate ? (
-                    <span className={overdue ? "font-medium text-[var(--danger)]" : undefined}>
+                    <span className={overdue ? "font-medium text-[var(--severity)]" : undefined}>
                       {formatDueDate(task.dueDate, locale)}
                       {overdue ? ` · ${t("tasks.overdue")}` : null}
                     </span>

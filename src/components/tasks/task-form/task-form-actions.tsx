@@ -52,7 +52,7 @@ export function TaskFormActions({
       {onDelete && deleteLabel && (
         <Button
           type="button"
-          variant="danger"
+          variant="severity"
           className="ml-auto"
           disabled={isDeleting}
           onClick={handleDelete}

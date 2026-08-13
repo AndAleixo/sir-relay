@@ -9,6 +9,6 @@ export const buttonVariants = {
     "border border-[var(--border)] bg-surface-card text-[var(--text-primary)] hover:bg-[var(--surface-bg)]",
   ghost:
     "text-[var(--text-primary)] hover:bg-[var(--surface-bg)]",
-  danger:
-    "bg-[var(--danger)] text-white hover:opacity-90",
+  severity:
+    "bg-[var(--severity)] text-white hover:opacity-90",
 } as const;

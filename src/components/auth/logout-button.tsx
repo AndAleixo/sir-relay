@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 type LogoutButtonProps = {
   locale: string;
   label: string;
-  variant?: "primary" | "secondary" | "ghost" | "danger";
+  variant?: "primary" | "secondary" | "ghost" | "severity";
   className?: string;
 };
 

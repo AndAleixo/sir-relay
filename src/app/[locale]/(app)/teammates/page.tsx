@@ -66,7 +66,7 @@ export default async function TeammatesPage({
         </Banner>
       ) : null}
       {invitationError === "1" ? (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {t("teammate.invitationActionFailed")}
         </Banner>
       ) : null}

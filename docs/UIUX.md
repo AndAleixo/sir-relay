@@ -288,10 +288,10 @@ Shared compact card on boards; list uses a table row. Clone rule: [P1-TASK-14](.
 
 | Element | Behavior |
 |---------|----------|
-| **⠿** drag | Cursor grab; optional soft tint when difficulty is set (easy / medium / hard) |
+| **⠿** drag | Cursor grab; optional soft tint when difficulty is set — colours in [BRAND.md §2.2.1](./BRAND.md#221-task-difficulty-board--handle) (hard = overdue `--severity`) |
 | Title | Truncate 2 lines; click → inline edit when editable |
 | Description | One muted truncated line: under title when due set (`pr-2`); else in footer due slot |
-| Due | Overdue in `--danger`; empty + no description → **Add due date** (editable) |
+| Due | Overdue in `--severity`; empty + no description → **Add due date** (editable) |
 | Status controls | Queue head **→** (start); In progress **✓** → Done; Done green ✓ mark |
 | **⋯** menu | Segment left of trigger (card `bg-surface-card`); **Open · Clone · Delete** (Open only if read-only). Footer due/description fades to ~30% while open. Same fade timings as Family A |
 | Notify failed | Accent corner dot (`telegramFailed` tooltip) |

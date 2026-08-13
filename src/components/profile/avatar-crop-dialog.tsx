@@ -224,7 +224,7 @@ export function AvatarCropDialog({
         </label>
 
         {error ? (
-          <p className="mt-3 text-sm text-[var(--danger)]">{error}</p>
+          <p className="mt-3 text-sm text-[var(--severity)]">{error}</p>
         ) : null}
 
         <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

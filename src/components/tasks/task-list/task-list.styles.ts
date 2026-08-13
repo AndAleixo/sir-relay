@@ -6,6 +6,6 @@ export const taskListStyles = {
   row: "border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface-bg)]/60",
   td: "px-4 py-3",
   tdMuted: "px-4 py-3 text-[var(--text-muted)]",
-  tdDanger: "px-4 py-3 font-medium text-[var(--danger)]",
+  tdOverdue: "px-4 py-3 font-medium text-[var(--severity)]",
   link: "font-medium text-[var(--text-primary)] hover:text-brand-accent-hover",
 } as const;

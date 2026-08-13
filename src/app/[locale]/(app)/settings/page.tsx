@@ -117,7 +117,7 @@ export default async function SettingsPage({
                   <Banner variant="info">{t("settings.fantasyNameSaved")}</Banner>
                 ) : null}
                 {displayNameError === "1" ? (
-                  <Banner variant="danger">{t("settings.fantasyNameFailed")}</Banner>
+                  <Banner variant="severity">{t("settings.fantasyNameFailed")}</Banner>
                 ) : null}
               </form>
             </CardBody>

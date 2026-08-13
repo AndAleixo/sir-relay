@@ -52,10 +52,10 @@ export async function GroupGeneralSettings({
         <Banner variant="info">{t("settings.groupRenamed")}</Banner>
       ) : null}
       {renameError === "short" ? (
-        <Banner variant="danger">{t("groups.nameTooShort")}</Banner>
+        <Banner variant="severity">{t("groups.nameTooShort")}</Banner>
       ) : null}
       {renameError === "failed" ? (
-        <Banner variant="danger">{t("settings.renameFailed")}</Banner>
+        <Banner variant="severity">{t("settings.renameFailed")}</Banner>
       ) : null}
 
       {isOperator ? (

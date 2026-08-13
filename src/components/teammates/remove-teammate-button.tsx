@@ -19,7 +19,7 @@ export function RemoveTeammateButton({
   return (
     <Button
       type="button"
-      variant="danger"
+      variant="severity"
       onClick={() => {
         if (!window.confirm(confirmMessage)) return;
         void removeTeammate(locale, teammateId);

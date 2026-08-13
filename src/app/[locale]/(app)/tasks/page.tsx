@@ -68,7 +68,7 @@ export default async function TasksPage({
         </Banner>
       ) : null}
       {error === "not_found" ? (
-        <Banner variant="danger" className="mb-4">
+        <Banner variant="severity" className="mb-4">
           {t("tasks.errorNotFound")}
         </Banner>
       ) : null}

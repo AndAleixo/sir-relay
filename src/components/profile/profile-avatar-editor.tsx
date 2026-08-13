@@ -118,7 +118,7 @@ export function ProfileAvatarEditor({ userId, userName }: ProfileAvatarEditorPro
               <button
                 type="button"
                 role="menuitem"
-                className={cn(popoverStyles.item, "text-[var(--danger)]")}
+                className={cn(popoverStyles.item, "text-[var(--severity)]")}
                 onClick={() => {
                   removeAvatar();
                   closeMenu();
@@ -135,7 +135,7 @@ export function ProfileAvatarEditor({ userId, userName }: ProfileAvatarEditorPro
         </p>
       </div>
 
-      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--severity)]">{error}</p> : null}
 
       {cropSrc ? (
         <AvatarCropDialog

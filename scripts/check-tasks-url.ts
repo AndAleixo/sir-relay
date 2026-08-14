@@ -1,5 +1,5 @@
 /**
- * Self-check: tasks list URL parse + href.
+ * Self-check: tasks list URL parse + href + success-flash strip.
  * Run: npx tsx scripts/check-tasks-url.ts
  */
 import assert from "node:assert/strict";
@@ -13,6 +13,7 @@ import {
   tasksListHref,
   tasksListHrefFromReturn,
 } from "../src/lib/tasks-url";
+import { stripSuccessFlash } from "../src/lib/flash-url";
 
 assert.equal(parseTasksScope(undefined, "operator"), "team");
 assert.equal(parseTasksScope(undefined, "teammate"), "mine");
@@ -41,5 +42,33 @@ assert.equal(
   }),
   "/en-gb/tasks?scope=team&view=board&deleted=1",
 );
+
+assert.equal(
+  stripSuccessFlash("?scope=team&view=board&saved=1"),
+  "?scope=team&view=board",
+);
+assert.equal(
+  stripSuccessFlash("scope=mine&view=list&deleted=1&error=not_found"),
+  "?scope=mine&view=list&error=not_found",
+);
+assert.equal(
+  stripSuccessFlash("?scope=team&view=board&renotify=1"),
+  "?scope=team&view=board",
+);
+assert.equal(
+  stripSuccessFlash("?passwordChanged=1&nameSaved=1"),
+  "",
+);
+assert.equal(
+  stripSuccessFlash("?promoted=1&invitationError=1"),
+  "?invitationError=1",
+);
+assert.equal(
+  stripSuccessFlash("?renamed=1&displayNameSaved=1&displayNameError=1"),
+  "?displayNameError=1",
+);
+assert.equal(stripSuccessFlash("?transferred=1"), "");
+assert.equal(stripSuccessFlash("?scope=team&view=board"), null);
+assert.equal(stripSuccessFlash("?error=not_found"), null);
 
 console.log("check-tasks-url: ok");

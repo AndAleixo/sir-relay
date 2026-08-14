@@ -2,6 +2,7 @@
 
 import type { GroupInvitation, User, UserGroup } from "@/domain/types";
 import { AppShell } from "@/components/layout/app-shell";
+import { ConsumeFlash } from "@/components/layout/consume-flash";
 import { SyncProvider, SyncBar } from "@/components/sync";
 
 interface AppLayoutClientProps {
@@ -23,6 +24,7 @@ export function AppLayoutClient({
 }: AppLayoutClientProps) {
   return (
     <SyncProvider>
+      <ConsumeFlash />
       <SyncBar />
       <AppShell
         locale={locale}

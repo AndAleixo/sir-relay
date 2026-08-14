@@ -1,5 +1,5 @@
 /**
- * Tasks list URL: ?scope=mine|team&view=board|list (+ flash banners).
+ * Tasks list URL: ?scope=mine|team&view=board|list (+ one-shot success flash).
  * Defaults: operator → team, teammate → mine; view → board.
  */
 export type TasksScope = "mine" | "team";

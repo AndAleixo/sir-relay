@@ -182,7 +182,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 
 Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · New task. Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue).
 
-**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Flash: `?saved=1`, `?deleted=1`, `?error=…`.
+**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped from the URL after paint (`flash-url.ts`); `error` stays.
 
 | Scope | Default | Board | List |
 |-------|---------|-------|------|

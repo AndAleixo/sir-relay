@@ -69,6 +69,7 @@ export default async function TasksPage({
         initialProject={initialProject}
         openProjects={openProjects.map((row) => ({
           id: row.id,
+          name: row.name,
           acronym: row.acronym,
         }))}
         self={{
@@ -127,6 +128,9 @@ export default async function TasksPage({
             done: t("status.done"),
           },
           project: t("tasks.project"),
+          projectNone: t("tasks.projectNone"),
+          projectScrollLeft: t("tasks.projectScrollLeft"),
+          projectScrollRight: t("tasks.projectScrollRight"),
           addProject: t("tasks.addProject"),
         }}
       />

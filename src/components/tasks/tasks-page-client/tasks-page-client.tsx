@@ -23,7 +23,7 @@ interface TasksPageClientProps {
   initialScope: TasksScope;
   initialView: TasksView;
   initialProject: string | null;
-  openProjects: { id: string; acronym: string }[];
+  openProjects: { id: string; acronym: string; name: string }[];
   /** Signed-in user for Team board self column + My work Kanban. */
   self: {
     id: string;
@@ -63,7 +63,6 @@ interface TasksPageClientProps {
     sortUpdated: string;
     statusColumn: string;
     status: { todo: string; doing: string; done: string };
-    project: string;
     addProject: string;
   };
 }
@@ -180,6 +179,10 @@ export function TasksPageClient({
     menuDelete: labels.menuDelete,
     deleteConfirm: labels.deleteConfirm,
     telegramFailed: labels.telegramFailed,
+    project: labels.project,
+    projectNone: labels.projectNone,
+    projectScrollLeft: labels.projectScrollLeft,
+    projectScrollRight: labels.projectScrollRight,
   };
 
   const boardLabels = {
@@ -271,6 +274,7 @@ export function TasksPageClient({
             editMode={isOperator ? "all" : "self-only"}
             linkMemberProfiles={isOperator}
             labels={boardLabels}
+            openProjects={openProjects}
           />
         ) : (
           <StatusKanban
@@ -287,6 +291,7 @@ export function TasksPageClient({
               }),
             }}
             labels={kanbanLabels}
+            openProjects={openProjects}
           />
         )
       ) : (

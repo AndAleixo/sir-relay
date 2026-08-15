@@ -5,6 +5,7 @@ import type { Task, TaskStatus } from "@/domain/types";
 import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { taskDetailHref } from "@/lib/tasks-url";
 import { formatDueDate, formatRelativeTime, isOverdue } from "@/lib/dates";
+import { formatTaskHeading } from "@/lib/project";
 import { StatusBadge } from "@/components/ui/badge";
 import { taskListStyles } from "./task-list.styles";
 
@@ -57,17 +58,7 @@ export function TaskList({
                     href={taskDetailHref(locale, task.id, { scope, view, project })}
                     className={taskListStyles.link}
                   >
-                    {task.projectAcronym ? (
-                      <>
-                        <span className="text-xs font-semibold tracking-wide text-[var(--text-muted)]">
-                          {task.projectAcronym}
-                        </span>
-                        <span className="mx-1.5 font-normal text-[var(--text-muted)]">
-                          ·
-                        </span>
-                      </>
-                    ) : null}
-                    {task.title}
+                    {formatTaskHeading(task.title, task.projectAcronym)}
                   </Link>
                 </td>
                 {showAssignee && (

@@ -232,6 +232,8 @@
     "difficultyHard": "Hard",
     "project": "Project",
     "projectNone": "None",
+    "projectScrollLeft": "Earlier projects",
+    "projectScrollRight": "Later projects",
     "addProject": "Add a project in Settings"
   },
   "settings": {

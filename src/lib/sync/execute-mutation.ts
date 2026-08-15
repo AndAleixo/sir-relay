@@ -43,7 +43,8 @@ export async function executePendingMutation(
         if (
           !("title" in payload) &&
           !("dueDate" in payload) &&
-          !("description" in payload)
+          !("description" in payload) &&
+          !("projectId" in payload)
         ) {
           return { ok: false, error: "network" };
         }

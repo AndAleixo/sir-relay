@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { DragEvent } from "react";
 import type { Task, TaskStatus } from "@/domain/types";
 import { cn } from "@/lib/cn";
+import { tagFromOpenProjects } from "@/lib/project";
 import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { taskDetailHref } from "@/lib/tasks-url";
 import {
@@ -19,7 +20,9 @@ import type { MutationInput } from "@/domain/sync";
 import { useSync } from "@/components/sync";
 import {
   BoardTaskCard,
+  type TaskCardFieldPatch,
   type TaskCardLabels,
+  type TaskOpenProject,
 } from "@/components/tasks/task-card";
 import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
 import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
@@ -35,6 +38,7 @@ interface StatusKanbanProps {
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
+  openProjects?: TaskOpenProject[];
   self: { id: string; name: string };
   labels: TaskCardLabels & {
     todo: string;
@@ -54,6 +58,7 @@ export function StatusKanban({
   scope,
   view,
   project = null,
+  openProjects = [],
   self,
   labels,
 }: StatusKanbanProps) {
@@ -111,7 +116,7 @@ export function StatusKanban({
 
   async function handleUpdateFields(
     taskId: string,
-    fields: { title?: string; dueDate?: string | null },
+    fields: TaskCardFieldPatch,
   ) {
     const task = tasks.find((t) => t.id === taskId);
     if (!task) return;
@@ -119,6 +124,12 @@ export function StatusKanban({
     const patch: Partial<Task> = {
       ...(fields.title !== undefined ? { title: fields.title } : {}),
       ...(fields.dueDate !== undefined ? { dueDate: fields.dueDate } : {}),
+      ...(fields.projectId !== undefined
+        ? tagFromOpenProjects(fields.projectId, openProjects, {
+            id: task.projectId,
+            acronym: task.projectAcronym,
+          })
+        : {}),
     };
     if (Object.keys(patch).length === 0) return;
 
@@ -160,6 +171,7 @@ export function StatusKanban({
         locale={locale}
         href={taskDetailHref(locale, task.id, { scope, view, project })}
         labels={labels}
+        openProjects={openProjects}
         isDragging={draggingTaskId === task.id}
         isQueueHead={isQueueHead}
         showCompletedMark={status === "done"}

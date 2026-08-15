@@ -279,7 +279,7 @@ Shared compact card on boards; list uses a table row. Clone rule: [P1-TASK-14](.
 
 ```
 ┌────────────────────────────────┐
-│ ⠿  SHOP  Task title        → │
+│ ⠿  SHOP · Task title       → │
 │    Description… (if due set) │
 │    Due / description     ⋯   │  ← description in due slot when no date
 │                         ●    │
@@ -289,7 +289,8 @@ Shared compact card on boards; list uses a table row. Clone rule: [P1-TASK-14](.
 | Element | Behavior |
 |---------|----------|
 | **⠿** drag | Cursor grab; optional soft tint when difficulty is set — colours in [BRAND.md §2.2.1](./BRAND.md#221-task-difficulty-board--handle) (hard = overdue `--severity`) |
-| Title | Truncate 2 lines; click → inline edit when editable |
+| Title | Acronym + ` · ` inline on the first line; wrapped title continues underneath. Click title → inline edit. |
+| Acronym | Click → sideways segment like **⋯** (fade/slide; title fades to ~30%). Fills to the title end when items overflow; arrow overlays stay put (hide at ends). |
 | Description | One muted truncated line: under title when due set (`pr-2`); else in footer due slot |
 | Due | Overdue in `--severity`; empty + no description → **Add due date** (editable) |
 | Status controls | Queue head **→** (start); In progress **✓** → Done; Done green ✓ mark |

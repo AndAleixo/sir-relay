@@ -549,7 +549,7 @@ Task.project_id → nullable FK
 | P3-PRJ-04 | Archive | Trash in Settings archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. |
 | P3-PRJ-05 | Tag task | Create/edit: Select of **open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` if still open, else `null`. |
 | P3-PRJ-06 | List filter | List view: Select of **open** projects with the other list filters (`All` or one project). Board / kanban: no project filter (all tasks in scope). No fifth nav tab. Zero projects: quiet Settings link on the list filters (operator only). |
-| P3-PRJ-07 | Display | Card, list, task detail, Telegram notification title: acronym then title (e.g. `SIR · Fix login`). Untagged: title only. |
+| P3-PRJ-07 | Display | Card, list, task detail, Telegram: `SIR · Fix login`, same type as the title. Card: click acronym → retag (open projects, ⋯-style overlay); click title → edit title only. Untagged: title only. |
 | P3-PRJ-08 | Relay | Queue / notify / re-notify use the same display string. Project does not change queue order. |
 | P3-PRJ-09 | Permissions | Operator: create / archive. Both roles: set project on tasks they can edit. |
 | P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (2–4), `archived_at` (null = open), `created_at`. `tasks.project_id` nullable FK `on delete set null`. |

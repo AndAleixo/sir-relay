@@ -6,6 +6,7 @@ import type { DragEvent } from "react";
 import type { Task, TaskStatus } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
 import { cn } from "@/lib/cn";
+import { tagFromOpenProjects } from "@/lib/project";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
   buildTodoQueueOrder,
@@ -26,7 +27,9 @@ import {
 } from "@/components/ui/member-status-icons";
 import {
   BoardTaskCard,
+  type TaskCardFieldPatch,
   type TaskCardLabels,
+  type TaskOpenProject,
 } from "@/components/tasks/task-card";
 import { TodoReorderList, resolveTodoDropIndex } from "@/components/tasks/todo-reorder-list";
 import { BoardQuickAddTask } from "@/components/tasks/board-quick-add-task";
@@ -59,6 +62,7 @@ interface TeamBoardProps {
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
+  openProjects?: TaskOpenProject[];
   /** `all` = edit every column; `self-only` = edit own column, view others. */
   editMode?: "all" | "self-only";
   /** Operator-only: name links to /teammates/[id]. */
@@ -122,12 +126,14 @@ function BoardTaskItem({
   onMarkDone,
   onClone,
   onDelete,
+  openProjects = [],
 }: {
   task: Task;
   locale: string;
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
+  openProjects?: TaskOpenProject[];
   labels: TeamBoardProps["labels"];
   readOnly?: boolean;
   draggingTaskId: string | null;
@@ -137,7 +143,7 @@ function BoardTaskItem({
   onDragEnd: () => void;
   onUpdateFields: (
     taskId: string,
-    fields: { title?: string; dueDate?: string | null },
+    fields: TaskCardFieldPatch,
   ) => Promise<void>;
   onStartDoing?: () => void;
   onMarkDone?: () => void;
@@ -150,6 +156,7 @@ function BoardTaskItem({
       locale={locale}
       href={taskDetailHref(locale, task.id, { scope, view, project })}
       labels={labels}
+      openProjects={openProjects}
       readOnly={readOnly}
       isDragging={!readOnly && draggingTaskId === task.id}
       isQueueHead={isQueueHead}
@@ -257,6 +264,7 @@ function TaskColumn({
   onQuickCreate,
   onClone,
   onDelete,
+  openProjects = [],
 }: {
   assigneeId: string;
   assigneeName: string;
@@ -266,6 +274,7 @@ function TaskColumn({
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
+  openProjects?: TaskOpenProject[];
   labels: TeamBoardProps["labels"];
   editable: boolean;
   draggingTaskId: string | null;
@@ -286,7 +295,7 @@ function TaskColumn({
   ) => void;
   onUpdateFields: (
     taskId: string,
-    fields: { title?: string; dueDate?: string | null },
+    fields: TaskCardFieldPatch,
   ) => Promise<void>;
   onQuickCreate: (input: {
     title: string;
@@ -341,7 +350,7 @@ function TaskColumn({
                   task={task}
                   locale={locale}
                   scope={scope}
-                  view={view} project={project}
+                  view={view} project={project} openProjects={openProjects}
                   labels={labels}
                   draggingTaskId={draggingTaskId}
                   isQueueHead={index === 0}
@@ -366,7 +375,7 @@ function TaskColumn({
               task={task}
               locale={locale}
               scope={scope}
-              view={view} project={project}
+              view={view} project={project} openProjects={openProjects}
               labels={labels}
               readOnly
               draggingTaskId={null}
@@ -396,7 +405,7 @@ function TaskColumn({
             task={task}
             locale={locale}
             scope={scope}
-            view={view} project={project}
+            view={view} project={project} openProjects={openProjects}
             labels={labels}
             readOnly={!editable}
             draggingTaskId={draggingTaskId}
@@ -462,7 +471,7 @@ function TaskColumn({
                 task={task}
                 locale={locale}
                 scope={scope}
-                view={view} project={project}
+                view={view} project={project} openProjects={openProjects}
                 labels={labels}
                 readOnly={!editable}
                 draggingTaskId={draggingTaskId}
@@ -546,6 +555,7 @@ export function TeamBoard({
   scope,
   view,
   project = null,
+  openProjects = [],
   editMode = "all",
   linkMemberProfiles = true,
   labels,
@@ -666,7 +676,7 @@ export function TeamBoard({
 
   async function handleUpdateFields(
     taskId: string,
-    fields: { title?: string; dueDate?: string | null },
+    fields: TaskCardFieldPatch,
   ) {
     const task = tasks.find((t) => t.id === taskId);
     if (!task || !columnEditable(task.assigneeId)) return;
@@ -674,6 +684,12 @@ export function TeamBoard({
     const patch: Partial<Task> = {
       ...(fields.title !== undefined ? { title: fields.title } : {}),
       ...(fields.dueDate !== undefined ? { dueDate: fields.dueDate } : {}),
+      ...(fields.projectId !== undefined
+        ? tagFromOpenProjects(fields.projectId, openProjects, {
+            id: task.projectId,
+            acronym: task.projectAcronym,
+          })
+        : {}),
     };
 
     if (Object.keys(patch).length === 0) return;
@@ -737,7 +753,7 @@ export function TeamBoard({
           tasks={selfTasks}
           locale={locale}
           scope={scope}
-          view={view} project={project}
+          view={view} project={project} openProjects={openProjects}
           labels={labels}
           editable={columnEditable(self.id)}
           draggingTaskId={draggingTaskId}
@@ -772,7 +788,7 @@ export function TeamBoard({
               tasks={columnTasks}
               locale={locale}
               scope={scope}
-              view={view} project={project}
+              view={view} project={project} openProjects={openProjects}
               labels={labels}
               editable={columnEditable(member.id)}
               draggingTaskId={draggingTaskId}

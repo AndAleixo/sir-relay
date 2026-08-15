@@ -7,7 +7,12 @@ export type MutationType = "update_status" | "reassign" | "update_fields";
 export type MutationPayload =
   | { status: TaskStatus }
   | { assigneeId: string; assigneeName: string }
-  | { title?: string; dueDate?: string | null; description?: string };
+  | {
+      title?: string;
+      dueDate?: string | null;
+      description?: string;
+      projectId?: string | null;
+    };
 
 export interface PendingMutation {
   clientMutationId: string;

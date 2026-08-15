@@ -350,7 +350,12 @@ export async function placeInTodoQueueAction(
 
 export async function updateTaskFieldsAction(
   taskId: string,
-  fields: { title?: string; dueDate?: string | null; description?: string },
+  fields: {
+    title?: string;
+    dueDate?: string | null;
+    description?: string;
+    projectId?: string | null;
+  },
   options?: SyncActionOptions,
 ): Promise<TaskActionResult> {
   if (options?.clientMutationId) {

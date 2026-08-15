@@ -9,6 +9,7 @@ import {
   parseProjectName,
   PROJECT_NAME_MAX,
   resolveStoredProjectId,
+  tagFromOpenProjects,
 } from "../src/lib/project";
 import { parseTasksProject, tasksListHref } from "../src/lib/tasks-url";
 
@@ -30,6 +31,19 @@ assert.equal((parseProjectName("x".repeat(50)) ?? "").length, PROJECT_NAME_MAX);
 assert.equal(formatTaskHeading("Fix login", "SIR"), "SIR · Fix login");
 assert.equal(formatTaskHeading("Fix login", null), "Fix login");
 assert.equal(formatTaskHeading("Fix login", "  "), "Fix login");
+
+assert.deepEqual(tagFromOpenProjects(null, [{ id: "p1", acronym: "SHOP" }]), {
+  projectId: null,
+  projectAcronym: null,
+});
+assert.deepEqual(
+  tagFromOpenProjects("p1", [{ id: "p1", acronym: "SHOP" }]),
+  { projectId: "p1", projectAcronym: "SHOP" },
+);
+assert.deepEqual(
+  tagFromOpenProjects("old", [], { id: "old", acronym: "ARC" }),
+  { projectId: "old", projectAcronym: "ARC" },
+);
 
 assert.equal(resolveStoredProjectId("", "p1", ["p2"]), null);
 assert.equal(resolveStoredProjectId("p1", "p1", ["p2"]), "p1");

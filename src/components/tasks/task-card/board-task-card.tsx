@@ -4,6 +4,7 @@ import { useEffect, useState, type DragEvent } from "react";
 import type { Task } from "@/domain/types";
 import { cn } from "@/lib/cn";
 import { formatDueDate, isOverdue } from "@/lib/dates";
+import { formatTaskHeading } from "@/lib/project";
 import { setTaskDragData } from "@/lib/task-drag";
 import { Input } from "@/components/ui/input";
 import { taskCardStyles } from "./task-card.styles";
@@ -11,12 +12,23 @@ import type { TaskCardLabels } from "./task-card-labels";
 import { StartDoingIcon } from "./start-doing-icon";
 import { MarkDoneIcon } from "./mark-done-icon";
 import { TaskCardMenu } from "./task-card-menu";
+import {
+  TaskProjectPicker,
+  type TaskOpenProject,
+} from "./task-project-picker";
+
+export type TaskCardFieldPatch = {
+  title?: string;
+  dueDate?: string | null;
+  projectId?: string | null;
+};
 
 interface BoardTaskCardProps {
   task: Task;
   locale: string;
   href: string;
   labels: TaskCardLabels;
+  openProjects?: TaskOpenProject[];
   /** View-only: no drag, inline edit, or status controls. Menu: Open only. */
   readOnly?: boolean;
   isDragging?: boolean;
@@ -24,9 +36,7 @@ interface BoardTaskCardProps {
   showCompletedMark?: boolean;
   onDragHandleStart?: (event: DragEvent<HTMLButtonElement>) => void;
   onDragHandleEnd?: () => void;
-  onUpdateFields?: (
-    fields: { title?: string; dueDate?: string | null },
-  ) => Promise<void>;
+  onUpdateFields?: (fields: TaskCardFieldPatch) => Promise<void>;
   onStartDoing?: () => void;
   onMarkDone?: () => void;
   onClone?: () => void | Promise<void>;
@@ -38,6 +48,7 @@ export function BoardTaskCard({
   locale,
   href,
   labels,
+  openProjects = [],
   readOnly = false,
   isDragging,
   isQueueHead,
@@ -90,6 +101,14 @@ export function BoardTaskCard({
     await onUpdateFields({ title: trimmed });
     setSaving(false);
     setEditingTitle(false);
+  }
+
+  async function saveProject(projectId: string | null) {
+    if (!onUpdateFields) return;
+    if (projectId === (task.projectId ?? null)) return;
+    setSaving(true);
+    await onUpdateFields({ projectId });
+    setSaving(false);
   }
 
   async function saveDueDate() {
@@ -167,6 +186,18 @@ export function BoardTaskCard({
       </span>
     ) : null;
 
+  const pickerProps = {
+    currentId: task.projectId,
+    currentAcronym: task.projectAcronym ?? "",
+    projects: openProjects,
+    noneLabel: labels.projectNone,
+    ariaLabel: labels.project,
+    scrollLeftLabel: labels.projectScrollLeft,
+    scrollRightLabel: labels.projectScrollRight,
+    disabled: saving,
+    onPick: (projectId: string | null) => void saveProject(projectId),
+  };
+
   return (
     <div
       data-no-drag-scroll
@@ -202,47 +233,55 @@ export function BoardTaskCard({
         <div className={taskCardStyles.titleRow}>
           {readOnly ? (
             <p className={taskCardStyles.titleReadonly}>
-              {task.projectAcronym ? (
-                <>
-                  <span className={taskCardStyles.acronym}>{task.projectAcronym}</span>
-                  <span className={taskCardStyles.acronymSep}>·</span>
-                </>
-              ) : null}
-              {task.title}
+              {formatTaskHeading(task.title, task.projectAcronym)}
             </p>
           ) : editingTitle ? (
-            <Input
-              autoFocus
-              className={taskCardStyles.inlineInput}
-              value={titleDraft}
-              disabled={saving}
-              onChange={(event) => setTitleDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
+            <>
+              {task.projectAcronym ? <TaskProjectPicker {...pickerProps} /> : null}
+              <Input
+                autoFocus
+                className={cn(taskCardStyles.inlineInput, "min-w-0 flex-1")}
+                value={titleDraft}
+                disabled={saving}
+                onChange={(event) => setTitleDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    void saveTitle();
+                  }
+                  if (event.key === "Escape") {
+                    setTitleDraft(task.title);
+                    setEditingTitle(false);
+                  }
+                }}
+                onBlur={() => {
                   void saveTitle();
-                }
-                if (event.key === "Escape") {
-                  setTitleDraft(task.title);
-                  setEditingTitle(false);
-                }
-              }}
-              onBlur={() => {
-                void saveTitle();
-              }}
-            />
+                }}
+              />
+            </>
+          ) : task.projectAcronym ? (
+            <TaskProjectPicker {...pickerProps}>
+              <span
+                role="button"
+                tabIndex={0}
+                className={taskCardStyles.titleTextButton}
+                onClick={() => setEditingTitle(true)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setEditingTitle(true);
+                  }
+                }}
+              >
+                {task.title}
+              </span>
+            </TaskProjectPicker>
           ) : (
             <button
               type="button"
               className={taskCardStyles.titleButton}
               onClick={() => setEditingTitle(true)}
             >
-              {task.projectAcronym ? (
-                <>
-                  <span className={taskCardStyles.acronym}>{task.projectAcronym}</span>
-                  <span className={taskCardStyles.acronymSep}>·</span>
-                </>
-              ) : null}
               {task.title}
             </button>
           )}

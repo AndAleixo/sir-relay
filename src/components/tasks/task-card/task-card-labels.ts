@@ -13,4 +13,8 @@ export interface TaskCardLabels {
   menuDelete: string;
   deleteConfirm: string;
   telegramFailed: string;
+  project: string;
+  projectNone: string;
+  projectScrollLeft: string;
+  projectScrollRight: string;
 }

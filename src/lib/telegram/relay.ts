@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/audit";
 import { telegramConfigured } from "@/lib/telegram/config";
 import {
@@ -6,7 +7,7 @@ import {
 } from "@/lib/telegram/copy";
 import { sendTelegramMessage } from "@/lib/telegram/send";
 import type { Locale as DbLocale } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { formatTaskHeading } from "@/lib/project";
 import { toLocale } from "@/services/api/mappers";
 
 const QUEUE_ORDER_BY = [
@@ -54,6 +55,7 @@ async function sendAndPersistTaskNotify(taskId: string): Promise<boolean> {
     include: {
       assignee: { select: { telegramChatId: true, locale: true } },
       group: { select: { name: true } },
+      project: { select: { acronym: true } },
     },
   });
   if (!task?.assignee.telegramChatId) return false;
@@ -61,7 +63,7 @@ async function sendAndPersistTaskNotify(taskId: string): Promise<boolean> {
   const chatId = task.assignee.telegramChatId;
   const locale = task.assignee.locale as DbLocale;
   const text = taskNotify(locale, {
-    title: task.title,
+    title: formatTaskHeading(task.title, task.project?.acronym),
     description: task.description,
     dueDate: dueDateLabel(task.dueDate),
     difficulty: task.difficulty,

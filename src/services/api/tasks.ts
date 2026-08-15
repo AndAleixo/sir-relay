@@ -12,6 +12,10 @@ import {
   syncAssigneeTelegramHead,
 } from "@/lib/telegram/relay";
 import { toTask } from "@/services/api/mappers";
+import { resolveOpenProjectId } from "@/services/api/projects";
+import { resolveStoredProjectId } from "@/lib/project";
+
+const PROJECT_INCLUDE = { project: { select: { acronym: true } } } as const;
 
 function requireGroupId(session: Session): string {
   const groupId = session.activeGroupId;
@@ -52,6 +56,7 @@ async function loadTask(id: string, session: Session): Promise<Task | null> {
   // Any group member may read any task in the group (Team scope). Mutations use assertCanMutateTask.
   const row = await prisma.task.findFirst({
     where: { id, groupId },
+    include: PROJECT_INCLUDE,
   });
   if (!row) return null;
   const name = await assigneeName(groupId, row.assigneeId);
@@ -63,6 +68,7 @@ export class ApiTaskService implements TaskService {
     const groupId = requireGroupId(session);
     const rows = await prisma.task.findMany({
       where: { groupId },
+      include: PROJECT_INCLUDE,
       // List/export order — boards re-sort To do via sortByQueueOrder.
       orderBy: { updatedAt: "desc" },
     });
@@ -93,6 +99,7 @@ export class ApiTaskService implements TaskService {
 
     await assertAssigneeInGroup(groupId, input.assigneeId);
     const name = await assigneeName(groupId, input.assigneeId);
+    const projectId = await resolveOpenProjectId(groupId, input.projectId);
     const id = `task-${Date.now()}`;
     const sortOrder = await nextSortOrder(groupId, input.assigneeId);
 
@@ -108,11 +115,15 @@ export class ApiTaskService implements TaskService {
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
         difficulty: input.difficulty ?? null,
         sortOrder,
+        projectId,
       },
     });
 
     await notifyTaskIfEligible(id);
-    const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
+    const refreshed = await prisma.task.findUniqueOrThrow({
+      where: { id },
+      include: PROJECT_INCLUDE,
+    });
     const task = toTask(refreshed, name);
     void writeAuditFromSession(ctx.session, "task_create", {
       taskId: id,
@@ -142,6 +153,7 @@ export class ApiTaskService implements TaskService {
         status: status as "todo" | "doing" | "done",
         ...(sortOrder !== undefined ? { sortOrder } : {}),
       },
+      include: PROJECT_INCLUDE,
     });
 
     if (existing.status !== "done" && status === "done") {
@@ -196,7 +208,10 @@ export class ApiTaskService implements TaskService {
       }
     }
 
-    const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
+    const refreshed = await prisma.task.findUniqueOrThrow({
+      where: { id },
+      include: PROJECT_INCLUDE,
+    });
     void writeAuditFromSession(ctx.session, "task_reassign", {
       taskId: id,
       title: existing.title,
@@ -213,12 +228,30 @@ export class ApiTaskService implements TaskService {
       dueDate?: string | null;
       description?: string;
       difficulty?: TaskDifficulty | null;
+      projectId?: string | null;
     },
     ctx: { session: Session },
   ): Promise<Task> {
     const existing = await loadTask(id, ctx.session);
     if (!existing) throw new Error("Not found");
     assertCanMutateTask(ctx.session, existing);
+
+    const projectId =
+      fields.projectId === undefined
+        ? undefined
+        : resolveStoredProjectId(
+            fields.projectId,
+            existing.projectId,
+            (
+              await prisma.project.findMany({
+                where: {
+                  groupId: requireGroupId(ctx.session),
+                  archivedAt: null,
+                },
+                select: { id: true },
+              })
+            ).map((row) => row.id),
+          );
 
     const row = await prisma.task.update({
       where: { id },
@@ -233,7 +266,9 @@ export class ApiTaskService implements TaskService {
               : null,
         difficulty:
           fields.difficulty === undefined ? undefined : fields.difficulty,
+        ...(projectId !== undefined ? { projectId } : {}),
       },
+      include: PROJECT_INCLUDE,
     });
     void writeAuditFromSession(ctx.session, "task_update", {
       taskId: id,
@@ -273,7 +308,10 @@ export class ApiTaskService implements TaskService {
     }
 
     await renotifyTaskTelegram(id);
-    const refreshed = await prisma.task.findUniqueOrThrow({ where: { id } });
+    const refreshed = await prisma.task.findUniqueOrThrow({
+      where: { id },
+      include: PROJECT_INCLUDE,
+    });
     void writeAuditFromSession(ctx.session, "task_renotify", {
       taskId: id,
       title: existing.title,
@@ -307,6 +345,19 @@ export class ApiTaskService implements TaskService {
 
     const nextIds = insertIdAfter(orderedIds, sourceId, id);
 
+    const projectId =
+      existing.projectId &&
+      (await prisma.project.findFirst({
+        where: {
+          id: existing.projectId,
+          groupId,
+          archivedAt: null,
+        },
+        select: { id: true },
+      }))
+        ? existing.projectId
+        : null;
+
     await prisma.task.create({
       data: {
         id,
@@ -319,6 +370,7 @@ export class ApiTaskService implements TaskService {
         dueDate: existing.dueDate ? new Date(existing.dueDate) : null,
         difficulty: existing.difficulty,
         sortOrder: nextIds.indexOf(id),
+        projectId,
       },
     });
 

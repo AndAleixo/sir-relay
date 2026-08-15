@@ -22,6 +22,8 @@ interface TasksPageClientProps {
   role: "operator" | "teammate";
   initialScope: TasksScope;
   initialView: TasksView;
+  initialProject: string | null;
+  openProjects: { id: string; acronym: string }[];
   /** Signed-in user for Team board self column + My work Kanban. */
   self: {
     id: string;
@@ -61,6 +63,9 @@ interface TasksPageClientProps {
     sortUpdated: string;
     statusColumn: string;
     status: { todo: string; doing: string; done: string };
+    project: string;
+    projectAria: string;
+    addProject: string;
   };
 }
 
@@ -69,6 +74,8 @@ export function TasksPageClient({
   role,
   initialScope,
   initialView,
+  initialProject,
+  openProjects,
   self,
   tasks: serverTasks,
   members,
@@ -78,6 +85,7 @@ export function TasksPageClient({
   const { tasks, syncFromServer } = useSync();
   const [view, setViewState] = useState<TasksView>(initialView);
   const [scope, setScopeState] = useState<TasksScope>(initialScope);
+  const [project, setProjectState] = useState<string | null>(initialProject);
   const isOperator = role === "operator";
 
   useEffect(() => {
@@ -89,19 +97,42 @@ export function TasksPageClient({
   }, [initialView]);
 
   useEffect(() => {
+    setProjectState(initialProject);
+  }, [initialProject]);
+
+  useEffect(() => {
     syncFromServer(serverTasks);
   }, [serverTasks, syncFromServer]);
 
+  function hrefOpts(next?: {
+    scope?: TasksScope;
+    view?: TasksView;
+    project?: string | null;
+  }) {
+    return {
+      scope: next?.scope ?? scope,
+      view: next?.view ?? view,
+      project: next?.project !== undefined ? next.project : project,
+    };
+  }
+
   function setScope(next: TasksScope) {
     setScopeState(next);
-    router.replace(tasksListHref(locale, { scope: next, view }), {
+    router.replace(tasksListHref(locale, hrefOpts({ scope: next })), {
       scroll: false,
     });
   }
 
   function setView(next: TasksView) {
     setViewState(next);
-    router.replace(tasksListHref(locale, { scope, view: next }), {
+    router.replace(tasksListHref(locale, hrefOpts({ view: next })), {
+      scroll: false,
+    });
+  }
+
+  function setProject(next: string | null) {
+    setProjectState(next);
+    router.replace(tasksListHref(locale, hrefOpts({ project: next })), {
       scroll: false,
     });
   }
@@ -112,6 +143,11 @@ export function TasksPageClient({
     }
     return tasks;
   }, [tasks, scope, self.id]);
+
+  const listTasks = useMemo(() => {
+    if (!project) return scopedTasks;
+    return scopedTasks.filter((task) => task.projectId === project);
+  }, [scopedTasks, project]);
 
   const assigneeOptions = useMemo(
     () => [
@@ -186,6 +222,8 @@ export function TasksPageClient({
     sortUpdated: labels.sortUpdated,
     statusColumn: labels.statusColumn,
     status: labels.status,
+    project: labels.project,
+    addProject: labels.addProject,
   };
 
   const emptyMyWork = scope === "mine" && scopedTasks.length === 0;
@@ -209,7 +247,13 @@ export function TasksPageClient({
             ariaLabel={labels.viewAria}
           />
         </div>
-        <Link href={taskNewHref(locale, { scope, view })}>
+        <Link
+          href={taskNewHref(locale, {
+            scope,
+            view,
+            project: view === "list" ? project : null,
+          })}
+        >
           <Button>{labels.newTask}</Button>
         </Link>
       </div>
@@ -248,10 +292,14 @@ export function TasksPageClient({
         )
       ) : (
         <TaskListWithFilters
-          tasks={scopedTasks}
+          tasks={listTasks}
           locale={locale}
           scope={scope}
           view={view}
+          project={project}
+          projects={openProjects}
+          onProjectChange={setProject}
+          addProjectHref={isOperator ? `/${locale}/settings` : undefined}
           assigneeOptions={scope === "team" ? assigneeOptions : []}
           labels={listLabels}
         />

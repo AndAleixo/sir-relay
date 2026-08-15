@@ -24,6 +24,9 @@ export const taskCardStyles = {
   dueReadonly: "text-left text-[10px] text-[var(--text-muted)]",
   boardBody: "relative min-w-0 flex-1 overflow-visible",
   titleRow: "mb-0.5 flex min-w-0 items-start gap-1",
+  /** Inline prefix — same line as the title; middle-dot matches list/Telegram. */
+  acronym: "text-[10px] font-semibold tracking-wide text-[var(--text-muted)]",
+  acronymSep: "mx-1 font-normal text-[var(--text-muted)]",
   titleButton:
     "line-clamp-2 min-w-0 flex-1 cursor-pointer rounded-[4px] text-left text-xs font-medium leading-snug text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
   /** Under title when due is set — slight inset so it doesn’t run under status icons. */

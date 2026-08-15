@@ -229,7 +229,11 @@
     "difficultyNone": "Ninguna",
     "difficultyEasy": "Fácil",
     "difficultyMedium": "Media",
-    "difficultyHard": "Difícil"
+    "difficultyHard": "Difícil",
+    "project": "Proyecto",
+    "projectNone": "Ninguno",
+    "projectAria": "Filtrar por proyecto",
+    "addProject": "Añadir un proyecto en Ajustes"
   },
   "settings": {
     "title": "Ajustes",
@@ -271,7 +275,21 @@
     "alertTaskDue": "Tarea de compañero vencida o por vencer",
     "alertTaskDueHint": "Una vez al día por tarea cuando la fecha es hoy o ya pasó.",
     "fantasyNameSaved": "Nombre en este grupo actualizado.",
-    "fantasyNameFailed": "No se pudo actualizar el nombre en este grupo."
+    "fantasyNameFailed": "No se pudo actualizar el nombre en este grupo.",
+    "projects": "Proyectos",
+    "projectsHint": "Etiquetas cortas para las tareas de este grupo. El acrónimo aparece en el tablero y en Telegram.",
+    "projectsEmpty": "Aún no hay proyectos abiertos.",
+    "projectName": "Nombre",
+    "projectAcronym": "Acrónimo",
+    "projectAcronymHint": "2–4 letras, único entre los proyectos abiertos.",
+    "addProject": "Añadir",
+    "archiveProject": "Archivar",
+    "projectSaved": "Proyecto añadido.",
+    "projectArchived": "Proyecto archivado.",
+    "projectErrorAcronym": "El acrónimo debe tener 2–4 letras (A–Z).",
+    "projectErrorName": "Introduce el nombre del proyecto.",
+    "projectErrorTaken": "Ese acrónimo ya está en uso.",
+    "projectErrorFailed": "No se pudieron actualizar los proyectos."
   },
   "profile": {
     "accountScopeHint": "Estos ajustes aplican a tu cuenta en todos los grupos.",

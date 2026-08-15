@@ -3,7 +3,7 @@
 **Purpose:** Layout, interaction, and visual behavior for the public landing, signed-in web app, and Telegram copy.  
 **Doc contract:** **How it looks and behaves on screen.** Product rules, acceptance IDs, and permissions → [REQUIREMENTS.md](./REQUIREMENTS.md). Visual tokens → [BRAND.md](./BRAND.md). Code map → [ARCHITECTURE.md](./ARCHITECTURE.md). Link to requirements for business rules; do not restate them here.
 
-**Last updated:** 2026-07-26
+**Last updated:** 2026-08-15
 
 ### Status naming
 
@@ -180,9 +180,9 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 
 ## 3. Task boards — scope + layout
 
-Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · New task. Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue).
+Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · New task. Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on **Settings**, not a nav tab. List view: project filter with the other list filters (not on the board).
 
-**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`.
+**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`. List-only project filter (P3-16): `?project=<id>` or omit = All — [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16). The board ignores `project` and always shows every task in the current scope.
 
 | Scope | Default | Board | List |
 |-------|---------|-------|------|
@@ -279,7 +279,7 @@ Shared compact card on boards; list uses a table row. Clone rule: [P1-TASK-14](.
 
 ```
 ┌────────────────────────────────┐
-│ ⠿  Task title              → │
+│ ⠿  SHOP  Task title        → │
 │    Description… (if due set) │
 │    Due / description     ⋯   │  ← description in due slot when no date
 │                         ●    │
@@ -383,6 +383,7 @@ Fantasy name · email (while invited) · promote / demote / transfer ownership /
 | Section | Content |
 |---------|---------|
 | General | Group name (operator); role (+ owner line); your fantasy name |
+| Projects | Operator: create (name + acronym), archive; list scrolls after ~4. No extra nav tab. [P3-16](./REQUIREMENTS.md#72-group-projects-p3-16) |
 | Notifications | Operator: alert toggles + Events link; teammate empty state; banner → Profile if unlinked |
 | Leave / delete | Leave · delete (owner) — [P1-GRP-09/10](./REQUIREMENTS.md#511-groups) |
 
@@ -400,6 +401,7 @@ Operator only. Teammate done / due alerts; delivery badge; **Show more** after t
 | No tasks (My work) | “No tasks assigned to you yet.” | — (toolbar New task) |
 | No members (Team board) | “Add members to start coordinating work.” | — |
 | No events / alerts | “No alerts yet…” | — |
+| No group projects | Quiet list-filter link to Settings (operator) | Settings → Projects |
 | Empty todo column | Light placeholder | — |
 | Login failed | “Invalid email or password.” | — |
 | Session expired | Redirect + toast | Log in again |
@@ -414,7 +416,7 @@ Message shapes only. Keywords / delivery rules: [REQUIREMENTS §5.6](./REQUIREME
 ### Task notification
 
 ```
-Task title
+SHOP · Task title
 Group: Demo Shop
 
 Description (truncated…)
@@ -497,6 +499,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | Sidebar collapse | 3 (P3-11) | In UI |
 | Kanban touch / a11y polish | 3 (P3-03) | Core in Phase 1 |
 | Native apps | 3 (P3-13) | — |
+| Group projects (Settings + acronym on tasks) | 3 (P3-16) | Implemented |
 
 ---
 
@@ -504,6 +507,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Date | Change |
 |------|--------|
+| 2026-08-15 | P3-16 group projects: Settings card; board filter; no fifth tab |
 | 2026-08-15 | Success flash → floating `Toast` card (3s, Family A). `Banner` kept for page-state / errors |
 | 2026-07-26 | Doc contract vs REQUIREMENTS; trim product-rule restatements; card/menu + Family A/B/C in one place |
 | 2026-07-25 | Board ⋯ segment (Open · Clone · Delete); description preview; Done Show more; Family A Select/popovers; scope URL |

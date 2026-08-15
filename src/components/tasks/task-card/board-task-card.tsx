@@ -201,7 +201,15 @@ export function BoardTaskCard({
       <div className={taskCardStyles.boardBody}>
         <div className={taskCardStyles.titleRow}>
           {readOnly ? (
-            <p className={taskCardStyles.titleReadonly}>{task.title}</p>
+            <p className={taskCardStyles.titleReadonly}>
+              {task.projectAcronym ? (
+                <>
+                  <span className={taskCardStyles.acronym}>{task.projectAcronym}</span>
+                  <span className={taskCardStyles.acronymSep}>·</span>
+                </>
+              ) : null}
+              {task.title}
+            </p>
           ) : editingTitle ? (
             <Input
               autoFocus
@@ -229,6 +237,12 @@ export function BoardTaskCard({
               className={taskCardStyles.titleButton}
               onClick={() => setEditingTitle(true)}
             >
+              {task.projectAcronym ? (
+                <>
+                  <span className={taskCardStyles.acronym}>{task.projectAcronym}</span>
+                  <span className={taskCardStyles.acronymSep}>·</span>
+                </>
+              ) : null}
               {task.title}
             </button>
           )}

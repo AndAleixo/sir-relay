@@ -85,7 +85,10 @@ export function toTeammate(
   };
 }
 
-export function toTask(row: DbTask, assigneeName: string): Task {
+export function toTask(
+  row: DbTask & { project?: { acronym: string } | null },
+  assigneeName: string,
+): Task {
   return {
     id: row.id,
     title: row.title,
@@ -97,6 +100,8 @@ export function toTask(row: DbTask, assigneeName: string): Task {
     dueDate: row.dueDate ? row.dueDate.toISOString().slice(0, 10) : null,
     telegramNotifyFailed: row.telegramNotifyFailed,
     sortOrder: row.sortOrder,
+    projectId: row.projectId,
+    projectAcronym: row.project?.acronym ?? null,
     updatedAt: row.updatedAt.toISOString(),
     createdAt: row.createdAt.toISOString(),
   };

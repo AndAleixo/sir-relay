@@ -58,6 +58,7 @@ interface TeamBoardProps {
   locale: string;
   scope: TasksScope;
   view: TasksView;
+  project?: string | null;
   /** `all` = edit every column; `self-only` = edit own column, view others. */
   editMode?: "all" | "self-only";
   /** Operator-only: name links to /teammates/[id]. */
@@ -108,6 +109,7 @@ function BoardTaskItem({
   locale,
   scope,
   view,
+  project = null,
   labels,
   readOnly,
   draggingTaskId,
@@ -125,6 +127,7 @@ function BoardTaskItem({
   locale: string;
   scope: TasksScope;
   view: TasksView;
+  project?: string | null;
   labels: TeamBoardProps["labels"];
   readOnly?: boolean;
   draggingTaskId: string | null;
@@ -145,7 +148,7 @@ function BoardTaskItem({
     <BoardTaskCard
       task={task}
       locale={locale}
-      href={taskDetailHref(locale, task.id, { scope, view })}
+      href={taskDetailHref(locale, task.id, { scope, view, project })}
       labels={labels}
       readOnly={readOnly}
       isDragging={!readOnly && draggingTaskId === task.id}
@@ -239,6 +242,7 @@ function TaskColumn({
   locale,
   scope,
   view,
+  project = null,
   labels,
   editable,
   draggingTaskId,
@@ -261,6 +265,7 @@ function TaskColumn({
   locale: string;
   scope: TasksScope;
   view: TasksView;
+  project?: string | null;
   labels: TeamBoardProps["labels"];
   editable: boolean;
   draggingTaskId: string | null;
@@ -336,7 +341,7 @@ function TaskColumn({
                   task={task}
                   locale={locale}
                   scope={scope}
-                  view={view}
+                  view={view} project={project}
                   labels={labels}
                   draggingTaskId={draggingTaskId}
                   isQueueHead={index === 0}
@@ -361,7 +366,7 @@ function TaskColumn({
               task={task}
               locale={locale}
               scope={scope}
-              view={view}
+              view={view} project={project}
               labels={labels}
               readOnly
               draggingTaskId={null}
@@ -391,7 +396,7 @@ function TaskColumn({
             task={task}
             locale={locale}
             scope={scope}
-            view={view}
+            view={view} project={project}
             labels={labels}
             readOnly={!editable}
             draggingTaskId={draggingTaskId}
@@ -457,7 +462,7 @@ function TaskColumn({
                 task={task}
                 locale={locale}
                 scope={scope}
-                view={view}
+                view={view} project={project}
                 labels={labels}
                 readOnly={!editable}
                 draggingTaskId={draggingTaskId}
@@ -540,6 +545,7 @@ export function TeamBoard({
   locale,
   scope,
   view,
+  project = null,
   editMode = "all",
   linkMemberProfiles = true,
   labels,
@@ -731,7 +737,7 @@ export function TeamBoard({
           tasks={selfTasks}
           locale={locale}
           scope={scope}
-          view={view}
+          view={view} project={project}
           labels={labels}
           editable={columnEditable(self.id)}
           draggingTaskId={draggingTaskId}
@@ -766,7 +772,7 @@ export function TeamBoard({
               tasks={columnTasks}
               locale={locale}
               scope={scope}
-              view={view}
+              view={view} project={project}
               labels={labels}
               editable={columnEditable(member.id)}
               draggingTaskId={draggingTaskId}

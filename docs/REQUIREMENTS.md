@@ -3,7 +3,7 @@
 **Product:** SirRelay · **Brand:** Sir  
 **Status:** Living spec — 3 phases, implement one at a time  
 **Audience:** Developer / AI implementer  
-**Last updated:** 2026-07-26
+**Last updated:** 2026-08-15
 
 **Doc contract:** Source of truth for **what must work** — product rules, acceptance IDs, permissions, schema, API. **Layout / interaction / screen chrome** → [UIUX.md](./UIUX.md). **Visual tokens** → [BRAND.md](./BRAND.md). Do not restate wireframes or component inventories here.
 
@@ -347,8 +347,12 @@ telegram_link_tokens
 tasks
   id, group_id, title, description, assignee_id, created_by_id,
   status (todo|doing|done), difficulty (easy|medium|hard|null), due_date, sort_order,
+  project_id (nullable),
   telegram_message_id, telegram_chat_id, telegram_notified_at, telegram_notify_failed,
   created_at, updated_at
+
+projects
+  id, group_id, name, acronym, archived_at (null = open), created_at
 
 telegram_activity   -- optional audit log for Telegram replies (not shown on web)
   id, task_id, body, author_user_id, created_at
@@ -507,6 +511,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | P3-13 | Native mobile apps (iOS / Android) — same `/api/v1`; web remains primary until shipped |
 | P3-14 | PWA install + optional push notifications |
 | P3-15 | Public organization signup (multi-tenant or self-serve deploy) |
+| P3-16 | Group projects — acronym tag on tasks; manage on Settings (no extra nav tab) |
 
 ### 7.1 Offline web sync (P3-07)
 
@@ -524,6 +529,30 @@ Both roles. Requires Phase 1 API + DB. PWA install → P3-14. Out of scope here:
 | P3-OFF-08 | Idempotent writes | `PATCH /tasks/:id` accepts optional `clientMutationId`; duplicate replay → 200, no double write |
 | P3-OFF-09 | Conflicts | `PATCH /tasks/:id` accepts optional `baseUpdatedAt`; server newer → `409` + task snapshot; user picks keep local or use server |
 | P3-OFF-10 | Relay | P1-TASK-12 runs only after server persist; offline delay acceptable |
+
+### 7.2 Group projects (P3-16)
+
+Optional labels **inside the active group**. The group remains the team (members, board, Telegram queue). A **project** is a named bucket with a short **acronym**; a task may carry at most one. **No new sidebar / mobile tab** — CRUD lives on **Settings**; the board only filters and shows the acronym.
+
+Out of scope: free-form tags, colours, people-per-project, per-project boards, extra nav item.
+
+```
+Group → projects (open | archived)
+Task.project_id → nullable FK
+```
+
+| ID | Requirement | Acceptance criteria |
+|----|-------------|---------------------|
+| P3-PRJ-01 | Scope | Projects belong to `session.activeGroupId`. Switching group switches the list. |
+| P3-PRJ-02 | Manage UI | Operator: Settings card **Projects** — list open (count in header), create (name + acronym), archive. Teammate: no manage UI (read acronyms when tagging tasks). |
+| P3-PRJ-03 | Acronym | 2–4 letters A–Z (store uppercase). Unique among **open** projects in the group. |
+| P3-PRJ-04 | Archive | Archive hides from create/edit Select and board filter. Existing tasks keep `project_id`; acronym still renders. Do not delete (history). |
+| P3-PRJ-05 | Tag task | Create/edit: Select of **open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` if still open, else `null`. |
+| P3-PRJ-06 | List filter | List view: Select of **open** projects with the other list filters (`All` or one project). Board / kanban: no project filter (all tasks in scope). No fifth nav tab. Zero projects: quiet Settings link on the list filters (operator only). |
+| P3-PRJ-07 | Display | Card, list, task detail, Telegram notification title: acronym then title (e.g. `SIR · Fix login`). Untagged: title only. |
+| P3-PRJ-08 | Relay | Queue / notify / re-notify use the same display string. Project does not change queue order. |
+| P3-PRJ-09 | Permissions | Operator: create / archive. Both roles: set project on tasks they can edit. |
+| P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (2–4), `archived_at` (null = open), `created_at`. `tasks.project_id` nullable FK `on delete set null`. |
 
 ---
 
@@ -551,6 +580,8 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Link Telegram | Self-link on **Profile** (relay + alerts if operator) | Self-link on **Profile** (relay) | `/start <code>` |
 | Group activity | Yes (`/events/activity`) | — | — |
 | Export data (CSV) | Yes | — | — |
+| Manage group projects | Yes (Settings) | — | — |
+| Tag task with project | Yes | Own tasks only | — |
 
 ---
 
@@ -669,7 +700,8 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Term | Meaning |
 |------|---------|
 | **User** | One account (email + password). Not inherently operator or teammate. |
-| **Group** | Team workspace — tasks, members, relay settings scoped here. |
+| **Group** | Team workspace — tasks, members, **projects**, relay settings scoped here. |
+| **Project** | Optional bucket **inside a group** (name + acronym). Task may have one; managed on Settings (P3-16). |
 | **Group membership** | Links `user` + `group` + `role` (`operator` \| `teammate`). Source of truth for permissions. |
 | **Active group** | Group selected in session; UI and API operate in this context. |
 | **Operator** | Full-access role **in a group**; UI: Operator / Operador |
@@ -700,6 +732,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-08-15 | P3-16 group projects (Settings CRUD; task acronym; no extra nav) |
 | 2026-07-26 | Export: CSV only (drop JSON product envelope / phantom `GET /export`); P3-12 folded into P2-DATA-02; drop P3-05 teammate due reminders; import out of scope |
 | 2026-07-26 | Doc contract vs UIUX; slim §1 / §5.5 / §5.10; P1-TASK-14 clone; locale codes `en-gb`/`es-es`/`pt-br` |
 | 2026-07-26 | P2-MON-02 `login_failed` audit + platform overview count (7d) |

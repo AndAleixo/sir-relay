@@ -13,6 +13,7 @@ interface TaskListProps {
   locale: string;
   scope: TasksScope;
   view: TasksView;
+  project?: string | null;
   showAssignee: boolean;
   labels: {
     title: string;
@@ -30,6 +31,7 @@ export function TaskList({
   locale,
   scope,
   view,
+  project = null,
   showAssignee,
   labels,
 }: TaskListProps) {
@@ -52,9 +54,19 @@ export function TaskList({
               <tr key={task.id} className={taskListStyles.row}>
                 <td className={taskListStyles.td}>
                   <Link
-                    href={taskDetailHref(locale, task.id, { scope, view })}
+                    href={taskDetailHref(locale, task.id, { scope, view, project })}
                     className={taskListStyles.link}
                   >
+                    {task.projectAcronym ? (
+                      <>
+                        <span className="text-xs font-semibold tracking-wide text-[var(--text-muted)]">
+                          {task.projectAcronym}
+                        </span>
+                        <span className="mx-1.5 font-normal text-[var(--text-muted)]">
+                          ·
+                        </span>
+                      </>
+                    ) : null}
                     {task.title}
                   </Link>
                 </td>

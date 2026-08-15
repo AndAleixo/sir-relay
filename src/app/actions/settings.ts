@@ -50,3 +50,55 @@ export async function renameGroupForm(locale: string, formData: FormData) {
   revalidatePath("/", "layout");
   redirect(`/${locale}/settings?renamed=1`);
 }
+
+export async function createProjectForm(locale: string, formData: FormData) {
+  const session = await requireAppSession(locale);
+  if (session.user.role !== "operator") {
+    redirect(`/${locale}/settings`);
+  }
+
+  const { projects } = getServices();
+  try {
+    await projects.create(
+      {
+        name: String(formData.get("name") ?? ""),
+        acronym: String(formData.get("acronym") ?? ""),
+      },
+      { session },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    const code =
+      message === "Invalid acronym"
+        ? "acronym"
+        : message === "Invalid name"
+          ? "name"
+          : message === "Taken"
+            ? "taken"
+            : "failed";
+    redirect(`/${locale}/settings?projectError=${code}`);
+  }
+
+  revalidatePath("/", "layout");
+  redirect(`/${locale}/settings?projectSaved=1`);
+}
+
+export async function archiveProjectForm(locale: string, formData: FormData) {
+  const session = await requireAppSession(locale);
+  if (session.user.role !== "operator") {
+    redirect(`/${locale}/settings`);
+  }
+
+  const id = String(formData.get("projectId") ?? "").trim();
+  if (!id) redirect(`/${locale}/settings?projectError=failed`);
+
+  const { projects } = getServices();
+  try {
+    await projects.archive(id, { session });
+  } catch {
+    redirect(`/${locale}/settings?projectError=failed`);
+  }
+
+  revalidatePath("/", "layout");
+  redirect(`/${locale}/settings?projectArchived=1`);
+}

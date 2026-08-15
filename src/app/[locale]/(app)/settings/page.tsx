@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/app-shell";
 import { GroupDangerSettings } from "@/components/settings/group-danger-settings";
 import { GroupGeneralSettings } from "@/components/settings/group-general-settings";
 import { GroupNotificationSettings } from "@/components/settings/group-notification-settings";
+import { GroupProjectsSettings } from "@/components/settings/group-projects-settings";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -20,13 +21,14 @@ export default async function SettingsPage({
   searchParams: Promise<{
     renameError?: string;
     displayNameError?: string;
+    projectError?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { renameError, displayNameError } = await searchParams;
+  const { renameError, displayNameError, projectError } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
-  const { alerts, groups, teammates } = getServices();
+  const { alerts, groups, teammates, projects } = getServices();
 
   const groupList = await groups.listForUser(session.user.id);
   const activeGroup =
@@ -41,6 +43,8 @@ export default async function SettingsPage({
     activeGroup && activeGroup.ownerUserId === session.user.id,
   );
   const showLeaveSuccessionHint = isOwner && memberCount > 1;
+  const allProjects =
+    isOperator && activeGroup ? await projects.listOpen({ session }) : [];
 
   return (
     <>
@@ -114,6 +118,24 @@ export default async function SettingsPage({
                   <Banner variant="severity">{t("settings.fantasyNameFailed")}</Banner>
                 ) : null}
               </form>
+            </CardBody>
+          </Card>
+        ) : null}
+
+        {isOperator && activeGroup ? (
+          <Card className="min-w-0">
+            <CardHeader>
+              <h2 className="text-sm font-semibold">{t("settings.projects")}</h2>
+              <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+                {t("settings.projectsHint")}
+              </p>
+            </CardHeader>
+            <CardBody>
+              <GroupProjectsSettings
+                locale={locale}
+                projects={allProjects}
+                error={projectError}
+              />
             </CardBody>
           </Card>
         ) : null}

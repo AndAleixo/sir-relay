@@ -4,6 +4,7 @@ import { getServices } from "@/services";
 import { requireAppSession } from "@/lib/require-session";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
+  parseTasksProject,
   parseTasksScope,
   parseTasksView,
   tasksListHref,
@@ -22,19 +23,25 @@ export default async function NewTaskPage({
   searchParams: Promise<{
     scope?: string;
     view?: string;
+    project?: string;
     error?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { scope: scopeRaw, view: viewRaw, error } = await searchParams;
+  const { scope: scopeRaw, view: viewRaw, project: projectRaw, error } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
   const isOperator = session.user.role === "operator";
-  const { teammates } = getServices();
+  const { teammates, projects } = getServices();
 
+  const openProjects = await projects.listOpen({ session });
   const scope = parseTasksScope(scopeRaw, session.user.role);
   const view = parseTasksView(viewRaw);
-  const listHref = tasksListHref(locale, { scope, view });
+  const project = parseTasksProject(
+    projectRaw,
+    openProjects.map((row) => row.id),
+  );
+  const listHref = tasksListHref(locale, { scope, view, project });
 
   const assigneeOptions = isOperator
     ? await (async () => {
@@ -72,7 +79,9 @@ export default async function NewTaskPage({
       ? t("tasks.errorTitle")
       : error === "assignee"
         ? t("tasks.errorAssignee")
-        : null;
+        : error === "failed"
+          ? t("tasks.errorFailed")
+          : null;
 
   return (
     <>
@@ -95,8 +104,13 @@ export default async function NewTaskPage({
             locale={locale}
             scope={scope}
             view={view}
+            project={project}
             isOperator={isOperator}
             assigneeOptions={assigneeOptions}
+            projectOptions={openProjects.map((row) => ({
+              id: row.id,
+              label: `${row.acronym} · ${row.name}`,
+            }))}
             labels={{
               title: t("tasks.title"),
               titlePlaceholder: t("tasks.titlePlaceholder"),
@@ -112,6 +126,8 @@ export default async function NewTaskPage({
               difficultyEasy: t("tasks.difficultyEasy"),
               difficultyMedium: t("tasks.difficultyMedium"),
               difficultyHard: t("tasks.difficultyHard"),
+              project: t("tasks.project"),
+              projectNone: t("tasks.projectNone"),
               save: t("common.save"),
               cancel: t("common.cancel"),
             }}

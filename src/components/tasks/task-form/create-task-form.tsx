@@ -14,8 +14,10 @@ type CreateTaskFormProps = {
   locale: string;
   scope: TasksScope;
   view: TasksView;
+  project: string | null;
   isOperator: boolean;
   assigneeOptions: TaskFormAssigneeOption[];
+  projectOptions: { id: string; label: string }[];
   labels: TaskFormLabels & { save: string; cancel: string };
 };
 
@@ -23,8 +25,10 @@ export function CreateTaskForm({
   locale,
   scope,
   view,
+  project,
   isOperator,
   assigneeOptions,
+  projectOptions,
   labels,
 }: CreateTaskFormProps) {
   const createAction = createTaskForm.bind(null, locale);
@@ -34,14 +38,17 @@ export function CreateTaskForm({
     <form action={createAction} className="space-y-4">
       <input type="hidden" name="returnScope" value={scope} />
       <input type="hidden" name="returnView" value={view} />
+      <input type="hidden" name="returnProject" value={project ?? ""} />
       <TaskFormFields
         mode="create"
         labels={fieldLabels}
         isOperator={isOperator}
         assigneeOptions={assigneeOptions}
+        projectOptions={projectOptions}
+        defaultValues={project ? { projectId: project } : undefined}
       />
       <TaskFormActions
-        cancelHref={tasksListHref(locale, { scope, view })}
+        cancelHref={tasksListHref(locale, { scope, view, project })}
         saveLabel={save}
         cancelLabel={cancel}
       />

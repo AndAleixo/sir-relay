@@ -229,7 +229,11 @@
     "difficultyNone": "None",
     "difficultyEasy": "Easy",
     "difficultyMedium": "Medium",
-    "difficultyHard": "Hard"
+    "difficultyHard": "Hard",
+    "project": "Project",
+    "projectNone": "None",
+    "projectAria": "Filter by project",
+    "addProject": "Add a project in Settings"
   },
   "settings": {
     "title": "Settings",
@@ -271,7 +275,21 @@
     "alertTaskDue": "Teammate task due or overdue",
     "alertTaskDueHint": "Once per day per task when due date is today or past.",
     "fantasyNameSaved": "Name in this group updated.",
-    "fantasyNameFailed": "Could not update the name in this group."
+    "fantasyNameFailed": "Could not update the name in this group.",
+    "projects": "Projects",
+    "projectsHint": "Short labels for tasks in this group. The acronym shows on the board and in Telegram.",
+    "projectsEmpty": "No open projects yet.",
+    "projectName": "Name",
+    "projectAcronym": "Acronym",
+    "projectAcronymHint": "2–4 letters, unique among open projects.",
+    "addProject": "Add",
+    "archiveProject": "Archive",
+    "projectSaved": "Project added.",
+    "projectArchived": "Project archived.",
+    "projectErrorAcronym": "Acronym must be 2–4 letters (A–Z).",
+    "projectErrorName": "Enter a project name.",
+    "projectErrorTaken": "That acronym is already in use.",
+    "projectErrorFailed": "Could not update projects."
   },
   "profile": {
     "accountScopeHint": "These settings apply to your account across all groups.",

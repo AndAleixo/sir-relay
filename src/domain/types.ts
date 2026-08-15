@@ -101,8 +101,20 @@ export interface Task {
   telegramNotifyFailed: boolean;
   /** Lower = higher priority in the assignee To do queue. */
   sortOrder: number;
+  /** Group project tag — null if untagged. */
+  projectId: string | null;
+  /** Acronym even if the project is archived. */
+  projectAcronym: string | null;
   updatedAt: string;
   createdAt: string;
+}
+
+export interface Project {
+  id: string;
+  groupId: string;
+  name: string;
+  acronym: string;
+  archivedAt: string | null;
 }
 
 export interface Session {

@@ -10,6 +10,7 @@ import {
   userIdsInGroup,
 } from "@/services/mock/groups.mock";
 import { findMockUserById } from "@/services/mock/users.mock";
+import { mockCopyOpenProject, mockProjectTag } from "@/services/mock/projects.mock";
 
 function tasksInGroup(tasks: Task[], session: Session): Task[] {
   const groupId = session.activeGroupId;
@@ -100,6 +101,7 @@ export class MockTaskService implements TaskService {
       difficulty: input.difficulty ?? null,
       telegramNotifyFailed: false,
       sortOrder,
+      ...mockProjectTag(ctx.session, input.projectId),
       updatedAt: now,
       createdAt: now,
     };
@@ -174,6 +176,7 @@ export class MockTaskService implements TaskService {
       dueDate?: string | null;
       description?: string;
       difficulty?: TaskDifficulty | null;
+      projectId?: string | null;
     },
     ctx: { session: Session },
   ): Promise<Task> {
@@ -196,12 +199,18 @@ export class MockTaskService implements TaskService {
     const difficulty =
       fields.difficulty !== undefined ? fields.difficulty : task.difficulty;
 
+    const project =
+      fields.projectId === undefined
+        ? { projectId: task.projectId, projectAcronym: task.projectAcronym }
+        : mockProjectTag(ctx.session, fields.projectId, task.projectId);
+
     const updated = {
       ...task,
       title,
       description,
       dueDate,
       difficulty,
+      ...project,
       updatedAt: new Date().toISOString(),
     };
     this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
@@ -252,6 +261,7 @@ export class MockTaskService implements TaskService {
     ).map((t) => t.id);
     const nextIds = insertIdAfter(orderedIds, sourceId, id);
 
+    const cloneTag = mockCopyOpenProject(ctx.session, existing.projectId);
     const clone: Task = {
       id,
       title: existing.title,
@@ -263,6 +273,7 @@ export class MockTaskService implements TaskService {
       difficulty: existing.difficulty,
       telegramNotifyFailed: false,
       sortOrder: nextIds.indexOf(id),
+      ...cloneTag,
       updatedAt: now,
       createdAt: now,
     };

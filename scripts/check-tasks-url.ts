@@ -38,6 +38,26 @@ assert.equal(
   "/es-es/tasks/new?scope=mine&view=list&error=title",
 );
 assert.equal(
+  tasksListHref("en-gb", {
+    scope: "mine",
+    view: "list",
+    project: "project-shop",
+    saved: true,
+  }),
+  "/en-gb/tasks?scope=mine&view=list&project=project-shop&saved=1",
+);
+assert.equal(
+  tasksListHrefFromReturn(
+    "en-gb",
+    "operator",
+    "mine",
+    "list",
+    { saved: true },
+    "project-web",
+  ),
+  "/en-gb/tasks?scope=mine&view=list&project=project-web&saved=1",
+);
+assert.equal(
   tasksListHrefFromReturn("en-gb", "operator", undefined, undefined, {
     deleted: true,
   }),
@@ -69,6 +89,8 @@ assert.equal(
   "?displayNameError=1",
 );
 assert.equal(stripSuccessFlash("?transferred=1"), "");
+assert.equal(stripSuccessFlash("?projectSaved=1"), "");
+assert.equal(stripSuccessFlash("?projectArchived=1&projectError=taken"), "?projectError=taken");
 assert.equal(stripSuccessFlash("?scope=team&view=board"), null);
 assert.equal(stripSuccessFlash("?error=not_found"), null);
 

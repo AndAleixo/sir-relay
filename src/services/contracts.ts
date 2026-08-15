@@ -12,6 +12,7 @@ import type {
   Teammate,
   User,
   UserGroup,
+  Project,
 } from "@/domain/types";
 import type { OperatorAlertService } from "@/services/alert.types";
 
@@ -25,6 +26,7 @@ export interface CreateTaskInput {
   assigneeId: string;
   dueDate?: string | null;
   difficulty?: TaskDifficulty | null;
+  projectId?: string | null;
 }
 
 export interface CreateTeammateInput {
@@ -101,6 +103,7 @@ export interface TaskService {
       dueDate?: string | null;
       description?: string;
       difficulty?: TaskDifficulty | null;
+      projectId?: string | null;
     },
     ctx: { session: Session },
   ): Promise<Task>;
@@ -163,6 +166,15 @@ export interface GroupInvitationService {
   resend(invitationId: string, ctx: { session: Session }): Promise<GroupInvitation>;
 }
 
+export interface ProjectService {
+  listOpen(ctx: { session: Session }): Promise<Project[]>;
+  create(
+    input: { name: string; acronym: string },
+    ctx: { session: Session },
+  ): Promise<Project>;
+  archive(id: string, ctx: { session: Session }): Promise<void>;
+}
+
 export interface ExportService {
   buildExport(ctx: { session: Session }, userId?: string): Promise<ExportPayload>;
   filename(userId?: string): string;
@@ -194,4 +206,5 @@ export interface Services {
   users: UserService;
   alerts: OperatorAlertService;
   export: ExportService;
+  projects: ProjectService;
 }

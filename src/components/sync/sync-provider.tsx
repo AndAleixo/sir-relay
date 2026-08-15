@@ -45,7 +45,13 @@ interface SyncContextValue {
   ) => Promise<void>;
   createTaskQuick: (
     locale: string,
-    input: { title: string; assigneeId: string; assigneeName: string },
+    input: {
+      title: string;
+      assigneeId: string;
+      assigneeName: string;
+      projectId?: string | null;
+      projectAcronym?: string | null;
+    },
   ) => Promise<boolean>;
   cloneTask: (taskId: string) => Promise<boolean>;
   deleteTask: (taskId: string) => Promise<boolean>;
@@ -297,7 +303,13 @@ export function SyncProvider({ children }: SyncProviderProps) {
   const createTaskQuick = useCallback(
     async (
       locale: string,
-      input: { title: string; assigneeId: string; assigneeName: string },
+      input: {
+        title: string;
+        assigneeId: string;
+        assigneeName: string;
+        projectId?: string | null;
+        projectAcronym?: string | null;
+      },
     ) => {
       const tempId = `task-pending-${crypto.randomUUID()}`;
       const now = new Date().toISOString();
@@ -312,6 +324,8 @@ export function SyncProvider({ children }: SyncProviderProps) {
         dueDate: null,
         telegramNotifyFailed: false,
         sortOrder: Number.MAX_SAFE_INTEGER,
+        projectId: input.projectId ?? null,
+        projectAcronym: input.projectAcronym ?? null,
         updatedAt: now,
         createdAt: now,
       };
@@ -321,6 +335,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
       const result = await quickCreateTaskAction(locale, {
         title: input.title,
         assigneeId: input.assigneeId,
+        projectId: input.projectId ?? null,
       });
 
       if (result.ok) {

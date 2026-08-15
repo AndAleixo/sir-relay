@@ -106,6 +106,7 @@ model Group {
   invitations  GroupInvitation[]
   telegramActivities TelegramActivity[]
   auditLogs   AuditLog[]
+  projects    Project[]
 
   @@map("groups")
 }
@@ -160,18 +161,38 @@ model Task {
   telegramNotifiedAt   DateTime?  @map("telegram_notified_at")
   telegramNotifyFailed Boolean    @default(false) @map("telegram_notify_failed")
   sortOrder            Int        @default(0) @map("sort_order")
+  projectId            String?    @map("project_id")
   createdAt            DateTime   @default(now()) @map("created_at")
   updatedAt            DateTime   @updatedAt @map("updated_at")
 
-  group    Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  assignee User  @relation("TaskAssignee", fields: [assigneeId], references: [id])
-  creator  User  @relation("TaskCreator", fields: [createdById], references: [id])
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  assignee User     @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  creator  User     @relation("TaskCreator", fields: [createdById], references: [id])
+  project  Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
   telegramActivities TelegramActivity[]
 
   @@index([groupId])
   @@index([assigneeId])
   @@index([groupId, assigneeId, sortOrder])
+  @@index([projectId])
   @@map("tasks")
+}
+
+model Project {
+  id         String    @id @default(cuid())
+  groupId    String    @map("group_id")
+  name       String    @db.VarChar(20)
+  acronym    String    @db.VarChar(4)
+  archivedAt DateTime? @map("archived_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  group Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  tasks Task[]
+
+  // Open-acronym uniqueness is the partial index in
+  // prisma/migrations/20260815120000_group_projects (not @@unique — reuse after archive).
+  @@index([groupId])
+  @@map("projects")
 }
 
 model TeammateInviteToken {

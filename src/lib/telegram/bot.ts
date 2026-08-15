@@ -172,6 +172,8 @@ function createBot(token: string): Bot {
             : null,
           telegramNotifyFailed: taskRow.telegramNotifyFailed,
           sortOrder: taskRow.sortOrder,
+          projectId: taskRow.projectId,
+          projectAcronym: null,
           updatedAt: new Date().toISOString(),
           createdAt: taskRow.createdAt.toISOString(),
         };

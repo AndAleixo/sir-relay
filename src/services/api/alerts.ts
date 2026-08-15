@@ -6,6 +6,7 @@ import {
   isDueOnOrBeforeTodayInTimezone,
 } from "@/lib/group-timezones";
 import { requireActiveGroupId, requireOperator } from "@/lib/authz";
+import { formatTaskHeading } from "@/lib/project";
 import { prisma } from "@/lib/prisma";
 import {
   telegramDeliveryAllowed,
@@ -149,7 +150,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
     const at = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
     const sent = await deliverOperatorAlertDms(groupId, prefs, (locale) =>
       operatorAlertDone(locale, {
-        taskTitle: task.title,
+        taskTitle: formatTaskHeading(task.title, task.projectAcronym),
         assigneeName: task.assigneeName,
         at,
       }),
@@ -160,7 +161,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
         groupId,
         type: "task_done",
         taskId: task.id,
-        taskTitle: task.title,
+        taskTitle: formatTaskHeading(task.title, task.projectAcronym),
         assigneeName: task.assigneeName,
         dueDate: task.dueDate ? new Date(task.dueDate) : null,
         sentToTelegram: sent,
@@ -206,7 +207,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
         prefs,
         (locale) =>
           operatorAlertDue(locale, {
-            taskTitle: task.title,
+            taskTitle: formatTaskHeading(task.title, task.projectAcronym),
             assigneeName: task.assigneeName,
             dueDate: task.dueDate!,
             overdue,
@@ -219,7 +220,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
           groupId,
           type: "task_due",
           taskId: task.id,
-          taskTitle: task.title,
+          taskTitle: formatTaskHeading(task.title, task.projectAcronym),
           assigneeName: task.assigneeName,
           dueDate: new Date(task.dueDate),
           sentToTelegram: sent,

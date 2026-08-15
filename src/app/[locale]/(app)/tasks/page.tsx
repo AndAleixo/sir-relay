@@ -4,6 +4,7 @@ import { orderMembersByTodoCount } from "@/lib/board-member-order";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { requireAppSession } from "@/lib/require-session";
 import {
+  parseTasksProject,
   parseTasksScope,
   parseTasksView,
 } from "@/lib/tasks-url";
@@ -19,14 +20,15 @@ export default async function TasksPage({
   searchParams: Promise<{
     scope?: string;
     view?: string;
+    project?: string;
     error?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { scope: scopeRaw, view: viewRaw, error } = await searchParams;
+  const { scope: scopeRaw, view: viewRaw, project: projectRaw, error } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
-  const { tasks, teammates, alerts } = getServices();
+  const { tasks, teammates, alerts, projects } = getServices();
 
   const isOperator = session.user.role === "operator";
   const taskList = await tasks.listTasks({ session });
@@ -45,6 +47,11 @@ export default async function TasksPage({
 
   const initialScope = parseTasksScope(scopeRaw, session.user.role);
   const initialView = parseTasksView(viewRaw);
+  const openProjects = await projects.listOpen({ session });
+  const initialProject = parseTasksProject(
+    projectRaw,
+    openProjects.map((row) => row.id),
+  );
 
   return (
     <>
@@ -59,6 +66,11 @@ export default async function TasksPage({
         role={session.user.role}
         initialScope={initialScope}
         initialView={initialView}
+        initialProject={initialProject}
+        openProjects={openProjects.map((row) => ({
+          id: row.id,
+          acronym: row.acronym,
+        }))}
         self={{
           id: session.user.id,
           name: session.user.name,
@@ -114,6 +126,9 @@ export default async function TasksPage({
             doing: t("status.doing"),
             done: t("status.done"),
           },
+          project: t("tasks.project"),
+          projectAria: t("tasks.projectAria"),
+          addProject: t("tasks.addProject"),
         }}
       />
     </>

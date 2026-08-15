@@ -30,7 +30,7 @@ src/
 │   ├── teammates.ts      # Teammate CRUD + promote
 │   ├── tasks.ts          # Tasks + alert prefs + placeInTodoQueue
 │   ├── export.ts         # CSV export (server action)
-│   └── settings.ts       # Locale preference
+│   └── settings.ts       # Locale + group rename + projects
 └── app/[locale]/
     ├── groups/auto/      # Route handler: persist sole-group auto-select
     └── (app)/groups/     # Placeholder + panel auto-open
@@ -46,6 +46,7 @@ src/
 | Teammate actions | `app/actions/teammates.ts` | invite/update/remove/promote/demote/transfer-ownership/regenerate-invite |
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` (`ownerUserId` on `Group`) |
 | Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete/transfer · ownership succession |
+| Projects (P3-16) | Settings card · `tasks.project_id` | [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16) |
 | Invitation consent | `services/{api,mock}/invitations*` | Existing active account: pending → accept/decline; membership only on accept |
 | Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |
 | Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |

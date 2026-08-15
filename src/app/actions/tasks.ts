@@ -10,6 +10,7 @@ import { requireAppSession, requireOperatorSession } from "@/lib/require-session
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { isGroupTimezone } from "@/lib/group-timezones";
 import {
+  coerceTasksProject,
   coerceTasksScope,
   coerceTasksView,
   taskDetailHref,
@@ -33,14 +34,16 @@ function returnFields(formData: FormData) {
   return {
     scope: String(formData.get("returnScope") ?? "") || undefined,
     view: String(formData.get("returnView") ?? "") || undefined,
+    project: String(formData.get("returnProject") ?? "") || undefined,
   };
 }
 
 function returnHrefOpts(formData: FormData) {
-  const { scope, view } = returnFields(formData);
+  const { scope, view, project } = returnFields(formData);
   return {
     scope: coerceTasksScope(scope),
     view: coerceTasksView(view),
+    project: coerceTasksProject(project) ?? null,
   };
 }
 
@@ -49,6 +52,7 @@ export async function createTaskForm(locale: string, formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const dueRaw = String(formData.get("dueDate") ?? "").trim();
   const difficulty = parseTaskDifficulty(formData.get("difficulty"));
+  const projectId = String(formData.get("projectId") ?? "").trim() || null;
   const returnOpts = returnHrefOpts(formData);
 
   const session = await requireAppSession(locale);
@@ -68,16 +72,26 @@ export async function createTaskForm(locale: string, formData: FormData) {
 
   const { tasks } = getServices();
 
-  await tasks.createTask(
-    {
-      title,
-      assigneeId,
-      description,
-      dueDate: dueRaw || null,
-      difficulty,
-    },
-    { session },
-  );
+  try {
+    await tasks.createTask(
+      {
+        title,
+        assigneeId,
+        description,
+        dueDate: dueRaw || null,
+        difficulty,
+        projectId,
+      },
+      { session },
+    );
+  } catch {
+    redirect(
+      taskNewHref(locale, {
+        ...returnOpts,
+        error: "failed",
+      }),
+    );
+  }
 
   revalidatePath(`/${locale}/tasks`);
   redirect(
@@ -87,6 +101,7 @@ export async function createTaskForm(locale: string, formData: FormData) {
       returnOpts.scope,
       returnOpts.view,
       { saved: true },
+      returnOpts.project ?? undefined,
     ),
   );
 }
@@ -216,7 +231,7 @@ export async function updateTaskStatusAction(
 
 export async function quickCreateTaskAction(
   locale: string,
-  input: { title: string; assigneeId: string },
+  input: { title: string; assigneeId: string; projectId?: string | null },
 ): Promise<
   | { ok: true; task: Task }
   | { ok: false; error: "forbidden" | "invalid" }
@@ -245,6 +260,7 @@ export async function quickCreateTaskAction(
       assigneeId,
       description: "",
       dueDate: null,
+      projectId: input.projectId ?? null,
     },
     { session },
   );
@@ -378,6 +394,7 @@ export async function saveTaskDetailAction(
   const description = String(formData.get("description") ?? "").trim();
   const dueRaw = String(formData.get("dueDate") ?? "").trim();
   const difficulty = parseTaskDifficulty(formData.get("difficulty"));
+  const projectId = String(formData.get("projectId") ?? "").trim() || null;
   const status = String(formData.get("status") ?? "") as TaskStatus;
   const assigneeId = String(formData.get("assigneeId") ?? "").trim();
 
@@ -401,6 +418,7 @@ export async function saveTaskDetailAction(
         returnOpts.scope,
         returnOpts.view,
         { error: "not_found" },
+        returnOpts.project ?? undefined,
       ),
     );
   }
@@ -413,6 +431,7 @@ export async function saveTaskDetailAction(
         description,
         dueDate: dueRaw || null,
         difficulty,
+        projectId,
       },
       { session },
     );
@@ -462,6 +481,7 @@ export async function saveTaskDetailAction(
       returnOpts.scope,
       returnOpts.view,
       { saved: true },
+      returnOpts.project ?? undefined,
     ),
   );
 }
@@ -469,7 +489,7 @@ export async function saveTaskDetailAction(
 export async function deleteTaskAction(
   locale: string,
   taskId: string,
-  returnTo?: { scope?: string; view?: string },
+  returnTo?: { scope?: string; view?: string; project?: string | null },
 ): Promise<void> {
   const { auth, tasks } = getServices();
   const session = await auth.getSession();
@@ -478,6 +498,7 @@ export async function deleteTaskAction(
   const returnOpts = {
     scope: coerceTasksScope(returnTo?.scope),
     view: coerceTasksView(returnTo?.view),
+    project: coerceTasksProject(returnTo?.project ?? undefined) ?? null,
   };
 
   const existing = await tasks.getTask(taskId, { session });
@@ -489,6 +510,7 @@ export async function deleteTaskAction(
         returnOpts.scope,
         returnOpts.view,
         { error: "not_found" },
+        returnOpts.project ?? undefined,
       ),
     );
   }
@@ -515,6 +537,7 @@ export async function deleteTaskAction(
       returnOpts.scope,
       returnOpts.view,
       { deleted: true },
+      returnOpts.project ?? undefined,
     ),
   );
 }
@@ -537,6 +560,7 @@ export async function renotifyTaskAction(
         returnOpts.scope,
         returnOpts.view,
         { error: "not_found" },
+        returnOpts.project ?? undefined,
       ),
     );
   }

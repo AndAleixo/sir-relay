@@ -34,6 +34,7 @@ interface StatusKanbanProps {
   locale: string;
   scope: TasksScope;
   view: TasksView;
+  project?: string | null;
   self: { id: string; name: string };
   labels: TaskCardLabels & {
     todo: string;
@@ -52,6 +53,7 @@ export function StatusKanban({
   locale,
   scope,
   view,
+  project = null,
   self,
   labels,
 }: StatusKanbanProps) {
@@ -156,7 +158,7 @@ export function StatusKanban({
       <BoardTaskCard
         task={task}
         locale={locale}
-        href={taskDetailHref(locale, task.id, { scope, view })}
+        href={taskDetailHref(locale, task.id, { scope, view, project })}
         labels={labels}
         isDragging={draggingTaskId === task.id}
         isQueueHead={isQueueHead}

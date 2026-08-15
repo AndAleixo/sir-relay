@@ -16,8 +16,10 @@ type EditTaskFormProps = {
   locale: string;
   scope: TasksScope;
   view: TasksView;
+  project: string | null;
   isOperator: boolean;
   assigneeOptions: TaskFormAssigneeOption[];
+  projectOptions: { id: string; label: string }[];
   overdue: boolean;
   statusLabels: Record<TaskStatus, string>;
   labels: TaskFormLabels & {
@@ -33,25 +35,29 @@ export function EditTaskForm({
   locale,
   scope,
   view,
+  project,
   isOperator,
   assigneeOptions,
+  projectOptions,
   overdue,
   statusLabels,
   labels,
 }: EditTaskFormProps) {
   const saveAction = saveTaskDetailAction.bind(null, locale, task.id);
   const { save, cancel, delete: deleteLabel, deleteConfirm, ...fieldLabels } = labels;
-  const listHref = tasksListHref(locale, { scope, view });
+  const listHref = tasksListHref(locale, { scope, view, project });
 
   return (
     <form action={saveAction} className="space-y-4">
       <input type="hidden" name="returnScope" value={scope} />
       <input type="hidden" name="returnView" value={view} />
+      <input type="hidden" name="returnProject" value={project ?? ""} />
       <TaskFormFields
         mode="edit"
         labels={fieldLabels}
         isOperator={isOperator}
         assigneeOptions={assigneeOptions}
+        projectOptions={projectOptions}
         statusLabels={statusLabels}
         defaultValues={task}
         overdue={overdue}
@@ -63,7 +69,7 @@ export function EditTaskForm({
         deleteLabel={deleteLabel}
         deleteConfirm={deleteConfirm}
         onDelete={() =>
-          deleteTaskAction(locale, task.id, { scope, view })
+          deleteTaskAction(locale, task.id, { scope, view, project })
         }
       />
     </form>

@@ -4,6 +4,7 @@ import { mockOperatorAlertService } from "@/services/mock/alerts.mock";
 import { mockAuthService } from "@/services/mock/auth.mock";
 import { mockExportService } from "@/services/mock/export.mock";
 import { mockGroupService } from "@/services/mock/groups.mock";
+import { mockProjectService } from "@/services/mock/projects.mock";
 import { mockTaskService } from "@/services/mock/task.mock";
 import { mockGroupInvitationService } from "@/services/mock/invitations.mock";
 import {
@@ -38,6 +39,7 @@ export function getServices(): Services {
       users: mockUserService,
       alerts: mockOperatorAlertService,
       export: mockExportService,
+      projects: mockProjectService,
     };
   }
 

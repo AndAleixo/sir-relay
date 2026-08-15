@@ -4,6 +4,7 @@ import {
   isDueOnOrBeforeTodayInTimezone,
 } from "@/lib/group-timezones";
 import { requireOperator } from "@/lib/authz";
+import { formatTaskHeading } from "@/lib/project";
 import type {
   OperatorAlertPrefs,
   OperatorAlertService,
@@ -122,7 +123,7 @@ export class MockOperatorAlertService implements OperatorAlertService {
     pushAlert(groupId, {
       type: "task_done",
       taskId: task.id,
-      taskTitle: task.title,
+      taskTitle: formatTaskHeading(task.title, task.projectAcronym),
       assigneeName: task.assigneeName,
       dueDate: task.dueDate,
     });
@@ -150,7 +151,7 @@ export class MockOperatorAlertService implements OperatorAlertService {
         {
           type: "task_due",
           taskId: task.id,
-          taskTitle: task.title,
+          taskTitle: formatTaskHeading(task.title, task.projectAcronym),
           assigneeName: task.assigneeName,
           dueDate: task.dueDate,
         },

@@ -24,6 +24,8 @@ export type TaskFormLabels = {
   difficultyEasy: string;
   difficultyMedium: string;
   difficultyHard: string;
+  project: string;
+  projectNone: string;
 };
 
 type TaskFormFieldsProps = {
@@ -31,10 +33,19 @@ type TaskFormFieldsProps = {
   labels: TaskFormLabels;
   isOperator: boolean;
   assigneeOptions: TaskFormAssigneeOption[];
+  projectOptions: { id: string; label: string }[];
   statusLabels?: Record<TaskStatus, string>;
-  defaultValues?: Pick<
-    Task,
-    "title" | "description" | "dueDate" | "status" | "assigneeId" | "difficulty"
+  defaultValues?: Partial<
+    Pick<
+      Task,
+      | "title"
+      | "description"
+      | "dueDate"
+      | "status"
+      | "assigneeId"
+      | "difficulty"
+      | "projectId"
+    >
   >;
   overdue?: boolean;
 };
@@ -44,6 +55,7 @@ export function TaskFormFields({
   labels,
   isOperator,
   assigneeOptions,
+  projectOptions,
   statusLabels,
   defaultValues,
   overdue = false,
@@ -123,6 +135,27 @@ export function TaskFormFields({
           aria-label={labels.difficulty}
         />
       </div>
+
+      {projectOptions.length > 0 ? (
+        <div>
+          <Label htmlFor="projectId">{labels.project}</Label>
+          <Select
+            id="projectId"
+            name="projectId"
+            defaultValue={defaultValues?.projectId ?? ""}
+            options={[
+              { value: "", label: labels.projectNone },
+              ...projectOptions.map((option) => ({
+                value: option.id,
+                label: option.label,
+              })),
+            ]}
+            aria-label={labels.project}
+          />
+        </div>
+      ) : (
+        <input type="hidden" name="projectId" value="" />
+      )}
 
       <div>
         <Label htmlFor="dueDate">{labels.dueDate}</Label>

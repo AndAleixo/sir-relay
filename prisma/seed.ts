@@ -26,6 +26,7 @@ async function main() {
 
   await prisma.operatorAlert.deleteMany();
   await prisma.task.deleteMany();
+  await prisma.project.deleteMany();
   await prisma.teammateInviteToken.deleteMany();
   await prisma.groupInvitation.deleteMany();
   await prisma.telegramLinkToken.deleteMany();
@@ -95,6 +96,24 @@ async function main() {
   }
 
   const operatorId = MOCK_OPERATORS[0].id;
+
+  await prisma.project.createMany({
+    data: [
+      {
+        id: "project-shop",
+        groupId: "group-demo",
+        name: "Shop floor",
+        acronym: "SHOP",
+      },
+      {
+        id: "project-web",
+        groupId: "group-demo",
+        name: "Web",
+        acronym: "WEB",
+      },
+    ],
+  });
+
   for (const task of MOCK_TASKS) {
     await prisma.task.create({
       data: {
@@ -108,6 +127,7 @@ async function main() {
         difficulty: task.difficulty,
         dueDate: task.dueDate ? new Date(task.dueDate) : null,
         sortOrder: task.sortOrder,
+        projectId: task.projectId,
         createdAt: new Date(task.createdAt),
         updatedAt: new Date(task.updatedAt),
       },

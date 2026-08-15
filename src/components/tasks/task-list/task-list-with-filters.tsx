@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { Task, TaskStatus } from "@/domain/types";
 import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { sortTasksForList, type TaskListSort } from "@/lib/task-list-sort";
@@ -17,6 +18,10 @@ type TaskListWithFiltersProps = {
   locale: string;
   scope: TasksScope;
   view: TasksView;
+  project?: string | null;
+  projects?: { id: string; acronym: string }[];
+  onProjectChange?: (projectId: string | null) => void;
+  addProjectHref?: string;
   assigneeOptions?: AssigneeFilterOption[];
   labels: {
     title: string;
@@ -32,6 +37,8 @@ type TaskListWithFiltersProps = {
     sortDue: string;
     sortUpdated: string;
     status: Record<TaskStatus, string>;
+    project: string;
+    addProject: string;
   };
 };
 
@@ -40,6 +47,10 @@ export function TaskListWithFilters({
   locale,
   scope,
   view,
+  project = null,
+  projects = [],
+  onProjectChange,
+  addProjectHref,
   assigneeOptions = [],
   labels,
 }: TaskListWithFiltersProps) {
@@ -78,6 +89,17 @@ export function TaskListWithFilters({
     [labels.sortDue, labels.statusColumn, labels.sortUpdated],
   );
 
+  const projectSelectOptions = useMemo(
+    () => [
+      { value: "", label: labels.filterAll },
+      ...projects.map((row) => ({
+        value: row.id,
+        label: row.acronym,
+      })),
+    ],
+    [projects, labels.filterAll],
+  );
+
   const visible = useMemo(() => {
     const filtered = tasks.filter((task) => {
       if (showAssigneeFilter && assigneeId !== "all" && task.assigneeId !== assigneeId) {
@@ -92,6 +114,28 @@ export function TaskListWithFilters({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-4">
+        {projects.length > 0 && onProjectChange ? (
+          <div className="min-w-[140px]">
+            <Label htmlFor="filter-project">{labels.project}</Label>
+            <Select
+              id="filter-project"
+              className="mt-1.5"
+              value={project ?? ""}
+              onChange={(next) => onProjectChange(next || null)}
+              options={projectSelectOptions}
+              aria-label={labels.project}
+            />
+          </div>
+        ) : addProjectHref ? (
+          <p className="self-end text-xs text-[var(--text-muted)]">
+            <Link
+              href={addProjectHref}
+              className="underline-offset-2 hover:text-[var(--text-primary)] hover:underline"
+            >
+              {labels.addProject}
+            </Link>
+          </p>
+        ) : null}
         {showAssigneeFilter ? (
           <div className="min-w-[180px]">
             <Label htmlFor="filter-assignee">{labels.filterAssignee}</Label>
@@ -133,6 +177,7 @@ export function TaskListWithFilters({
         locale={locale}
         scope={scope}
         view={view}
+        project={project}
         showAssignee={showAssigneeFilter}
         labels={{
           title: labels.title,

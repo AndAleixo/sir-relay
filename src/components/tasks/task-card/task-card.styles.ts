@@ -24,12 +24,12 @@ export const taskCardStyles = {
   dueReadonly: "text-left text-[10px] text-[var(--text-muted)]",
   boardBody: "relative min-w-0 flex-1 overflow-visible",
   titleRow: "mb-0.5 flex min-w-0 items-start gap-1",
-  acronymRoot: "relative z-10 inline-block align-baseline",
+  acronymRoot: "relative z-10 inline-flex items-center align-baseline",
   projectPickerShell: "relative z-10 min-w-0 flex-1",
   acronymSep:
     "mx-1 text-xs font-medium leading-snug text-[var(--text-primary)]",
   acronymButton:
-    "inline cursor-pointer rounded-[4px] align-baseline text-xs font-medium leading-snug text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
+    "inline-flex cursor-pointer items-center rounded-[4px] p-0 text-xs font-medium leading-snug text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
   titleTextButton:
     "cursor-pointer text-left text-xs font-medium leading-snug text-[var(--text-primary)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
   titleButton:
@@ -54,13 +54,13 @@ export const taskCardStyles = {
   /** Done column — same glyph, not interactive. */
   completedMark:
     "shrink-0 p-0.5 text-emerald-600 [&_svg]:h-3 [&_svg]:w-3",
-  /** ⋯ stays put; actions overlay to the left (card bg covers footer text underneath). */
-  menuRoot: "relative z-10 shrink-0",
+  /** ⋯ stays put; overlay is inset to the footer row so it shares the trigger line. */
+  menuRoot: "relative z-10 shrink-0 self-stretch",
   menuButton:
-    "rounded-[4px] px-1 py-0.5 text-[11px] leading-none text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50",
+    "flex h-full items-center rounded-[4px] px-1 text-[11px] leading-none text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50",
   menuButtonOpen: "bg-[var(--surface-bg)] text-[var(--text-primary)]",
   menuSegment:
-    "absolute right-full top-1/2 z-20 flex -translate-y-1/2 items-center gap-0.5 rounded-[4px] bg-surface-card py-0.5 pr-0.5 pl-0.5 transition-[opacity,transform]",
+    "absolute inset-y-0 right-full z-20 flex items-center gap-0.5 rounded-[4px] bg-surface-card px-0.5 transition-[opacity,transform]",
   menuSegmentOpen: "translate-x-0 opacity-100 duration-200 ease-out",
   menuSegmentClosed:
     "pointer-events-none translate-x-2 opacity-0 duration-300 ease-in",
@@ -71,16 +71,16 @@ export const taskCardStyles = {
   footerSlotHidden: "pointer-events-none opacity-30 duration-300 ease-in",
   menuItemSeverity:
     "text-[var(--severity)] hover:bg-[var(--surface-bg)] hover:text-[var(--severity)]",
-  /** Same fade/slide as ⋯; left/width set in JS to hug or fill to the title end. */
+  /** Same fade/slide as ⋯; inset to the acronym line. */
   projectSegment:
-    "absolute top-0 z-20 flex items-center gap-0.5 rounded-[4px] bg-surface-card py-0.5 pr-0.5 pl-0.5 transition-[opacity,transform]",
+    "absolute inset-y-0 left-full z-20 flex items-center gap-0.5 rounded-[4px] bg-surface-card px-0.5 transition-[opacity,transform]",
   projectSegmentStretch: "overflow-hidden",
   projectSegmentHug: "w-max",
   projectSegmentClosed:
     "pointer-events-none -translate-x-2 opacity-0 duration-300 ease-in",
   projectScroller: "min-w-0 flex-1 overflow-hidden",
   projectScrollerRow: "flex w-max items-center gap-0.5",
-  projectMenuItem: "shrink-0 whitespace-nowrap",
+  projectMenuItem: "shrink-0 whitespace-nowrap py-0 text-xs leading-snug",
   projectScrollArrow:
     "absolute top-1/2 z-10 -translate-y-1/2 rounded-[4px] bg-surface-card px-0.5 py-0.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 [&_svg]:h-3 [&_svg]:w-3",
   projectScrollArrowLeft: "left-0",

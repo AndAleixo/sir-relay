@@ -55,10 +55,7 @@ export function TaskProjectPicker({
   const menuId = useId();
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  const [strip, setStrip] = useState<{ left: number; width: number | null }>({
-    left: 0,
-    width: null,
-  });
+  const [stripWidth, setStripWidth] = useState<number | null>(null);
 
   const dismiss = useCallback(() => setOpen(false), []);
   useDismissable(open, dismiss, rootRef);
@@ -79,13 +76,9 @@ export function TaskProjectPicker({
     const prefix = prefixRef.current;
     const row = rowRef.current;
     if (!root || !prefix) return;
-    const left = prefix.offsetWidth;
-    const remaining = Math.max(0, root.clientWidth - left);
+    const remaining = Math.max(0, root.clientWidth - prefix.offsetWidth);
     const content = row?.scrollWidth ?? 0;
-    setStrip({
-      left,
-      width: content > remaining ? remaining : null,
-    });
+    setStripWidth(content > remaining ? remaining : null);
   }, []);
 
   useLayoutEffect(() => {
@@ -96,7 +89,7 @@ export function TaskProjectPicker({
   useLayoutEffect(() => {
     if (!rendered) return;
     updateArrows();
-  }, [rendered, strip.width, updateArrows]);
+  }, [rendered, stripWidth, updateArrows]);
 
   useEffect(() => {
     if (!rendered) return;
@@ -129,7 +122,7 @@ export function TaskProjectPicker({
     el.scrollBy({ left: direction * Math.max(el.clientWidth * 0.75, 40) });
   }
 
-  const stretched = strip.width != null;
+  const stretched = stripWidth != null;
 
   return (
     <div
@@ -155,89 +148,84 @@ export function TaskProjectPicker({
           {currentAcronym}
         </button>
         <span className={taskCardStyles.acronymSep}>·</span>
+        {rendered ? (
+          <div
+            id={menuId}
+            role="menu"
+            className={cn(
+              taskCardStyles.projectSegment,
+              stretched
+                ? taskCardStyles.projectSegmentStretch
+                : taskCardStyles.projectSegmentHug,
+              visible
+                ? taskCardStyles.menuSegmentOpen
+                : taskCardStyles.projectSegmentClosed,
+            )}
+            style={{ width: stripWidth ?? undefined }}
+            onTransitionEnd={onTransitionEnd}
+          >
+            {stretched && canScrollLeft ? (
+              <button
+                type="button"
+                className={cn(
+                  taskCardStyles.projectScrollArrow,
+                  taskCardStyles.projectScrollArrowLeft,
+                )}
+                aria-label={scrollLeftLabel}
+                onClick={() => scroll(-1)}
+              >
+                <ChevronDown className="rotate-90" />
+              </button>
+            ) : null}
+            <div ref={scrollerRef} className={taskCardStyles.projectScroller}>
+              <div ref={rowRef} className={taskCardStyles.projectScrollerRow}>
+                {options.map((option) => {
+                  const active = option.value === (currentId ?? "");
+                  return (
+                    <button
+                      key={option.value || "none"}
+                      type="button"
+                      role="menuitem"
+                      tabIndex={visible ? 0 : -1}
+                      className={cn(
+                        taskCardStyles.menuItem,
+                        taskCardStyles.projectMenuItem,
+                        active && taskCardStyles.menuButtonOpen,
+                      )}
+                      title={option.hint}
+                      disabled={disabled}
+                      onClick={() => {
+                        const next = option.value || null;
+                        setOpen(false);
+                        if (next !== (currentId ?? null)) onPick(next);
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            {stretched && canScrollRight ? (
+              <button
+                type="button"
+                className={cn(
+                  taskCardStyles.projectScrollArrow,
+                  taskCardStyles.projectScrollArrowRight,
+                )}
+                aria-label={scrollRightLabel}
+                onClick={() => scroll(1)}
+              >
+                <ChevronDown className="-rotate-90" />
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </span>
       {children ? (
-        <span
-          className={cn(rendered && taskCardStyles.footerSlotHidden)}
-        >
+        <span className={cn(rendered && taskCardStyles.footerSlotHidden)}>
           {children}
         </span>
-      ) : null}
-      {rendered ? (
-        <div
-          id={menuId}
-          role="menu"
-          className={cn(
-            taskCardStyles.projectSegment,
-            stretched
-              ? taskCardStyles.projectSegmentStretch
-              : taskCardStyles.projectSegmentHug,
-            visible
-              ? taskCardStyles.menuSegmentOpen
-              : taskCardStyles.projectSegmentClosed,
-          )}
-          style={{
-            left: strip.left,
-            width: strip.width ?? undefined,
-          }}
-          onTransitionEnd={onTransitionEnd}
-        >
-          {stretched && canScrollLeft ? (
-            <button
-              type="button"
-              className={cn(
-                taskCardStyles.projectScrollArrow,
-                taskCardStyles.projectScrollArrowLeft,
-              )}
-              aria-label={scrollLeftLabel}
-              onClick={() => scroll(-1)}
-            >
-              <ChevronDown className="rotate-90" />
-            </button>
-          ) : null}
-          <div ref={scrollerRef} className={taskCardStyles.projectScroller}>
-            <div ref={rowRef} className={taskCardStyles.projectScrollerRow}>
-              {options.map((option) => {
-                const active = option.value === (currentId ?? "");
-                return (
-                  <button
-                    key={option.value || "none"}
-                    type="button"
-                    role="menuitem"
-                    tabIndex={visible ? 0 : -1}
-                    className={cn(
-                      taskCardStyles.menuItem,
-                      taskCardStyles.projectMenuItem,
-                      active && taskCardStyles.menuButtonOpen,
-                    )}
-                    title={option.hint}
-                    disabled={disabled}
-                    onClick={() => {
-                      const next = option.value || null;
-                      setOpen(false);
-                      if (next !== (currentId ?? null)) onPick(next);
-                    }}
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          {stretched && canScrollRight ? (
-            <button
-              type="button"
-              className={cn(
-                taskCardStyles.projectScrollArrow,
-                taskCardStyles.projectScrollArrowRight,
-              )}
-              aria-label={scrollRightLabel}
-              onClick={() => scroll(1)}
-            >
-              <ChevronDown className="-rotate-90" />
-            </button>
-          ) : null}
-        </div>
       ) : null}
     </div>
   );

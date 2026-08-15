@@ -32,12 +32,12 @@ export const taskCardStyles = {
   dueReadonly: "text-left text-[10px] text-[var(--text-muted)]",
   boardBody: "relative min-w-0 flex-1 overflow-visible",
   titleRow: "mb-0.5 flex min-w-0 items-start gap-1",
-  acronymRoot: "relative z-10 inline-flex items-center align-baseline",
-  projectPickerShell: "relative z-10 min-w-0 flex-1",
-  projectPickerHug: "relative z-10",
-  acronymSep: `mx-1 ${titleType}`,
-  acronymButton: `inline-flex cursor-pointer items-center rounded-[4px] p-0 ${titleType} ${titleFocus}`,
-  titleTextButton: `cursor-pointer rounded-[4px] text-left ${titleType} ${titleFocus}`,
+  acronymRoot: "relative z-10 inline align-baseline",
+  projectPickerShell: `relative z-10 min-w-0 flex-1 ${titleType}`,
+  projectPickerHug: `relative z-10 ${titleType}`,
+  acronymSep: "mx-1",
+  acronymButton: `cursor-pointer rounded-[4px] font-[inherit] ${titleFocus}`,
+  titleTextButton: `inline cursor-pointer rounded-[4px] font-[inherit] ${titleFocus}`,
   titleButton: `line-clamp-2 min-w-0 flex-1 cursor-pointer rounded-[4px] text-left ${titleType} ${titleFocus}`,
   /** Under title when due is set — slight inset so it doesn’t run under status icons. */
   descriptionPreview:

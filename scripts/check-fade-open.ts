@@ -16,6 +16,7 @@ assert.match(taskCardStyles.projectSegmentClosed, new RegExp(`\\bduration-${FADE
 assert.match(taskCardStyles.menuSegment, /\binset-y-0\b/);
 assert.match(taskCardStyles.projectSegment, /\binset-y-0\b/);
 assert.match(taskCardStyles.projectMenuItem, /\btext-xs\b/);
-assert.match(taskCardStyles.acronymButton, /\btext-xs\b/);
+assert.match(taskCardStyles.projectPickerShell, /\btext-xs\b/);
+assert.match(taskCardStyles.titleButton, /\btext-xs\b/);
 
 console.log("check-fade-open: ok");

@@ -134,21 +134,32 @@ export function TaskProjectPicker({
       }
     >
       <span ref={prefixRef} className={taskCardStyles.acronymRoot}>
-        <button
-          type="button"
+        <span
+          role="button"
+          tabIndex={disabled ? -1 : 0}
           className={cn(
             taskCardStyles.acronymButton,
             open && taskCardStyles.menuButtonOpen,
           )}
-          disabled={disabled}
           aria-label={ariaLabel}
+          aria-disabled={disabled || undefined}
           aria-haspopup="menu"
           aria-expanded={open}
           aria-controls={rendered ? menuId : undefined}
-          onClick={() => setOpen((value) => !value)}
+          onClick={() => {
+            if (disabled) return;
+            setOpen((value) => !value);
+          }}
+          onKeyDown={(event) => {
+            if (disabled) return;
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              setOpen((value) => !value);
+            }
+          }}
         >
           {currentAcronym}
-        </button>
+        </span>
         <span className={taskCardStyles.acronymSep}>·</span>
         {rendered ? (
           <div

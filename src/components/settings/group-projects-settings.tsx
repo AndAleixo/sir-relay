@@ -8,7 +8,7 @@ import { TrashIcon } from "@/components/ui/icons";
 import { Input, Label } from "@/components/ui/input";
 import type { Project } from "@/domain/types";
 import { cn } from "@/lib/cn";
-import { MAX_OPEN_PROJECTS, PROJECT_NAME_MAX } from "@/lib/project";
+import { MAX_OPEN_PROJECTS, PROJECT_ACRONYM_MAX, PROJECT_NAME_MAX } from "@/lib/project";
 
 const PROJECT_COLS =
   "grid grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-2";
@@ -67,8 +67,8 @@ export function GroupProjectsSettings({
               id="project-acronym"
               name="acronym"
               required
-              minLength={2}
-              maxLength={4}
+              minLength={1}
+              maxLength={PROJECT_ACRONYM_MAX}
               className="uppercase"
               autoComplete="off"
             />

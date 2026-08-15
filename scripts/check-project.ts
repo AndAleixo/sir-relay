@@ -7,6 +7,7 @@ import {
   MAX_OPEN_PROJECTS,
   parseProjectAcronym,
   parseProjectName,
+  PROJECT_ACRONYM_MAX,
   PROJECT_NAME_MAX,
   resolveStoredProjectId,
   tagFromOpenProjects,
@@ -15,10 +16,12 @@ import { parseTasksProject, tasksListHref } from "../src/lib/tasks-url";
 
 assert.equal(MAX_OPEN_PROJECTS, 8);
 assert.equal(PROJECT_NAME_MAX, 20);
+assert.equal(PROJECT_ACRONYM_MAX, 3);
 
-assert.equal(parseProjectAcronym("shop"), "SHOP");
+assert.equal(parseProjectAcronym("a"), "A");
+assert.equal(parseProjectAcronym("shp"), "SHP");
 assert.equal(parseProjectAcronym(" WEB "), "WEB");
-assert.equal(parseProjectAcronym("A"), null);
+assert.equal(parseProjectAcronym("shop"), null);
 assert.equal(parseProjectAcronym("TOOLS"), null);
 assert.equal(parseProjectAcronym("S1"), null);
 assert.equal(parseProjectAcronym(""), null);
@@ -32,13 +35,13 @@ assert.equal(formatTaskHeading("Fix login", "SIR"), "SIR · Fix login");
 assert.equal(formatTaskHeading("Fix login", null), "Fix login");
 assert.equal(formatTaskHeading("Fix login", "  "), "Fix login");
 
-assert.deepEqual(tagFromOpenProjects(null, [{ id: "p1", acronym: "SHOP" }]), {
+assert.deepEqual(tagFromOpenProjects(null, [{ id: "p1", acronym: "SHP" }]), {
   projectId: null,
   projectAcronym: null,
 });
 assert.deepEqual(
-  tagFromOpenProjects("p1", [{ id: "p1", acronym: "SHOP" }]),
-  { projectId: "p1", projectAcronym: "SHOP" },
+  tagFromOpenProjects("p1", [{ id: "p1", acronym: "SHP" }]),
+  { projectId: "p1", projectAcronym: "SHP" },
 );
 assert.deepEqual(
   tagFromOpenProjects("old", [], { id: "old", acronym: "ARC" }),

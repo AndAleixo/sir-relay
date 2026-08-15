@@ -8,7 +8,7 @@ const SEED: Project[] = [
     id: "project-shop",
     groupId: "group-demo",
     name: "Shop floor",
-    acronym: "SHOP",
+    acronym: "SHP",
     archivedAt: null,
   },
   {

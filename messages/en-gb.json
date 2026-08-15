@@ -288,7 +288,7 @@
     "projectsLimit": "This group can have up to {count} projects.",
     "projectSaved": "Project added.",
     "projectRemoved": "Project removed.",
-    "projectErrorAcronym": "Acronym must be 2–4 letters (A–Z).",
+    "projectErrorAcronym": "Acronym must be 1–3 letters (A–Z).",
     "projectErrorName": "Enter a project name.",
     "projectErrorTaken": "That acronym is already in use.",
     "projectErrorLimit": "This group already has {count} projects.",

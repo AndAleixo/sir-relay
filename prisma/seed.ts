@@ -103,7 +103,7 @@ async function main() {
         id: "project-shop",
         groupId: "group-demo",
         name: "Shop floor",
-        acronym: "SHOP",
+        acronym: "SHP",
       },
       {
         id: "project-web",

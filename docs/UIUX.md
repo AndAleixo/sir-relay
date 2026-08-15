@@ -279,7 +279,7 @@ Shared compact card on boards; list uses a table row. Clone rule: [P1-TASK-14](.
 
 ```
 ┌────────────────────────────────┐
-│ ⠿  SHOP · Task title       → │
+│ ⠿  SHP · Task title       → │
 │    Description… (if due set) │
 │    Due / description     ⋯   │  ← description in due slot when no date
 │                         ●    │
@@ -417,7 +417,7 @@ Message shapes only. Keywords / delivery rules: [REQUIREMENTS §5.6](./REQUIREME
 ### Task notification
 
 ```
-SHOP · Task title
+SHP · Task title
 Group: Demo Shop
 
 Description (truncated…)

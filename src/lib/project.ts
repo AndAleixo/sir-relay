@@ -1,10 +1,11 @@
 export const MAX_OPEN_PROJECTS = 8;
 export const PROJECT_NAME_MAX = 20;
+export const PROJECT_ACRONYM_MAX = 3;
 
-/** 2–4 Latin letters, stored uppercase. */
+/** 1–3 Latin letters, stored uppercase. */
 export function parseProjectAcronym(raw: string): string | null {
   const acronym = raw.trim().toUpperCase();
-  if (!/^[A-Z]{2,4}$/.test(acronym)) return null;
+  if (!new RegExp(`^[A-Z]{1,${PROJECT_ACRONYM_MAX}}$`).test(acronym)) return null;
   return acronym;
 }
 

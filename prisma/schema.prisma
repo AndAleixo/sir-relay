@@ -182,7 +182,7 @@ model Project {
   id         String    @id @default(cuid())
   groupId    String    @map("group_id")
   name       String    @db.VarChar(20)
-  acronym    String    @db.VarChar(4)
+  acronym    String    @db.VarChar(3)
   archivedAt DateTime? @map("archived_at")
   createdAt  DateTime  @default(now()) @map("created_at")
 

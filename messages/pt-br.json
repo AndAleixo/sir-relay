@@ -288,7 +288,7 @@
     "projectsLimit": "Este grupo pode ter até {count} projetos.",
     "projectSaved": "Projeto adicionado.",
     "projectRemoved": "Projeto removido.",
-    "projectErrorAcronym": "A sigla deve ter 2–4 letras (A–Z).",
+    "projectErrorAcronym": "A sigla deve ter 1–3 letras (A–Z).",
     "projectErrorName": "Informe o nome do projeto.",
     "projectErrorTaken": "Essa sigla já está em uso.",
     "projectErrorLimit": "Este grupo já tem {count} projetos.",

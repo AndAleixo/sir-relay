@@ -545,14 +545,14 @@ Task.project_id → nullable FK
 |----|-------------|---------------------|
 | P3-PRJ-01 | Scope | Projects belong to `session.activeGroupId`. Switching group switches the list. |
 | P3-PRJ-02 | Manage UI | Operator: Settings card **Projects** — create (name then acronym), list name then acronym (same columns), trash with confirm (archives). Teammate: no manage UI (read acronyms when tagging tasks). |
-| P3-PRJ-03 | Acronym | 2–4 letters A–Z (store uppercase). Unique among **open** projects in the group. |
+| P3-PRJ-03 | Acronym | 1–3 letters A–Z (store uppercase). Unique among **open** projects in the group. |
 | P3-PRJ-04 | Archive | Trash in Settings archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. |
 | P3-PRJ-05 | Tag task | Create/edit: Select of **open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` if still open, else `null`. |
 | P3-PRJ-06 | List filter | List view: Select of **open** projects with the other list filters (`All` or one project). Board / kanban: no project filter (all tasks in scope). No fifth nav tab. Zero projects: quiet Settings link on the list filters (operator only). |
 | P3-PRJ-07 | Display | Card, list, task detail, Telegram: `SIR · Fix login`, same type as the title. Card: click acronym → retag (open projects, ⋯-style overlay); click title → edit title only. Untagged: title only. |
 | P3-PRJ-08 | Relay | Queue / notify / re-notify use the same display string. Project does not change queue order. |
 | P3-PRJ-09 | Permissions | Operator: create / archive. Both roles: set project on tasks they can edit. |
-| P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (2–4), `archived_at` (null = open), `created_at`. `tasks.project_id` nullable FK `on delete set null`. |
+| P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (1–3), `archived_at` (null = open), `created_at`. `tasks.project_id` nullable FK `on delete set null`. |
 | P3-PRJ-11 | Cap | At most **8** open projects per group. Paid plans later; for now refuse create at the cap. |
 
 ---
@@ -733,7 +733,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
-| 2026-08-15 | P3-16 group projects (Settings CRUD; task acronym; no extra nav) |
+| 2026-08-15 | P3-16 group projects (Settings CRUD; task acronym 1–3; no extra nav) |
 | 2026-07-26 | Export: CSV only (drop JSON product envelope / phantom `GET /export`); P3-12 folded into P2-DATA-02; drop P3-05 teammate due reminders; import out of scope |
 | 2026-07-26 | Doc contract vs UIUX; slim §1 / §5.5 / §5.10; P1-TASK-14 clone; locale codes `en-gb`/`es-es`/`pt-br` |
 | 2026-07-26 | P2-MON-02 `login_failed` audit + platform overview count (7d) |

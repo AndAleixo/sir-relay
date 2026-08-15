@@ -301,7 +301,8 @@ export function BoardTaskCard({
           <div
             className={cn(
               taskCardStyles.footerSlot,
-              menuOpen && taskCardStyles.footerSlotHidden,
+              taskCardStyles.overlayFade,
+              menuOpen && taskCardStyles.overlayFaded,
             )}
           >
             {editingDue && !readOnly ? (

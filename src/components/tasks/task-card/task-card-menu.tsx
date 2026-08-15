@@ -57,8 +57,8 @@ export function TaskCardMenu({
           className={cn(
             taskCardStyles.menuSegment,
             visible
-              ? taskCardStyles.menuSegmentOpen
-              : taskCardStyles.menuSegmentClosed,
+                ? taskCardStyles.overlayOpen
+                : taskCardStyles.menuSegmentClosed,
           )}
           onTransitionEnd={onTransitionEnd}
         >

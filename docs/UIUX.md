@@ -459,7 +459,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | `LocaleSwitcher` / `LocalePicker` / `UserMenu` | Header utilities |
 | `UserAvatar` / `ProfileAvatarEditor` | Photo |
 | `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared forms |
-| `BoardTaskCard` / `TaskCardMenu` | Board cards + ⋯ segment |
+| `BoardTaskCard` / `TaskCardMenu` / `TaskProjectPicker` | Board cards + ⋯ / acronym segments |
 | `StatusKanban` / `TeamBoard` / `BoardQuickAddTask` | Boards |
 | `TaskList` / `ViewToggle` / `ScopeToggle` | List + toolbar |
 | `StatusBadge` / `MemberNameRow` / `MemberStatusIcons` | Labels / icons |
@@ -476,7 +476,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 |--------|---------|---------|
 | **A** | `useFadeOpen` + `useDismissable` + `popoverStyles` (~200ms open / ~300ms close) | User · Locale · Group · `Select` · `Toast` (3s, no outside-click) |
 | **B** | Segmented control | Scope / View toggles |
-| **C** | Horizontal ⋯ segment (same fade timings) | Board task menu |
+| **C** | Horizontal segment (same fade timings) | Board ⋯ menu · acronym picker |
 
 ---
 
@@ -508,7 +508,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Date | Change |
 |------|--------|
-| 2026-08-15 | P3-16 group projects: Settings card; list filter; no fifth tab |
+| 2026-08-15 | P3-16 group projects: Settings card; list filter; no fifth tab; card acronym segment (Family C) |
 | 2026-08-15 | Success flash → floating `Toast` card (3s, Family A). `Banner` kept for page-state / errors |
 | 2026-07-26 | Doc contract vs REQUIREMENTS; trim product-rule restatements; card/menu + Family A/B/C in one place |
 | 2026-07-25 | Board ⋯ segment (Open · Clone · Delete); description preview; Done Show more; Family A Select/popovers; scope URL |

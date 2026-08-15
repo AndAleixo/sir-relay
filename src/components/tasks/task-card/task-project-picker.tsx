@@ -128,7 +128,9 @@ export function TaskProjectPicker({
     <div
       ref={rootRef}
       className={
-        children ? taskCardStyles.projectPickerShell : taskCardStyles.acronymRoot
+        children
+          ? taskCardStyles.projectPickerShell
+          : taskCardStyles.projectPickerHug
       }
     >
       <span ref={prefixRef} className={taskCardStyles.acronymRoot}>
@@ -158,7 +160,7 @@ export function TaskProjectPicker({
                 ? taskCardStyles.projectSegmentStretch
                 : taskCardStyles.projectSegmentHug,
               visible
-                ? taskCardStyles.menuSegmentOpen
+                ? taskCardStyles.overlayOpen
                 : taskCardStyles.projectSegmentClosed,
             )}
             style={{ width: stripWidth ?? undefined }}
@@ -223,7 +225,12 @@ export function TaskProjectPicker({
         ) : null}
       </span>
       {children ? (
-        <span className={cn(rendered && taskCardStyles.footerSlotHidden)}>
+        <span
+          className={cn(
+            taskCardStyles.overlayFade,
+            rendered && taskCardStyles.overlayFaded,
+          )}
+        >
           {children}
         </span>
       ) : null}

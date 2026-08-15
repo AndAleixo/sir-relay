@@ -127,7 +127,6 @@ export default async function TasksPage({
             done: t("status.done"),
           },
           project: t("tasks.project"),
-          projectAria: t("tasks.projectAria"),
           addProject: t("tasks.addProject"),
         }}
       />

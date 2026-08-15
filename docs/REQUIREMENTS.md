@@ -544,7 +544,7 @@ Task.project_id → nullable FK
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P3-PRJ-01 | Scope | Projects belong to `session.activeGroupId`. Switching group switches the list. |
-| P3-PRJ-02 | Manage UI | Operator: Settings card **Projects** — create (name then acronym), list name then acronym (same columns), trash with confirm (archives). Cap 8 open. Teammate: no manage UI (read acronyms when tagging tasks). |
+| P3-PRJ-02 | Manage UI | Operator: Settings card **Projects** — create (name then acronym), list name then acronym (same columns), trash with confirm (archives). Teammate: no manage UI (read acronyms when tagging tasks). |
 | P3-PRJ-03 | Acronym | 2–4 letters A–Z (store uppercase). Unique among **open** projects in the group. |
 | P3-PRJ-04 | Archive | Trash in Settings archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. |
 | P3-PRJ-05 | Tag task | Create/edit: Select of **open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` if still open, else `null`. |

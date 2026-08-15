@@ -64,7 +64,6 @@ interface TasksPageClientProps {
     statusColumn: string;
     status: { todo: string; doing: string; done: string };
     project: string;
-    projectAria: string;
     addProject: string;
   };
 }

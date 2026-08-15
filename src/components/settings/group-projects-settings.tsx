@@ -8,7 +8,7 @@ import { TrashIcon } from "@/components/ui/icons";
 import { Input, Label } from "@/components/ui/input";
 import type { Project } from "@/domain/types";
 import { cn } from "@/lib/cn";
-import { MAX_OPEN_PROJECTS } from "@/lib/project";
+import { MAX_OPEN_PROJECTS, PROJECT_NAME_MAX } from "@/lib/project";
 
 const PROJECT_COLS =
   "grid grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-2";
@@ -57,7 +57,7 @@ export function GroupProjectsSettings({
         <form action={createAction} className={cn(PROJECT_COLS, "items-end")}>
           <div className="min-w-0">
             <Label htmlFor="project-name">{t("settings.projectName")}</Label>
-            <Input id="project-name" name="name" required maxLength={20} />
+            <Input id="project-name" name="name" required maxLength={PROJECT_NAME_MAX} />
           </div>
           <div className="min-w-0">
             <Label htmlFor="project-acronym" className="truncate">

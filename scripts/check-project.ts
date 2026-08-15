@@ -7,11 +7,13 @@ import {
   MAX_OPEN_PROJECTS,
   parseProjectAcronym,
   parseProjectName,
+  PROJECT_NAME_MAX,
   resolveStoredProjectId,
 } from "../src/lib/project";
 import { parseTasksProject, tasksListHref } from "../src/lib/tasks-url";
 
 assert.equal(MAX_OPEN_PROJECTS, 8);
+assert.equal(PROJECT_NAME_MAX, 20);
 
 assert.equal(parseProjectAcronym("shop"), "SHOP");
 assert.equal(parseProjectAcronym(" WEB "), "WEB");
@@ -23,7 +25,7 @@ assert.equal(parseProjectAcronym(""), null);
 assert.equal(parseProjectName("  Floor  "), "Floor");
 assert.equal(parseProjectName(""), null);
 assert.equal(parseProjectName("   "), null);
-assert.equal((parseProjectName("x".repeat(50)) ?? "").length, 20);
+assert.equal((parseProjectName("x".repeat(50)) ?? "").length, PROJECT_NAME_MAX);
 
 assert.equal(formatTaskHeading("Fix login", "SIR"), "SIR · Fix login");
 assert.equal(formatTaskHeading("Fix login", null), "Fix login");

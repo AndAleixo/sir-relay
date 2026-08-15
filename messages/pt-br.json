@@ -232,7 +232,6 @@
     "difficultyHard": "Difícil",
     "project": "Projeto",
     "projectNone": "Nenhum",
-    "projectAria": "Filtrar por projeto",
     "addProject": "Adicionar um projeto em Configurações"
   },
   "settings": {
@@ -286,7 +285,7 @@
     "projectRemoveConfirm": "Remover {name}? As tarefas mantêm a sigla.",
     "projectsLimit": "Este grupo pode ter até {count} projetos.",
     "projectSaved": "Projeto adicionado.",
-    "projectArchived": "Projeto removido.",
+    "projectRemoved": "Projeto removido.",
     "projectErrorAcronym": "A sigla deve ter 2–4 letras (A–Z).",
     "projectErrorName": "Informe o nome do projeto.",
     "projectErrorTaken": "Essa sigla já está em uso.",

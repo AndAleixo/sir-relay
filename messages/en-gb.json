@@ -232,7 +232,6 @@
     "difficultyHard": "Hard",
     "project": "Project",
     "projectNone": "None",
-    "projectAria": "Filter by project",
     "addProject": "Add a project in Settings"
   },
   "settings": {
@@ -286,7 +285,7 @@
     "projectRemoveConfirm": "Remove {name}? Existing tasks keep the acronym.",
     "projectsLimit": "This group can have up to {count} projects.",
     "projectSaved": "Project added.",
-    "projectArchived": "Project removed.",
+    "projectRemoved": "Project removed.",
     "projectErrorAcronym": "Acronym must be 2–4 letters (A–Z).",
     "projectErrorName": "Enter a project name.",
     "projectErrorTaken": "That acronym is already in use.",

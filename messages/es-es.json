@@ -232,7 +232,6 @@
     "difficultyHard": "Difícil",
     "project": "Proyecto",
     "projectNone": "Ninguno",
-    "projectAria": "Filtrar por proyecto",
     "addProject": "Añadir un proyecto en Ajustes"
   },
   "settings": {
@@ -286,7 +285,7 @@
     "projectRemoveConfirm": "¿Quitar {name}? Las tareas conservan el acrónimo.",
     "projectsLimit": "Este grupo puede tener hasta {count} proyectos.",
     "projectSaved": "Proyecto añadido.",
-    "projectArchived": "Proyecto quitado.",
+    "projectRemoved": "Proyecto quitado.",
     "projectErrorAcronym": "El acrónimo debe tener 2–4 letras (A–Z).",
     "projectErrorName": "Introduce el nombre del proyecto.",
     "projectErrorTaken": "Ese acrónimo ya está en uso.",

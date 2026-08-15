@@ -102,5 +102,5 @@ export async function archiveProjectForm(locale: string, formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect(`/${locale}/settings?projectArchived=1`);
+  redirect(`/${locale}/settings?projectRemoved=1`);
 }

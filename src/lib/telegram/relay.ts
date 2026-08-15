@@ -21,6 +21,13 @@ function dueDateLabel(dueDate: Date | null): string | null {
   return dueDate.toISOString().slice(0, 10);
 }
 
+/** Prisma can infer optional `include.project` as `never`; the query still returns acronym. */
+function includedProjectAcronym(row: {
+  project?: { acronym: string } | null;
+}): string | null {
+  return row.project?.acronym ?? null;
+}
+
 function appOrigin(): string {
   return process.env.APP_URL?.replace(/\/$/, "") || "http://localhost:3000";
 }
@@ -63,7 +70,7 @@ async function sendAndPersistTaskNotify(taskId: string): Promise<boolean> {
   const chatId = task.assignee.telegramChatId;
   const locale = task.assignee.locale as DbLocale;
   const text = taskNotify(locale, {
-    title: formatTaskHeading(task.title, task.project?.acronym),
+    title: formatTaskHeading(task.title, includedProjectAcronym(task)),
     description: task.description,
     dueDate: dueDateLabel(task.dueDate),
     difficulty: task.difficulty,

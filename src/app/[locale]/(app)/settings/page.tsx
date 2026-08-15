@@ -19,13 +19,11 @@ export default async function SettingsPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{
     renameError?: string;
-    renamed?: string;
-    displayNameSaved?: string;
     displayNameError?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { renameError, renamed, displayNameSaved, displayNameError } = await searchParams;
+  const { renameError, displayNameError } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
   const { alerts, groups, teammates } = getServices();
@@ -83,7 +81,6 @@ export default async function SettingsPage({
                 isOperator={isOperator}
                 isOwner={isOwner}
                 renameError={renameError}
-                renamed={renamed === "1"}
               />
               <form
                 action={updateOwnDisplayNameForm.bind(null, locale)}
@@ -113,9 +110,6 @@ export default async function SettingsPage({
                     {t("common.save")}
                   </Button>
                 </div>
-                {displayNameSaved === "1" ? (
-                  <Banner variant="info">{t("settings.fantasyNameSaved")}</Banner>
-                ) : null}
                 {displayNameError === "1" ? (
                   <Banner variant="severity">{t("settings.fantasyNameFailed")}</Banner>
                 ) : null}

@@ -182,7 +182,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 
 Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · New task. Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue).
 
-**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped from the URL after paint (`flash-url.ts`); `error` stays.
+**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`.
 
 | Scope | Default | Board | List |
 |-------|---------|-------|------|
@@ -463,7 +463,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | `TelegramStatusIcon` / `AccountInactiveIcon` / `ToneBadge` | Status marks |
 | `PromoteTeammateButton` / `DemoteOperatorButton` / `TransferOwnershipButton` / `RemoveTeammateButton` | Teammate detail |
 | `OperatorAlertsList` | `/events` |
-| `Banner` / `SyncBar` | Feedback |
+| `Banner` / `Toast` / `SyncBar` | Page-state · success as floating card (3s, Family A) · sync |
 
 **Styling:** Tailwind + `brand/brand.css` — [BRAND.md](./BRAND.md).
 
@@ -471,7 +471,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Family | Pattern | Used by |
 |--------|---------|---------|
-| **A** | `useFadeOpen` + `useDismissable` + `popoverStyles` (~200ms open / ~300ms close) | User · Locale · Group · `Select` |
+| **A** | `useFadeOpen` + `useDismissable` + `popoverStyles` (~200ms open / ~300ms close) | User · Locale · Group · `Select` · `Toast` (3s, no outside-click) |
 | **B** | Segmented control | Scope / View toggles |
 | **C** | Horizontal ⋯ segment (same fade timings) | Board task menu |
 
@@ -504,6 +504,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Date | Change |
 |------|--------|
+| 2026-08-15 | Success flash → floating `Toast` card (3s, Family A). `Banner` kept for page-state / errors |
 | 2026-07-26 | Doc contract vs REQUIREMENTS; trim product-rule restatements; card/menu + Family A/B/C in one place |
 | 2026-07-25 | Board ⋯ segment (Open · Clone · Delete); description preview; Done Show more; Family A Select/popovers; scope URL |
 | 2026-07-23 | My work \| Team scope; member identity icons; teammates list columns |

@@ -16,7 +16,8 @@
     "showMore": "Show more",
     "dragHandle": "Drag task",
     "copy": "Copy link",
-    "copied": "Copied"
+    "copied": "Copied",
+    "close": "Close"
   },
   "shell": {
     "collapseSidebar": "Collapse sidebar",

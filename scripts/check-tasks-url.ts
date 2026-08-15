@@ -13,7 +13,8 @@ import {
   tasksListHref,
   tasksListHrefFromReturn,
 } from "../src/lib/tasks-url";
-import { stripSuccessFlash } from "../src/lib/flash-url";
+import { stripSuccessFlash, readSuccessFlash, SUCCESS_FLASH_MESSAGES } from "../src/lib/flash-url";
+import enGb from "../messages/en-gb.json";
 
 assert.equal(parseTasksScope(undefined, "operator"), "team");
 assert.equal(parseTasksScope(undefined, "teammate"), "mine");
@@ -70,5 +71,29 @@ assert.equal(
 assert.equal(stripSuccessFlash("?transferred=1"), "");
 assert.equal(stripSuccessFlash("?scope=team&view=board"), null);
 assert.equal(stripSuccessFlash("?error=not_found"), null);
+
+assert.equal(readSuccessFlash("?saved=1"), "saved");
+assert.equal(readSuccessFlash("?scope=team&view=board"), null);
+assert.equal(
+  readSuccessFlash("?promoted=1&invitationError=1"),
+  "promoted",
+);
+
+function messageAt(path: string): unknown {
+  return path.split(".").reduce<unknown>((node, part) => {
+    if (node && typeof node === "object" && part in node) {
+      return (node as Record<string, unknown>)[part];
+    }
+    return undefined;
+  }, enGb);
+}
+
+for (const [flash, messageKey] of Object.entries(SUCCESS_FLASH_MESSAGES)) {
+  assert.equal(
+    typeof messageAt(messageKey),
+    "string",
+    `${flash} → ${messageKey}`,
+  );
+}
 
 console.log("check-tasks-url: ok");

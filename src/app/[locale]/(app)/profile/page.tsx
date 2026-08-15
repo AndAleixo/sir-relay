@@ -27,13 +27,11 @@ export default async function ProfilePage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<{
     passwordError?: string;
-    passwordChanged?: string;
     nameError?: string;
-    nameSaved?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { passwordError, passwordChanged, nameError, nameSaved } = await searchParams;
+  const { passwordError, nameError } = await searchParams;
   const t = await getTranslations();
   const session = await requireSession(locale);
   const { teammates, users } = getServices();
@@ -66,17 +64,6 @@ export default async function ProfilePage({
         subtitle={t("profile.accountScopeHint")}
       />
       <div className="grid max-w-3xl gap-3 md:max-w-4xl md:grid-cols-2 md:gap-4">
-        {passwordChanged === "1" ? (
-          <Banner variant="info" className="md:col-span-2">
-            {t("auth.passwordChanged")}
-          </Banner>
-        ) : null}
-        {nameSaved === "1" ? (
-          <Banner variant="info" className="md:col-span-2">
-            {t("profile.nameSaved")}
-          </Banner>
-        ) : null}
-
         <Card className="min-w-0">
           <CardHeader>
             <h2 className="text-sm font-semibold">{t("profile.accountInfo")}</h2>

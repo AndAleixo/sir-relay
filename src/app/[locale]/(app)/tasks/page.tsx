@@ -19,19 +19,11 @@ export default async function TasksPage({
   searchParams: Promise<{
     scope?: string;
     view?: string;
-    saved?: string;
-    deleted?: string;
     error?: string;
   }>;
 }) {
   const { locale } = await params;
-  const {
-    scope: scopeRaw,
-    view: viewRaw,
-    saved,
-    deleted,
-    error,
-  } = await searchParams;
+  const { scope: scopeRaw, view: viewRaw, error } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
   const { tasks, teammates, alerts } = getServices();
@@ -57,16 +49,6 @@ export default async function TasksPage({
   return (
     <>
       <PageHeader title={t("common.tasks")} />
-      {saved === "1" ? (
-        <Banner variant="info" className="mb-4">
-          {t("tasks.saved")}
-        </Banner>
-      ) : null}
-      {deleted === "1" ? (
-        <Banner variant="info" className="mb-4">
-          {t("tasks.deleted")}
-        </Banner>
-      ) : null}
       {error === "not_found" ? (
         <Banner variant="severity" className="mb-4">
           {t("tasks.errorNotFound")}

@@ -12,7 +12,6 @@ type GroupGeneralSettingsProps = {
   isOperator: boolean;
   isOwner?: boolean;
   renameError?: string;
-  renamed?: boolean;
 };
 
 export async function GroupGeneralSettings({
@@ -22,7 +21,6 @@ export async function GroupGeneralSettings({
   isOperator,
   isOwner = false,
   renameError,
-  renamed,
 }: GroupGeneralSettingsProps) {
   const t = await getTranslations();
 
@@ -48,9 +46,6 @@ export async function GroupGeneralSettings({
         </div>
       </dl>
 
-      {renamed ? (
-        <Banner variant="info">{t("settings.groupRenamed")}</Banner>
-      ) : null}
       {renameError === "short" ? (
         <Banner variant="severity">{t("groups.nameTooShort")}</Banner>
       ) : null}

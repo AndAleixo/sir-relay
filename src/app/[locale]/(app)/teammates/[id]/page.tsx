@@ -32,10 +32,10 @@ export default async function TeammateDetailPage({
   searchParams,
 }: {
   params: Promise<{ locale: string; id: string }>;
-  searchParams: Promise<{ error?: string; transferred?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { locale, id } = await params;
-  const { error, transferred } = await searchParams;
+  const { error } = await searchParams;
   const t = await getTranslations();
   const { teammates, auth, groups } = getServices();
   const session = await auth.getSession();
@@ -94,11 +94,6 @@ export default async function TeammateDetailPage({
           />
         }
       />
-      {transferred === "1" ? (
-        <Banner variant="info" className="mb-4">
-          {t("teammate.ownershipTransferred")}
-        </Banner>
-      ) : null}
       {error === "promote" ? (
         <Banner variant="severity" className="mb-4">
           {t("teammate.promoteFailed")}

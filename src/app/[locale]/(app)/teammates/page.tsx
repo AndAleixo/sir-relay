@@ -22,15 +22,11 @@ export default async function TeammatesPage({
 }: {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{
-    promoted?: string;
-    demoted?: string;
-    invited?: string;
-    resent?: string;
     invitationError?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { promoted, demoted, invited, resent, invitationError } = await searchParams;
+  const { invitationError } = await searchParams;
   const t = await getTranslations();
   const { auth, teammates, invitations } = getServices();
   const session = await auth.getSession();
@@ -45,26 +41,6 @@ export default async function TeammatesPage({
   return (
     <>
       <PageHeader title={t("common.teammates")} />
-      {promoted === "1" ? (
-        <Banner variant="info" className="mb-4">
-          {t("teammate.promoted")}
-        </Banner>
-      ) : null}
-      {demoted === "1" ? (
-        <Banner variant="info" className="mb-4">
-          {t("teammate.demoted")}
-        </Banner>
-      ) : null}
-      {invited === "1" ? (
-        <Banner variant="info" className="mb-4">
-          {t("teammate.invitationCreated")}
-        </Banner>
-      ) : null}
-      {resent === "1" ? (
-        <Banner variant="info" className="mb-4">
-          {t("teammate.invitationResent")}
-        </Banner>
-      ) : null}
       {invitationError === "1" ? (
         <Banner variant="severity" className="mb-4">
           {t("teammate.invitationActionFailed")}

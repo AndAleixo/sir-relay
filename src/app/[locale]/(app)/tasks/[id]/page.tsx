@@ -49,14 +49,13 @@ export default async function TaskDetailPage({
 }: {
   params: Promise<{ locale: string; id: string }>;
   searchParams: Promise<{
-    renotify?: string;
     error?: string;
     scope?: string;
     view?: string;
   }>;
 }) {
   const { locale, id } = await params;
-  const { renotify, error, scope: scopeRaw, view: viewRaw } = await searchParams;
+  const { error, scope: scopeRaw, view: viewRaw } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
   const { tasks, teammates } = getServices();
@@ -132,12 +131,6 @@ export default async function TaskDetailPage({
           </div>
         }
       />
-
-      {renotify === "1" ? (
-        <Banner variant="info" className="mb-4">
-          {t("tasks.renotifyDone")}
-        </Banner>
-      ) : null}
 
       {errorMessage ? (
         <Banner variant="severity" className="mb-4">

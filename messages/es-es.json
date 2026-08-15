@@ -16,7 +16,8 @@
     "showMore": "Ver más",
     "dragHandle": "Arrastrar tarea",
     "copy": "Copiar enlace",
-    "copied": "Copiado"
+    "copied": "Copiado",
+    "close": "Cerrar"
   },
   "shell": {
     "collapseSidebar": "Contraer barra lateral",

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import type { GroupInvitation, User, UserGroup } from "@/domain/types";
 import { AppShell } from "@/components/layout/app-shell";
 import { ConsumeFlash } from "@/components/layout/consume-flash";
@@ -24,7 +25,9 @@ export function AppLayoutClient({
 }: AppLayoutClientProps) {
   return (
     <SyncProvider>
-      <ConsumeFlash />
+      <Suspense fallback={null}>
+        <ConsumeFlash />
+      </Suspense>
       <SyncBar />
       <AppShell
         locale={locale}

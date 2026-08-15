@@ -43,7 +43,7 @@ export default async function SettingsPage({
     activeGroup && activeGroup.ownerUserId === session.user.id,
   );
   const showLeaveSuccessionHint = isOwner && memberCount > 1;
-  const allProjects =
+  const openProjects =
     isOperator && activeGroup ? await projects.listOpen({ session }) : [];
 
   return (
@@ -133,7 +133,7 @@ export default async function SettingsPage({
             <CardBody>
               <GroupProjectsSettings
                 locale={locale}
-                projects={allProjects}
+                projects={openProjects}
                 error={projectError}
               />
             </CardBody>
@@ -169,11 +169,9 @@ export default async function SettingsPage({
         )}
 
         {activeGroup ? (
-          <Card className="min-w-0 md:col-span-2">
+          <Card className="min-w-0">
             <CardHeader>
-              <h2 className="text-sm font-semibold">
-                {t("settings.dangerZone", { group: activeGroup.name })}
-              </h2>
+              <h2 className="text-sm font-semibold">{t("settings.dangerZone")}</h2>
               <p className="mt-0.5 text-xs text-[var(--text-muted)]">
                 {t("settings.dangerZoneHint", { group: activeGroup.name })}
               </p>

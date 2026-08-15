@@ -1,7 +1,7 @@
 import type { Project, Session } from "@/domain/types";
 import type { ProjectService } from "@/services/contracts";
 import { requireActiveGroupId, requireOperator } from "@/lib/authz";
-import { parseProjectAcronym, parseProjectName, resolveStoredProjectId } from "@/lib/project";
+import { parseProjectAcronym, parseProjectName, resolveStoredProjectId, MAX_OPEN_PROJECTS } from "@/lib/project";
 
 const SEED: Project[] = [
   {
@@ -74,6 +74,8 @@ export const mockProjectService: ProjectService = {
     const acronym = parseProjectAcronym(input.acronym);
     if (!name) throw new Error("Invalid name");
     if (!acronym) throw new Error("Invalid acronym");
+    const open = inGroup(ctx.session).filter((project) => project.archivedAt === null);
+    if (open.length >= MAX_OPEN_PROJECTS) throw new Error("Limit");
     const taken = inGroup(ctx.session).some(
       (project) => project.archivedAt === null && project.acronym === acronym,
     );

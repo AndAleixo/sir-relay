@@ -532,7 +532,7 @@ Both roles. Requires Phase 1 API + DB. PWA install → P3-14. Out of scope here:
 
 ### 7.2 Group projects (P3-16)
 
-Optional labels **inside the active group**. The group remains the team (members, board, Telegram queue). A **project** is a named bucket with a short **acronym**; a task may carry at most one. **No new sidebar / mobile tab** — CRUD lives on **Settings**; the board only filters and shows the acronym.
+Optional labels **inside the active group**. The group remains the team (members, board, Telegram queue). A **project** is a named bucket with a short **acronym**; a task may carry at most one. **No new sidebar / mobile tab** — CRUD lives on **Settings**. The board shows the acronym; the list view filters.
 
 Out of scope: free-form tags, colours, people-per-project, per-project boards, extra nav item.
 
@@ -544,15 +544,16 @@ Task.project_id → nullable FK
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P3-PRJ-01 | Scope | Projects belong to `session.activeGroupId`. Switching group switches the list. |
-| P3-PRJ-02 | Manage UI | Operator: Settings card **Projects** — list open (count in header), create (name + acronym), archive. Teammate: no manage UI (read acronyms when tagging tasks). |
+| P3-PRJ-02 | Manage UI | Operator: Settings card **Projects** — create (name then acronym), list name then acronym (same columns), trash with confirm (archives). Cap 8 open. Teammate: no manage UI (read acronyms when tagging tasks). |
 | P3-PRJ-03 | Acronym | 2–4 letters A–Z (store uppercase). Unique among **open** projects in the group. |
-| P3-PRJ-04 | Archive | Archive hides from create/edit Select and board filter. Existing tasks keep `project_id`; acronym still renders. Do not delete (history). |
+| P3-PRJ-04 | Archive | Trash in Settings archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. |
 | P3-PRJ-05 | Tag task | Create/edit: Select of **open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` if still open, else `null`. |
 | P3-PRJ-06 | List filter | List view: Select of **open** projects with the other list filters (`All` or one project). Board / kanban: no project filter (all tasks in scope). No fifth nav tab. Zero projects: quiet Settings link on the list filters (operator only). |
 | P3-PRJ-07 | Display | Card, list, task detail, Telegram notification title: acronym then title (e.g. `SIR · Fix login`). Untagged: title only. |
 | P3-PRJ-08 | Relay | Queue / notify / re-notify use the same display string. Project does not change queue order. |
 | P3-PRJ-09 | Permissions | Operator: create / archive. Both roles: set project on tasks they can edit. |
 | P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (2–4), `archived_at` (null = open), `created_at`. `tasks.project_id` nullable FK `on delete set null`. |
+| P3-PRJ-11 | Cap | At most **8** open projects per group. Paid plans later; for now refuse create at the cap. |
 
 ---
 

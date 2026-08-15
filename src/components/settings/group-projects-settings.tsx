@@ -1,9 +1,25 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
 import { archiveProjectForm, createProjectForm } from "@/app/actions/settings";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
+import { TrashIcon } from "@/components/ui/icons";
 import { Input, Label } from "@/components/ui/input";
 import type { Project } from "@/domain/types";
+import { cn } from "@/lib/cn";
+import { MAX_OPEN_PROJECTS } from "@/lib/project";
+
+const PROJECT_COLS =
+  "grid grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-2";
+
+const PROJECT_ERRORS = {
+  acronym: "settings.projectErrorAcronym",
+  name: "settings.projectErrorName",
+  taken: "settings.projectErrorTaken",
+  limit: "settings.projectErrorLimit",
+  failed: "settings.projectErrorFailed",
+} as const;
 
 type GroupProjectsSettingsProps = {
   locale: string;
@@ -11,84 +27,92 @@ type GroupProjectsSettingsProps = {
   error?: string;
 };
 
-export async function GroupProjectsSettings({
+export function GroupProjectsSettings({
   locale,
   projects,
   error,
 }: GroupProjectsSettingsProps) {
-  const t = await getTranslations();
+  const t = useTranslations();
   const createAction = createProjectForm.bind(null, locale);
   const archiveAction = archiveProjectForm.bind(null, locale);
+  const atLimit = projects.length >= MAX_OPEN_PROJECTS;
+  const errorKey =
+    error && error in PROJECT_ERRORS
+      ? PROJECT_ERRORS[error as keyof typeof PROJECT_ERRORS]
+      : null;
 
   return (
     <div className="space-y-3">
-      {error === "acronym" ? (
-        <Banner variant="severity">{t("settings.projectErrorAcronym")}</Banner>
-      ) : null}
-      {error === "name" ? (
-        <Banner variant="severity">{t("settings.projectErrorName")}</Banner>
-      ) : null}
-      {error === "taken" ? (
-        <Banner variant="severity">{t("settings.projectErrorTaken")}</Banner>
-      ) : null}
-      {error === "failed" ? (
-        <Banner variant="severity">{t("settings.projectErrorFailed")}</Banner>
+      {errorKey ? (
+        <Banner variant="severity">
+          {t(errorKey, { count: MAX_OPEN_PROJECTS })}
+        </Banner>
       ) : null}
 
-      <form
-        action={createAction}
-        className="space-y-2 sm:flex sm:items-end sm:gap-3 sm:space-y-0"
-      >
-        <div className="min-w-0 flex-1">
-          <Label htmlFor="project-name">{t("settings.projectName")}</Label>
-          <Input id="project-name" name="name" required maxLength={20} />
-        </div>
-        <div className="w-full shrink-0 sm:w-20">
-          <Label htmlFor="project-acronym">{t("settings.projectAcronym")}</Label>
-          <Input
-            id="project-acronym"
-            name="acronym"
-            required
-            minLength={2}
-            maxLength={4}
-            className="uppercase"
-            autoComplete="off"
-            aria-describedby="project-acronym-hint"
-          />
-        </div>
-        <Button type="submit" className="w-full shrink-0 sm:w-auto">
-          {t("settings.addProject")}
-        </Button>
-      </form>
-      <p id="project-acronym-hint" className="text-xs text-[var(--text-muted)]">
-        {t("settings.projectAcronymHint")}
-      </p>
+      {atLimit ? (
+        <p className="text-xs text-[var(--text-muted)]">
+          {t("settings.projectsLimit", { count: MAX_OPEN_PROJECTS })}
+        </p>
+      ) : (
+        <form action={createAction} className={cn(PROJECT_COLS, "items-end")}>
+          <div className="min-w-0">
+            <Label htmlFor="project-name">{t("settings.projectName")}</Label>
+            <Input id="project-name" name="name" required maxLength={20} />
+          </div>
+          <div className="min-w-0">
+            <Label htmlFor="project-acronym" className="truncate">
+              {t("settings.projectAcronym")}
+            </Label>
+            <Input
+              id="project-acronym"
+              name="acronym"
+              required
+              minLength={2}
+              maxLength={4}
+              className="uppercase"
+              autoComplete="off"
+            />
+          </div>
+          <Button type="submit" className="shrink-0 px-3">
+            {t("settings.addProject")}
+          </Button>
+        </form>
+      )}
 
-      <div className="space-y-2 border-t border-[var(--border)] pt-3">
+      <div className="border-t border-[var(--border)] pt-3">
         {projects.length === 0 ? (
           <p className="text-sm text-[var(--text-muted)]">{t("settings.projectsEmpty")}</p>
         ) : (
           <ul className="max-h-[11.5rem] space-y-2 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-width:thin]">
             {projects.map((project) => (
-              <li
-                key={project.id}
-                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3"
-              >
-                <p className="min-w-0 flex-1 text-sm font-medium text-[var(--text-primary)]">
-                  <span className="text-xs font-normal text-[var(--text-muted)]">
-                    {project.acronym}
-                  </span>{" "}
+              <li key={project.id} className={PROJECT_COLS}>
+                <p className="min-w-0 truncate text-sm font-medium text-[var(--text-primary)]">
                   {project.name}
                 </p>
-                <form action={archiveAction}>
+                <span className="truncate text-sm font-medium tracking-wide text-[var(--text-muted)]">
+                  {project.acronym}
+                </span>
+                <form
+                  action={archiveAction}
+                  onSubmit={(event) => {
+                    if (
+                      !window.confirm(
+                        t("settings.projectRemoveConfirm", { name: project.name }),
+                      )
+                    ) {
+                      event.preventDefault();
+                    }
+                  }}
+                >
                   <input type="hidden" name="projectId" value={project.id} />
-                  <Button
+                  <button
                     type="submit"
-                    variant="secondary"
-                    className="w-full shrink-0 sm:w-auto"
+                    className="rounded p-1 text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--severity)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30"
+                    aria-label={t("settings.removeProject")}
+                    title={t("settings.removeProject")}
                   >
-                    {t("settings.archiveProject")}
-                  </Button>
+                    <TrashIcon className="h-3.5 w-3.5" />
+                  </button>
                 </form>
               </li>
             ))}

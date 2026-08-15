@@ -4,11 +4,14 @@
 import assert from "node:assert/strict";
 import {
   formatTaskHeading,
+  MAX_OPEN_PROJECTS,
   parseProjectAcronym,
   parseProjectName,
   resolveStoredProjectId,
 } from "../src/lib/project";
 import { parseTasksProject, tasksListHref } from "../src/lib/tasks-url";
+
+assert.equal(MAX_OPEN_PROJECTS, 8);
 
 assert.equal(parseProjectAcronym("shop"), "SHOP");
 assert.equal(parseProjectAcronym(" WEB "), "WEB");

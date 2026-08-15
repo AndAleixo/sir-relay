@@ -75,7 +75,9 @@ export async function createProjectForm(locale: string, formData: FormData) {
           ? "name"
           : message === "Taken"
             ? "taken"
-            : "failed";
+            : message === "Limit"
+              ? "limit"
+              : "failed";
     redirect(`/${locale}/settings?projectError=${code}`);
   }
 

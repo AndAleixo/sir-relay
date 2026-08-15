@@ -383,7 +383,7 @@ Fantasy name · email (while invited) · promote / demote / transfer ownership /
 | Section | Content |
 |---------|---------|
 | General | Group name (operator); role (+ owner line); your fantasy name |
-| Projects | Operator: create (name + acronym), archive; list scrolls after ~4. No extra nav tab. [P3-16](./REQUIREMENTS.md#72-group-projects-p3-16) |
+| Projects | Operator: create (name then acronym); list name then acronym; trash + confirm (archives). Cap 8 open. [P3-16](./REQUIREMENTS.md#72-group-projects-p3-16) |
 | Notifications | Operator: alert toggles + Events link; teammate empty state; banner → Profile if unlinked |
 | Leave / delete | Leave · delete (owner) — [P1-GRP-09/10](./REQUIREMENTS.md#511-groups) |
 
@@ -507,7 +507,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Date | Change |
 |------|--------|
-| 2026-08-15 | P3-16 group projects: Settings card; board filter; no fifth tab |
+| 2026-08-15 | P3-16 group projects: Settings card; list filter; no fifth tab |
 | 2026-08-15 | Success flash → floating `Toast` card (3s, Family A). `Banner` kept for page-state / errors |
 | 2026-07-26 | Doc contract vs REQUIREMENTS; trim product-rule restatements; card/menu + Family A/B/C in one place |
 | 2026-07-25 | Board ⋯ segment (Open · Clone · Delete); description preview; Done Show more; Family A Select/popovers; scope URL |

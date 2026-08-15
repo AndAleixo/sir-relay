@@ -1,4 +1,5 @@
 /** P3-PRJ-03 — 2–4 Latin letters, stored uppercase. */
+export const MAX_OPEN_PROJECTS = 8;
 export function parseProjectAcronym(raw: string): string | null {
   const acronym = raw.trim().toUpperCase();
   if (!/^[A-Z]{2,4}$/.test(acronym)) return null;

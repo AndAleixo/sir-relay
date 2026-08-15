@@ -1,7 +1,7 @@
 import type { Project } from "@/domain/types";
 import type { ProjectService } from "@/services/contracts";
 import { requireActiveGroupId, requireOperator } from "@/lib/authz";
-import { parseProjectAcronym, parseProjectName } from "@/lib/project";
+import { parseProjectAcronym, parseProjectName, MAX_OPEN_PROJECTS } from "@/lib/project";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -50,6 +50,11 @@ export const apiProjectService: ProjectService = {
     const acronym = parseProjectAcronym(input.acronym);
     if (!name) throw new Error("Invalid name");
     if (!acronym) throw new Error("Invalid acronym");
+
+    const openCount = await prisma.project.count({
+      where: { groupId, archivedAt: null },
+    });
+    if (openCount >= MAX_OPEN_PROJECTS) throw new Error("Limit");
 
     try {
       const row = await prisma.project.create({

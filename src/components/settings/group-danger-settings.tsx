@@ -55,56 +55,52 @@ export function GroupDangerSettings({
       ) : null}
 
       {errorMessage ? (
-        <p className="rounded-button border border-[var(--severity-soft-hover)] bg-[var(--severity-soft)] px-3 py-2 text-sm text-[var(--severity)]">
-          {errorMessage}
-        </p>
+        <Banner variant="severity">{errorMessage}</Banner>
       ) : null}
 
-      <div className={isOwner ? "grid gap-3 sm:grid-cols-2" : "space-y-3"}>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-          <p className="min-w-0 text-sm text-[var(--text-muted)]">
-            {t("settings.leaveHint", { group: group.name })}
+      <div>
+        <p className="text-sm text-[var(--text-primary)]">{t("groups.leave")}</p>
+        <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+          {t("settings.leaveHint", { group: group.name })}
+        </p>
+        <form
+          action={leaveAction}
+          className="mt-2"
+          onSubmit={(event) => {
+            if (!window.confirm(t("groups.leaveConfirm", { group: group.name }))) {
+              event.preventDefault();
+            }
+          }}
+        >
+          <input type="hidden" name="groupId" value={group.id} />
+          <Button type="submit" variant="secondary">
+            {t("groups.leave")}
+          </Button>
+        </form>
+      </div>
+
+      {isOwner ? (
+        <div className="border-t border-[var(--border)] pt-3">
+          <p className="text-sm text-[var(--text-primary)]">{t("groups.delete")}</p>
+          <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+            {t("settings.deleteHint", { group: group.name })}
           </p>
           <form
-            action={leaveAction}
-            className="shrink-0"
+            action={deleteAction}
+            className="mt-2"
             onSubmit={(event) => {
-              if (!window.confirm(t("groups.leaveConfirm", { group: group.name }))) {
+              if (!window.confirm(t("groups.deleteConfirm", { group: group.name }))) {
                 event.preventDefault();
               }
             }}
           >
             <input type="hidden" name="groupId" value={group.id} />
-            <Button type="submit" variant="secondary" className="w-full sm:w-auto">
-              {t("groups.leave")}
+            <Button type="submit" variant="severity">
+              {t("groups.delete")}
             </Button>
           </form>
         </div>
-
-        {isOwner ? (
-          <div className="flex flex-col gap-2 border-t border-[var(--border)] pt-3 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-            <p className="min-w-0 text-sm text-[var(--text-muted)]">
-              {t("settings.deleteHint", { group: group.name })}
-            </p>
-            <form
-              action={deleteAction}
-              className="shrink-0"
-              onSubmit={(event) => {
-                if (
-                  !window.confirm(t("groups.deleteConfirm", { group: group.name }))
-                ) {
-                  event.preventDefault();
-                }
-              }}
-            >
-              <input type="hidden" name="groupId" value={group.id} />
-              <Button type="submit" variant="severity" className="w-full sm:w-auto">
-                {t("groups.delete")}
-              </Button>
-            </form>
-          </div>
-        ) : null}
-      </div>
+      ) : null}
     </div>
   );
 }

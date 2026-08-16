@@ -184,6 +184,7 @@ model Project {
   name       String    @db.VarChar(20)
   acronym    String    @db.VarChar(3)
   archivedAt DateTime? @map("archived_at")
+  pendingAt  DateTime? @map("pending_at")
   createdAt  DateTime  @default(now()) @map("created_at")
 
   group Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)

@@ -13,7 +13,7 @@ import {
 } from "@/lib/telegram/relay";
 import { toTask } from "@/services/api/mappers";
 import { resolveOpenProjectId } from "@/services/api/projects";
-import { resolveStoredProjectId } from "@/lib/project";
+import { resolveStoredProjectId, ACCEPTED_PROJECT } from "@/lib/project";
 
 const PROJECT_INCLUDE = { project: { select: { acronym: true } } } as const;
 
@@ -246,7 +246,7 @@ export class ApiTaskService implements TaskService {
               await prisma.project.findMany({
                 where: {
                   groupId: requireGroupId(ctx.session),
-                  archivedAt: null,
+                  ...ACCEPTED_PROJECT,
                 },
                 select: { id: true },
               })
@@ -351,7 +351,7 @@ export class ApiTaskService implements TaskService {
         where: {
           id: existing.projectId,
           groupId,
-          archivedAt: null,
+          ...ACCEPTED_PROJECT,
         },
         select: { id: true },
       }))

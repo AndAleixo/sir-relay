@@ -4,19 +4,36 @@
 import assert from "node:assert/strict";
 import {
   formatTaskHeading,
+  isPendingProject,
   MAX_OPEN_PROJECTS,
+  MAX_PENDING_PROJECTS,
   parseProjectAcronym,
   parseProjectName,
   PROJECT_ACRONYM_MAX,
   PROJECT_NAME_MAX,
   resolveStoredProjectId,
+  sortProjectsForSettings,
   tagFromOpenProjects,
 } from "../src/lib/project";
 import { parseTasksProject, tasksListHref } from "../src/lib/tasks-url";
 
 assert.equal(MAX_OPEN_PROJECTS, 8);
+assert.equal(MAX_PENDING_PROJECTS, 2);
 assert.equal(PROJECT_NAME_MAX, 20);
 assert.equal(PROJECT_ACRONYM_MAX, 3);
+
+assert.equal(
+  isPendingProject({ archivedAt: null, pendingAt: "2026-08-16T00:00:00Z" }),
+  true,
+);
+assert.equal(isPendingProject({ archivedAt: null, pendingAt: null }), false);
+assert.deepEqual(
+  sortProjectsForSettings([
+    { pendingAt: null, id: "a" },
+    { pendingAt: "2026-08-16T00:00:00Z", id: "p" },
+  ]).map((row) => row.id),
+  ["p", "a"],
+);
 
 assert.equal(parseProjectAcronym("a"), "A");
 assert.equal(parseProjectAcronym("shp"), "SHP");

@@ -167,11 +167,19 @@ export interface GroupInvitationService {
 }
 
 export interface ProjectService {
+  /** Accepted open projects (task tag / list filter). */
   listOpen(ctx: { session: Session }): Promise<Project[]>;
+  /** Non-archived, including pending requests (Settings). */
+  listInGroup(ctx: { session: Session }): Promise<Project[]>;
   create(
     input: { name: string; acronym: string },
     ctx: { session: Session },
   ): Promise<Project>;
+  request(
+    input: { name: string; acronym: string },
+    ctx: { session: Session },
+  ): Promise<Project>;
+  accept(id: string, ctx: { session: Session }): Promise<void>;
   archive(id: string, ctx: { session: Session }): Promise<void>;
 }
 

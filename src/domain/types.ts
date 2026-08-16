@@ -115,6 +115,8 @@ export interface Project {
   name: string;
   acronym: string;
   archivedAt: string | null;
+  /** ISO time while awaiting operator accept; null = live (taggable). */
+  pendingAt: string | null;
 }
 
 export interface Session {

@@ -352,7 +352,7 @@ tasks
   created_at, updated_at
 
 projects
-  id, group_id, name, acronym, archived_at (null = open), created_at
+  id, group_id, name, acronym, archived_at (null = not archived), pending_at (null = accepted), created_at
 
 telegram_activity   -- optional audit log for Telegram replies (not shown on web)
   id, task_id, body, author_user_id, created_at
@@ -537,23 +537,24 @@ Optional labels **inside the active group**. The group remains the team (members
 Out of scope: free-form tags, colours, people-per-project, per-project boards, extra nav item.
 
 ```
-Group → projects (open | archived)
+Group → projects (open | pending | archived)
 Task.project_id → nullable FK
 ```
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P3-PRJ-01 | Scope | Projects belong to `session.activeGroupId`. Switching group switches the list. |
-| P3-PRJ-02 | Manage UI | Operator: Settings card **Projects** — create (name then acronym), list name then acronym (same columns), trash with confirm (archives). Teammate: no manage UI (read acronyms when tagging tasks). |
-| P3-PRJ-03 | Acronym | 1–3 letters A–Z (store uppercase). Unique among **open** projects in the group. |
-| P3-PRJ-04 | Archive | Trash in Settings archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. |
-| P3-PRJ-05 | Tag task | Create/edit: Select of **open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` if still open, else `null`. |
-| P3-PRJ-06 | List filter | List view: Select of **open** projects with the other list filters (`All` or one project). Board / kanban: no project filter (all tasks in scope). No fifth nav tab. Zero projects: quiet Settings link on the list filters (operator only). |
+| P3-PRJ-02 | Manage UI | Operator: Settings **Projects** — create (name then acronym), list name then acronym, trash (archives). Teammate: same list read-only; may **request** (name then acronym); cannot archive. Pending rows show until an operator accepts. |
+| P3-PRJ-03 | Acronym | 1–3 letters A–Z (store uppercase). Unique among **open and pending** projects in the group. |
+| P3-PRJ-04 | Archive | Trash in Settings archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. Operator may trash a pending request (frees a pending slot). |
+| P3-PRJ-05 | Tag task | Create/edit: Select of **accepted open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` if still accepted-open, else `null`. Pending is not taggable. |
+| P3-PRJ-06 | List filter | List view: Select of **accepted open** projects with the other list filters (`All` or one project). Board / kanban: no project filter (all tasks in scope). No fifth nav tab. Zero projects: quiet Settings link on the list filters (both roles). |
 | P3-PRJ-07 | Display | Card, list, task detail, Telegram: `SIR · Fix login`, same type as the title. Card: click acronym → retag (open projects, ⋯-style overlay); click title → edit title only. Untagged: title only. |
 | P3-PRJ-08 | Relay | Queue / notify / re-notify use the same display string. Project does not change queue order. |
-| P3-PRJ-09 | Permissions | Operator: create / archive. Both roles: set project on tasks they can edit. |
-| P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (1–3), `archived_at` (null = open), `created_at`. `tasks.project_id` nullable FK `on delete set null`. |
-| P3-PRJ-11 | Cap | At most **8** open projects per group. Paid plans later; for now refuse create at the cap. |
+| P3-PRJ-09 | Permissions | Operator: create / accept / archive. Teammate: request (not archive). Both roles: set **accepted** project on tasks they can edit. |
+| P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (1–3), `archived_at` (null = not archived), `pending_at` (null = accepted), `created_at`. `tasks.project_id` nullable FK `on delete set null`. |
+| P3-PRJ-11 | Cap | At most **8** accepted-open projects per group. Refuse operator create and teammate request at the cap. Accept refused at the cap. |
+| P3-PRJ-12 | Pending cap | At most **2** pending requests per group (`archived_at` null and `pending_at` set). Any operator may accept. Refuse further teammate requests at the cap. |
 
 ---
 
@@ -581,7 +582,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Link Telegram | Self-link on **Profile** (relay + alerts if operator) | Self-link on **Profile** (relay) | `/start <code>` |
 | Group activity | Yes (`/events/activity`) | — | — |
 | Export data (CSV) | Yes | — | — |
-| Manage group projects | Yes (Settings) | — | — |
+| Manage group projects | Yes (create / accept / archive) | Request only (read list) | — |
 | Tag task with project | Yes | Own tasks only | — |
 
 ---
@@ -702,7 +703,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 |------|---------|
 | **User** | One account (email + password). Not inherently operator or teammate. |
 | **Group** | Team workspace — tasks, members, **projects**, relay settings scoped here. |
-| **Project** | Optional bucket **inside a group** (name + acronym). Task may have one; managed on Settings (P3-16). |
+| **Project** | Optional bucket **inside a group** (name + acronym). Task may have one; operator creates or accepts teammate requests (P3-16). |
 | **Group membership** | Links `user` + `group` + `role` (`operator` \| `teammate`). Source of truth for permissions. |
 | **Active group** | Group selected in session; UI and API operate in this context. |
 | **Operator** | Full-access role **in a group**; UI: Operator / Operador |
@@ -733,6 +734,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-08-16 | P3-16 teammate project request (pending cap 2; any operator accepts) |
 | 2026-08-15 | P3-16 group projects (Settings CRUD; task acronym 1–3; no extra nav) |
 | 2026-07-26 | Export: CSV only (drop JSON product envelope / phantom `GET /export`); P3-12 folded into P2-DATA-02; drop P3-05 teammate due reminders; import out of scope |
 | 2026-07-26 | Doc contract vs UIUX; slim §1 / §5.5 / §5.10; P1-TASK-14 clone; locale codes `en-gb`/`es-es`/`pt-br` |

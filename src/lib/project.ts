@@ -1,6 +1,26 @@
 export const MAX_OPEN_PROJECTS = 8;
+export const MAX_PENDING_PROJECTS = 2;
 export const PROJECT_NAME_MAX = 20;
 export const PROJECT_ACRONYM_MAX = 3;
+
+/** Accepted (taggable): not archived and not a pending request. */
+export const ACCEPTED_PROJECT = { archivedAt: null, pendingAt: null } as const;
+
+export function isPendingProject(row: {
+  archivedAt: string | Date | null;
+  pendingAt: string | Date | null;
+}): boolean {
+  return row.archivedAt == null && row.pendingAt != null;
+}
+
+/** Pending requests first; caller order otherwise preserved. */
+export function sortProjectsForSettings<T extends { pendingAt: string | null }>(
+  rows: readonly T[],
+): T[] {
+  return [...rows].sort(
+    (a, b) => Number(!!b.pendingAt) - Number(!!a.pendingAt),
+  );
+}
 
 /** 1–3 Latin letters, stored uppercase. */
 export function parseProjectAcronym(raw: string): string | null {

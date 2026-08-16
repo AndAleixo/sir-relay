@@ -383,7 +383,7 @@ Fantasy name · email (while invited) · promote / demote / transfer ownership /
 
 | Section | Content |
 |---------|---------|
-| Projects | Operator: create (name then acronym); list name then acronym; trash + confirm (archives). Open-project cap [P3-PRJ-11](./REQUIREMENTS.md#72-group-projects-p3-16). |
+| Projects | Operator: create (name then acronym); list name then acronym; accept pending (check); trash + confirm (archives). Teammate: read-only list; request (name then acronym); no trash. Open cap [P3-PRJ-11](./REQUIREMENTS.md#72-group-projects-p3-16); pending cap [P3-PRJ-12](./REQUIREMENTS.md#72-group-projects-p3-16). |
 | General | Group name (operator); role (+ owner line); your fantasy name |
 | Notifications | Operator: alert toggles + Events link; teammate empty state; banner → Profile if unlinked |
 | Leave / delete | Leave · delete (owner) — [P1-GRP-09/10](./REQUIREMENTS.md#511-groups) |
@@ -402,7 +402,7 @@ Operator only. Teammate done / due alerts; delivery badge; **Show more** after t
 | No tasks (My work) | “No tasks assigned to you yet.” | — (toolbar New task) |
 | No members (Team board) | “Add members to start coordinating work.” | — |
 | No events / alerts | “No alerts yet…” | — |
-| No group projects | Quiet list-filter link to Settings (operator) | Settings → Projects |
+| No group projects | Quiet list-filter link to Settings | Settings → Projects |
 | Empty todo column | Light placeholder | — |
 | Login failed | “Invalid email or password.” | — |
 | Session expired | Redirect + toast | Log in again |

@@ -1,7 +1,14 @@
 import type { Project } from "@/domain/types";
 import type { ProjectService } from "@/services/contracts";
 import { requireActiveGroupId, requireOperator } from "@/lib/authz";
-import { parseProjectAcronym, parseProjectName, MAX_OPEN_PROJECTS } from "@/lib/project";
+import {
+  parseProjectAcronym,
+  parseProjectName,
+  ACCEPTED_PROJECT,
+  MAX_OPEN_PROJECTS,
+  MAX_PENDING_PROJECTS,
+  sortProjectsForSettings,
+} from "@/lib/project";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -11,6 +18,7 @@ function toProject(row: {
   name: string;
   acronym: string;
   archivedAt: Date | null;
+  pendingAt: Date | null;
 }): Project {
   return {
     id: row.id,
@@ -18,7 +26,35 @@ function toProject(row: {
     name: row.name,
     acronym: row.acronym,
     archivedAt: row.archivedAt?.toISOString() ?? null,
+    pendingAt: row.pendingAt?.toISOString() ?? null,
   };
+}
+
+async function insertProject(
+  groupId: string,
+  name: string,
+  acronym: string,
+  pending: boolean,
+): Promise<Project> {
+  try {
+    const row = await prisma.project.create({
+      data: {
+        groupId,
+        name,
+        acronym,
+        pendingAt: pending ? new Date() : null,
+      },
+    });
+    return toProject(row);
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new Error("Taken");
+    }
+    throw error;
+  }
 }
 
 export async function resolveOpenProjectId(
@@ -28,7 +64,7 @@ export async function resolveOpenProjectId(
   const id = raw?.trim() ?? "";
   if (!id) return null;
   const row = await prisma.project.findFirst({
-    where: { id, groupId, archivedAt: null },
+    where: { id, groupId, ...ACCEPTED_PROJECT },
   });
   if (!row) throw new Error("Invalid project");
   return row.id;
@@ -38,10 +74,19 @@ export const apiProjectService: ProjectService = {
   async listOpen(ctx) {
     const groupId = requireActiveGroupId(ctx.session);
     const rows = await prisma.project.findMany({
-      where: { groupId, archivedAt: null },
+      where: { groupId, ...ACCEPTED_PROJECT },
       orderBy: { createdAt: "asc" },
     });
     return rows.map(toProject);
+  },
+
+  async listInGroup(ctx) {
+    const groupId = requireActiveGroupId(ctx.session);
+    const rows = await prisma.project.findMany({
+      where: { groupId, archivedAt: null },
+      orderBy: { createdAt: "asc" },
+    });
+    return sortProjectsForSettings(rows.map(toProject));
   },
 
   async create(input, ctx) {
@@ -52,24 +97,50 @@ export const apiProjectService: ProjectService = {
     if (!acronym) throw new Error("Invalid acronym");
 
     const openCount = await prisma.project.count({
-      where: { groupId, archivedAt: null },
+      where: { groupId, ...ACCEPTED_PROJECT },
     });
     if (openCount >= MAX_OPEN_PROJECTS) throw new Error("Limit");
 
-    try {
-      const row = await prisma.project.create({
-        data: { groupId, name, acronym },
-      });
-      return toProject(row);
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        throw new Error("Taken");
-      }
-      throw error;
-    }
+    return insertProject(groupId, name, acronym, false);
+  },
+
+  async request(input, ctx) {
+    const groupId = requireActiveGroupId(ctx.session);
+    if (ctx.session.user.role !== "teammate") throw new Error("Forbidden");
+    const name = parseProjectName(input.name);
+    const acronym = parseProjectAcronym(input.acronym);
+    if (!name) throw new Error("Invalid name");
+    if (!acronym) throw new Error("Invalid acronym");
+
+    const openCount = await prisma.project.count({
+      where: { groupId, ...ACCEPTED_PROJECT },
+    });
+    if (openCount >= MAX_OPEN_PROJECTS) throw new Error("Limit");
+
+    const pendingCount = await prisma.project.count({
+      where: { groupId, archivedAt: null, pendingAt: { not: null } },
+    });
+    if (pendingCount >= MAX_PENDING_PROJECTS) throw new Error("PendingLimit");
+
+    return insertProject(groupId, name, acronym, true);
+  },
+
+  async accept(id, ctx) {
+    const groupId = requireOperator(ctx.session);
+    const row = await prisma.project.findFirst({
+      where: { id, groupId, archivedAt: null, pendingAt: { not: null } },
+    });
+    if (!row) throw new Error("Not found");
+
+    const openCount = await prisma.project.count({
+      where: { groupId, ...ACCEPTED_PROJECT },
+    });
+    if (openCount >= MAX_OPEN_PROJECTS) throw new Error("Limit");
+
+    await prisma.project.update({
+      where: { id },
+      data: { pendingAt: null },
+    });
   },
 
   async archive(id, ctx) {

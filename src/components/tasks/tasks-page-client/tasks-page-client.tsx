@@ -303,7 +303,7 @@ export function TasksPageClient({
           project={project}
           projects={openProjects}
           onProjectChange={setProject}
-          addProjectHref={isOperator ? `/${locale}/settings` : undefined}
+          addProjectHref={`/${locale}/settings`}
           assigneeOptions={scope === "team" ? assigneeOptions : []}
           labels={listLabels}
         />

@@ -43,8 +43,8 @@ export default async function SettingsPage({
     activeGroup && activeGroup.ownerUserId === session.user.id,
   );
   const showLeaveSuccessionHint = isOwner && memberCount > 1;
-  const openProjects =
-    isOperator && activeGroup ? await projects.listOpen({ session }) : [];
+  const groupProjects =
+    activeGroup ? await projects.listInGroup({ session }) : [];
 
   return (
     <>
@@ -69,18 +69,23 @@ export default async function SettingsPage({
           </Banner>
         ) : null}
 
-        {isOperator && activeGroup ? (
+        {activeGroup ? (
           <Card className="min-w-0">
             <CardHeader>
               <h2 className="text-sm font-semibold">{t("settings.projects")}</h2>
               <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-                {t("settings.projectsHint")}
+                {t(
+                  isOperator
+                    ? "settings.projectsHint"
+                    : "settings.projectsHintTeammate",
+                )}
               </p>
             </CardHeader>
             <CardBody>
               <GroupProjectsSettings
                 locale={locale}
-                projects={openProjects}
+                projects={groupProjects}
+                isOperator={isOperator}
                 error={projectError}
               />
             </CardBody>

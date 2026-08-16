@@ -17,6 +17,8 @@ export const SUCCESS_FLASH_MESSAGES = {
   transferred: "teammate.ownershipTransferred",
   projectSaved: "settings.projectSaved",
   projectRemoved: "settings.projectRemoved",
+  projectRequested: "settings.projectRequested",
+  projectAccepted: "settings.projectAccepted",
 } as const;
 
 export type SuccessFlashKey = keyof typeof SUCCESS_FLASH_MESSAGES;

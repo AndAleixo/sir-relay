@@ -11,11 +11,11 @@ export const shellStyles = {
   logoLinkCollapsed: "px-2",
   logoWrap:
     "relative mx-auto h-10 transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
-  logoWrapExtended: "w-[8.75rem]",
+  logoWrapExtended: "w-[7.25rem]",
   logoWrapCompact: "w-16",
   logoImage:
     "absolute left-1/2 top-1/2 h-10 max-w-none -translate-x-1/2 -translate-y-1/2 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
-  logoExtended: "w-[8.75rem]",
+  logoExtended: "w-[7.25rem]",
   logoCompact: "w-16",
   logoVisible: "scale-100 opacity-100",
   logoHidden: "pointer-events-none scale-95 opacity-0",

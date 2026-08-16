@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <rect width="64" height="64" rx="14" fill="#EAB308"/>
-  <text x="32" y="32" text-anchor="middle" font-family="system-ui, sans-serif" font-size="17" font-weight="700" letter-spacing="-0.48">
-    <tspan fill="#0A0A0A">Sir</tspan><tspan fill="#CA8A04">R</tspan>
+  <text x="32" y="32" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="700" letter-spacing="-0.6">
+    <tspan fill="#0A0A0A">S</tspan><tspan fill="#CA8A04">R</tspan>
   </text>
   <line x1="18" y1="50" x2="28" y2="50" stroke="#0A0A0A" stroke-width="2" stroke-linecap="round" opacity="0.35"/>
   <line x1="32" y1="50" x2="46" y2="50" stroke="#0A0A0A" stroke-width="2" stroke-linecap="round"/>

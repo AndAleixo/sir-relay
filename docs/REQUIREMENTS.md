@@ -89,8 +89,8 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 
 | Topic | Decision |
 |-------|----------|
-| Brand / app / repo | **Sir** · **SirRelay** · `sir-relay` |
-| Telegram bot name | **SirRelay** (e.g. `@SirRelayBot`) |
+| Brand / app / repo | **Sir** · **SirRelay** · wordmark **SRelay** / mark **SR** · `sir-relay` |
+| Telegram bot name | Display **SRelay** · `@SirRelayBot` |
 | Web app | Single Next.js app; permissions scoped by **active group** + **membership role** |
 | Roles | **Operator** — full edit in that group · **Teammate** — edit own tasks; may **view** all group tasks (Team scope) |
 | Bootstrap (deploy) | On empty DB, seed one **user** from `ADMIN_EMAIL` + `ADMIN_PASSWORD` (may create first group manually) |

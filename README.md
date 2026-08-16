@@ -4,10 +4,10 @@ Hosted **web + Telegram task relay** for small groups (by **Sir**). One active T
 
 | | |
 |---|---|
-| Brand / app / repo | **Sir** · **SirRelay** · `sir-relay` |
+| Brand / app / repo | **Sir** · **SirRelay** · wordmark **SRelay** / mark **SR** · `sir-relay` |
 | Locales | `en-gb` · `es-es` · `pt-br` |
 | Visual identity | [docs/BRAND.md](./docs/BRAND.md) |
-| Telegram bot | SirRelay (e.g. `@SirRelayBot`) |
+| Telegram bot | SRelay (e.g. `@SirRelayBot`) |
 
 **Roles (per group):** Operator manages members/tasks on the web (+ alerts on Telegram). Teammate works mainly on Telegram; web My work / Team (edit own). Details: [docs/REQUIREMENTS.md](./docs/REQUIREMENTS.md).
 

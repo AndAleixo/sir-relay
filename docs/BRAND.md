@@ -13,6 +13,8 @@
 |-------|------|------|
 | **Brand** | **Sir** | Parent brand — trust, clarity |
 | **Product** | **SirRelay** | Hosted web task relay + Telegram bot |
+| **Wordmark** | **SRelay** | UI logo (landing, login, sidebar open) |
+| **Mark** | **SR** | Compact logo, favicon, Telegram avatar |
 | **Repo / package** | `sir-relay` | Technical identifier |
 
 **Tagline (optional):** *Relay work. Get it done.*
@@ -82,24 +84,24 @@ CSS variables: [`brand/brand.css`](./brand.css)
 
 Three related assets — **do not mix icon and logo roles.**
 
+Wordmark is **SRelay** (Sir → **S**, product **Relay**). Collapse by dropping **elay** → **SR**. Chrome (tab title, logo alt) uses **SRelay**. Prose, legal, and FAQ still say **SirRelay**.
+
 ### 3.1 The three assets
 
 | Asset | File | Background | Content |
 |-------|------|------------|---------|
-| **Icon** | [`icon.svg`](./icon.svg) | **Yellow** square `#EAB308` | SirR + progress track |
-| **Logo compact** | [`logo-compact.svg`](./logo-compact.svg) | **Transparent** | **SirR** + progress track |
-| **Logo extended** | [`logo.svg`](./logo.svg) | **Transparent** | **SirRelay** + extended track |
+| **Icon** | [`icon.svg`](./icon.svg) | **Yellow** square `#EAB308` | **SR** + progress track |
+| **Logo compact** | [`logo-compact.svg`](./logo-compact.svg) | **Transparent** | **SR** + progress track |
+| **Logo extended** | [`logo.svg`](./logo.svg) | **Transparent** | **SRelay** + extended track |
 
-**Icon** = app mark (favicon, Telegram avatar, PWA).  
+**Icon** = app mark (favicon, Telegram avatar, PWA). Two letters so it survives 16–32px.  
 **Logo** = wordmark for UI headers — same *shape* as the icon (text above, track below) but **no yellow fill**.
-
-The **only difference** between logo compact and logo extended is the **text** (and track width).
 
 ```
 Icon (yellow):          Logo compact (transparent):    Logo extended (transparent):
 
-┌──────────┐            SirR                           SirRelay
-│  SirR    │            ——●——                          ——●——
+┌──────────┐            SR                             SRelay
+│   SR     │            ——●——                          ——●——
 │  ——●——   │
 └──────────┘
 ```
@@ -107,30 +109,23 @@ Icon (yellow):          Logo compact (transparent):    Logo extended (transparen
 ### 3.2 Visual rules
 
 - Logo layout **mirrors** icon interior: text centered, 3-node track below.
-- Same typography: `Sir` `#0A0A0A` + `R` `#CA8A04`.
+- Same typography: `S` `#0A0A0A` + `R` `#CA8A04` + `elay` `#0A0A0A` on the extended mark.
 - Extended track is **wider** than compact; node spacing scales with name length.
 - Icon and logo are **not combined** in one file — header may show logo only, or logo + icon side by side if needed.
 
-### 3.3 SirRelay → SirR motion (planned UI)
+### 3.3 SRelay → SR
 
-Animate between **two transparent logos** — not between icon and logo.
+The app **swaps two SVG files** (sidebar collapse, mobile header). Do not animate icon ↔ logo.
 
 | State | File / content |
 |-------|----------------|
-| **Extended** | `logo.svg` — SirRelay + track |
-| **Compact** | `logo-compact.svg` — SirR + track |
+| **Extended** | `logo.svg` — SRelay + track |
+| **Compact** | `logo-compact.svg` — SR + track |
 
-**Triggers:** sidebar collapse, narrow header, user toggle.
-
-**Implementation:**
-
-- Animate `#wm-elay` opacity in `logo.svg` or swap SVGs
-- Reference: [`brand/logo-motion.css`](./logo-motion.css)
-- Duration: 220–300ms ease-out
-- **Icon (`icon.svg`) stays unchanged** — used separately for favicon/bot
+Duration of the cross-fade in chrome: ~300ms. **Icon (`icon.svg`) stays SR.**
 
 ```
-Extended:   SirRelay          Compact:   SirR
+Extended:   SRelay            Compact:   SR
             ——●——                         ——●——
 ```
 
@@ -138,27 +133,26 @@ Extended:   SirRelay          Compact:   SirR
 
 | File | Use |
 |------|-----|
-| [`brand/icon.svg`](./icon.svg) | Favicon, bot avatar source, app icon |
-| [`brand/logo-compact.svg`](./logo-compact.svg) | Header collapsed, transparent SirR |
-| [`brand/logo.svg`](./logo.svg) | Login, header expanded, transparent SirRelay |
-| [`brand/logo-motion.css`](./logo-motion.css) | Extended ↔ compact transition |
-| [`brand/bot-avatar.svg`](./bot-avatar.svg) | Telegram 512×512 (yellow icon) |
+| [`brand/icon.svg`](./icon.svg) | Favicon, bot avatar source, app icon (**SR**) |
+| [`brand/logo-compact.svg`](./logo-compact.svg) | Header collapsed / mobile, transparent **SR** |
+| [`brand/logo.svg`](./logo.svg) | Login, landing, header expanded, transparent **SRelay** |
+| [`brand/bot-avatar.svg`](./bot-avatar.svg) | Telegram 512×512 (yellow **SR** icon) |
 | [`public/favicon.svg`](../public/favicon.svg) | Next.js favicon |
 
 ### 3.5 Usage
 
 ```
-Favicon / Telegram / app icon:     icon.svg  (yellow)
+Favicon / Telegram / app icon:     icon.svg  (yellow SR)
 
-Header expanded / login:           logo.svg  (transparent SirRelay)
+Header expanded / login / landing: logo.svg  (transparent SRelay)
 
-Header collapsed / narrow:         logo-compact.svg  (transparent SirR)
+Header collapsed / mobile:         logo-compact.svg  (transparent SR)
 ```
 
 ### 3.6 Clear space & size
 
 **Clear space:** padding ≥ height of one track node around the logo.  
-**Minimum logo width:** compact 56px, extended 120px.  
+**Minimum logo width:** compact 56px, extended 96px.  
 **Icon minimum:** 24px.  
 **Do not:** add yellow background to logos; do not stretch or rotate.
 
@@ -180,8 +174,8 @@ rsvg-convert -w 512 -h 512 brand/bot-avatar.svg -o public/bot-avatar.png
 
 | Element | Style |
 |---------|--------|
-| **SirR** (icon mark) | `Sir` black + `R` amber inside yellow square |
-| **SirRelay** (extended logo) | `Sir` + `R` amber + `elay` black |
+| **SR** (icon + compact) | `S` black + `R` amber |
+| **SRelay** (extended logo) | `S` + `R` amber + `elay` black |
 
 SVG logos embed `Inter` with system-ui fallback until web fonts load in app.
 
@@ -223,7 +217,7 @@ BRAND_LOGO_URL=           # optional CDN override
 
 | Field | Value |
 |-------|-------|
-| Display name | SirRelay |
+| Display name | SRelay |
 | Username | `@SirRelayBot` (finalize at BotFather) |
 | Avatar | `brand/bot-avatar.svg` → 512×512 PNG |
 | Description | Task relay for your team. Reply to update your work. |
@@ -250,10 +244,9 @@ BRAND_LOGO_URL=           # optional CDN override
 
 ```
 brand/
-  icon.svg           # yellow mark
-  logo-compact.svg   # transparent SirR
-  logo.svg           # transparent SirRelay
-  logo-motion.css
+  icon.svg           # yellow SR mark
+  logo-compact.svg   # transparent SR
+  logo.svg           # transparent SRelay
   brand.css
 public/
   favicon.svg        # copy of icon
@@ -269,7 +262,8 @@ public/
 
 | Date | Change |
 |------|--------|
+| 2026-08-16 | Wordmark **SRelay**; compact + yellow icon **SR** |
 | 2026-08-13 | Renamed `--danger` → `--severity` (overdue, hard, errors, destructive) |
 | 2026-08-13 | Task difficulty tokens; overdue shares `--severity` with hard |
 | 2026-06-25 | Initial draft (navy palette) |
-| 2026-06-25 | Icon (yellow) vs logo (transparent text+track); logo-compact SirR / logo SirRelay |
+| 2026-06-25 | Icon (yellow) vs logo (transparent text+track); then compact SirR / extended SirRelay |

@@ -151,7 +151,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 | Element | Spec |
 |---------|------|
 | Sidebar | Collapsible (`w-56` ↔ `w-20`); preference in `localStorage` |
-| Sidebar logo | `logo.svg` / `logo-compact.svg`; cross-fade |
+| Sidebar logo | `logo.svg` (**SRelay**) / `logo-compact.svg` (**SR**); cross-fade |
 | Sidebar nav | Tasks · Teammates · Events · Settings |
 | Sidebar footer | Profile (name + avatar) |
 | Top header | Group switcher · locale · account menu |

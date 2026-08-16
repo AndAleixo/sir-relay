@@ -69,6 +69,24 @@ export default async function SettingsPage({
           </Banner>
         ) : null}
 
+        {isOperator && activeGroup ? (
+          <Card className="min-w-0">
+            <CardHeader>
+              <h2 className="text-sm font-semibold">{t("settings.projects")}</h2>
+              <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+                {t("settings.projectsHint")}
+              </p>
+            </CardHeader>
+            <CardBody>
+              <GroupProjectsSettings
+                locale={locale}
+                projects={openProjects}
+                error={projectError}
+              />
+            </CardBody>
+          </Card>
+        ) : null}
+
         {activeGroup ? (
           <Card className="min-w-0">
             <CardHeader>
@@ -118,24 +136,6 @@ export default async function SettingsPage({
                   <Banner variant="severity">{t("settings.fantasyNameFailed")}</Banner>
                 ) : null}
               </form>
-            </CardBody>
-          </Card>
-        ) : null}
-
-        {isOperator && activeGroup ? (
-          <Card className="min-w-0">
-            <CardHeader>
-              <h2 className="text-sm font-semibold">{t("settings.projects")}</h2>
-              <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-                {t("settings.projectsHint")}
-              </p>
-            </CardHeader>
-            <CardBody>
-              <GroupProjectsSettings
-                locale={locale}
-                projects={openProjects}
-                error={projectError}
-              />
             </CardBody>
           </Card>
         ) : null}

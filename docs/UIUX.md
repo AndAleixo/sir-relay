@@ -383,8 +383,8 @@ Fantasy name · email (while invited) · promote / demote / transfer ownership /
 
 | Section | Content |
 |---------|---------|
-| General | Group name (operator); role (+ owner line); your fantasy name |
 | Projects | Operator: create (name then acronym); list name then acronym; trash + confirm (archives). Open-project cap [P3-PRJ-11](./REQUIREMENTS.md#72-group-projects-p3-16). |
+| General | Group name (operator); role (+ owner line); your fantasy name |
 | Notifications | Operator: alert toggles + Events link; teammate empty state; banner → Profile if unlinked |
 | Leave / delete | Leave · delete (owner) — [P1-GRP-09/10](./REQUIREMENTS.md#511-groups) |
 

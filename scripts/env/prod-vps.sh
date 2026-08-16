@@ -45,4 +45,10 @@ if [[ -n "$APP_URL" ]]; then
   fi
 fi
 
+if [[ -n "${UMAMI_WEBSITE_ID:-}" ]]; then
+  echo "→ umami tracker: on"
+else
+  echo "→ umami tracker: off — on analytics.${APP_ROOT_DOMAIN:-<APP_ROOT_DOMAIN>} Add website (domain=${APP_DOMAIN:-<APP_DOMAIN>}), set UMAMI_WEBSITE_ID in .env, then: docker compose up -d app"
+fi
+
 echo "→ done · logs: docker compose logs -f app caddy"

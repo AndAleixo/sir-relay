@@ -37,7 +37,7 @@ echo "→ umami dashboard: http://localhost:3001  (admin / umami — change pass
 if [[ -n "${UMAMI_WEBSITE_ID:-}" ]]; then
   echo "→ umami tracker: on"
 else
-  echo "→ umami tracker: off — set UMAMI_WEBSITE_ID then: ${COMPOSE_LOCAL[*]} up -d app"
+  echo "→ umami tracker: off — Add website (domain=${APP_DOMAIN:-localhost}), set UMAMI_WEBSITE_ID then: ${COMPOSE_LOCAL[*]} up -d app"
 fi
 echo "→ health: curl -s http://localhost/api/v1/health"
 echo "→ logs: npm run prod-local-logs"

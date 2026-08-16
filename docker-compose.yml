@@ -24,6 +24,7 @@ services:
       DATABASE_URL: postgresql://sirrelay:${POSTGRES_PASSWORD}@postgres:5432/umami
       # Local smoke default. VPS: prod-vps.sh exige UMAMI_APP_SECRET real.
       APP_SECRET: ${UMAMI_APP_SECRET:-dev-umami-secret-change-me}
+      CLIENT_IP_HEADER: x-forwarded-for
       DISABLE_TELEMETRY: "1"
       DISABLE_UPDATES: "1"
     depends_on:

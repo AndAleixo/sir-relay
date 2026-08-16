@@ -455,7 +455,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | **Audit log** (P2-AUD) | Who did what? (login, task CRUD, invite, relay) | `audit_logs` · `/events/activity` · `/platform` |
 | **Access / ops** | Is the app up? Who hit the server? | Caddy access logs, `GET /health`, JSON app logs |
 
-**Product analytics:** self-hosted **Umami** in Docker Compose (service always present in prod-local/VPS; DB `umami` via `ensure_umami_database` in `scripts/env/_common.sh`). Tracker same-origin via Caddy (`/script.js`, `/api/send`) — CSP stays `'self'`. Dashboard: local `:3001` · VPS `analytics.<APP_ROOT_DOMAIN>`. Script injects only when `UMAMI_WEBSITE_ID` is set (tracker optional). No Google Analytics / third-party SaaS. No consent banner (cookieless tracker; privacy page discloses).
+**Product analytics:** self-hosted **Umami** in Docker Compose (service always present in prod-local/VPS; DB `umami` via `ensure_umami_database` in `scripts/env/_common.sh`). Tracker same-origin via Caddy (`/script.js`, `/api/send`) — CSP stays `'self'`. Dashboard: local `:3001` · VPS `analytics.<APP_ROOT_DOMAIN>`. Per environment: **Add website** (domain = that env’s `APP_DOMAIN`) and set `UMAMI_WEBSITE_ID` (script injects only when set). No Google Analytics / third-party SaaS. No consent banner (cookieless tracker; privacy page discloses).
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|

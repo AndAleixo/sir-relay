@@ -77,7 +77,7 @@ APP_DOMAIN=app.sirrelay.com
 APP_ROOT_DOMAIN=sirrelay.com
 CONTACT_EMAIL=contact@sirrelay.com
 UMAMI_APP_SECRET=...   # openssl rand -hex 32 (obrigatório no prod-vps.sh)
-UMAMI_WEBSITE_ID=...   # após criar o site no Umami (domain = APP_DOMAIN)
+UMAMI_WEBSITE_ID=...   # Add website no Umami da VPS (domain = APP_DOMAIN)
 ```
 
 ### Email (`contact@sirrelay.com`)
@@ -278,8 +278,9 @@ Retenção local 7 dias (`BACKUP_RETAIN_DAYS`); offsite inclui `sirrelay-*.sql.g
 2. Login produto (`ADMIN_*` / seed) → criar ou entrar num grupo → tasks
 3. Se `PLATFORM_ADMIN_*` no `.env`: `/{locale}/platform/login` → Overview / Audit
 4. Telegram: `getWebhookInfo` OK (se bot activo)
-5. Backup: `bash scripts/db/backup.sh` (ou confirmar cron offsite §9.1)
-6. Ops checklist (P2-OPS): firewall §3 · `chmod 600 .env` · `SESSION_SECRET` · Postgres só na rede `internal` · `USER nextjs` · updates mensais §9
+5. Umami: `analytics.<APP_ROOT_DOMAIN>` → **Add website** (domain = `APP_DOMAIN`) → `UMAMI_WEBSITE_ID` no `.env` → `docker compose up -d app`
+6. Backup: `bash scripts/db/backup.sh` (ou confirmar cron offsite §9.1)
+7. Ops checklist (P2-OPS): firewall §3 · `chmod 600 .env` · `SESSION_SECRET` · Postgres só na rede `internal` · `USER nextjs` · updates mensais §9
 
 ---
 

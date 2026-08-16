@@ -160,7 +160,7 @@ export default async function SettingsPage({
               />
             </CardBody>
           </Card>
-        ) : (
+        ) : !isOperator && activeGroup ? (
           <Card className="min-w-0">
             <CardHeader>
               <h2 className="text-sm font-semibold">{t("settings.notifications")}</h2>
@@ -169,9 +169,15 @@ export default async function SettingsPage({
               <p className="text-sm text-[var(--text-muted)]">
                 {t("settings.teammateNotificationsHint")}
               </p>
+              <Link
+                href={`/${locale}/events`}
+                className="mt-3 inline-block text-sm font-medium text-brand-accent hover:text-brand-accent-hover"
+              >
+                {t("settings.viewEvents")}
+              </Link>
             </CardBody>
           </Card>
-        )}
+        ) : null}
 
         {activeGroup ? (
           <Card className="min-w-0">

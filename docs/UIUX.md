@@ -3,7 +3,7 @@
 **Purpose:** Layout, interaction, and visual behavior for the public landing, signed-in web app, and Telegram copy.  
 **Doc contract:** **How it looks and behaves on screen.** Product rules, acceptance IDs, and permissions → [REQUIREMENTS.md](./REQUIREMENTS.md). Visual tokens → [BRAND.md](./BRAND.md). Code map → [ARCHITECTURE.md](./ARCHITECTURE.md). Link to requirements for business rules; do not restate them here.
 
-**Last updated:** 2026-08-15
+**Last updated:** 2026-08-16
 
 ### Status naming
 
@@ -37,8 +37,9 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 
 ```
 User (account)
-  ├── Group A — operator  →  nav: Tasks · Teammates · Events · Settings
-  └── Group B — teammate →  nav: Tasks · Settings
+  ├── Group A — operator
+  └── Group B — teammate
+         └── same nav: Tasks · Teammates · Events · Settings
 ```
 
 | Concept | UX |
@@ -144,14 +145,14 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 │      [◀]   │  ← collapse toggle (logo → logo-compact.svg)    │
 └────────────┴──────────────────────────────────────────────────┘
 
-* New task for both roles · Teammate nav: Tasks · Settings
+* New task for both roles · Teammates / Events: teammate is read-only
 ```
 
 | Element | Spec |
 |---------|------|
 | Sidebar | Collapsible (`w-56` ↔ `w-20`); preference in `localStorage` |
 | Sidebar logo | `logo.svg` / `logo-compact.svg`; cross-fade |
-| Sidebar nav | Tasks · Teammates* · Events* · Settings |
+| Sidebar nav | Tasks · Teammates · Events · Settings |
 | Sidebar footer | Profile (name + avatar) |
 | Top header | Group switcher · locale · account menu |
 | Account menu | Name · Profile · Log out |
@@ -164,7 +165,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 ┌────────────────────────────────────────┐
 │ [logo]  [Group ▾]     [EN▾] [avatar]   │
 ├────────────────────────────────────────┤
-│   Tasks    Teammates*    Events*    Settings      │  ← icon tabs
+│   Tasks    Teammates    Events    Settings      │  ← icon tabs
 ├────────────────────────────────────────┤
 │              Main content              │
 └────────────────────────────────────────┘
@@ -230,7 +231,7 @@ Three columns by status. Empty My work → §9 copy (not empty columns). Card an
 
 First column: **signed-in member**. Others by **To do count** at page load (fixed while editing). Inside: To do + In progress expanded; Done collapsed.
 
-**Operator:** edit all; member names → `/teammates/[id]`. **Teammate:** own column editable; others view-only (**⋯ → Open**); names plain text.
+**Operator:** edit all; member names → `/teammates/[id]`. **Teammate:** own column editable; others view-only (**⋯ → Open**); names → `/teammates/[id]` (read-only).
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
@@ -334,8 +335,8 @@ Route: `/[locale]/tasks/[id]`. Same field order as **New task**; plus status and
 | Sign up / Log in | `/signup`, `/login` | Public | Public |
 | No active group | `/groups` | Panel opens | Panel opens |
 | Tasks / new / detail | `/tasks…` | Full | Own edit · Team view others |
-| Teammates | `/teammates…` | Yes | — |
-| Events / activity | `/events…` | Yes | — |
+| Teammates | `/teammates…` | Yes | Read list/detail; no add / export / invite / promote |
+| Events / activity | `/events…` | Yes | Alerts read-only; no group activity |
 | Profile / Settings | `/profile`, `/settings` | Yes | Yes |
 | Join / change-password | `/join/[token]`, `/change-password` | Auth flows | Auth flows |
 | Privacy / Terms | `/privacy`, `/terms` | Public | Public (English pack) |
@@ -346,7 +347,7 @@ Profile via avatar / sidebar footer (not primary nav). Group switcher = change a
 
 ---
 
-## 7. Teammates (Operator)
+## 7. Teammates
 
 Rules: [REQUIREMENTS §5.2](./REQUIREMENTS.md#52-teammates).
 
@@ -354,11 +355,13 @@ Rules: [REQUIREMENTS §5.2](./REQUIREMENTS.md#52-teammates).
 
 Table: **Name** · **Email** · **Role** · **Account** · **Telegram**. Name → **You** = Settings; else `/teammates/[id]`.
 
-**Add** → `/teammates/new` (email only). Pending invitations: Resend. **Export** → CSV (group or one person): [REQUIREMENTS §6.5.2](./REQUIREMENTS.md#652-app-export-csv).
+**Operator:** **Add** → `/teammates/new` (email only). Pending invitations: Resend. **Export** → CSV. **Teammate:** same table and pending list; no Add / Export / Resend.
 
 ### Detail `/teammates/[id]`
 
-Fantasy name · email (while invited) · promote / demote / transfer ownership / remove · invite link for invited. No Telegram link field (self-service on Profile). Member fantasy name also on **Settings**.
+Read: email, account name, fantasy name, role, status icons.
+
+**Operator only:** fantasy name form · email (while invited) · promote / demote / transfer ownership / remove · invite link · export.
 
 ---
 
@@ -385,12 +388,12 @@ Fantasy name · email (while invited) · promote / demote / transfer ownership /
 |---------|---------|
 | Projects | Operator: create (name then acronym); list name then acronym; accept pending (check); trash + confirm (archives). Teammate: read-only list; request (name then acronym); no trash. Open cap [P3-PRJ-11](./REQUIREMENTS.md#72-group-projects-p3-16); pending cap [P3-PRJ-12](./REQUIREMENTS.md#72-group-projects-p3-16). |
 | General | Group name (operator); role (+ owner line); your fantasy name |
-| Notifications | Operator: alert toggles + Events link; teammate empty state; banner → Profile if unlinked |
+| Notifications | Operator: alert toggles + Events link; teammate: hint + Events link; banner → Profile if unlinked |
 | Leave / delete | Leave · delete (owner) — [P1-GRP-09/10](./REQUIREMENTS.md#511-groups) |
 
 ### 8.3 Events (`/events`)
 
-Operator only. Teammate done / due alerts; delivery badge; **Show more** after the first 8 (same pattern as Done on the board); link to **Group activity**. Prefs on Settings. Teammates redirected to `/tasks`.
+Both roles. Teammate done / due alerts; delivery badge; **Show more** after the first 8 (same pattern as Done on the board). **Group activity** link: operator only. Alert prefs on Settings (operator). Teammate: alerts read-only.
 
 ---
 
@@ -453,7 +456,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Component | Notes |
 |-----------|-------|
-| `AppShell` / `AppHeader` / `MobileTopBar` | Role-based nav + chrome |
+| `AppShell` / `AppHeader` / `MobileTopBar` | Same 4-tab nav + chrome |
 | `GroupSwitcher` + `GroupPanelMenu` | Switch · create · join |
 | `GroupDangerSettings` | Leave / delete |
 | `LocaleSwitcher` / `LocalePicker` / `UserMenu` | Header utilities |
@@ -495,7 +498,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 |---------|-------|--------|
 | Landing, boards, forms, scopes, Profile/Settings | 1 | Shipped |
 | Queue DnD + status drops | 1 | Shipped |
-| Operator Events + alerts | 1 | Shipped |
+| Events + operator alerts | 1 | Shipped |
 | Group activity + platform admin | 2 | Shipped |
 | Sidebar collapse | 3 (P3-11) | In UI |
 | Kanban touch / a11y polish | 3 (P3-03) | Core in Phase 1 |
@@ -508,6 +511,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Date | Change |
 |------|--------|
+| 2026-08-16 | Teammate read-only Teammates + Events; group activity operator-only |
 | 2026-08-15 | P3-16 group projects: Settings card; list filter; no fifth tab; card acronym segment (Family C) |
 | 2026-08-15 | Success flash → floating `Toast` card (3s, Family A). `Banner` kept for page-state / errors |
 | 2026-07-26 | Doc contract vs REQUIREMENTS; trim product-rule restatements; card/menu + Family A/B/C in one place |

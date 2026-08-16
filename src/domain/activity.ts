@@ -1,5 +1,5 @@
 /**
- * Operator-facing group activity (`/events/activity`).
+ * Group activity (`/events/activity`).
  * Subset of audit store actions — no login / logout / password / telegram_link.
  */
 import type { AuditAction, AuditEntry } from "@/domain/audit";

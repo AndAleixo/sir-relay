@@ -1,5 +1,5 @@
 /**
- * Operator group activity for `/events/activity`.
+ * Group activity for `/events/activity`.
  * Reads a filtered slice of the audit store; presents human-readable lines.
  */
 import type { GroupActivityEntry } from "@/domain/activity";

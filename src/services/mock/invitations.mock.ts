@@ -122,15 +122,7 @@ export class MockGroupInvitationService implements GroupInvitationService {
     ctx: Parameters<GroupInvitationService["listForGroup"]>[0],
   ): Promise<GroupInvitation[]> {
     const groupId = ctx.session.activeGroupId;
-    if (!groupId || ctx.session.user.role !== "operator") throw new Error("forbidden");
-    if (
-      mockGroupMembershipLookup.roleInGroup(
-        ctx.session.user.id,
-        groupId,
-      ) !== "operator"
-    ) {
-      throw new Error("forbidden");
-    }
+    if (!groupId) throw new Error("forbidden");
     return invitationStore()
       .filter((row) => row.groupId === groupId && row.storedStatus !== "accepted")
       .map(publicInvitation);

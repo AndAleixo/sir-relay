@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/layout/app-shell";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
-import { requireRole } from "@/lib/require-session";
+import { requireAppSession } from "@/lib/require-session";
 import { ExportDataButton } from "@/components/teammates/export-data-button";
 import { teamListStyles } from "@/components/teammates/team-list.styles";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
@@ -28,10 +28,9 @@ export default async function TeammatesPage({
   const { locale } = await params;
   const { invitationError } = await searchParams;
   const t = await getTranslations();
-  const { auth, teammates, invitations } = getServices();
-  const session = await auth.getSession();
-  if (!session) return null;
-  requireRole(session, "operator", locale);
+  const session = await requireAppSession(locale);
+  const isOperator = session.user.role === "operator";
+  const { teammates, invitations } = getServices();
 
   const [users, groupInvitations] = await Promise.all([
     teammates.listOrganizationUsers({ session }),
@@ -48,12 +47,14 @@ export default async function TeammatesPage({
       ) : null}
       <div className={viewToggleStyles.toolbar}>
         <p className={viewToggleStyles.toolbarText}>{t("teammate.listSubtitle")}</p>
-        <div className="flex flex-wrap items-center gap-2">
-          <ExportDataButton label={t("teammate.exportAll")} variant="secondary" />
-          <Link href={`/${locale}/teammates/new`}>
-            <Button>{t("teammate.addTeammate")}</Button>
-          </Link>
-        </div>
+        {isOperator ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <ExportDataButton label={t("teammate.exportAll")} variant="secondary" />
+            <Link href={`/${locale}/teammates/new`}>
+              <Button>{t("teammate.addTeammate")}</Button>
+            </Link>
+          </div>
+        ) : null}
       </div>
 
       {groupInvitations.length > 0 ? (
@@ -77,11 +78,13 @@ export default async function TeammatesPage({
                   >
                     {t(`teammate.invitationStatus.${invitation.status}`)}
                   </ToneBadge>
-                  <form action={resendGroupInvitation.bind(null, locale, invitation.id)}>
-                    <Button type="submit" variant="secondary">
-                      {t("teammate.resendInvitation")}
-                    </Button>
-                  </form>
+                  {isOperator ? (
+                    <form action={resendGroupInvitation.bind(null, locale, invitation.id)}>
+                      <Button type="submit" variant="secondary">
+                        {t("teammate.resendInvitation")}
+                      </Button>
+                    </form>
+                  ) : null}
                 </div>
               </div>
             ))}

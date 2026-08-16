@@ -66,8 +66,8 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/groups/auto` | Session | private | Auto-pick sole group (persist cookie) |
 | `/[locale]/change-password` | Session | private | Forced / optional password change |
 | `/[locale]/tasks`, `/tasks/new`, `/tasks/[id]` | Session + group | private | Boards, list, CRUD |
-| `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | Operator team management |
-| `/[locale]/events`, `/events/activity`, `/settings` | Session + group | private | Operator alerts · group activity · alert prefs |
+| `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | List/detail both roles (writes operator); `/new` operator |
+| `/[locale]/events`, `/events/activity`, `/settings` | Session + group | private | Alerts (both) · group activity + alert prefs (operator) |
 | `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 
@@ -130,7 +130,7 @@ Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `SirRelay1` (api /
 | Telegram in | `telegram/sanitize.ts` | Strip C0/C1 controls on replies + `/start` codes before persist/parse |
 | Dep audit | README · `audit:prod` | Next 16.2 · no high in prod; Image Optimizer off; nested postcss moderate |
 | Safe log | `safe-log.ts` · `request-context.ts` | JSON + redaction; `requestId` from ALS / `x-request-id` (P2-MON-01). No per-hit access log |
-| IDOR | `authz.ts` + services | Operator: export · alerts · invites; self: profile mutations; tasks: `loadTask` |
+| IDOR | `authz.ts` + services | Operator: export · alert prefs · invites; any member: alert list; self: profile mutations; tasks: `loadTask` |
 | Headers | `security-headers.ts` + `proxy.ts` | HSTS (prod HTTPS), frame deny, nosniff, referrer, CSP |
 | Audit store | `lib/audit.ts` · `audit_logs` | Append-only write + `queryAuditLogs` (cross-group for platform admin). Incl. login |
 | Group activity | `domain/activity.ts` · `lib/activity.ts` · `/events/activity` | Filtered human-language history for operators (no login) |

@@ -109,7 +109,7 @@ export class MockOperatorAlertService implements OperatorAlertService {
     ctx: { session: Session },
     limit = 8,
   ): Promise<OperatorAlert[]> {
-    requireOperatorGroup(ctx);
+    requireGroupId(ctx);
     const taskIds = new Set(
       (await mockTaskService.listTasks(ctx)).map((task) => task.id),
     );

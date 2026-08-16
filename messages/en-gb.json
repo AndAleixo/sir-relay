@@ -334,8 +334,8 @@
   },
   "events": {
     "title": "Events",
-    "subtitle": "Alerts for this group. Configure Telegram delivery in Settings.",
-    "empty": "No alerts yet. Mark a teammate task done or wait for a due date to trigger one.",
+    "subtitle": "Alerts for this group.",
+    "empty": "No alerts yet. Completing a task or a due date can trigger one.",
     "taskDone": "Completed:",
     "taskDue": "Due:",
     "sentToTelegram": "Telegram",

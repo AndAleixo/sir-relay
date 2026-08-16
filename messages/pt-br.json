@@ -334,8 +334,8 @@
   },
   "events": {
     "title": "Eventos",
-    "subtitle": "Alertas deste grupo. Configure o envio por Telegram em Configurações.",
-    "empty": "Sem alertas ainda. Marque uma tarefa de colega como concluída ou aguarde um prazo.",
+    "subtitle": "Alertas deste grupo.",
+    "empty": "Sem alertas ainda. Concluir uma tarefa ou um prazo pode gerar um.",
     "taskDone": "Concluída:",
     "taskDue": "Prazo:",
     "sentToTelegram": "Telegram",

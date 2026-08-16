@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type {
   GroupInvitation,
-  Role,
   User,
   UserGroup,
 } from "@/domain/types";
@@ -26,7 +25,6 @@ interface NavItem {
   href: string;
   label: string;
   icon: SidebarNavIconName;
-  roles: Role[];
 }
 
 interface AppShellProps {
@@ -49,7 +47,6 @@ export function AppShell({
   const t = useTranslations();
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarCollapsed();
-  const isOperator = user.role === "operator";
   const hasActiveGroup = activeGroupId != null;
 
   const nav: NavItem[] = [
@@ -57,31 +54,25 @@ export function AppShell({
       href: `/${locale}/tasks`,
       label: t("common.tasks"),
       icon: "tasks",
-      roles: ["operator", "teammate"],
     },
     {
       href: `/${locale}/teammates`,
       label: t("common.teammates"),
       icon: "teammates",
-      roles: ["operator"],
     },
     {
       href: `/${locale}/events`,
       label: t("common.events"),
       icon: "events",
-      roles: ["operator"],
     },
     {
       href: `/${locale}/settings`,
       label: t("common.settings"),
       icon: "settings",
-      roles: ["operator", "teammate"],
     },
   ];
 
-  const visibleNav = hasActiveGroup
-    ? nav.filter((item) => item.roles.includes(user.role))
-    : [];
+  const visibleNav = hasActiveGroup ? nav : [];
 
   return (
     <div className={shellStyles.root}>
@@ -206,7 +197,7 @@ export function AppShell({
           invitations={invitations}
           activeGroupId={activeGroupId}
         />
-        <main className={cn(shellStyles.content, isOperator && shellStyles.contentWide)}>
+        <main className={cn(shellStyles.content, shellStyles.contentWide)}>
           {children}
         </main>
       </div>

@@ -272,7 +272,6 @@ export function TasksPageClient({
             scope={scope}
             view={view}
             editMode={isOperator ? "all" : "self-only"}
-            linkMemberProfiles={isOperator}
             labels={boardLabels}
             openProjects={openProjects}
           />

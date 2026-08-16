@@ -139,17 +139,7 @@ export class ApiGroupInvitationService implements GroupInvitationService {
 
   async listForGroup(ctx: Parameters<GroupInvitationService["listForGroup"]>[0]) {
     const groupId = ctx.session.activeGroupId;
-    if (!groupId || ctx.session.user.role !== "operator") throw new Error("forbidden");
-    const membership = await prisma.groupMembership.findUnique({
-      where: {
-        groupId_userId: {
-          groupId,
-          userId: ctx.session.user.id,
-        },
-      },
-      select: { role: true },
-    });
-    if (membership?.role !== "operator") throw new Error("forbidden");
+    if (!groupId) throw new Error("forbidden");
 
     const rows = await prisma.groupInvitation.findMany({
       where: { groupId, status: { in: ["pending", "declined"] } },

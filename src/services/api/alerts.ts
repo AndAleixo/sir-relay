@@ -109,7 +109,7 @@ export class ApiOperatorAlertService implements OperatorAlertService {
     ctx: { session: Session },
     limit = 8,
   ): Promise<OperatorAlert[]> {
-    const groupId = requireOperatorGroup(ctx);
+    const groupId = requireGroupId(ctx);
     const taskRows = await prisma.task.findMany({
       where: { groupId },
       select: { id: true },

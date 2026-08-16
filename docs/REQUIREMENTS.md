@@ -244,7 +244,7 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-UI-01 | Branding | Logos / tokens per [BRAND.md](./BRAND.md) |
-| P1-UI-02 | Role-based nav | Active-group role: Operator → Tasks · Teammates · Events · Settings · Teammate → Tasks · Settings; Profile via avatar / sidebar footer — [UIUX.md §2.2](./UIUX.md#22-app-shell) |
+| P1-UI-02 | App nav | Active-group nav (both roles): Tasks · Teammates · Events · Settings. Profile via avatar / sidebar footer. Teammate: Teammates + Events read-only; group activity operator-only — [UIUX.md §2.2](./UIUX.md#22-app-shell) |
 | P1-UI-03 | Marketing landing | Public `/[locale]` when logged out — [UIUX.md §2.0](./UIUX.md#20-marketing-landing) |
 | P1-UI-04 | Landing entry | Locale switcher + **Sign up** / **Log in** — details in UIUX §2.0 |
 | P1-UI-05 | Product demo | Hero demo video + CSS fallback — details in UIUX §2.0 |
@@ -378,8 +378,11 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `tasks` | My work / Team | My work / Team (edit own) | Board \| List |
 | `tasks/new` | Yes | Yes (self only) | |
 | `tasks/[id]` | Yes | Own editable · others read-only | |
-| `teammates`, `teammates/new`, `teammates/[id]` | Yes | — | |
-| `events`, `events/activity` | Yes | — | Alerts · group history |
+| `teammates` | Yes | Read | List |
+| `teammates/new` | Yes | — | Invite |
+| `teammates/[id]` | Yes | Read | Mutate: operator |
+| `events` | Yes | Read alerts | |
+| `events/activity` | Yes | — | Group history |
 | `settings` | Yes | Yes | Group prefs, leave/delete |
 | `platform/*` | — | — | Ops cookie (`PLATFORM_ADMIN_*`), not product session |
 
@@ -393,7 +396,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-SEC-01 | IDOR protection | Every resource route validates role + ownership · **Done** (service-layer: `authz.ts` + operator on export/alerts/invites; self-only on UserService; task mutations via `assertCanMutateTask`) |
+| P2-SEC-01 | IDOR protection | Every resource route validates role + ownership · **Done** (service-layer: `authz.ts` + operator on export/alert prefs/invites; any member on alert list; self-only on UserService; task mutations via `assertCanMutateTask`) |
 | P2-SEC-02 | Session revocation | `token_version` on user; increment on password change; invalidate on logout · **Done (SEC base)** |
 | P2-SEC-03 | Account lockout | 5 failed logins per email per 15 min → lock 15 min · **Done (SEC base)** |
 | P2-SEC-04 | Password policy | Min 8 + uppercase + number; block common passwords · **Done (grandfather: only on set)** |
@@ -407,13 +410,13 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 
 ### 6.2 Audit log & group activity
 
-Server writes append-only `audit_logs` via `writeAudit` (security + ops). Operators see **group activity** only (`listGroupActivity` → `/events/activity`, human language). Login / logout / password stay in the store for **platform admin** (`/platform`) — not in the group UI.
+Server writes append-only `audit_logs` via `writeAudit` (security + ops). Operators see **group activity** (`listGroupActivity` → `/events/activity`, human language). Login / logout / password stay in the store for **platform admin** (`/platform`) — not in the group UI.
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P2-AUD-01 | Recorded actions | Login, **login_failed**, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** · **Done** (`writeAudit` / `writeAuditFromSession`) |
 | P2-AUD-02 | Storage | `audit_logs`: id, action, actor_type, actor_id, metadata, created_at · **Done** |
-| P2-AUD-03 | Operator UI | `/[locale]/events` = alerts; `/events/activity` = group history (human language; no login/logout) · **Done** |
+| P2-AUD-03 | Group UI | `/[locale]/events` = alerts (both roles, teammate read-only); `/events/activity` = group history (operator only; human language; no login/logout) · **Done** |
 | P2-AUD-04 | Platform admin | `/{locale}/platform/*` with **separate** env credentials (`PLATFORM_ADMIN_USERNAME` / `PLATFORM_ADMIN_PASSWORD`) + cookie `sirrelay_platform_session` · **Done** (no public audit API; not product login) |
 
 **Schema addition:**
@@ -573,6 +576,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Promote teammate → operator | Yes | — | — |
 | Demote operator → teammate | Yes (not owner / not last operator) | — | — |
 | Manage teammates | Yes | — | — |
+| View teammates | Yes | Yes (read) | — |
 | Create / edit / delete tasks | Yes | Own tasks only | — |
 | Clone task | Yes (any editable) | Own tasks only | — |
 | View tasks | All in group | All in group (edit own only) | Current notification |
@@ -580,6 +584,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Telegram reply log | — | — | Reply (stored server-side) |
 | Re-notify | Yes | — | — |
 | Link Telegram | Self-link on **Profile** (relay + alerts if operator) | Self-link on **Profile** (relay) | `/start <code>` |
+| View alerts | Yes (`/events`) | Yes (read) | — |
 | Group activity | Yes (`/events/activity`) | — | — |
 | Export data (CSV) | Yes | — | — |
 | Manage group projects | Yes (create / accept / archive) | Request only (read list) | — |
@@ -611,7 +616,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | POST | `/groups/:id/leave` | 1 | Session — delete own assigned tasks; if owner, succession then leave; empty group deleted |
 | DELETE | `/groups/:id` | 1 | Owner of group — delete group + cascade |
 | GET | `/groups/invites/:token` | 1 | Public preview — group name, email, needsPassword |
-| GET | `/teammates` | 1 | Operator in active group |
+| GET | `/teammates` | 1 | Any member in active group |
 | POST | `/teammates` | 1 | Operator |
 | PATCH | `/teammates/:id` | 1 | Operator |
 | POST | `/teammates/:id/invite` | 1 | Operator |
@@ -734,6 +739,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-08-16 | Teammate read-only Teammates + Events; group activity operator-only |
 | 2026-08-16 | P3-16 teammate project request (pending cap 2; any operator accepts) |
 | 2026-08-15 | P3-16 group projects (Settings CRUD; task acronym 1–3; no extra nav) |
 | 2026-07-26 | Export: CSV only (drop JSON product envelope / phantom `GET /export`); P3-12 folded into P2-DATA-02; drop P3-05 teammate due reminders; import out of scope |

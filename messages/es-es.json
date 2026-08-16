@@ -334,8 +334,8 @@
   },
   "events": {
     "title": "Eventos",
-    "subtitle": "Alertas de este grupo. Configura el envío por Telegram en Ajustes.",
-    "empty": "Sin alertas aún. Marca una tarea de compañero como hecha o espera una fecha de vencimiento.",
+    "subtitle": "Alertas de este grupo.",
+    "empty": "Sin alertas aún. Completar una tarea o una fecha de vencimiento puede generar uno.",
     "taskDone": "Completada:",
     "taskDue": "Vence:",
     "sentToTelegram": "Telegram",

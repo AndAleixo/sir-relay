@@ -65,8 +65,6 @@ interface TeamBoardProps {
   openProjects?: TaskOpenProject[];
   /** `all` = edit every column; `self-only` = edit own column, view others. */
   editMode?: "all" | "self-only";
-  /** Operator-only: name links to /teammates/[id]. */
-  linkMemberProfiles?: boolean;
   labels: TaskCardLabels & {
     todo: string;
     doing: string;
@@ -505,7 +503,6 @@ function MemberColumnHeader({
   member,
   locale,
   labels,
-  linkToProfile,
 }: {
   member: {
     id: string;
@@ -518,7 +515,6 @@ function MemberColumnHeader({
   };
   locale: string;
   labels: TeamBoardProps["labels"];
-  linkToProfile: boolean;
 }) {
   const inactiveLabel = memberInactiveLabel(member, {
     invited: labels.invited,
@@ -529,16 +525,12 @@ function MemberColumnHeader({
   return (
     <MemberNameRow
       nameNode={
-        linkToProfile ? (
-          <Link
-            href={`/${locale}/teammates/${member.id}`}
-            className={teamBoardStyles.memberName}
-          >
-            {name}
-          </Link>
-        ) : (
-          <span className={teamBoardStyles.memberNamePlain}>{name}</span>
-        )
+        <Link
+          href={`/${locale}/teammates/${member.id}`}
+          className={teamBoardStyles.memberName}
+        >
+          {name}
+        </Link>
       }
       telegramStatus={member.telegramStatus}
       inactiveLabel={inactiveLabel}
@@ -557,7 +549,6 @@ export function TeamBoard({
   project = null,
   openProjects = [],
   editMode = "all",
-  linkMemberProfiles = true,
   labels,
 }: TeamBoardProps) {
   const { applyTaskUpdate, createTaskQuick, placeInTodoQueue, cloneTask, deleteTask } =
@@ -747,7 +738,6 @@ export function TeamBoard({
               }}
               locale={locale}
               labels={labels}
-              linkToProfile={linkMemberProfiles}
             />
           }
           tasks={selfTasks}
@@ -782,7 +772,6 @@ export function TeamBoard({
                   member={member}
                   locale={locale}
                   labels={labels}
-                  linkToProfile={linkMemberProfiles}
                 />
               }
               tasks={columnTasks}

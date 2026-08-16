@@ -290,11 +290,11 @@ Shared compact card on boards; list uses a table row. Clone rule: [P1-TASK-14](.
 |---------|----------|
 | **⠿** drag | Cursor grab; optional soft tint when difficulty is set — colours in [BRAND.md §2.2.1](./BRAND.md#221-task-difficulty-board--handle) (hard = overdue `--severity`) |
 | Title | Acronym + ` · ` inline on the first line; wrapped title continues underneath. Click title → inline edit. |
-| Acronym | Click → sideways segment like **⋯** (fade/slide; title fades to ~30%). Fills to the title end when items overflow; arrow overlays stay put (hide at ends). |
+| Acronym | Click → sideways segment like **⋯** (fade/slide; title fades to ~10%). Fills to the title end when items overflow; arrow overlays stay put (hide at ends). |
 | Description | One muted truncated line: under title when due set (`pr-2`); else in footer due slot |
 | Due | Overdue in `--severity`; empty + no description → **Add due date** (editable) |
 | Status controls | Queue head **→** (start); In progress **✓** → Done; Done green ✓ mark |
-| **⋯** menu | Segment left of trigger (card `bg-surface-card`); **Open · Clone · Delete** (Open only if read-only). Footer due/description fades to ~30% while open. Same fade timings as Family A |
+| **⋯** menu | Segment left of trigger (card `bg-surface-card`); **Open · Clone · Delete** (Open only if read-only). Footer due/description fades to ~10% while open. Same fade timings as Family A |
 | Notify failed | Accent corner dot (`telegramFailed` tooltip) |
 | Quick add | `+ Add task` in editable To do |
 

@@ -67,9 +67,9 @@ export const taskCardStyles = {
   menuSegment: `${overlayChrome} right-full`,
   menuSegmentClosed: `${overlayClose} translate-x-2`,
   menuItem:
-    "rounded-[4px] bg-surface-card px-1.5 py-0.5 text-[10px] font-medium leading-tight text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50",
+    "rounded-[4px] bg-surface-card px-1.5 py-0.5 text-[10px] font-medium leading-tight text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50",
   overlayFade: "transition-opacity duration-200 ease-out",
-  overlayFaded: "pointer-events-none opacity-30 duration-300 ease-in",
+  overlayFaded: "pointer-events-none opacity-10 duration-300 ease-in",
   footerSlot: "min-w-0 flex-1",
   menuItemSeverity:
     "text-[var(--severity)] hover:bg-[var(--surface-bg)] hover:text-[var(--severity)]",

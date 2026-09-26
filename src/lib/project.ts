@@ -1,4 +1,4 @@
-export const MAX_OPEN_PROJECTS = 8;
+export const MAX_OPEN_PROJECTS = 14;
 export const MAX_PENDING_PROJECTS = 2;
 export const MAX_CATEGORIES_PER_PROJECT = 8;
 export const PROJECT_NAME_MAX = 20;

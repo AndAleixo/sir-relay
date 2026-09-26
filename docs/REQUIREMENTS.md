@@ -562,7 +562,7 @@ Task.category_id → nullable FK (SET NULL; must belong to the task’s project)
 | P3-PRJ-08 | Relay | Queue / notify / re-notify use the same display string. Project does not change queue order. |
 | P3-PRJ-09 | Permissions | Operator: create / accept / archive project. Teammate: request project (not archive). Both roles: add / archive **categories** on accepted projects; set **accepted** project and that project’s **category** on tasks they can edit. |
 | P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (1–3), `archived_at`, `pending_at`, `created_at`. `project_categories`: `id`, `project_id`, `name` (≤20), `archived_at`, `created_at`. `tasks.project_id` and `tasks.category_id` nullable FKs `on delete set null`. |
-| P3-PRJ-11 | Cap | At most **8** accepted-open projects per group. Refuse operator create and teammate request at the cap. Accept refused at the cap. |
+| P3-PRJ-11 | Cap | At most **14** accepted-open projects per group. Refuse operator create and teammate request at the cap. Accept refused at the cap. |
 | P3-PRJ-12 | Pending cap | At most **2** pending requests per group (`archived_at` null and `pending_at` set). Any operator may accept. Refuse further teammate requests at the cap. |
 | P3-PRJ-13 | Categories | Per **accepted** project. Both roles: add name, list, trash (archives). Unique name among open categories of that project (case-insensitive). Cap **8** open per project. No categories on pending projects. Task may set `category_id` of a category on its current project (list + later detail); clear when the project is cleared. |
 

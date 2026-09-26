@@ -22,7 +22,7 @@ import {
 } from "../src/lib/project";
 import { parseTasksProject, tasksListHref } from "../src/lib/tasks-url";
 
-assert.equal(MAX_OPEN_PROJECTS, 8);
+assert.equal(MAX_OPEN_PROJECTS, 14);
 assert.equal(MAX_PENDING_PROJECTS, 2);
 assert.equal(MAX_CATEGORIES_PER_PROJECT, 8);
 assert.equal(PROJECT_NAME_MAX, 20);

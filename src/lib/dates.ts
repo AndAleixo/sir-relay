@@ -46,4 +46,18 @@ export function formatDueDate(dueDate: string | null, locale: string): string {
   });
 }
 
+/** Digit date for tight table cells (`20/09/2026`). */
+export function formatDueDateNumeric(
+  dueDate: string | null,
+  locale: string,
+): string {
+  if (!dueDate) return "—";
+  return new Date(`${dueDate}T00:00:00Z`).toLocaleDateString(locale, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export { DAY_MS };

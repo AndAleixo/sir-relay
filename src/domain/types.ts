@@ -105,6 +105,9 @@ export interface Task {
   projectId: string | null;
   /** Acronym even if the project is archived. */
   projectAcronym: string | null;
+  /** Category on the task’s project — null if untagged. */
+  categoryId: string | null;
+  categoryName: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -118,6 +121,14 @@ export interface Project {
   /** ISO time while awaiting operator accept; null = live (taggable). */
   pendingAt: string | null;
 }
+
+export interface ProjectCategory {
+  id: string;
+  projectId: string;
+  name: string;
+}
+
+export type ManagedProject = Project & { categories: ProjectCategory[] };
 
 export interface Session {
   user: User;

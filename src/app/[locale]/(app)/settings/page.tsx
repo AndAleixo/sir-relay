@@ -5,7 +5,6 @@ import { PageHeader } from "@/components/layout/app-shell";
 import { GroupDangerSettings } from "@/components/settings/group-danger-settings";
 import { GroupGeneralSettings } from "@/components/settings/group-general-settings";
 import { GroupNotificationSettings } from "@/components/settings/group-notification-settings";
-import { GroupProjectsSettings } from "@/components/settings/group-projects-settings";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -21,14 +20,13 @@ export default async function SettingsPage({
   searchParams: Promise<{
     renameError?: string;
     displayNameError?: string;
-    projectError?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { renameError, displayNameError, projectError } = await searchParams;
+  const { renameError, displayNameError } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
-  const { alerts, groups, teammates, projects } = getServices();
+  const { alerts, groups, teammates } = getServices();
 
   const groupList = await groups.listForUser(session.user.id);
   const activeGroup =
@@ -43,8 +41,6 @@ export default async function SettingsPage({
     activeGroup && activeGroup.ownerUserId === session.user.id,
   );
   const showLeaveSuccessionHint = isOwner && memberCount > 1;
-  const groupProjects =
-    activeGroup ? await projects.listInGroup({ session }) : [];
 
   return (
     <>
@@ -67,29 +63,6 @@ export default async function SettingsPage({
               {t("common.account")}
             </Link>
           </Banner>
-        ) : null}
-
-        {activeGroup ? (
-          <Card className="min-w-0">
-            <CardHeader>
-              <h2 className="text-sm font-semibold">{t("settings.projects")}</h2>
-              <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-                {t(
-                  isOperator
-                    ? "settings.projectsHint"
-                    : "settings.projectsHintTeammate",
-                )}
-              </p>
-            </CardHeader>
-            <CardBody>
-              <GroupProjectsSettings
-                locale={locale}
-                projects={groupProjects}
-                isOperator={isOperator}
-                error={projectError}
-              />
-            </CardBody>
-          </Card>
         ) : null}
 
         {activeGroup ? (

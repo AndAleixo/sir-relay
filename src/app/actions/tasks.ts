@@ -355,6 +355,7 @@ export async function updateTaskFieldsAction(
     dueDate?: string | null;
     description?: string;
     projectId?: string | null;
+    categoryId?: string | null;
   },
   options?: SyncActionOptions,
 ): Promise<TaskActionResult> {

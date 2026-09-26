@@ -10,7 +10,8 @@ import {
   userIdsInGroup,
 } from "@/services/mock/groups.mock";
 import { findMockUserById } from "@/services/mock/users.mock";
-import { mockCopyOpenProject, mockProjectTag } from "@/services/mock/projects.mock";
+import { mockCopyOpenProject, mockProjectTag, mockOpenCategoryIds, mockCategoryLabel } from "@/services/mock/projects.mock";
+import { nextTaskCategoryId } from "@/lib/project";
 
 function tasksInGroup(tasks: Task[], session: Session): Task[] {
   const groupId = session.activeGroupId;
@@ -102,6 +103,8 @@ export class MockTaskService implements TaskService {
       telegramNotifyFailed: false,
       sortOrder,
       ...mockProjectTag(ctx.session, input.projectId),
+      categoryId: null,
+      categoryName: null,
       updatedAt: now,
       createdAt: now,
     };
@@ -177,6 +180,7 @@ export class MockTaskService implements TaskService {
       description?: string;
       difficulty?: TaskDifficulty | null;
       projectId?: string | null;
+      categoryId?: string | null;
     },
     ctx: { session: Session },
   ): Promise<Task> {
@@ -204,6 +208,17 @@ export class MockTaskService implements TaskService {
         ? { projectId: task.projectId, projectAcronym: task.projectAcronym }
         : mockProjectTag(ctx.session, fields.projectId, task.projectId);
 
+    const categoryId =
+      fields.categoryId === undefined && fields.projectId === undefined
+        ? task.categoryId
+        : nextTaskCategoryId({
+            projectId: project.projectId,
+            projectChanged: project.projectId !== task.projectId,
+            requested: fields.categoryId,
+            currentId: task.categoryId,
+            openIds: mockOpenCategoryIds(project.projectId),
+          });
+
     const updated = {
       ...task,
       title,
@@ -211,6 +226,8 @@ export class MockTaskService implements TaskService {
       dueDate,
       difficulty,
       ...project,
+      categoryId,
+      categoryName: mockCategoryLabel(categoryId),
       updatedAt: new Date().toISOString(),
     };
     this.tasks = this.tasks.map((t) => (t.id === id ? updated : t));
@@ -262,6 +279,12 @@ export class MockTaskService implements TaskService {
     const nextIds = insertIdAfter(orderedIds, sourceId, id);
 
     const cloneTag = mockCopyOpenProject(ctx.session, existing.projectId);
+    const categoryId = nextTaskCategoryId({
+      projectId: cloneTag.projectId,
+      projectChanged: cloneTag.projectId !== existing.projectId,
+      currentId: existing.categoryId,
+      openIds: mockOpenCategoryIds(cloneTag.projectId),
+    });
     const clone: Task = {
       id,
       title: existing.title,
@@ -274,6 +297,8 @@ export class MockTaskService implements TaskService {
       telegramNotifyFailed: false,
       sortOrder: nextIds.indexOf(id),
       ...cloneTag,
+      categoryId,
+      categoryName: mockCategoryLabel(categoryId),
       updatedAt: now,
       createdAt: now,
     };

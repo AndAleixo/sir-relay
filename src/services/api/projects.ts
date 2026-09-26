@@ -1,4 +1,4 @@
-import type { Project } from "@/domain/types";
+import type { ManagedProject, Project } from "@/domain/types";
 import type { ProjectService } from "@/services/contracts";
 import { requireActiveGroupId, requireOperator } from "@/lib/authz";
 import {
@@ -7,6 +7,8 @@ import {
   ACCEPTED_PROJECT,
   MAX_OPEN_PROJECTS,
   MAX_PENDING_PROJECTS,
+  MAX_CATEGORIES_PER_PROJECT,
+  parseCategoryName,
   sortProjectsForSettings,
 } from "@/lib/project";
 import { prisma } from "@/lib/prisma";
@@ -27,6 +29,21 @@ function toProject(row: {
     acronym: row.acronym,
     archivedAt: row.archivedAt?.toISOString() ?? null,
     pendingAt: row.pendingAt?.toISOString() ?? null,
+  };
+}
+
+function toManaged(
+  row: Parameters<typeof toProject>[0] & {
+    categories: { id: string; projectId: string; name: string }[];
+  },
+): ManagedProject {
+  return {
+    ...toProject(row),
+    categories: row.categories.map((category) => ({
+      id: category.id,
+      projectId: category.projectId,
+      name: category.name,
+    })),
   };
 }
 
@@ -76,8 +93,14 @@ export const apiProjectService: ProjectService = {
     const rows = await prisma.project.findMany({
       where: { groupId, ...ACCEPTED_PROJECT },
       orderBy: { createdAt: "asc" },
+      include: {
+        categories: {
+          where: { archivedAt: null },
+          orderBy: { createdAt: "asc" },
+        },
+      },
     });
-    return rows.map(toProject);
+    return rows.map(toManaged);
   },
 
   async listInGroup(ctx) {
@@ -85,8 +108,14 @@ export const apiProjectService: ProjectService = {
     const rows = await prisma.project.findMany({
       where: { groupId, archivedAt: null },
       orderBy: { createdAt: "asc" },
+      include: {
+        categories: {
+          where: { archivedAt: null },
+          orderBy: { createdAt: "asc" },
+        },
+      },
     });
-    return sortProjectsForSettings(rows.map(toProject));
+    return sortProjectsForSettings(rows.map(toManaged));
   },
 
   async create(input, ctx) {
@@ -150,6 +179,53 @@ export const apiProjectService: ProjectService = {
     });
     if (!row) throw new Error("Not found");
     await prisma.project.update({
+      where: { id },
+      data: { archivedAt: new Date() },
+    });
+  },
+
+  async createCategory(input, ctx) {
+    const groupId = requireActiveGroupId(ctx.session);
+    const name = parseCategoryName(input.name);
+    if (!name) throw new Error("Invalid name");
+
+    const project = await prisma.project.findFirst({
+      where: { id: input.projectId, groupId, ...ACCEPTED_PROJECT },
+    });
+    if (!project) throw new Error("Not found");
+
+    const openCount = await prisma.projectCategory.count({
+      where: { projectId: project.id, archivedAt: null },
+    });
+    if (openCount >= MAX_CATEGORIES_PER_PROJECT) throw new Error("Limit");
+
+    try {
+      const row = await prisma.projectCategory.create({
+        data: { projectId: project.id, name },
+      });
+      return { id: row.id, projectId: row.projectId, name: row.name };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new Error("Taken");
+      }
+      throw error;
+    }
+  },
+
+  async archiveCategory(id, ctx) {
+    const groupId = requireActiveGroupId(ctx.session);
+    const row = await prisma.projectCategory.findFirst({
+      where: {
+        id,
+        archivedAt: null,
+        project: { groupId, archivedAt: null },
+      },
+    });
+    if (!row) throw new Error("Not found");
+    await prisma.projectCategory.update({
       where: { id },
       data: { archivedAt: new Date() },
     });

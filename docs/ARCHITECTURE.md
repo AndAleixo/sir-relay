@@ -30,7 +30,8 @@ src/
 │   ├── teammates.ts      # Teammate CRUD + promote
 │   ├── tasks.ts          # Tasks + alert prefs + placeInTodoQueue
 │   ├── export.ts         # CSV export (server action)
-│   └── settings.ts       # Locale + group rename + projects
+│   ├── settings.ts       # Locale + group rename
+│   └── projects.ts       # Group projects + categories
 └── app/[locale]/
     ├── groups/auto/      # Route handler: persist sole-group auto-select
     └── (app)/groups/     # Placeholder + panel auto-open
@@ -46,7 +47,7 @@ src/
 | Teammate actions | `app/actions/teammates.ts` | invite/update/remove/promote/demote/transfer-ownership/regenerate-invite |
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` (`ownerUserId` on `Group`) |
 | Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete/transfer · ownership succession |
-| Projects (P3-16) | Settings card (operator CRUD + teammate request) · `tasks.project_id` | [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16) |
+| Projects (P3-16) | `/projects` tab (`ProjectsManager`) · `tasks.project_id` · `tasks.category_id` | [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16) |
 | Invitation consent | `services/{api,mock}/invitations*` | Existing active account: pending → accept/decline; membership only on accept |
 | Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |
 | Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |
@@ -67,6 +68,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/change-password` | Session | private | Forced / optional password change |
 | `/[locale]/tasks`, `/tasks/new`, `/tasks/[id]` | Session + group | private | Boards, list, CRUD |
 | `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | List/detail both roles (writes operator); `/new` operator |
+| `/[locale]/projects` | Session + group | private | Project manager (both) · project writes operator · categories both |
 | `/[locale]/events`, `/events/activity`, `/settings` | Session + group | private | Alerts (both) · group activity + alert prefs (operator) |
 | `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |

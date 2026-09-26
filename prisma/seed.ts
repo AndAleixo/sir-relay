@@ -114,6 +114,14 @@ async function main() {
     ],
   });
 
+  await prisma.projectCategory.createMany({
+    data: [
+      { id: "category-front", projectId: "project-shop", name: "Front" },
+      { id: "category-stock", projectId: "project-shop", name: "Stock" },
+      { id: "category-site", projectId: "project-web", name: "Site" },
+    ],
+  });
+
   for (const task of MOCK_TASKS) {
     await prisma.task.create({
       data: {

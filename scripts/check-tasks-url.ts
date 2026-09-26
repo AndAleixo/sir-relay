@@ -90,6 +90,7 @@ assert.equal(
 );
 assert.equal(stripSuccessFlash("?transferred=1"), "");
 assert.equal(stripSuccessFlash("?projectSaved=1"), "");
+assert.equal(stripSuccessFlash("?categorySaved=1"), "");
 assert.equal(stripSuccessFlash("?projectRemoved=1&projectError=taken"), "?projectError=taken");
 assert.equal(stripSuccessFlash("?scope=team&view=board"), null);
 assert.equal(stripSuccessFlash("?error=not_found"), null);

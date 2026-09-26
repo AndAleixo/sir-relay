@@ -24,7 +24,7 @@ export type TaskOpenProject = {
 type TaskProjectPickerProps = {
   currentId: string | null;
   currentAcronym: string;
-  projects: TaskOpenProject[];
+  projects: readonly TaskOpenProject[];
   noneLabel: string;
   ariaLabel: string;
   scrollLeftLabel: string;

@@ -244,7 +244,7 @@ Web app has **no comment thread**. Telegram replies are persisted for relay/audi
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P1-UI-01 | Branding | Logos / tokens per [BRAND.md](./BRAND.md) |
-| P1-UI-02 | App nav | Active-group nav (both roles): Tasks · Teammates · Events · Settings. Profile via avatar / sidebar footer. Teammate: Teammates + Events read-only; group activity operator-only — [UIUX.md §2.2](./UIUX.md#22-app-shell) |
+| P1-UI-02 | App nav | Active-group nav (both roles): Tasks · Teammates · **Projects** · Events · Settings. Profile via avatar / sidebar footer. Teammate: Teammates + Events read-only; group activity operator-only — [UIUX.md §2.2](./UIUX.md#22-app-shell) |
 | P1-UI-03 | Marketing landing | Public `/[locale]` when logged out — [UIUX.md §2.0](./UIUX.md#20-marketing-landing) |
 | P1-UI-04 | Landing entry | Locale switcher + **Sign up** / **Log in** — details in UIUX §2.0 |
 | P1-UI-05 | Product demo | Hero demo video + CSS fallback — details in UIUX §2.0 |
@@ -347,12 +347,15 @@ telegram_link_tokens
 tasks
   id, group_id, title, description, assignee_id, created_by_id,
   status (todo|doing|done), difficulty (easy|medium|hard|null), due_date, sort_order,
-  project_id (nullable),
+  project_id (nullable), category_id (nullable),
   telegram_message_id, telegram_chat_id, telegram_notified_at, telegram_notify_failed,
   created_at, updated_at
 
 projects
   id, group_id, name, acronym, archived_at (null = not archived), pending_at (null = accepted), created_at
+
+project_categories
+  id, project_id, name, archived_at, created_at
 
 telegram_activity   -- optional audit log for Telegram replies (not shown on web)
   id, task_id, body, author_user_id, created_at
@@ -381,6 +384,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `teammates` | Yes | Read | List |
 | `teammates/new` | Yes | — | Invite |
 | `teammates/[id]` | Yes | Read | Mutate: operator |
+| `projects` | Yes | Yes | Manage group projects + categories (nav tab) |
 | `events` | Yes | Read alerts | |
 | `events/activity` | Yes | — | Group history |
 | `settings` | Yes | Yes | Group prefs, leave/delete |
@@ -514,7 +518,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | P3-13 | Native mobile apps (iOS / Android) — same `/api/v1`; web remains primary until shipped |
 | P3-14 | PWA install + optional push notifications |
 | P3-15 | Public organization signup (multi-tenant or self-serve deploy) |
-| P3-16 | Group projects — acronym tag on tasks; manage on Settings (no extra nav tab) |
+| P3-16 | Group projects — acronym on tasks; Projects tab + categories |
 
 ### 7.1 Offline web sync (P3-07)
 
@@ -535,29 +539,32 @@ Both roles. Requires Phase 1 API + DB. PWA install → P3-14. Out of scope here:
 
 ### 7.2 Group projects (P3-16)
 
-Optional labels **inside the active group**. The group remains the team (members, board, Telegram queue). A **project** is a named bucket with a short **acronym**; a task may carry at most one. **No new sidebar / mobile tab** — CRUD lives on **Settings**. The board shows the acronym; the list view filters.
+Optional labels **inside the active group**. The group remains the team (members, board, Telegram queue). A **project** is a named bucket with a short **acronym**; a task may carry at most one. CRUD lives on the **Projects** nav tab (`/projects`, between Teammates and Events). The board shows the acronym; the list view filters and inline-edits title, project, and category. Categories live **on the project**; a task may carry at most one (`category_id`) from its current project. Not on the task card.
 
-Out of scope: free-form tags, colours, people-per-project, per-project boards, extra nav item.
+Out of scope: free-form tags, colours, people-per-project, per-project boards, nested categories, category on task cards / Telegram heading.
 
 ```
 Group → projects (open | pending | archived)
+Project → categories (open | archived)
 Task.project_id → nullable FK
+Task.category_id → nullable FK (SET NULL; must belong to the task’s project)
 ```
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P3-PRJ-01 | Scope | Projects belong to `session.activeGroupId`. Switching group switches the list. |
-| P3-PRJ-02 | Manage UI | Operator: Settings **Projects** — create (name then acronym), list name then acronym, trash (archives). Teammate: same list read-only; may **request** (name then acronym); cannot archive. Pending rows show until an operator accepts. |
+| P3-PRJ-02 | Manage UI | Both roles: **Projects** tab **`/projects`**. Operator: create (name then acronym), list, accept pending, trash. Teammate: request; cannot trash a project. Both roles: add / archive categories on accepted projects. Pending rows show until an operator accepts. |
 | P3-PRJ-03 | Acronym | 1–3 letters A–Z (store uppercase). Unique among **open and pending** projects in the group. |
-| P3-PRJ-04 | Archive | Trash in Settings archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. Operator may trash a pending request (frees a pending slot). |
-| P3-PRJ-05 | Tag task | Create/edit: Select of **accepted open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` if still accepted-open, else `null`. Pending is not taggable. |
-| P3-PRJ-06 | List filter | List view: Select of **accepted open** projects with the other list filters (`All` or one project). Board / kanban: no project filter (all tasks in scope). No fifth nav tab. Zero projects: quiet Settings link on the list filters (both roles). |
-| P3-PRJ-07 | Display | Card, list, task detail, Telegram: `SIR · Fix login`, same type as the title. Card: click acronym → retag (open projects, ⋯-style overlay); click title → edit title only. Untagged: title only. |
+| P3-PRJ-04 | Archive | Trash on `/projects` archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. Operator may trash a pending request (frees a pending slot). |
+| P3-PRJ-05 | Tag task | Create/edit: Select of **accepted open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` (and `category_id` if still open on that project) if the project is still accepted-open, else both `null`. Pending is not taggable. |
+| P3-PRJ-06 | List filter | List view: Select of **accepted open** projects with the other list filters (`All` or one project). Board / kanban: no project filter (all tasks in scope). Zero projects: quiet link to `/projects` (both roles). |
+| P3-PRJ-07 | Display | Board, task detail, Telegram: `SIR · Fix login`. Card: click acronym → retag; click title → edit title only. Untagged: title only. Category is **not** shown on the card. **List:** Title, Project, Category, assignee, status, due. Click title → input (≤200, wrap 2 lines); click project/category/assignee/status → vertical picker (assignee: operator). Click due → date. Changing project clears the category unless that category id still exists on the new project. |
 | P3-PRJ-08 | Relay | Queue / notify / re-notify use the same display string. Project does not change queue order. |
-| P3-PRJ-09 | Permissions | Operator: create / accept / archive. Teammate: request (not archive). Both roles: set **accepted** project on tasks they can edit. |
-| P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (1–3), `archived_at` (null = not archived), `pending_at` (null = accepted), `created_at`. `tasks.project_id` nullable FK `on delete set null`. |
+| P3-PRJ-09 | Permissions | Operator: create / accept / archive project. Teammate: request project (not archive). Both roles: add / archive **categories** on accepted projects; set **accepted** project and that project’s **category** on tasks they can edit. |
+| P3-PRJ-10 | Schema | `projects`: `id`, `group_id`, `name` (≤20), `acronym` (1–3), `archived_at`, `pending_at`, `created_at`. `project_categories`: `id`, `project_id`, `name` (≤20), `archived_at`, `created_at`. `tasks.project_id` and `tasks.category_id` nullable FKs `on delete set null`. |
 | P3-PRJ-11 | Cap | At most **8** accepted-open projects per group. Refuse operator create and teammate request at the cap. Accept refused at the cap. |
 | P3-PRJ-12 | Pending cap | At most **2** pending requests per group (`archived_at` null and `pending_at` set). Any operator may accept. Refuse further teammate requests at the cap. |
+| P3-PRJ-13 | Categories | Per **accepted** project. Both roles: add name, list, trash (archives). Unique name among open categories of that project (case-insensitive). Cap **8** open per project. No categories on pending projects. Task may set `category_id` of a category on its current project (list + later detail); clear when the project is cleared. |
 
 ---
 
@@ -588,6 +595,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Group activity | Yes (`/events/activity`) | — | — |
 | Export data (CSV) | Yes | — | — |
 | Manage group projects | Yes (create / accept / archive) | Request only (read list) | — |
+| Manage project categories | Yes | Yes | — |
 | Tag task with project | Yes | Own tasks only | — |
 
 ---
@@ -670,7 +678,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 │   └── check-entry-routes.mjs
 └── src/
     ├── app/
-│   ├── actions/              # auth · groups · invitations · teammates · tasks · export · settings
+│   ├── actions/              # auth · groups · invitations · teammates · tasks · export · settings · projects
 │   └── [locale]/
 ├── components/landing/
 ├── domain/types.ts         # UserGroup, Session, …
@@ -709,6 +717,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | **User** | One account (email + password). Not inherently operator or teammate. |
 | **Group** | Team workspace — tasks, members, **projects**, relay settings scoped here. |
 | **Project** | Optional bucket **inside a group** (name + acronym). Task may have one; operator creates or accepts teammate requests (P3-16). |
+| **Category** | Optional label **on an accepted project**. Task may have one (`category_id`) from its current project. |
 | **Group membership** | Links `user` + `group` + `role` (`operator` \| `teammate`). Source of truth for permissions. |
 | **Active group** | Group selected in session; UI and API operate in this context. |
 | **Operator** | Full-access role **in a group**; UI: Operator / Operador |
@@ -739,6 +748,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-09-20 | P3-16 list inline title/project/category; `tasks.category_id`; Projects tab categories (both roles) |
 | 2026-08-16 | Teammate read-only Teammates + Events; group activity operator-only |
 | 2026-08-16 | P3-16 teammate project request (pending cap 2; any operator accepts) |
 | 2026-08-15 | P3-16 group projects (Settings CRUD; task acronym 1–3; no extra nav) |

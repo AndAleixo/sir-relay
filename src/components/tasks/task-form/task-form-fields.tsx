@@ -74,6 +74,7 @@ export function TaskFormFields({
           id="title"
           name="title"
           required
+          maxLength={200}
           defaultValue={defaultValues?.title}
           placeholder={labels.titlePlaceholder}
         />

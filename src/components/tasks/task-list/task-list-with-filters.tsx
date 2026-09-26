@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import type { Task, TaskStatus } from "@/domain/types";
+import type { ManagedProject, Task, TaskStatus } from "@/domain/types";
 import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { sortTasksForList, type TaskListSort } from "@/lib/task-list-sort";
 import { TaskList } from "@/components/tasks/task-list";
+import { taskListStyles } from "./task-list.styles";
 import { Label, Select } from "@/components/ui/input";
 
 type AssigneeFilterOption = {
@@ -19,16 +20,17 @@ type TaskListWithFiltersProps = {
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
-  projects?: { id: string; acronym: string }[];
+  projects?: ManagedProject[];
   onProjectChange?: (projectId: string | null) => void;
   addProjectHref?: string;
+  currentUserId: string;
+  canEditAll: boolean;
   assigneeOptions?: AssigneeFilterOption[];
   labels: {
     title: string;
     assignee: string;
     dueDate: string;
-    updated: string;
-    overdue: string;
+    addDueDate: string;
     statusColumn: string;
     filterAssignee: string;
     filterStatus: string;
@@ -39,6 +41,9 @@ type TaskListWithFiltersProps = {
     status: Record<TaskStatus, string>;
     project: string;
     addProject: string;
+    category: string;
+    projectNone: string;
+    categoryNone: string;
   };
 };
 
@@ -51,13 +56,15 @@ export function TaskListWithFilters({
   projects = [],
   onProjectChange,
   addProjectHref,
+  currentUserId,
+  canEditAll,
   assigneeOptions = [],
   labels,
 }: TaskListWithFiltersProps) {
   const [assigneeId, setAssigneeId] = useState("all");
   const [status, setStatus] = useState<TaskStatus | "all">("all");
   const [sort, setSort] = useState<TaskListSort>("due");
-  const showAssigneeFilter = assigneeOptions.length > 0;
+  const showAssigneeFilter = scope === "team" && assigneeOptions.length > 0;
 
   const assigneeSelectOptions = useMemo(
     () => [
@@ -113,13 +120,15 @@ export function TaskListWithFilters({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-4">
+      <div className={taskListStyles.filterBar}>
         {projects.length > 0 && onProjectChange ? (
-          <div className="min-w-[140px]">
-            <Label htmlFor="filter-project">{labels.project}</Label>
+          <div className={taskListStyles.filterField}>
+            <Label htmlFor="filter-project" className={taskListStyles.filterLabel}>
+              {labels.project}
+            </Label>
             <Select
               id="filter-project"
-              className="mt-1.5"
+              className={taskListStyles.filterSelect}
               value={project ?? ""}
               onChange={(next) => onProjectChange(next || null)}
               options={projectSelectOptions}
@@ -127,7 +136,7 @@ export function TaskListWithFilters({
             />
           </div>
         ) : addProjectHref ? (
-          <p className="self-end text-xs text-[var(--text-muted)]">
+          <p className={taskListStyles.filterAdd}>
             <Link
               href={addProjectHref}
               className="underline-offset-2 hover:text-[var(--text-primary)] hover:underline"
@@ -137,11 +146,13 @@ export function TaskListWithFilters({
           </p>
         ) : null}
         {showAssigneeFilter ? (
-          <div className="min-w-[180px]">
-            <Label htmlFor="filter-assignee">{labels.filterAssignee}</Label>
+          <div className={taskListStyles.filterFieldWide}>
+            <Label htmlFor="filter-assignee" className={taskListStyles.filterLabel}>
+              {labels.filterAssignee}
+            </Label>
             <Select
               id="filter-assignee"
-              className="mt-1.5"
+              className={taskListStyles.filterSelect}
               value={assigneeId}
               onChange={setAssigneeId}
               options={assigneeSelectOptions}
@@ -149,22 +160,26 @@ export function TaskListWithFilters({
             />
           </div>
         ) : null}
-        <div className="min-w-[160px]">
-          <Label htmlFor="filter-status">{labels.filterStatus}</Label>
+        <div className={taskListStyles.filterField}>
+          <Label htmlFor="filter-status" className={taskListStyles.filterLabel}>
+            {labels.filterStatus}
+          </Label>
           <Select
             id="filter-status"
-            className="mt-1.5"
+            className={taskListStyles.filterSelect}
             value={status}
             onChange={(next) => setStatus(next as TaskStatus | "all")}
             options={statusSelectOptions}
             aria-label={labels.filterStatus}
           />
         </div>
-        <div className="min-w-[160px]">
-          <Label htmlFor="filter-sort">{labels.filterSort}</Label>
+        <div className={taskListStyles.filterField}>
+          <Label htmlFor="filter-sort" className={taskListStyles.filterLabel}>
+            {labels.filterSort}
+          </Label>
           <Select
             id="filter-sort"
-            className="mt-1.5"
+            className={taskListStyles.filterSelect}
             value={sort}
             onChange={(next) => setSort(next as TaskListSort)}
             options={sortSelectOptions}
@@ -178,15 +193,21 @@ export function TaskListWithFilters({
         scope={scope}
         view={view}
         project={project}
-        showAssignee={showAssigneeFilter}
+        currentUserId={currentUserId}
+        canEditAll={canEditAll}
+        openProjects={projects}
+        assigneeOptions={assigneeOptions}
         labels={{
           title: labels.title,
           assignee: labels.assignee,
           dueDate: labels.dueDate,
-          updated: labels.updated,
-          overdue: labels.overdue,
+          addDueDate: labels.addDueDate,
           statusColumn: labels.statusColumn,
           status: labels.status,
+          project: labels.project,
+          category: labels.category,
+          projectNone: labels.projectNone,
+          categoryNone: labels.categoryNone,
         }}
       />
     </div>

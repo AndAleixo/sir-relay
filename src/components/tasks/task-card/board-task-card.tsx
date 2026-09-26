@@ -21,6 +21,7 @@ export type TaskCardFieldPatch = {
   title?: string;
   dueDate?: string | null;
   projectId?: string | null;
+  categoryId?: string | null;
 };
 
 interface BoardTaskCardProps {
@@ -28,7 +29,7 @@ interface BoardTaskCardProps {
   locale: string;
   href: string;
   labels: TaskCardLabels;
-  openProjects?: TaskOpenProject[];
+  openProjects?: readonly TaskOpenProject[];
   /** View-only: no drag, inline edit, or status controls. Menu: Open only. */
   readOnly?: boolean;
   isDragging?: boolean;
@@ -242,6 +243,7 @@ export function BoardTaskCard({
                 autoFocus
                 className={cn(taskCardStyles.inlineInput, "min-w-0 flex-1")}
                 value={titleDraft}
+                maxLength={200}
                 disabled={saving}
                 onChange={(event) => setTitleDraft(event.target.value)}
                 onKeyDown={(event) => {

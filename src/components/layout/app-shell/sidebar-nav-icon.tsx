@@ -3,6 +3,7 @@ import { cn } from "@/lib/cn";
 export type SidebarNavIconName =
   | "tasks"
   | "teammates"
+  | "projects"
   | "events"
   | "settings";
 
@@ -22,6 +23,9 @@ const icons: Record<SidebarNavIconName, IconElement[]> = {
     { type: "circle", cx: 9, cy: 7, r: 4 },
     { type: "path", d: "M22 21v-2a4 4 0 0 0-3-3.87" },
     { type: "path", d: "M16 3.13a4 4 0 0 1 0 7.75" },
+  ],
+  projects: [
+    { type: "path", d: "M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.5L11 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z" },
   ],
   events: [
     { type: "path", d: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" },

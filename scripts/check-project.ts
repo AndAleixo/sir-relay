@@ -2,6 +2,7 @@
  * Assert project acronym/name parse and task heading. Run: npx tsx scripts/check-project.ts
  */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   formatTaskHeading,
   isPendingProject,
@@ -9,9 +10,13 @@ import {
   MAX_PENDING_PROJECTS,
   parseProjectAcronym,
   parseProjectName,
+  parseCategoryName,
+  categoryNameKey,
+  MAX_CATEGORIES_PER_PROJECT,
   PROJECT_ACRONYM_MAX,
   PROJECT_NAME_MAX,
   resolveStoredProjectId,
+  nextTaskCategoryId,
   sortProjectsForSettings,
   tagFromOpenProjects,
 } from "../src/lib/project";
@@ -19,6 +24,7 @@ import { parseTasksProject, tasksListHref } from "../src/lib/tasks-url";
 
 assert.equal(MAX_OPEN_PROJECTS, 8);
 assert.equal(MAX_PENDING_PROJECTS, 2);
+assert.equal(MAX_CATEGORIES_PER_PROJECT, 8);
 assert.equal(PROJECT_NAME_MAX, 20);
 assert.equal(PROJECT_ACRONYM_MAX, 3);
 
@@ -44,6 +50,8 @@ assert.equal(parseProjectAcronym("S1"), null);
 assert.equal(parseProjectAcronym(""), null);
 
 assert.equal(parseProjectName("  Floor  "), "Floor");
+assert.equal(parseCategoryName("  Front  "), "Front");
+assert.equal(categoryNameKey(" Front "), "front");
 assert.equal(parseProjectName(""), null);
 assert.equal(parseProjectName("   "), null);
 assert.equal((parseProjectName("x".repeat(50)) ?? "").length, PROJECT_NAME_MAX);
@@ -70,6 +78,53 @@ assert.equal(resolveStoredProjectId("p1", "p1", ["p2"]), "p1");
 assert.equal(resolveStoredProjectId("p2", "p1", ["p2"]), "p2");
 assert.throws(() => resolveStoredProjectId("p3", "p1", ["p2"]));
 
+assert.equal(
+  nextTaskCategoryId({
+    projectId: null,
+    projectChanged: true,
+    currentId: "c1",
+    openIds: ["c1"],
+  }),
+  null,
+);
+assert.equal(
+  nextTaskCategoryId({
+    projectId: "p",
+    projectChanged: true,
+    currentId: "c1",
+    openIds: ["c2"],
+  }),
+  null,
+);
+assert.equal(
+  nextTaskCategoryId({
+    projectId: "p",
+    projectChanged: true,
+    currentId: "c1",
+    openIds: ["c1"],
+  }),
+  "c1",
+);
+assert.equal(
+  nextTaskCategoryId({
+    projectId: "p",
+    projectChanged: false,
+    requested: "c2",
+    currentId: "c1",
+    openIds: ["c2"],
+  }),
+  "c2",
+);
+assert.throws(() =>
+  nextTaskCategoryId({
+    projectId: "p",
+    projectChanged: false,
+    requested: "x",
+    currentId: "c1",
+    openIds: ["c2"],
+  }),
+);
+
 assert.equal(parseTasksProject(undefined, ["project-shop"]), null);
 assert.equal(parseTasksProject("project-shop", ["project-shop"]), "project-shop");
 assert.equal(parseTasksProject("project-web", ["project-shop"]), null);
@@ -85,6 +140,19 @@ assert.equal(
 assert.equal(
   tasksListHref("en-gb", { scope: "team", view: "board", project: null }),
   "/en-gb/tasks?scope=team&view=board",
+);
+
+assert.match(
+  readFileSync("src/app/actions/projects.ts", "utf8"),
+  /\/projects/,
+);
+assert.match(
+  readFileSync("src/app/[locale]/(app)/projects/page.tsx", "utf8"),
+  /ProjectsManager/,
+);
+assert.match(
+  readFileSync("src/components/tasks/task-list/task-list.tsx", "utf8"),
+  /saveCategory/,
 );
 
 console.log("ok: project");

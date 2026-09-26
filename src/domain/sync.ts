@@ -12,6 +12,7 @@ export type MutationPayload =
       dueDate?: string | null;
       description?: string;
       projectId?: string | null;
+      categoryId?: string | null;
     };
 
 export interface PendingMutation {

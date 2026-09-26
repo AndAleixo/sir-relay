@@ -326,6 +326,8 @@ export function SyncProvider({ children }: SyncProviderProps) {
         sortOrder: Number.MAX_SAFE_INTEGER,
         projectId: input.projectId ?? null,
         projectAcronym: input.projectAcronym ?? null,
+        categoryId: null,
+        categoryName: null,
         updatedAt: now,
         createdAt: now,
       };

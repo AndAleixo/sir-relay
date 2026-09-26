@@ -62,7 +62,7 @@ interface TeamBoardProps {
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
-  openProjects?: TaskOpenProject[];
+  openProjects?: readonly TaskOpenProject[];
   /** `all` = edit every column; `self-only` = edit own column, view others. */
   editMode?: "all" | "self-only";
   labels: TaskCardLabels & {
@@ -131,7 +131,7 @@ function BoardTaskItem({
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
-  openProjects?: TaskOpenProject[];
+  openProjects?: readonly TaskOpenProject[];
   labels: TeamBoardProps["labels"];
   readOnly?: boolean;
   draggingTaskId: string | null;
@@ -272,7 +272,7 @@ function TaskColumn({
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
-  openProjects?: TaskOpenProject[];
+  openProjects?: readonly TaskOpenProject[];
   labels: TeamBoardProps["labels"];
   editable: boolean;
   draggingTaskId: string | null;

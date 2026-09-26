@@ -67,11 +67,7 @@ export default async function TasksPage({
         initialScope={initialScope}
         initialView={initialView}
         initialProject={initialProject}
-        openProjects={openProjects.map((row) => ({
-          id: row.id,
-          name: row.name,
-          acronym: row.acronym,
-        }))}
+        openProjects={openProjects}
         self={{
           id: session.user.id,
           name: session.user.name,
@@ -132,6 +128,8 @@ export default async function TasksPage({
           projectScrollLeft: t("tasks.projectScrollLeft"),
           projectScrollRight: t("tasks.projectScrollRight"),
           addProject: t("tasks.addProject"),
+          category: t("tasks.category"),
+          categoryNone: t("tasks.categoryNone"),
         }}
       />
     </>

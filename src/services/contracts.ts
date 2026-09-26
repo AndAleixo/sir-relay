@@ -13,6 +13,8 @@ import type {
   User,
   UserGroup,
   Project,
+  ProjectCategory,
+  ManagedProject,
 } from "@/domain/types";
 import type { OperatorAlertService } from "@/services/alert.types";
 
@@ -104,6 +106,7 @@ export interface TaskService {
       description?: string;
       difficulty?: TaskDifficulty | null;
       projectId?: string | null;
+      categoryId?: string | null;
     },
     ctx: { session: Session },
   ): Promise<Task>;
@@ -168,9 +171,9 @@ export interface GroupInvitationService {
 
 export interface ProjectService {
   /** Accepted open projects (task tag / list filter). */
-  listOpen(ctx: { session: Session }): Promise<Project[]>;
-  /** Non-archived, including pending requests (Settings). */
-  listInGroup(ctx: { session: Session }): Promise<Project[]>;
+  listOpen(ctx: { session: Session }): Promise<ManagedProject[]>;
+  /** Non-archived, including pending requests (manager). */
+  listInGroup(ctx: { session: Session }): Promise<ManagedProject[]>;
   create(
     input: { name: string; acronym: string },
     ctx: { session: Session },
@@ -181,6 +184,11 @@ export interface ProjectService {
   ): Promise<Project>;
   accept(id: string, ctx: { session: Session }): Promise<void>;
   archive(id: string, ctx: { session: Session }): Promise<void>;
+  createCategory(
+    input: { projectId: string; name: string },
+    ctx: { session: Session },
+  ): Promise<ProjectCategory>;
+  archiveCategory(id: string, ctx: { session: Session }): Promise<void>;
 }
 
 export interface ExportService {

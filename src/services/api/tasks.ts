@@ -13,9 +13,12 @@ import {
 } from "@/lib/telegram/relay";
 import { toTask } from "@/services/api/mappers";
 import { resolveOpenProjectId } from "@/services/api/projects";
-import { resolveStoredProjectId, ACCEPTED_PROJECT } from "@/lib/project";
+import { resolveStoredProjectId, nextTaskCategoryId, ACCEPTED_PROJECT } from "@/lib/project";
 
-const PROJECT_INCLUDE = { project: { select: { acronym: true } } } as const;
+const PROJECT_INCLUDE = {
+  project: { select: { acronym: true } },
+  category: { select: { name: true } },
+} as const;
 
 function requireGroupId(session: Session): string {
   const groupId = session.activeGroupId;
@@ -229,6 +232,7 @@ export class ApiTaskService implements TaskService {
       description?: string;
       difficulty?: TaskDifficulty | null;
       projectId?: string | null;
+      categoryId?: string | null;
     },
     ctx: { session: Session },
   ): Promise<Task> {
@@ -236,22 +240,35 @@ export class ApiTaskService implements TaskService {
     if (!existing) throw new Error("Not found");
     assertCanMutateTask(ctx.session, existing);
 
-    const projectId =
+    const groupId = requireGroupId(ctx.session);
+    const openRows = await prisma.project.findMany({
+      where: { groupId, ...ACCEPTED_PROJECT },
+      select: {
+        id: true,
+        categories: { where: { archivedAt: null }, select: { id: true } },
+      },
+    });
+    const nextProjectId =
       fields.projectId === undefined
-        ? undefined
+        ? existing.projectId
         : resolveStoredProjectId(
             fields.projectId,
             existing.projectId,
-            (
-              await prisma.project.findMany({
-                where: {
-                  groupId: requireGroupId(ctx.session),
-                  ...ACCEPTED_PROJECT,
-                },
-                select: { id: true },
-              })
-            ).map((row) => row.id),
+            openRows.map((row) => row.id),
           );
+    const categoryId =
+      fields.categoryId === undefined && fields.projectId === undefined
+        ? undefined
+        : nextTaskCategoryId({
+            projectId: nextProjectId,
+            projectChanged: nextProjectId !== existing.projectId,
+            requested: fields.categoryId,
+            currentId: existing.categoryId,
+            openIds:
+              openRows
+                .find((row) => row.id === nextProjectId)
+                ?.categories.map((row) => row.id) ?? [],
+          });
 
     const row = await prisma.task.update({
       where: { id },
@@ -266,7 +283,8 @@ export class ApiTaskService implements TaskService {
               : null,
         difficulty:
           fields.difficulty === undefined ? undefined : fields.difficulty,
-        ...(projectId !== undefined ? { projectId } : {}),
+        ...(fields.projectId !== undefined ? { projectId: nextProjectId } : {}),
+        ...(categoryId !== undefined ? { categoryId } : {}),
       },
       include: PROJECT_INCLUDE,
     });
@@ -358,6 +376,20 @@ export class ApiTaskService implements TaskService {
         ? existing.projectId
         : null;
 
+    const categoryId =
+      projectId && existing.categoryId
+        ? (
+            await prisma.projectCategory.findFirst({
+              where: {
+                id: existing.categoryId,
+                projectId,
+                archivedAt: null,
+              },
+              select: { id: true },
+            })
+          )?.id ?? null
+        : null;
+
     await prisma.task.create({
       data: {
         id,
@@ -371,6 +403,7 @@ export class ApiTaskService implements TaskService {
         difficulty: existing.difficulty,
         sortOrder: nextIds.indexOf(id),
         projectId,
+        categoryId,
       },
     });
 

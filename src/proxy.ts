@@ -52,7 +52,7 @@ function isPublicPage(pathname: string): boolean {
 
 function isAppPage(pathname: string): boolean {
   const stripped = stripLocale(pathname);
-  return /^\/(tasks|teammates|events|profile|settings|groups|change-password|accept-terms|platform)(\/|$)/.test(
+  return /^\/(tasks|teammates|projects|events|profile|settings|groups|change-password|accept-terms|platform)(\/|$)/.test(
     stripped,
   );
 }

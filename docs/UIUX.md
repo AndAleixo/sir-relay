@@ -3,7 +3,7 @@
 **Purpose:** Layout, interaction, and visual behavior for the public landing, signed-in web app, and Telegram copy.  
 **Doc contract:** **How it looks and behaves on screen.** Product rules, acceptance IDs, and permissions → [REQUIREMENTS.md](./REQUIREMENTS.md). Visual tokens → [BRAND.md](./BRAND.md). Code map → [ARCHITECTURE.md](./ARCHITECTURE.md). Link to requirements for business rules; do not restate them here.
 
-**Last updated:** 2026-08-16
+**Last updated:** 2026-09-20
 
 ### Status naming
 
@@ -39,7 +39,7 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 User (account)
   ├── Group A — operator
   └── Group B — teammate
-         └── same nav: Tasks · Teammates · Events · Settings
+         └── same nav: Tasks · Teammates · Projects · Events · Settings
 ```
 
 | Concept | UX |
@@ -135,9 +135,10 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 ┌────────────┬──────────────────────────────────────────────────┐
 │ logo.svg   │  [Group ▾]              [locale ▾] [avatar] [▾] │
 │ ────────── │  Page title                    [+ New task]*      │
-│  Tasks     │  ─────────────────────────────────────────────  │
+│  Tasks     │                                                   │
 │  Teammates*│                                                   │
-│  Events*   │              Main content                         │
+│  Projects  │              Main content                         │
+│  Events*   │                                                   │
 │  Settings  │                                                   │
 │            │                                                   │
 │ ────────── │                                                   │
@@ -152,7 +153,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 |---------|------|
 | Sidebar | Collapsible (`w-56` ↔ `w-20`); preference in `localStorage` |
 | Sidebar logo | `logo.svg` (**SRelay**) / `logo-compact.svg` (**SR**); cross-fade |
-| Sidebar nav | Tasks · Teammates · Events · Settings |
+| Sidebar nav | Tasks · Teammates · Projects · Events · Settings |
 | Sidebar footer | Profile (name + avatar) |
 | Top header | Group switcher · locale · account menu |
 | Account menu | Name · Profile · Log out |
@@ -165,7 +166,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 ┌────────────────────────────────────────┐
 │ [logo]  [Group ▾]     [EN▾] [avatar]   │
 ├────────────────────────────────────────┤
-│   Tasks    Teammates    Events    Settings      │  ← icon tabs
+│   Tasks  Teammates  Projects  Events  Settings  │  ← icon tabs
 ├────────────────────────────────────────┤
 │              Main content              │
 └────────────────────────────────────────┘
@@ -181,7 +182,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 
 ## 3. Task boards — scope + layout
 
-Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · New task. Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on **Settings**, not a nav tab. List view: project filter with the other list filters (not on the board).
+Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · New task. Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on the **Projects** tab. List view: project filter with the other list filters (not on the board); inline edit title, project, and category.
 
 **URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`. List-only project filter (P3-16): `?project=<id>` or omit = All — [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16). The board ignores `project` and always shows every task in the current scope.
 
@@ -270,6 +271,8 @@ Member label left · inactive + Telegram icons right. No role chip; no active-ta
 | My work | Own tasks; sort due / status / updated |
 | Team | All group tasks; assignee + status filters |
 
+Columns: **Title**, **Project**, **Category**, assignee, status, due. Same fields on all widths: desktop is a 6-column grid; below 768px stacks title then a wrapping meta row (no wide table scroll). Click title → 2-line input (200 chars). Click project / category / assignee / status → vertical Family A picker. Assignee retag is operator-only. Click due → date field. Filters: 2-column Select grid on mobile (labels visually hidden, `aria-label` kept); labeled row from `md`. Category is inert until a project is set. Overdue uses `--severity` like the card, without the word Overdue. Board cards stay `SIR · title` with no category.
+
 Fallback for narrow screens and scanning.
 
 ---
@@ -336,6 +339,7 @@ Route: `/[locale]/tasks/[id]`. Same field order as **New task**; plus status and
 | No active group | `/groups` | Panel opens | Panel opens |
 | Tasks / new / detail | `/tasks…` | Full | Own edit · Team view others |
 | Teammates | `/teammates…` | Yes | Read list/detail; no add / export / invite / promote |
+| Projects | `/projects` | Yes | Yes (request project; categories: add / archive) |
 | Events / activity | `/events…` | Yes | Alerts read-only; no group activity |
 | Profile / Settings | `/profile`, `/settings` | Yes | Yes |
 | Join / change-password | `/join/[token]`, `/change-password` | Auth flows | Auth flows |
@@ -386,10 +390,13 @@ Read: email, account name, fantasy name, role, status icons.
 
 | Section | Content |
 |---------|---------|
-| Projects | Operator: create (name then acronym); list name then acronym; accept pending (check); trash + confirm (archives). Teammate: read-only list; request (name then acronym); no trash. Open cap [P3-PRJ-11](./REQUIREMENTS.md#72-group-projects-p3-16); pending cap [P3-PRJ-12](./REQUIREMENTS.md#72-group-projects-p3-16). |
 | General | Group name (operator); role (+ owner line); your fantasy name |
 | Notifications | Operator: alert toggles + Events link; teammate: hint + Events link; banner → Profile if unlinked |
 | Leave / delete | Leave · delete (owner) — [P1-GRP-09/10](./REQUIREMENTS.md#511-groups) |
+
+### 8.2.1 Group projects (`/projects`)
+
+Primary nav tab (between Teammates and Events). Toolbar: hint + create/request (name, acronym). **Pending** requests sit in a dashed band (operator: Accept + trash). **Accepted** projects are a card grid: heading `SIR · Name` (same pattern as the task card), category chips + add on the card (**both roles**). Caps: [P3-PRJ-11](./REQUIREMENTS.md#72-group-projects-p3-16)–[P3-PRJ-13](./REQUIREMENTS.md#72-group-projects-p3-16). Category does not appear on the task card.
 
 ### 8.3 Events (`/events`)
 
@@ -405,7 +412,7 @@ Both roles. Teammate done / due alerts; delivery badge; **Show more** after the 
 | No tasks (My work) | “No tasks assigned to you yet.” | — (toolbar New task) |
 | No members (Team board) | “Add members to start coordinating work.” | — |
 | No events / alerts | “No alerts yet…” | — |
-| No group projects | Quiet list-filter link to Settings | Settings → Projects |
+| No group projects | Quiet list-filter link to `/projects` | Projects tab |
 | Empty todo column | Light placeholder | — |
 | Login failed | “Invalid email or password.” | — |
 | Session expired | Redirect + toast | Log in again |
@@ -456,7 +463,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Component | Notes |
 |-----------|-------|
-| `AppShell` / `AppHeader` / `MobileTopBar` | Same 4-tab nav + chrome |
+| `AppShell` / `AppHeader` / `MobileTopBar` | Same 5-tab nav + chrome |
 | `GroupSwitcher` + `GroupPanelMenu` | Switch · create · join |
 | `GroupDangerSettings` | Leave / delete |
 | `LocaleSwitcher` / `LocalePicker` / `UserMenu` | Header utilities |
@@ -464,11 +471,11 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared forms |
 | `BoardTaskCard` / `TaskCardMenu` / `TaskProjectPicker` | Board cards + ⋯ / acronym segments |
 | `StatusKanban` / `TeamBoard` / `BoardQuickAddTask` | Boards |
-| `TaskList` / `ViewToggle` / `ScopeToggle` | List + toolbar |
+| `TaskList` / `ViewToggle` / `ScopeToggle` | List table (title / project / category edit) + toolbar |
 | `StatusBadge` / `MemberNameRow` / `MemberStatusIcons` | Labels / icons |
 | `TelegramStatusIcon` / `AccountInactiveIcon` / `ToneBadge` | Status marks |
 | `PromoteTeammateButton` / `DemoteOperatorButton` / `TransferOwnershipButton` / `RemoveTeammateButton` | Teammate detail |
-| `OperatorAlertsList` | `/events` |
+| `ProjectsManager` | `/projects` — pending band + accepted card grid |
 | `Banner` / `Toast` / `SyncBar` | Page-state · success as floating card (3s, Family A) · sync |
 
 **Styling:** Tailwind + `brand/brand.css` — [BRAND.md](./BRAND.md).
@@ -477,7 +484,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Family | Pattern | Used by |
 |--------|---------|---------|
-| **A** | `useFadeOpen` + `useDismissable` + `popoverStyles` (~200ms open / ~300ms close) | User · Locale · Group · `Select` · `Toast` (3s, no outside-click) |
+| **A** | `useFadeOpen` + `useDismissable` + `popoverStyles` (~200ms open / ~300ms close) | User · Locale · Group · `Select` · list project/category pickers · `Toast` (3s, no outside-click) |
 | **B** | Segmented control | Scope / View toggles |
 | **C** | Horizontal segment (same fade timings) | Board ⋯ menu · acronym picker |
 
@@ -488,7 +495,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | Breakpoint | Shell | Team | My work |
 |------------|-------|------|---------|
 | ≥768px | Sidebar + header utilities | Member columns (H-scroll) | 3-column Kanban |
-| <768px | Top bar + tabs | Board or list | Kanban stacks |
+| <768px | Top bar + tabs | Board or list | Kanban stacks; list: title + wrapping meta, 2-col filters |
 
 ---
 
@@ -503,7 +510,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | Sidebar collapse | 3 (P3-11) | In UI |
 | Kanban touch / a11y polish | 3 (P3-03) | Core in Phase 1 |
 | Native apps | 3 (P3-13) | — |
-| Group projects (Settings + acronym on tasks) | 3 (P3-16) | Implemented |
+| Group projects (`/projects` + acronym on tasks) | 3 (P3-16) | Implemented |
 
 ---
 
@@ -511,6 +518,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Date | Change |
 |------|--------|
+| 2026-09-20 | P3-16 Projects tab `/projects`; project heading `SIR · Name` like task cards; list inline title/project/category |
 | 2026-08-16 | Teammate read-only Teammates + Events; group activity operator-only |
 | 2026-08-15 | P3-16 group projects: Settings card; list filter; no fifth tab; card acronym segment (Family C) |
 | 2026-08-15 | Success flash → floating `Toast` card (3s, Family A). `Banner` kept for page-state / errors |

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import type { Task } from "@/domain/types";
+import type { ManagedProject, Task } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import type { TasksScope, TasksView } from "@/lib/tasks-url";
@@ -23,7 +23,7 @@ interface TasksPageClientProps {
   initialScope: TasksScope;
   initialView: TasksView;
   initialProject: string | null;
-  openProjects: { id: string; acronym: string; name: string }[];
+  openProjects: ManagedProject[];
   /** Signed-in user for Team board self column + My work Kanban. */
   self: {
     id: string;
@@ -64,6 +64,8 @@ interface TasksPageClientProps {
     statusColumn: string;
     status: { todo: string; doing: string; done: string };
     addProject: string;
+    category: string;
+    categoryNone: string;
   };
 }
 
@@ -214,8 +216,7 @@ export function TasksPageClient({
     title: labels.title,
     assignee: labels.assignee,
     dueDate: labels.dueDate,
-    updated: labels.updated,
-    overdue: labels.overdue,
+    addDueDate: labels.addDueDate,
     filterAssignee: labels.filterAssignee,
     filterStatus: labels.filterStatus,
     filterSort: labels.filterSort,
@@ -226,6 +227,9 @@ export function TasksPageClient({
     status: labels.status,
     project: labels.project,
     addProject: labels.addProject,
+    category: labels.category,
+    projectNone: labels.projectNone,
+    categoryNone: labels.categoryNone,
   };
 
   const emptyMyWork = scope === "mine" && scopedTasks.length === 0;
@@ -302,8 +306,10 @@ export function TasksPageClient({
           project={project}
           projects={openProjects}
           onProjectChange={setProject}
-          addProjectHref={`/${locale}/settings`}
-          assigneeOptions={scope === "team" ? assigneeOptions : []}
+          addProjectHref={`/${locale}/projects`}
+          currentUserId={self.id}
+          canEditAll={isOperator}
+          assigneeOptions={assigneeOptions}
           labels={listLabels}
         />
       )}

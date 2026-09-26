@@ -38,7 +38,7 @@ interface StatusKanbanProps {
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
-  openProjects?: TaskOpenProject[];
+  openProjects?: readonly TaskOpenProject[];
   self: { id: string; name: string };
   labels: TaskCardLabels & {
     todo: string;

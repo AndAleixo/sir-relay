@@ -86,7 +86,10 @@ export function toTeammate(
 }
 
 export function toTask(
-  row: DbTask & { project?: { acronym: string } | null },
+  row: DbTask & {
+    project?: { acronym: string } | null;
+    category?: { name: string } | null;
+  },
   assigneeName: string,
 ): Task {
   return {
@@ -102,6 +105,8 @@ export function toTask(
     sortOrder: row.sortOrder,
     projectId: row.projectId,
     projectAcronym: row.project?.acronym ?? null,
+    categoryId: row.categoryId,
+    categoryName: row.category?.name ?? null,
     updatedAt: row.updatedAt.toISOString(),
     createdAt: row.createdAt.toISOString(),
   };

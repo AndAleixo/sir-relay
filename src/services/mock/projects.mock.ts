@@ -1,13 +1,16 @@
-import type { Project, Session } from "@/domain/types";
+import type { ManagedProject, Project, ProjectCategory, Session } from "@/domain/types";
 import type { ProjectService } from "@/services/contracts";
 import { requireActiveGroupId, requireOperator } from "@/lib/authz";
 import {
   parseProjectAcronym,
   parseProjectName,
+  parseCategoryName,
+  categoryNameKey,
   resolveStoredProjectId,
   isPendingProject,
   MAX_OPEN_PROJECTS,
   MAX_PENDING_PROJECTS,
+  MAX_CATEGORIES_PER_PROJECT,
   sortProjectsForSettings,
 } from "@/lib/project";
 
@@ -30,12 +33,20 @@ const SEED: Project[] = [
   },
 ];
 
-type Store = { projects: Project[] };
+const CATEGORY_SEED: ProjectCategory[] = [
+  { id: "category-front", projectId: "project-shop", name: "Front" },
+  { id: "category-stock", projectId: "project-shop", name: "Stock" },
+  { id: "category-site", projectId: "project-web", name: "Site" },
+];
+
+type Store = { projects: Project[]; categories: ProjectCategory[] };
 
 function store(): Store {
   const key = "__sirrelay_mock_projects__";
   const g = globalThis as typeof globalThis & { [k: string]: Store | undefined };
-  if (!g[key]) g[key] = { projects: [...SEED] };
+  if (!g[key]?.categories) {
+    g[key] = { projects: [...SEED], categories: [...CATEGORY_SEED] };
+  }
   return g[key];
 }
 
@@ -52,6 +63,24 @@ function acceptedOpen(session: Session): Project[] {
 
 function mockOpenIds(session: Session): string[] {
   return acceptedOpen(session).map((project) => project.id);
+}
+
+function openCategories(projectId: string): ProjectCategory[] {
+  return store().categories.filter((row) => row.projectId === projectId);
+}
+
+export function mockOpenCategoryIds(projectId: string | null): string[] {
+  if (!projectId) return [];
+  return openCategories(projectId).map((row) => row.id);
+}
+
+export function mockCategoryLabel(categoryId: string | null): string | null {
+  if (!categoryId) return null;
+  return store().categories.find((row) => row.id === categoryId)?.name ?? null;
+}
+
+function withCategories(project: Project): ManagedProject {
+  return { ...project, categories: openCategories(project.id) };
 }
 
 export function mockProjectTag(
@@ -95,12 +124,14 @@ function assertAcronymFree(session: Session, acronym: string): void {
 
 export const mockProjectService: ProjectService = {
   async listOpen(ctx) {
-    return acceptedOpen(ctx.session);
+    return acceptedOpen(ctx.session).map(withCategories);
   },
 
   async listInGroup(ctx) {
     return sortProjectsForSettings(
-      inGroup(ctx.session).filter((project) => project.archivedAt === null),
+      inGroup(ctx.session)
+        .filter((project) => project.archivedAt === null)
+        .map(withCategories),
     );
   },
 
@@ -158,5 +189,37 @@ export const mockProjectService: ProjectService = {
     );
     if (!project) throw new Error("Not found");
     project.archivedAt = new Date().toISOString();
+  },
+
+  async createCategory(input, ctx) {
+    requireActiveGroupId(ctx.session);
+    const name = parseCategoryName(input.name);
+    if (!name) throw new Error("Invalid name");
+    const project = acceptedOpen(ctx.session).find((row) => row.id === input.projectId);
+    if (!project) throw new Error("Not found");
+    const existing = openCategories(project.id);
+    if (existing.length >= MAX_CATEGORIES_PER_PROJECT) throw new Error("Limit");
+    if (existing.some((row) => categoryNameKey(row.name) === categoryNameKey(name))) {
+      throw new Error("Taken");
+    }
+    const category: ProjectCategory = {
+      id: `category-${Date.now()}`,
+      projectId: project.id,
+      name,
+    };
+    store().categories.push(category);
+    return category;
+  },
+
+  async archiveCategory(id, ctx) {
+    const groupId = requireActiveGroupId(ctx.session);
+    const index = store().categories.findIndex((row) => row.id === id);
+    if (index < 0) throw new Error("Not found");
+    const category = store().categories[index];
+    const project = store().projects.find(
+      (row) => row.id === category.projectId && row.groupId === groupId,
+    );
+    if (!project || project.archivedAt) throw new Error("Not found");
+    store().categories.splice(index, 1);
   },
 };

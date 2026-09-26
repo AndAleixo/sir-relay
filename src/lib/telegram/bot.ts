@@ -174,6 +174,8 @@ function createBot(token: string): Bot {
           sortOrder: taskRow.sortOrder,
           projectId: taskRow.projectId,
           projectAcronym: null,
+          categoryId: taskRow.categoryId,
+          categoryName: null,
           updatedAt: new Date().toISOString(),
           createdAt: taskRow.createdAt.toISOString(),
         };

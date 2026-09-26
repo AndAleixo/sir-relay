@@ -61,6 +61,11 @@ export function AppShell({
       icon: "teammates",
     },
     {
+      href: `/${locale}/projects`,
+      label: t("common.projects"),
+      icon: "projects",
+    },
+    {
       href: `/${locale}/events`,
       label: t("common.events"),
       icon: "events",

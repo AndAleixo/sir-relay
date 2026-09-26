@@ -15,10 +15,12 @@ export const SUCCESS_FLASH_MESSAGES = {
   invited: "teammate.invitationCreated",
   resent: "teammate.invitationResent",
   transferred: "teammate.ownershipTransferred",
-  projectSaved: "settings.projectSaved",
-  projectRemoved: "settings.projectRemoved",
-  projectRequested: "settings.projectRequested",
-  projectAccepted: "settings.projectAccepted",
+  projectSaved: "projects.saved",
+  projectRemoved: "projects.removed",
+  projectRequested: "projects.requested",
+  projectAccepted: "projects.accepted",
+  categorySaved: "projects.categorySaved",
+  categoryRemoved: "projects.categoryRemoved",
 } as const;
 
 export type SuccessFlashKey = keyof typeof SUCCESS_FLASH_MESSAGES;

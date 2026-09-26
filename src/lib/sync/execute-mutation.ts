@@ -44,7 +44,8 @@ export async function executePendingMutation(
           !("title" in payload) &&
           !("dueDate" in payload) &&
           !("description" in payload) &&
-          !("projectId" in payload)
+          !("projectId" in payload) &&
+          !("categoryId" in payload)
         ) {
           return { ok: false, error: "network" };
         }

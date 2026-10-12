@@ -99,8 +99,11 @@ Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeade
 
 | Page | Route | Header | Purpose |
 |------|-------|--------|---------|
-| Sign up | `/signup` | Yes | New email → `/groups`. Invited email → activates placeholder (P1-AUTH-13) |
-| Log in | `/login` | Yes | → role home or `/groups` |
+| Sign up | `/signup` | Yes | New email → check-email / verify. Invited email → activates (P1-AUTH-13), verified |
+| Log in | `/login` | Yes | → role home or `/groups`; link forgot password; unverified → resend |
+| Forgot / reset | `/forgot-password`, `/reset-password` | Yes | Generic success; set new password via token |
+| Verify / check email | `/verify-email`, `/check-email` | Yes | Token consume · “check your inbox” |
+| Contact | `/contact` | Yes | Form → `CONTACT_EMAIL` (honeypot + rate limit) |
 | Join group | `/join/[token]` | Yes | Set password / accept invite |
 | Privacy / Terms | `/privacy`, `/terms` | Yes | Canonical English pack `legal/en.json` · `CONTACT_EMAIL` |
 | No active group | `/groups` | App shell | Placeholder; **group panel opens** |
@@ -336,6 +339,8 @@ Route: `/[locale]/tasks/[id]`. Same field order as **New task**; plus status and
 |--------|-------|----------|----------|
 | Landing | `/` | Public | Public |
 | Sign up / Log in | `/signup`, `/login` | Public | Public |
+| Forgot / reset / verify / check-email | `/forgot-password`, `/reset-password`, `/verify-email`, `/check-email` | Public | Public |
+| Contact | `/contact` | Public | Public |
 | No active group | `/groups` | Panel opens | Panel opens |
 | Tasks / new / detail | `/tasks…` | Full | Own edit · Team view others |
 | Teammates | `/teammates…` | Yes | Read list/detail; no add / export / invite / promote |
@@ -511,6 +516,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | Kanban touch / a11y polish | 3 (P3-03) | Core in Phase 1 |
 | Native apps | 3 (P3-13) | — |
 | Group projects (`/projects` + acronym on tasks) | 3 (P3-16) | Implemented |
+| Contact + signup verify + forgot/reset | 3 (P3-17) | Implemented |
 
 ---
 
@@ -518,6 +524,8 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Date | Change |
 |------|--------|
+| 2026-10-12 | P3-17 docs sync (screen inventory + phase map) |
+| 2026-10-12 | P3-17 contact + auth email pages |
 | 2026-09-20 | P3-16 Projects tab `/projects`; project heading `SIR · Name` like task cards; list inline title/project/category |
 | 2026-08-16 | Teammate read-only Teammates + Events; group activity operator-only |
 | 2026-08-15 | P3-16 group projects: Settings card; list filter; no fifth tab; card acronym segment (Family C) |

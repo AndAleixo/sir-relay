@@ -42,6 +42,11 @@ assert.equal(afterWindow.ok, true);
 assert.equal(isAuthRateLimitedPath("/login"), true);
 assert.equal(isAuthRateLimitedPath("/signup"), true);
 assert.equal(isAuthRateLimitedPath("/platform/login"), true);
+assert.equal(isAuthRateLimitedPath("/forgot-password"), true);
+assert.equal(isAuthRateLimitedPath("/reset-password"), true);
+assert.equal(isAuthRateLimitedPath("/check-email"), true);
+assert.equal(isAuthRateLimitedPath("/verify-email"), true);
+assert.equal(isAuthRateLimitedPath("/contact"), false);
 assert.equal(isAuthRateLimitedPath("/platform"), false);
 assert.equal(isAuthRateLimitedPath("/tasks"), false);
 

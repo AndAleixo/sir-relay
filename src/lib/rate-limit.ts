@@ -47,7 +47,9 @@ export function clientIpFromHeaders(headers: {
   return "unknown";
 }
 
-/** Login / signup / platform ops login are the cheap brute-force surface (10/min). */
+/** Auth + email-token surfaces are the cheap brute-force surface (10/min). */
 export function isAuthRateLimitedPath(strippedPath: string): boolean {
-  return /^\/(login|signup|platform\/login)(\/|$)/.test(strippedPath);
+  return /^\/(login|signup|platform\/login|forgot-password|reset-password|check-email|verify-email)(\/|$)/.test(
+    strippedPath,
+  );
 }

@@ -1,8 +1,14 @@
 import type { Locale, Session, User } from "@/domain/types";
 import { defaultLocale } from "@/i18n/config";
-import type { AuthService } from "@/services/contracts";
+import type { AuthService, SignupResult } from "@/services/contracts";
 import { writeAudit, writeAuditFromSession } from "@/lib/audit";
 import { CURRENT_LEGAL_VERSION } from "@/lib/legal";
+import { sendMail } from "@/lib/mail/mail";
+import {
+  consumeEmailToken,
+  issueEmailToken,
+} from "@/lib/mail/email-tokens";
+import { resetPasswordMail, verifyEmailMail } from "@/lib/mail/templates";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { assertPasswordForSet } from "@/lib/password-policy";
 import { isLoginLocked, nextFailedLoginState } from "@/lib/login-lockout";
@@ -167,6 +173,10 @@ export class ApiAuthService implements AuthService {
       throw new Error("Invalid credentials");
     }
 
+    if (!row.emailVerifiedAt) {
+      throw new Error("Email unverified");
+    }
+
     await clearLoginFailures(row.id);
     await logJsonAsync("info", "login_ok", { userId: row.id });
 
@@ -183,7 +193,7 @@ export class ApiAuthService implements AuthService {
     email: string,
     password: string,
     locale: Locale = defaultLocale,
-  ): Promise<Session> {
+  ): Promise<SignupResult> {
     if (!name.trim() || !email.trim()) {
       throw new Error("Invalid signup");
     }
@@ -208,6 +218,7 @@ export class ApiAuthService implements AuthService {
             passwordHash,
             accountStatus: "active",
             mustChangePassword: false,
+            emailVerifiedAt: new Date(),
             locale: fromLocale(locale),
             termsVersion: CURRENT_LEGAL_VERSION,
             termsAcceptedAt: new Date(),
@@ -236,7 +247,7 @@ export class ApiAuthService implements AuthService {
         { autoPickGroup: true },
       );
       void writeAuditFromSession(session, "login");
-      return session;
+      return { kind: "session", session };
     }
 
     const id = `user-${Date.now().toString(36)}`;
@@ -248,12 +259,16 @@ export class ApiAuthService implements AuthService {
         passwordHash,
         locale: fromLocale(locale),
         accountStatus: "active",
+        emailVerifiedAt: null,
         termsVersion: CURRENT_LEGAL_VERSION,
         termsAcceptedAt: new Date(),
       },
     });
 
-    return persistSession(id, null, 0, { autoPickGroup: false });
+    const verifyToken = await issueEmailToken(id, "email_verify");
+    const mail = verifyEmailMail(locale, verifyToken);
+    await sendMail({ to: normalized, subject: mail.subject, text: mail.text });
+    return { kind: "pending_verification" };
   }
 
   async logout(): Promise<void> {
@@ -364,6 +379,7 @@ export class ApiAuthService implements AuthService {
           passwordHash,
           accountStatus: "active",
           mustChangePassword: false,
+          emailVerifiedAt: new Date(),
           locale: fromLocale(locale),
         },
       });
@@ -438,6 +454,78 @@ export class ApiAuthService implements AuthService {
     return persistSession(userId, activeGroupId, row.tokenVersion, {
       autoPickGroup: false,
     });
+  }
+
+  async requestPasswordReset(
+    email: string,
+    locale: Locale = defaultLocale,
+  ): Promise<void> {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) return;
+    const row = await prisma.user.findFirst({
+      where: {
+        email: normalized,
+        active: true,
+        accountStatus: "active",
+        passwordHash: { not: null },
+      },
+    });
+    if (!row?.emailVerifiedAt) return;
+    const token = await issueEmailToken(row.id, "password_reset");
+    const mail = resetPasswordMail(locale, token);
+    await sendMail({ to: normalized, subject: mail.subject, text: mail.text });
+  }
+
+  async resetPasswordWithToken(token: string, password: string): Promise<void> {
+    assertPasswordForSet(password);
+    const consumed = await consumeEmailToken(token, "password_reset");
+    if (!consumed) throw new Error("Invalid token");
+    const passwordHash = await hashPassword(password);
+    await prisma.user.update({
+      where: { id: consumed.userId },
+      data: {
+        passwordHash,
+        mustChangePassword: false,
+        tokenVersion: { increment: 1 },
+        failedLoginCount: 0,
+        lockedUntil: null,
+      },
+    });
+  }
+
+  async verifyEmailWithToken(token: string): Promise<Session> {
+    const consumed = await consumeEmailToken(token, "email_verify");
+    if (!consumed) throw new Error("Invalid token");
+    const row = await prisma.user.update({
+      where: { id: consumed.userId },
+      data: { emailVerifiedAt: new Date() },
+    });
+    const activeGroupId = await pickDefaultGroupIdAsync(row.id);
+    const session = await persistSession(row.id, activeGroupId, row.tokenVersion, {
+      autoPickGroup: true,
+    });
+    void writeAuditFromSession(session, "login");
+    return session;
+  }
+
+  async resendVerificationEmail(
+    email: string,
+    locale: Locale = defaultLocale,
+  ): Promise<void> {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) return;
+    const row = await prisma.user.findFirst({
+      where: {
+        email: normalized,
+        active: true,
+        accountStatus: "active",
+        emailVerifiedAt: null,
+      },
+    });
+    if (!row) return;
+    const verifyToken = await issueEmailToken(row.id, "email_verify");
+    const mail = verifyEmailMail(locale, verifyToken);
+    await sendMail({ to: normalized, subject: mail.subject, text: mail.text });
   }
 }
 

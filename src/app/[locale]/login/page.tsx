@@ -17,10 +17,10 @@ export default async function LoginPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ error?: string; session?: string }>;
+  searchParams: Promise<{ error?: string; session?: string; reset?: string }>;
 }) {
   const { locale } = await params;
-  const { error, session: sessionParam } = await searchParams;
+  const { error, session: sessionParam, reset } = await searchParams;
   const t = await getTranslations();
   const session = await getServices().auth.getSession();
 
@@ -45,9 +45,25 @@ export default async function LoginPage({
                 {t("auth.sessionExpired")}
               </p>
             ) : null}
+            {reset === "1" ? (
+              <p className="rounded-button border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-sm text-emerald-900">
+                {t("auth.resetDone")}
+              </p>
+            ) : null}
             {error === "invalid" ? (
               <p className="rounded-button border border-[var(--severity-soft-hover)] bg-[var(--severity-soft)] px-3 py-2 text-center text-sm text-[var(--severity)]">
                 {t("auth.loginError")}
+              </p>
+            ) : null}
+            {error === "unverified" ? (
+              <p className="rounded-button border border-amber-200 bg-amber-50 px-3 py-2 text-center text-sm text-amber-900">
+                {t("auth.loginUnverified")}{" "}
+                <Link
+                  href={`/${locale}/check-email`}
+                  className="font-medium underline"
+                >
+                  {t("auth.resendVerification")}
+                </Link>
               </p>
             ) : null}
             <form action={loginForm.bind(null, locale)} className="space-y-4">
@@ -63,7 +79,17 @@ export default async function LoginPage({
                 />
               </div>
               <div>
-                <Label htmlFor="password">{t("auth.password")}</Label>
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <Label htmlFor="password" className="mb-0">
+                    {t("auth.password")}
+                  </Label>
+                  <Link
+                    href={`/${locale}/forgot-password`}
+                    className="text-xs font-medium text-brand-accent hover:text-brand-accent-hover"
+                  >
+                    {t("auth.forgotLink")}
+                  </Link>
+                </div>
                 <Input
                   id="password"
                   name="password"

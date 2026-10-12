@@ -130,7 +130,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-AUTH-01 | Login | Email + password; invalid credentials → generic 401; session stores `userId` + `activeGroupId`; **role** resolved from membership |
+| P1-AUTH-01 | Login | Email + password; invalid credentials → generic 401; **unverified email** (`email_verified_at` null) → blocked with resend (P3-MAIL-03); session stores `userId` + `activeGroupId`; **role** resolved from membership |
 | P1-AUTH-02 | Logout | Clears session |
 | P1-AUTH-03 | Session expiry | Default 7 days; override via `SESSION_MAX_AGE_DAYS` |
 | P1-AUTH-04 | Bootstrap user | On empty DB, seed one user from `ADMIN_EMAIL` + `ADMIN_PASSWORD` |
@@ -140,7 +140,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-08 | Update profile | `PATCH /me` — update own `name`, `locale` (`en-gb` \| `es-es` \| `pt-br`); avatar in later phase. **Only the account owner** may change `users.name` |
 | P1-AUTH-09 | Group invite | Operator invites by **email** → invite link (72h) → `/join/<token>` → set password + name · **or** sign-up with same email (P1-AUTH-13) |
 | P1-AUTH-10 | Post-login routing | No group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` |
-| P1-AUTH-11 | Sign up | `/signup` — name, email, password; **new email** → user with **no group** until create or join. **Invited email** → P1-AUTH-13 |
+| P1-AUTH-11 | Sign up | `/signup` — name, email, password; **new email** → `email_verified_at` null + check-email (P3-MAIL-03), no group until create/join. **Invited email** → P1-AUTH-13 (verified) |
 | P1-AUTH-12 | Active group | Session holds `activeGroupId`; all app data (tasks, teammates, alerts) scoped to active group |
 | P1-AUTH-13 | Sign-up merge | Match **`invited`** placeholder → set name + password on that row, `account_status → active`, keep memberships, consume open invite tokens; **reject** if email is already **`active`** (“Email taken”) |
 | P1-AUTH-14 | Post merge routing | After merge: set `activeGroupId` via pick-default (single group → that group; 2+ → last valid / null → `/groups`) → `resolveEntryPath` (teammate → `/tasks`) |
@@ -323,7 +323,12 @@ Full hardening → Phase 2.
 users
   id, name, email, password_hash, locale,
   telegram_chat_id, active, must_change_password, account_status,
+  email_verified_at (nullable), terms_version, terms_accepted_at,
   last_active_group_id, created_at, updated_at
+
+email_tokens
+  id, user_id, type (email_verify|password_reset), token_hash,
+  expires_at, used_at, created_at
 
 groups
   id, name, owner_user_id, created_at, updated_at
@@ -374,6 +379,8 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 |-------|-------------------|-------------------|-------|
 | `/` (locale home) | Redirect if session | Redirect if session | Public landing when logged out |
 | `login`, `signup` | Public | Public | Account entry |
+| `forgot-password`, `reset-password`, `verify-email`, `check-email` | Public | Public | P3-17 |
+| `contact` | Public | Public | Contact → `CONTACT_EMAIL` |
 | `groups` | Yes | Yes | No active group; panel opens |
 | `privacy`, `terms` | Public | Public | Legal |
 | `join/[token]`, `change-password` | — | — | Auth flows |
@@ -467,10 +474,10 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | P2-MON-02 | Failed login visibility | **Done** — `login_failed` in `audit_logs` (reason + email; platform `/platform` + Audit filter). Operator alert threshold → Phase 3 |
 | P2-ANA-01 | Self-hosted Umami | Compose service `umami` · DB `umami` · `UMAMI_APP_SECRET` |
 | P2-ANA-02 | Same-origin tracker | Caddy proxies `/script.js` + `/api/send` · app loads `/script.js` when `UMAMI_WEBSITE_ID` set (`src/lib/umami.ts`) |
-| P2-ANA-03 | Privacy disclosure | `/privacy` + `/terms` from canonical English pack `legal/en.json` · contact via `CONTACT_EMAIL` (default `contact@sirrelay.com`) |
+| P2-ANA-03 | Privacy disclosure | `/privacy` + `/terms` from canonical English pack `legal/en.json` · contact via `/contact` → `CONTACT_EMAIL` (default `contact@sirrelay.com`) |
 | P2-LEGAL-01 | Legal acceptance | `users.terms_version` + `terms_accepted_at` · signup checkbox · `/accept-terms` gate when version ≠ `CURRENT_LEGAL_VERSION` · bump version in `legal/en.json` to force re-accept |
 
-**Cookies (current):** one essential session cookie + login notice + Privacy Policy. Umami tracker is cookieless (no advertising cookies). Contact: `CONTACT_EMAIL` (e.g. `contact@sirrelay.com`). Canonical acceptance language: **English** (`legal/en.json`).
+**Cookies (current):** one essential session cookie + login notice + Privacy Policy. Umami tracker is cookieless (no advertising cookies). Contact: public `/contact` → `CONTACT_EMAIL` (e.g. `contact@sirrelay.com`). Canonical acceptance language: **English** (`legal/en.json`).
 
 ### 6.5 Data backup & export
 
@@ -519,6 +526,18 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | P3-14 | PWA install + optional push notifications |
 | P3-15 | Public organization signup (multi-tenant or self-serve deploy) |
 | P3-16 | Group projects — acronym on tasks; Projects tab + categories |
+
+### 7.3 Transactional email (P3-17) — **Done**
+
+**Inbound:** `contact@sirrelay.com` → ImprovMX → operator inbox ([DEPLOY §4](./DEPLOY-DIGITALOCEAN.md#4-dns)). **Outbound:** Resend (`MAIL_API_KEY` / `MAIL_FROM`); from `noreply@sirrelay.com`. No MTA on the Droplet. Env: [ENVIRONMENTS.md](./ENVIRONMENTS.md).
+
+| ID | Requirement | Acceptance criteria |
+|----|-------------|---------------------|
+| P3-MAIL-01 | Provider | **Done** — `sendMail` / `sendContactMail` in `lib/mail`; Resend when `MAIL_API_KEY` set; else log-only. Templates `en-gb` / `es-es` / `pt-br`. |
+| P3-MAIL-02 | Contact | **Done** — Public `/contact`: name, email, message. Honeypot + rate limit. Delivers to `CONTACT_EMAIL`. Generic success. |
+| P3-MAIL-03 | Signup verify | **Done** — New signup → `email_verified_at` null + link (~24h, hashed). Login blocked until verified (+ resend). `/join` + demo `prisma/seed` → verified. Invited merge (P1-AUTH-13) → verified. Mock skips inbox verify (one-click demos). |
+| P3-MAIL-04 | Forgot password | **Done** — `/forgot-password` + `/reset-password`. Always generic response (no enumeration). Token ~1h, single-use, hashed. |
+| P3-MAIL-05 | Schema | **Done** — `users.email_verified_at`; `email_tokens` (`email_verify` \| `password_reset`); `check:email-tokens`. |
 
 ### 7.1 Offline web sync (P3-07)
 
@@ -703,6 +722,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Task queue (`sort_order`) + To do DnD + status drops | Done — P1-TASK-11 · `check:queue` |
 | Group invitations (consent for active emails) | Done — P1-GRP-08/13/14 |
 | Sign-up merge (`invited` email) | Done — P1-AUTH-13/14 · `check:signup-merge` |
+| Transactional email (contact · verify · reset) | Done — P3-17 · `lib/mail` · `check:email-tokens` |
 | Prod local smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--prod-local-test-drive) |
 | Telegram webhook (link) | Done — P1-TG-01, P1-TG-06 |
 | Telegram task relay + alert DMs | Done — P1-TG-02–05, 08–10 · create/done/renotify · replies · operator DMs |
@@ -748,6 +768,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-10-12 | P3-17 shipped (ImprovMX + Resend · contact · verify · reset); drop backlog row + dead `MAIL_PROVIDER` / `MailService` |
 | 2026-09-20 | P3-16 list inline title/project/category; `tasks.category_id`; Projects tab categories (both roles) |
 | 2026-08-16 | Teammate read-only Teammates + Events; group activity operator-only |
 | 2026-08-16 | P3-16 teammate project request (pending cap 2; any operator accepts) |

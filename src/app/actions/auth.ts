@@ -15,7 +15,10 @@ export async function loginForm(locale: string, formData: FormData) {
   let session;
   try {
     session = await getServices().auth.login(email, password);
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.message === "Email unverified") {
+      redirect(loginPath(locale, { error: "unverified" }));
+    }
     redirect(loginPath(locale, { error: "invalid" }));
   }
   revalidatePath("/", "layout");
@@ -39,12 +42,12 @@ export async function signupForm(locale: string, formData: FormData) {
     redirect(`/${locale}/signup?error=mismatch`);
   }
 
-  let session;
+  let result;
   try {
     const signupLocale = locales.includes(locale as Locale)
       ? (locale as Locale)
       : defaultLocale;
-    session = await getServices().auth.signup(
+    result = await getServices().auth.signup(
       name,
       email,
       newPassword,
@@ -56,8 +59,62 @@ export async function signupForm(locale: string, formData: FormData) {
     }
     redirect(`/${locale}/signup?error=taken`);
   }
+  if (result.kind === "pending_verification") {
+    redirect(`/${locale}/check-email`);
+  }
   revalidatePath("/", "layout");
-  redirect(resolveEntryPath(locale, session));
+  redirect(resolveEntryPath(locale, result.session));
+}
+
+export async function forgotPasswordForm(locale: string, formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const signupLocale = locales.includes(locale as Locale)
+    ? (locale as Locale)
+    : defaultLocale;
+  try {
+    await getServices().auth.requestPasswordReset(email, signupLocale);
+  } catch {
+    /* always generic */
+  }
+  redirect(`/${locale}/forgot-password?sent=1`);
+}
+
+export async function resetPasswordForm(locale: string, formData: FormData) {
+  const token = String(formData.get("token") ?? "").trim();
+  const newPassword = String(formData.get("newPassword") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (checkPasswordPolicy(newPassword)) {
+    redirect(`/${locale}/reset-password?token=${encodeURIComponent(token)}&error=weak`);
+  }
+  if (newPassword !== confirmPassword) {
+    redirect(
+      `/${locale}/reset-password?token=${encodeURIComponent(token)}&error=mismatch`,
+    );
+  }
+
+  try {
+    await getServices().auth.resetPasswordWithToken(token, newPassword);
+  } catch (err) {
+    if (err instanceof Error && err.message === "Weak password") {
+      redirect(`/${locale}/reset-password?token=${encodeURIComponent(token)}&error=weak`);
+    }
+    redirect(`/${locale}/reset-password?error=invalid`);
+  }
+  redirect(loginPath(locale, { reset: "1" }));
+}
+
+export async function resendVerificationForm(locale: string, formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const signupLocale = locales.includes(locale as Locale)
+    ? (locale as Locale)
+    : defaultLocale;
+  try {
+    await getServices().auth.resendVerificationEmail(email, signupLocale);
+  } catch {
+    /* generic */
+  }
+  redirect(`/${locale}/check-email?resent=1`);
 }
 
 export async function logoutAction(locale: string) {

@@ -22,9 +22,11 @@ src/
 │   ├── rate-limit.ts     # P2-SEC-07 — sliding window per IP
 │   ├── safe-log.ts       # P2-SEC-11 — JSON logs + redaction
 │   ├── authz.ts          # P2-SEC-01 — requireOperator / requireSelfUserId
-│   └── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
+│   ├── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
+│   └── mail/             # P3-17 — sendMail · tokens · templates
 ├── app/actions/
-│   ├── auth.ts           # Login, signup, logout, password
+│   ├── auth.ts           # Login, signup, logout, password, verify/reset
+│   ├── contact.ts        # Public contact form → CONTACT_EMAIL
 │   ├── groups.ts         # Group panel
 │   ├── invitations.ts    # Accept / decline pending group invites
 │   ├── teammates.ts      # Teammate CRUD + promote
@@ -48,6 +50,7 @@ src/
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` (`ownerUserId` on `Group`) |
 | Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete/transfer · ownership succession |
 | Projects (P3-16) | `/projects` tab (`ProjectsManager`) · `tasks.project_id` · `tasks.category_id` | [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16) |
+| Email (P3-17) | `lib/mail` · contact form · verify / reset tokens | [REQUIREMENTS §7.3](./REQUIREMENTS.md#73-transactional-email-p3-17) · inbound ImprovMX · outbound Resend |
 | Invitation consent | `services/{api,mock}/invitations*` | Existing active account: pending → accept/decline; membership only on accept |
 | Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |
 | Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |
@@ -62,6 +65,9 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 |-------|------|-------|--------|
 | `/[locale]` | Public | CDN-friendly | Landing; redirects if session |
 | `/[locale]/login`, `/signup` | Public | CDN-friendly | Account sign-in / sign-up |
+| `/[locale]/forgot-password`, `/reset-password` | Public | CDN-friendly | Password reset (P3-17) |
+| `/[locale]/verify-email`, `/check-email` | Public | CDN-friendly | Signup email verify (P3-17) |
+| `/[locale]/contact` | Public | CDN-friendly | Contact form → `CONTACT_EMAIL` |
 | `/[locale]/privacy`, `/terms`, `/join/[token]` | Public | CDN-friendly | Legal · group invite activation |
 | `/[locale]/groups` | Session | private | No active group — panel opens automatically |
 | `/[locale]/groups/auto` | Session | private | Auto-pick sole group (persist cookie) |
@@ -73,7 +79,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 
-**Backend (Phase 1–2):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `proxy.ts` · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS) · (optional full REST).
+**Backend (Phase 1–2 + P3-17):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `proxy.ts` · outbound mail (`lib/mail` / Resend) · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS) · (optional full REST).
 
 ## Entry redirects
 
@@ -137,7 +143,7 @@ Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `SirRelay1` (api /
 | Audit store | `lib/audit.ts` · `audit_logs` | Append-only write + `queryAuditLogs` (cross-group for platform admin). Incl. login |
 | Group activity | `domain/activity.ts` · `lib/activity.ts` · `/events/activity` | Filtered human-language history for operators (no login) |
 | Platform admin | `/platform/login` · env `PLATFORM_ADMIN_*` · cookie `sirrelay_platform_session` | Separate from product login; Overview · Audit · Users · Groups · Health |
-| Checks | `check:sec` · `check:csrf` · `check:rate` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `check:platform-session` · `audit:prod` | |
+| Checks | `check:sec` · `check:csrf` · `check:rate` · `check:email-tokens` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `check:platform-session` · `audit:prod` | |
 
 ## Session sync
 

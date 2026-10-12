@@ -76,19 +76,37 @@ APP_URL=https://app.sirrelay.com
 APP_DOMAIN=app.sirrelay.com
 APP_ROOT_DOMAIN=sirrelay.com
 CONTACT_EMAIL=contact@sirrelay.com
+MAIL_API_KEY=...       # Resend (obrigatório na VPS para envio)
+MAIL_FROM=noreply@sirrelay.com
 UMAMI_APP_SECRET=...   # openssl rand -hex 32 (obrigatório no prod-vps.sh)
 UMAMI_WEBSITE_ID=...   # Add website no Umami da VPS (domain = APP_DOMAIN)
 ```
 
-### Email (`contact@sirrelay.com`)
+### Email
 
-**Não** corras mail no Droplet. DNS continua no **Network Solutions**; só os `A` da app apontam para a DigitalOcean.
+**Não** corras mail no Droplet. DNS no **Network Solutions**; só os `A` da app apontam para a DigitalOcean.
 
-1. Cria forwarding `contact@sirrelay.com` → o teu email pessoal (painel Network Solutions, ou ImprovMX / Forward Email com MX no mesmo DNS).
-2. Define `CONTACT_EMAIL=contact@sirrelay.com` no `.env` do VPS (Privacy / Terms usam este endereço).
-3. Cloudflare Email Routing só se mudares nameservers para a Cloudflare — opcional, não obrigatório.
+#### Receber — `contact@sirrelay.com` (implementado)
 
-Até o MX propagar, o endereço pode já aparecer nas páginas legais; a inbox só recebe depois.
+Forward via **[ImprovMX](https://improvmx.com)** (sem mailbox paga no NSI):
+
+| Tipo | Host | Valor | Prioridade |
+|------|------|-------|------------|
+| MX | `@` | `mx1.improvmx.com` | 10 |
+| MX | `@` | `mx2.improvmx.com` | 20 |
+| TXT | `@` | `v=spf1 include:spf.improvmx.com …` (um só SPF; junta includes) | — |
+
+Alias ImprovMX: `contact` → inbox pessoal. Apaga MX antigos do NSI Email. **Não** mexas nos `A` do site.
+
+`CONTACT_EMAIL=contact@sirrelay.com` no `.env` (Privacy / Terms / formulário Contact).
+
+#### Enviar — Resend (app: contact form, verify signup, forgot password)
+
+1. Conta [Resend](https://resend.com) → Add domain `sirrelay.com` → DNS SPF/DKIM (e DMARC se pedirem). **Junta** o `include` Resend no **mesmo** TXT SPF do ImprovMX.
+2. From: `noreply@sirrelay.com` (só envio; sem mailbox).
+3. `.env` VPS: `MAIL_API_KEY=…` · `MAIL_FROM=noreply@sirrelay.com`.
+
+Sem `MAIL_API_KEY`, a app regista o envio em log (dev / prod-local); VPS deve ter chave.
 
 ---
 

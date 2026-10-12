@@ -40,10 +40,19 @@ export type CreateTeammateResult =
   | { ok: true; kind: "invitation"; invitation: GroupInvitation }
   | { ok: false; reason: "already_in_group" | "account_inactive" };
 
+export type SignupResult =
+  | { kind: "session"; session: Session }
+  | { kind: "pending_verification" };
+
 export interface AuthService {
   getSession(): Promise<Session | null>;
   login(email: string, password: string): Promise<Session>;
-  signup(name: string, email: string, password: string, locale?: Locale): Promise<Session>;
+  signup(
+    name: string,
+    email: string,
+    password: string,
+    locale?: Locale,
+  ): Promise<SignupResult>;
   logout(): Promise<void>;
   changePassword(
     userId: string,
@@ -61,6 +70,10 @@ export interface AuthService {
   isInviteTokenValid(token: string): Promise<boolean>;
   /** Record acceptance of CURRENT_LEGAL_VERSION (English legal/en.json). */
   acceptLegalTerms(userId: string): Promise<Session>;
+  requestPasswordReset(email: string, locale?: Locale): Promise<void>;
+  resetPasswordWithToken(token: string, password: string): Promise<void>;
+  verifyEmailWithToken(token: string): Promise<Session>;
+  resendVerificationEmail(email: string, locale?: Locale): Promise<void>;
 }
 
 export interface GroupService {

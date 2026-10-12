@@ -6,7 +6,7 @@ import { hydrateSession } from "@/lib/session-hydrate";
 import { assertPasswordForSet } from "@/lib/password-policy";
 import { isLoginLocked } from "@/lib/login-lockout";
 import { CURRENT_LEGAL_VERSION, needsLegalAccept } from "@/lib/legal";
-import type { AuthService } from "@/services/contracts";
+import type { AuthService, SignupResult } from "@/services/contracts";
 import {
   findAnyMockUserByEmail,
   findMockUserByEmail,
@@ -149,7 +149,7 @@ export class MockAuthService implements AuthService {
     email: string,
     password: string,
     locale: Locale = defaultLocale,
-  ): Promise<Session> {
+  ): Promise<SignupResult> {
     if (!name.trim() || !email.trim()) {
       throw new Error("Invalid signup");
     }
@@ -184,7 +184,7 @@ export class MockAuthService implements AuthService {
       // P1-AUTH-14: auto-pick group → teammate /tasks via resolveEntryPath.
       const session = buildSession(updated);
       await writeSession(session);
-      return session;
+      return { kind: "session", session };
     }
 
     const user: User = {
@@ -201,9 +201,13 @@ export class MockAuthService implements AuthService {
     registerDynamicUser(user);
     sec(user.id);
 
+    // Mock: skip inbox verify so demos stay one-click.
     const session: Session = { user: { ...user }, activeGroupId: null };
     await writeSession(session, { autoPickGroup: false });
-    return hydrateSession(session, mockGroupMembershipLookup, { autoPickGroup: false })!;
+    const hydrated = hydrateSession(session, mockGroupMembershipLookup, {
+      autoPickGroup: false,
+    })!;
+    return { kind: "session", session: hydrated };
   }
 
   async logout(): Promise<void> {
@@ -332,6 +336,24 @@ export class MockAuthService implements AuthService {
     const session = buildSession(updated, current?.activeGroupId ?? null);
     await writeSession(session, { autoPickGroup: false });
     return session;
+  }
+
+  // ponytail: mock has no inbox — UI routes work; real tokens only in api mode.
+  async requestPasswordReset(): Promise<void> {
+    /* no-op */
+  }
+
+  async resetPasswordWithToken(_token: string, password: string): Promise<void> {
+    assertPasswordForSet(password);
+    /* does not mutate mock users */
+  }
+
+  async verifyEmailWithToken(): Promise<Session> {
+    throw new Error("Invalid token");
+  }
+
+  async resendVerificationEmail(): Promise<void> {
+    /* no-op */
   }
 }
 

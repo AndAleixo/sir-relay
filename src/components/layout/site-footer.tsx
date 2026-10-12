@@ -23,6 +23,9 @@ export async function SiteFooter({ locale, variant = "auth" }: SiteFooterProps) 
               {t("landing.faqTitle")}
             </Link>
           ) : null}
+          <Link href={`/${locale}/contact`} className={landingStyles.footerLink}>
+            {t("contact.title")}
+          </Link>
           <Link href={`/${locale}/privacy`} className={landingStyles.footerLink}>
             {t("legal.privacy")}
           </Link>

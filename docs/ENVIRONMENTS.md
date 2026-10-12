@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** Três ambientes **Active** (mock · prod local · VPS). Phase 2 SEC + AUD + OPS · **Next 16** · P2-MON-01 · AUTH-13/14 · Umami.
+**Estado actual:** Três ambientes **Active** (mock · prod local · VPS). Phase 2 SEC + AUD + OPS · **Next 16** · P2-MON-01 · AUTH-13/14 · Umami · P3-17 email (ImprovMX + Resend).
 
 ---
 
@@ -66,7 +66,9 @@ npm run check:routes
 
 **Usar para:** polish visual, roteiro de demo, fluxos user→group→role, gravação de vídeo.
 
-**Não usar para:** provar persistência, migrations, Telegram real, build Docker.
+**Mail (mock):** signup entra já “verificado”; forgot/reset/verify UI existem mas tokens/mail não são reais. Contact form → log se sem `MAIL_API_KEY`. Provar verify/reset de verdade → **prod-local** / VPS.
+
+**Não usar para:** provar persistência, migrations, Telegram real, email transacional, build Docker.
 
 ---
 
@@ -162,7 +164,9 @@ Troca sem alterar UI — [ARCHITECTURE.md §Mock → API](./ARCHITECTURE.md#mock
 | `APP_DOMAIN` | `localhost` | `app.sirrelay.com` |
 | `APP_ROOT_DOMAIN` | — | `sirrelay.com` |
 | `CADDY_EMAIL` | opcional | email real (Let's Encrypt) |
-| `CONTACT_EMAIL` | opt (`contact@sirrelay.com`) | Privacy/Terms mailto |
+| `CONTACT_EMAIL` | opt (`contact@sirrelay.com`) | Privacy/Terms + `/contact` destino |
+| `MAIL_API_KEY` | opt (log-only sem chave) | Resend API key — [DEPLOY §4](./DEPLOY-DIGITALOCEAN.md#4-dns) |
+| `MAIL_FROM` | opt (`noreply@sirrelay.com`) | From transacional |
 | `UMAMI_APP_SECRET` | opt (default fraco no compose) | obrigatório (`prod-vps.sh`) |
 
 `DATABASE_URL` no container `app` é injectada pelo compose:
@@ -262,10 +266,12 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Legal:** pacote canónico inglês [`legal/en.json`](../legal/en.json) · `users.terms_version` · gate `/accept-terms` · bump `version` para forçar re-aceite.
 
+**Email (P3-17):** `/contact` · signup verify · forgot/reset · `sendMail` / Resend · ImprovMX inbound · `check:email-tokens`.
+
 **Smoke (feito):** prod local + VPS · Telegram · fila · SEC · `/platform/login`.
 
 **Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*`.
 
 ---
 
-**Last updated:** 2026-08-09 (removed dev-hybrid; three environments)
+**Last updated:** 2026-10-12 (P3-17 mail env; drop dead `MAIL_PROVIDER`)

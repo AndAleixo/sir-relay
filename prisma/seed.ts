@@ -27,6 +27,7 @@ async function main() {
   await prisma.operatorAlert.deleteMany();
   await prisma.task.deleteMany();
   await prisma.project.deleteMany();
+  await prisma.emailToken.deleteMany();
   await prisma.teammateInviteToken.deleteMany();
   await prisma.groupInvitation.deleteMany();
   await prisma.telegramLinkToken.deleteMany();
@@ -34,6 +35,8 @@ async function main() {
   await prisma.groupMembership.deleteMany();
   await prisma.group.deleteMany();
   await prisma.user.deleteMany();
+
+  const verifiedAt = new Date();
 
   for (const op of MOCK_OPERATORS) {
     await prisma.user.create({
@@ -46,6 +49,7 @@ async function main() {
         active: op.active,
         mustChangePassword: op.mustChangePassword ?? false,
         accountStatus: "active",
+        emailVerifiedAt: verifiedAt,
         termsVersion: CURRENT_LEGAL_VERSION,
         termsAcceptedAt: new Date(),
         lastActiveGroupId: op.id === "user-operator-2" ? "group-demo" : null,
@@ -66,6 +70,7 @@ async function main() {
         locale: fromLocale(teammate.locale),
         active: teammate.active,
         accountStatus: teammate.accountStatus,
+        emailVerifiedAt: accepted ? verifiedAt : null,
         termsVersion: accepted ? CURRENT_LEGAL_VERSION : null,
         termsAcceptedAt: accepted ? new Date() : null,
         telegramChatId:

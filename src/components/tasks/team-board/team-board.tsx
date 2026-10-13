@@ -55,7 +55,7 @@ interface BoardSelfMember {
 interface TeamBoardProps {
   /** Signed-in member’s column (first). */
   self: BoardSelfMember;
-  /** Other group members (page-load order: To do count desc). Excludes signed-in user. */
+  /** Other members in open-page To do-count order (stable while on Tasks). */
   members: OrganizationUser[];
   tasks: Task[];
   locale: string;

@@ -233,7 +233,7 @@ Three columns by status. Empty My work → §9 copy (not empty columns). Card an
 
 ### 3.2 Team — member columns
 
-First column: **signed-in member**. Others by **To do count** at page load (fixed while editing). Inside: To do + In progress expanded; Done collapsed.
+First column: **signed-in member**. Others by **To do count** when Tasks opens (stays put until you leave the page). Inside: To do + In progress expanded; Done collapsed.
 
 **Operator:** edit all; member names → `/teammates/[id]`. **Teammate:** own column editable; others view-only (**⋯ → Open**); names → `/teammates/[id]` (read-only).
 

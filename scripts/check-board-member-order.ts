@@ -1,5 +1,5 @@
 /**
- * Self-check: Team board member column order (page-load freeze).
+ * Self-check: Team board member column order at page open.
  * Run: npx tsx scripts/check-board-member-order.ts
  */
 import assert from "node:assert/strict";

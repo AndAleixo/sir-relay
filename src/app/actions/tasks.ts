@@ -265,8 +265,6 @@ export async function quickCreateTaskAction(
     { session },
   );
 
-  maybeRevalidate();
-  revalidatePath(`/${locale}/tasks`);
   return { ok: true, task };
 }
 

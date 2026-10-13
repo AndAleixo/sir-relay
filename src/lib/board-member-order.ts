@@ -1,8 +1,8 @@
 import type { Task } from "@/domain/types";
 
 /**
- * Team board: other-member columns by To do count (desc), then label.
- * Call once on page load — pass the result as a stable `members` prop.
+ * Team board: other members by To do count (desc), then label.
+ * Call when the Tasks page opens; client keeps that array in useState (no re-sort).
  */
 export function orderMembersByTodoCount<T extends { id: string }>(
   members: T[],

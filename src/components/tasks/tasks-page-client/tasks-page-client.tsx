@@ -33,7 +33,7 @@ interface TasksPageClientProps {
     telegramStatus?: "linked" | "pending";
   };
   tasks: Task[];
-  /** Other members already ordered at page load (Team board). */
+  /** Other members ordered at Tasks open (Team board; keep via useState). */
   members: OrganizationUser[];
   labels: TaskCardLabels & {
     board: string;
@@ -86,6 +86,8 @@ export function TasksPageClient({
   const [view, setViewState] = useState<TasksView>(initialView);
   const [scope, setScopeState] = useState<TasksScope>(initialScope);
   const [project, setProjectState] = useState<string | null>(initialProject);
+  /** Order fixed when Tasks opens — not updated when server revalidates. */
+  const [boardMembers] = useState(members);
   const isOperator = role === "operator";
 
   useEffect(() => {
@@ -159,12 +161,12 @@ export function TasksPageClient({
           displayName: self.displayName,
         }),
       },
-      ...members.map((member) => ({
+      ...boardMembers.map((member) => ({
         id: member.id,
         label: groupMemberLabel(member),
       })),
     ],
-    [self, members],
+    [self, boardMembers],
   );
 
   const cardLabels: TaskCardLabels = {
@@ -270,7 +272,7 @@ export function TasksPageClient({
         scope === "team" ? (
           <TeamBoard
             self={self}
-            members={members}
+            members={boardMembers}
             tasks={scopedTasks}
             locale={locale}
             scope={scope}

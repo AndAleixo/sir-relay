@@ -347,6 +347,7 @@ Route: `/[locale]/tasks/[id]`. Same field order as **New task**; plus status and
 | Projects | `/projects` | Yes | Yes (request project; categories: add / archive) |
 | Events / activity | `/events…` | Yes | Alerts read-only; no group activity |
 | Profile / Settings | `/profile`, `/settings` | Yes | Yes |
+| Delete account | `/profile/delete` | Yes | Yes |
 | Join / change-password | `/join/[token]`, `/change-password` | Auth flows | Auth flows |
 | Privacy / Terms | `/privacy`, `/terms` | Public | Public (English pack) |
 | Accept terms | `/accept-terms` | Signed-in | When `needsLegalAccept` |
@@ -390,6 +391,7 @@ Read: email, account name, fantasy name, role, status icons.
 | Password | Change form |
 | Telegram | Link / unlink / new code · Open in Telegram |
 | Log out | Button |
+| Delete account | Ghost link next to Log out → `/profile/delete` · password + confirm (P1-AUTH-15) |
 
 ### 8.2 Settings (`/settings`)
 
@@ -517,6 +519,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | Native apps | 3 (P3-13) | — |
 | Group projects (`/projects` + acronym on tasks) | 3 (P3-16) | Implemented |
 | Contact + signup verify + forgot/reset | 3 (P3-17) | Implemented |
+| Delete account (`/profile/delete`) | 1 (P1-AUTH-15) | Implemented |
 
 ---
 
@@ -524,6 +527,8 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Date | Change |
 |------|--------|
+| 2026-10-13 | Docs sync: delete account via `/profile/delete` (not Profile danger card) |
+| 2026-10-13 | Delete account: logout-adjacent link → `/profile/delete` (P1-AUTH-15) |
 | 2026-10-12 | P3-17 docs sync (screen inventory + phase map) |
 | 2026-10-12 | P3-17 contact + auth email pages |
 | 2026-09-20 | P3-16 Projects tab `/projects`; project heading `SIR · Name` like task cards; list inline title/project/category |

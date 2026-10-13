@@ -74,6 +74,8 @@ export interface AuthService {
   resetPasswordWithToken(token: string, password: string): Promise<void>;
   verifyEmailWithToken(token: string): Promise<Session>;
   resendVerificationEmail(email: string, locale?: Locale): Promise<void>;
+  /** Hard-delete account after password check; leaves all groups first. */
+  deleteAccount(userId: string, password: string): Promise<void>;
 }
 
 export interface GroupService {

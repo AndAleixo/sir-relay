@@ -376,7 +376,11 @@
     "passwordSection": "Contraseña",
     "openTelegramLink": "Abrir en Telegram",
     "regenerateTelegramLink": "Nuevo código",
-    "unlinkTelegram": "Desvincular Telegram"
+    "unlinkTelegram": "Desvincular Telegram",
+    "deleteAccount": "Eliminar cuenta",
+    "deleteAccountHint": "Elimina la cuenta de forma permanente. Sales de todos los grupos (la ownership se transfiere si quedan miembros). Las tareas asignadas a ti se eliminan. No se puede deshacer.",
+    "deleteAccountConfirm": "¿Eliminar tu cuenta permanentemente? No se puede deshacer.",
+    "deleteAccountFailed": "No se pudo eliminar la cuenta. Inténtalo de nuevo o contacta soporte."
   },
   "events": {
     "title": "Eventos",

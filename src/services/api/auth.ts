@@ -20,6 +20,7 @@ import {
   type SessionPayload,
 } from "@/lib/session-cookie";
 import { hashToken } from "@/lib/token-hash";
+import { apiGroupService } from "@/services/api/groups";
 import {
   hasMembershipAsync,
   pickDefaultGroupIdAsync,
@@ -526,6 +527,54 @@ export class ApiAuthService implements AuthService {
     const verifyToken = await issueEmailToken(row.id, "email_verify");
     const mail = verifyEmailMail(locale, verifyToken);
     await sendMail({ to: normalized, subject: mail.subject, text: mail.text });
+  }
+
+  async deleteAccount(userId: string, password: string): Promise<void> {
+    const row = await loadDbUser(userId);
+    if (!row?.active || !row.passwordHash) throw new Error("Invalid password");
+    if (!(await verifyPassword(password, row.passwordHash))) {
+      throw new Error("Invalid password");
+    }
+
+    const memberships = await prisma.groupMembership.findMany({
+      where: { userId },
+      select: { groupId: true },
+    });
+    for (const { groupId } of memberships) {
+      await apiGroupService.leaveGroup(userId, groupId);
+    }
+
+    const leftover = await prisma.task.findMany({
+      where: { createdById: userId },
+      select: { id: true, groupId: true },
+    });
+    for (const task of leftover) {
+      const group = await prisma.group.findUnique({
+        where: { id: task.groupId },
+        select: { ownerUserId: true },
+      });
+      if (!group || group.ownerUserId === userId) {
+        await prisma.task.delete({ where: { id: task.id } });
+      } else {
+        await prisma.task.update({
+          where: { id: task.id },
+          data: { createdById: group.ownerUserId },
+        });
+      }
+    }
+
+    const owned = await prisma.group.count({ where: { ownerUserId: userId } });
+    if (owned > 0) throw new Error("action_failed");
+
+    await writeAudit({
+      groupId: null,
+      action: "account_delete",
+      actorType: "system",
+      actorId: userId,
+    });
+
+    await writeSessionPayload(null);
+    await prisma.user.delete({ where: { id: userId } });
   }
 }
 

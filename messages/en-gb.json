@@ -376,7 +376,11 @@
     "passwordSection": "Password",
     "openTelegramLink": "Open in Telegram",
     "regenerateTelegramLink": "New link code",
-    "unlinkTelegram": "Unlink Telegram"
+    "unlinkTelegram": "Unlink Telegram",
+    "deleteAccount": "Delete account",
+    "deleteAccountHint": "Permanently deletes your account. You leave every group (ownership transfers when others remain). Tasks assigned to you are removed. This cannot be undone.",
+    "deleteAccountConfirm": "Delete your account permanently? This cannot be undone.",
+    "deleteAccountFailed": "Could not delete the account. Try again or contact support."
   },
   "events": {
     "title": "Events",

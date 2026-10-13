@@ -239,6 +239,31 @@ export async function profileChangePasswordForm(locale: string, formData: FormDa
   redirect(`/${locale}/profile?passwordChanged=1`);
 }
 
+export async function deleteAccountForm(locale: string, formData: FormData) {
+  const password = String(formData.get("password") ?? "");
+  if (!password) {
+    redirect(`/${locale}/profile/delete?error=invalid`);
+  }
+
+  const { auth } = getServices();
+  const session = await auth.getSession();
+  if (!session) {
+    redirect(loginPath(locale, { session: "expired" }));
+  }
+
+  try {
+    await auth.deleteAccount(session.user.id, password);
+  } catch (err) {
+    if (err instanceof Error && err.message === "Invalid password") {
+      redirect(`/${locale}/profile/delete?error=invalid`);
+    }
+    redirect(`/${locale}/profile/delete?error=failed`);
+  }
+
+  revalidatePath("/", "layout");
+  redirect(`/${locale}`);
+}
+
 export async function profileUpdateNameForm(locale: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
 

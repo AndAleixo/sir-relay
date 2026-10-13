@@ -144,6 +144,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-12 | Active group | Session holds `activeGroupId`; all app data (tasks, teammates, alerts) scoped to active group |
 | P1-AUTH-13 | Sign-up merge | Match **`invited`** placeholder → set name + password on that row, `account_status → active`, keep memberships, consume open invite tokens; **reject** if email is already **`active`** (“Email taken”) |
 | P1-AUTH-14 | Post merge routing | After merge: set `activeGroupId` via pick-default (single group → that group; 2+ → last valid / null → `/groups`) → `resolveEntryPath` (teammate → `/tasks`) |
+| P1-AUTH-15 | Delete account | Profile link → `/profile/delete` · password confirm · leave every group (same succession as leave) · delete assignee tasks · reassign remaining `created_by` to group owner · hard-delete user · clear session · **Done** |
 
 ### 5.1.1 Groups
 
@@ -384,7 +385,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `groups` | Yes | Yes | No active group; panel opens |
 | `privacy`, `terms` | Public | Public | Legal |
 | `join/[token]`, `change-password` | — | — | Auth flows |
-| `profile` | Yes | Yes | Global account; OK without active group |
+| `profile`, `profile/delete` | Yes | Yes | Global account · hard-delete confirm (P1-AUTH-15) |
 | `tasks` | My work / Team | My work / Team (edit own) | Board \| List |
 | `tasks/new` | Yes | Yes (self only) | |
 | `tasks/[id]` | Yes | Own editable · others read-only | |
@@ -722,6 +723,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Task queue (`sort_order`) + To do DnD + status drops | Done — P1-TASK-11 · `check:queue` |
 | Group invitations (consent for active emails) | Done — P1-GRP-08/13/14 |
 | Sign-up merge (`invited` email) | Done — P1-AUTH-13/14 · `check:signup-merge` |
+| Delete account (`/profile/delete`) | Done — P1-AUTH-15 · `check:delete-account` |
 | Transactional email (contact · verify · reset) | Done — P3-17 · `lib/mail` · `check:email-tokens` |
 | Prod local smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--prod-local-test-drive) |
 | Telegram webhook (link) | Done — P1-TG-01, P1-TG-06 |
@@ -768,6 +770,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-10-13 | P1-AUTH-15 hard-delete via `/profile/delete` (link next to logout); legal pack bump |
 | 2026-10-12 | P3-17 shipped (ImprovMX + Resend · contact · verify · reset); drop backlog row + dead `MAIL_PROVIDER` / `MailService` |
 | 2026-09-20 | P3-16 list inline title/project/category; `tasks.category_id`; Projects tab categories (both roles) |
 | 2026-08-16 | Teammate read-only Teammates + Events; group activity operator-only |

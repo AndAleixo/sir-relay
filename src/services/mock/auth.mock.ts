@@ -14,7 +14,11 @@ import {
   patchMockUser,
   registerDynamicUser,
 } from "@/services/mock/users.mock";
-import { mockGroupMembershipLookup, rememberMockLastActiveGroup } from "@/services/mock/groups.mock";
+import {
+  mockGroupMembershipLookup,
+  mockGroupService,
+  rememberMockLastActiveGroup,
+} from "@/services/mock/groups.mock";
 import {
   consumeAllInvitesForUser,
   consumeInvite,
@@ -354,6 +358,22 @@ export class MockAuthService implements AuthService {
 
   async resendVerificationEmail(): Promise<void> {
     /* no-op */
+  }
+
+  async deleteAccount(userId: string, password: string): Promise<void> {
+    const user = findMockUserById(userId);
+    if (!user?.active) throw new Error("Invalid password");
+    if (!password) throw new Error("Invalid password");
+
+    const groups = await mockGroupService.listForUser(userId);
+    for (const group of groups) {
+      await mockGroupService.leaveGroup(userId, group.id);
+    }
+
+    // ponytail: mock has no FK — soft-disable so demos can't log back in.
+    patchUser(userId, { active: false });
+    sec(userId).tokenVersion += 1;
+    await writeSession(null);
   }
 }
 

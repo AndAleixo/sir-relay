@@ -376,7 +376,11 @@
     "passwordSection": "Senha",
     "openTelegramLink": "Abrir no Telegram",
     "regenerateTelegramLink": "Novo código",
-    "unlinkTelegram": "Desvincular Telegram"
+    "unlinkTelegram": "Desvincular Telegram",
+    "deleteAccount": "Excluir conta",
+    "deleteAccountHint": "Apaga a conta de forma permanente. Você sai de todos os grupos (a ownership passa se houver outros membros). Tarefas atribuídas a você são removidas. Não dá para desfazer.",
+    "deleteAccountConfirm": "Excluir sua conta permanentemente? Não dá para desfazer.",
+    "deleteAccountFailed": "Não foi possível excluir a conta. Tente de novo ou contacte o suporte."
   },
   "events": {
     "title": "Eventos",

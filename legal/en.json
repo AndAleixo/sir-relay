@@ -1,8 +1,8 @@
 {
-  "version": "2026-08-09",
+  "version": "2026-10-13",
   "termsTitle": "Terms of Service",
   "privacyTitle": "Privacy Policy",
-  "updated": "Last updated: 9 August 2026",
+  "updated": "Last updated: 13 October 2026",
   "termsIntro": "These Terms govern access to and use of SirRelay, a hosted web and Telegram task-relay service for small teams. By creating an account or using the service, you agree to these Terms.",
   "privacyIntro": "This Privacy Policy explains how SirRelay collects and uses personal data when you use our hosted web app and optional Telegram integration.",
   "terms": [
@@ -36,7 +36,7 @@
     },
     {
       "title": "8. Termination",
-      "body": "You may stop using the service and leave or delete groups according to in-product controls. We may suspend or terminate access for breach of these Terms or to protect the service and other users."
+      "body": "You may stop using the service, leave or delete groups, and permanently delete your account from Profile (Delete account → password confirmation). Deleting your account removes your personal account data; group ownership may transfer to remaining members, and tasks assigned to you are removed. We may suspend or terminate access for breach of these Terms or to protect the service and other users."
     },
     {
       "title": "9. Changes",
@@ -70,7 +70,7 @@
     },
     {
       "title": "7. Retention and security",
-      "body": "We keep data while your account and groups remain active, and for a reasonable period afterward for backups, security logs, and legal obligations."
+      "body": "We keep data while your account and groups remain active. After you delete your account, we remove account data from the live system promptly; copies may remain for a reasonable period in backups, security logs, and legal obligations."
     },
     {
       "title": "8. Sharing",
@@ -78,7 +78,7 @@
     },
     {
       "title": "9. Your rights",
-      "body": "Depending on where you live, you may have rights to access, correct, delete, or export personal data. Use in-product controls where available, or contact us using the address published in the product."
+      "body": "Depending on where you live, you may have rights to access, correct, delete, or export personal data. You can permanently delete your account from Profile (Delete account). For other requests, contact us using the address published in the product."
     }
   ]
 }

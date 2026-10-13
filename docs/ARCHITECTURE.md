@@ -25,7 +25,7 @@ src/
 │   ├── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
 │   └── mail/             # P3-17 — sendMail · tokens · templates
 ├── app/actions/
-│   ├── auth.ts           # Login, signup, logout, password, verify/reset
+│   ├── auth.ts           # Login, signup, logout, password, verify/reset, delete account
 │   ├── contact.ts        # Public contact form → CONTACT_EMAIL
 │   ├── groups.ts         # Group panel
 │   ├── invitations.ts    # Accept / decline pending group invites
@@ -78,6 +78,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/events`, `/events/activity`, `/settings` | Session + group | private | Alerts (both) · group activity + alert prefs (operator) |
 | `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
+| `/[locale]/profile/delete` | Session | private | Hard-delete account confirm (P1-AUTH-15) |
 
 **Backend (Phase 1–2 + P3-17):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `proxy.ts` · outbound mail (`lib/mail` / Resend) · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS) · (optional full REST).
 

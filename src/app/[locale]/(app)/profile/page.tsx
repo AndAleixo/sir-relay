@@ -211,13 +211,20 @@ export default async function ProfilePage({
           </Card>
         ) : null}
 
-        <div className="md:col-span-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center md:col-span-2">
           <LogoutButton
             locale={locale}
             label={t("common.logout")}
             variant="secondary"
             className="w-full sm:w-auto"
           />
+          <ButtonLink
+            href={`/${locale}/profile/delete`}
+            variant="ghost"
+            className="w-full text-[var(--severity)] hover:bg-[var(--severity-soft)] hover:text-[var(--severity)] sm:w-auto"
+          >
+            {t("profile.deleteAccount")}
+          </ButtonLink>
         </div>
       </div>
     </>

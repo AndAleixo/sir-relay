@@ -17,10 +17,18 @@ export default async function LoginPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ error?: string; session?: string; reset?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    session?: string;
+    reset?: string;
+    email?: string;
+  }>;
 }) {
   const { locale } = await params;
-  const { error, session: sessionParam, reset } = await searchParams;
+  const { error, session: sessionParam, reset, email: emailParam } = await searchParams;
+  const checkEmailHref = emailParam?.includes("@")
+    ? `/${locale}/check-email?email=${encodeURIComponent(emailParam.trim().toLowerCase())}`
+    : `/${locale}/check-email`;
   const t = await getTranslations();
   const session = await getServices().auth.getSession();
 
@@ -58,10 +66,7 @@ export default async function LoginPage({
             {error === "unverified" ? (
               <p className="rounded-button border border-amber-200 bg-amber-50 px-3 py-2 text-center text-sm text-amber-900">
                 {t("auth.loginUnverified")}{" "}
-                <Link
-                  href={`/${locale}/check-email`}
-                  className="font-medium underline"
-                >
+                <Link href={checkEmailHref} className="font-medium underline">
                   {t("auth.resendVerification")}
                 </Link>
               </p>

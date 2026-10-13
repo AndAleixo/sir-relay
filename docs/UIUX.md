@@ -102,7 +102,7 @@ Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeade
 | Sign up | `/signup` | Yes | New email → check-email / verify. Invited email → activates (P1-AUTH-13), verified |
 | Log in | `/login` | Yes | → role home or `/groups`; link forgot password; unverified → resend |
 | Forgot / reset | `/forgot-password`, `/reset-password` | Yes | Generic success; set new password via token |
-| Verify / check email | `/verify-email`, `/check-email` | Yes | Token consume · “check your inbox” |
+| Verify / check email | `/verify-email`, `/check-email` | Yes | GET confirm + POST consume · check-email locks signup email when known |
 | Contact | `/contact` | Yes | Form → `CONTACT_EMAIL` (honeypot + rate limit) |
 | Join group | `/join/[token]` | Yes | Set password / accept invite |
 | Privacy / Terms | `/privacy`, `/terms` | Yes | Canonical English pack `legal/en.json` · `CONTACT_EMAIL` |

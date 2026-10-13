@@ -13,11 +13,13 @@ export default async function CheckEmailPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ resent?: string }>;
+  searchParams: Promise<{ resent?: string; email?: string }>;
 }) {
   const { locale } = await params;
-  const { resent } = await searchParams;
+  const { resent, email: emailParam } = await searchParams;
   const t = await getTranslations();
+  const lockedEmail = emailParam?.trim().toLowerCase() ?? "";
+  const hasLockedEmail = lockedEmail.includes("@");
 
   return (
     <div className={`${authShellStyles.shell} flex min-h-screen flex-col`}>
@@ -30,7 +32,9 @@ export default async function CheckEmailPage({
                 {t("auth.checkEmailTitle")}
               </h1>
               <p className="mt-1 text-sm text-[var(--text-muted)]">
-                {t("auth.checkEmailSubtitle")}
+                {hasLockedEmail
+                  ? t("auth.checkEmailSubtitleLocked", { email: lockedEmail })
+                  : t("auth.checkEmailSubtitle")}
               </p>
             </div>
             {resent === "1" ? (
@@ -39,10 +43,20 @@ export default async function CheckEmailPage({
               </p>
             ) : null}
             <form action={resendVerificationForm.bind(null, locale)} className="space-y-4">
-              <div>
-                <Label htmlFor="email">{t("auth.email")}</Label>
-                <Input id="email" name="email" type="email" required autoComplete="email" />
-              </div>
+              {hasLockedEmail ? (
+                <input type="hidden" name="email" value={lockedEmail} />
+              ) : (
+                <div>
+                  <Label htmlFor="email">{t("auth.email")}</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+              )}
               <Button type="submit" variant="secondary" className="w-full">
                 {t("auth.resendVerification")}
               </Button>

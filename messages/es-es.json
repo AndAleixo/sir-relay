@@ -71,8 +71,11 @@
     "resendVerification": "Reenviar correo de verificación",
     "checkEmailTitle": "Revisa tu correo",
     "checkEmailSubtitle": "Enviamos un enlace de confirmación. Ábrelo para activar la cuenta.",
+    "checkEmailSubtitleLocked": "Enviamos un enlace de confirmación a {email}. Ábrelo y confirma para activar la cuenta.",
     "checkEmailResent": "Si ese correo necesita verificación, enviamos otro enlace.",
     "verifyTitle": "Verificación de correo",
+    "verifyConfirmHint": "Haz clic abajo para confirmar este correo y activar la cuenta.",
+    "verifyConfirm": "Confirmar correo",
     "verifyInvalid": "Este enlace de verificación no es válido o ha caducado."
   },
   "contact": {

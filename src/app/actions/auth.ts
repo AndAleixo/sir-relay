@@ -17,7 +17,12 @@ export async function loginForm(locale: string, formData: FormData) {
     session = await getServices().auth.login(email, password);
   } catch (err) {
     if (err instanceof Error && err.message === "Email unverified") {
-      redirect(loginPath(locale, { error: "unverified" }));
+      redirect(
+        loginPath(locale, {
+          error: "unverified",
+          email: email.trim().toLowerCase(),
+        }),
+      );
     }
     redirect(loginPath(locale, { error: "invalid" }));
   }
@@ -60,7 +65,9 @@ export async function signupForm(locale: string, formData: FormData) {
     redirect(`/${locale}/signup?error=taken`);
   }
   if (result.kind === "pending_verification") {
-    redirect(`/${locale}/check-email`);
+    redirect(
+      `/${locale}/check-email?email=${encodeURIComponent(email.trim().toLowerCase())}`,
+    );
   }
   revalidatePath("/", "layout");
   redirect(resolveEntryPath(locale, result.session));
@@ -105,7 +112,7 @@ export async function resetPasswordForm(locale: string, formData: FormData) {
 }
 
 export async function resendVerificationForm(locale: string, formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const signupLocale = locales.includes(locale as Locale)
     ? (locale as Locale)
     : defaultLocale;
@@ -114,7 +121,28 @@ export async function resendVerificationForm(locale: string, formData: FormData)
   } catch {
     /* generic */
   }
-  redirect(`/${locale}/check-email?resent=1`);
+  const q = new URLSearchParams({ resent: "1" });
+  if (email) q.set("email", email);
+  redirect(`/${locale}/check-email?${q.toString()}`);
+}
+
+/** Consume verify token on POST only — GET must not burn one-time tokens (mail scanners). */
+export async function confirmEmailVerificationForm(
+  locale: string,
+  formData: FormData,
+) {
+  const token = String(formData.get("token") ?? "").trim();
+  if (!token) {
+    redirect(`/${locale}/verify-email?error=invalid`);
+  }
+  let session;
+  try {
+    session = await getServices().auth.verifyEmailWithToken(token);
+  } catch {
+    redirect(`/${locale}/verify-email?error=invalid`);
+  }
+  revalidatePath("/", "layout");
+  redirect(resolveEntryPath(locale, session));
 }
 
 export async function logoutAction(locale: string) {

@@ -71,8 +71,11 @@
     "resendVerification": "Resend verification email",
     "checkEmailTitle": "Check your email",
     "checkEmailSubtitle": "We sent a confirmation link. Open it to activate your account.",
+    "checkEmailSubtitleLocked": "We sent a confirmation link to {email}. Open it, then confirm to activate your account.",
     "checkEmailResent": "If that email needs verification, we sent another link.",
     "verifyTitle": "Email verification",
+    "verifyConfirmHint": "Click below to confirm this email address and activate your account.",
+    "verifyConfirm": "Confirm email",
     "verifyInvalid": "This verification link is invalid or has expired."
   },
   "contact": {

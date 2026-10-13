@@ -536,7 +536,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 |----|-------------|---------------------|
 | P3-MAIL-01 | Provider | **Done** — `sendMail` / `sendContactMail` in `lib/mail`; Resend when `MAIL_API_KEY` set; else log-only. Templates `en-gb` / `es-es` / `pt-br`. |
 | P3-MAIL-02 | Contact | **Done** — Public `/contact`: name, email, message. Honeypot + rate limit. Delivers to `CONTACT_EMAIL`. Generic success. |
-| P3-MAIL-03 | Signup verify | **Done** — New signup → `email_verified_at` null + link (~24h, hashed). Login blocked until verified (+ resend). `/join` + demo `prisma/seed` → verified. Invited merge (P1-AUTH-13) → verified. Mock skips inbox verify (one-click demos). |
+| P3-MAIL-03 | Signup verify | **Done** — New signup → `email_verified_at` null + link (~24h, hashed). GET `/verify-email` shows confirm; **POST** consumes token (mail scanners must not burn it). Login blocked until verified. Check-email locks signup email when known; resend otherwise. `/join` + demo seed → verified. Invited merge → verified. Mock skips inbox verify. |
 | P3-MAIL-04 | Forgot password | **Done** — `/forgot-password` + `/reset-password`. Always generic response (no enumeration). Token ~1h, single-use, hashed. |
 | P3-MAIL-05 | Schema | **Done** — `users.email_verified_at`; `email_tokens` (`email_verify` \| `password_reset`); `check:email-tokens`. |
 

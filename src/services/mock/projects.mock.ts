@@ -11,7 +11,7 @@ import {
   MAX_OPEN_PROJECTS,
   MAX_PENDING_PROJECTS,
   MAX_CATEGORIES_PER_PROJECT,
-  sortProjectsForSettings,
+  sortProjectsPendingFirst,
 } from "@/lib/project";
 
 const SEED: Project[] = [
@@ -128,7 +128,7 @@ export const mockProjectService: ProjectService = {
   },
 
   async listInGroup(ctx) {
-    return sortProjectsForSettings(
+    return sortProjectsPendingFirst(
       inGroup(ctx.session)
         .filter((project) => project.archivedAt === null)
         .map(withCategories),

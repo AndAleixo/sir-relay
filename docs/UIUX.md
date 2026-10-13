@@ -47,7 +47,7 @@ User (account)
 | **User** | Email + password; not labelled operator/teammate globally |
 | **Group** | Create/join in header **group panel**; leave/delete on **Settings** |
 | **Role** | Per group; shown in group switcher only |
-| **Active group** | Scopes tasks, teammates, events |
+| **Active group** | Scopes tasks, teammates, projects, events |
 | **Switch** | Header group switcher panel |
 
 **Post-login destinations** and join/ownership rules: [REQUIREMENTS §5.1](./REQUIREMENTS.md#51-authentication) · [§5.1.1](./REQUIREMENTS.md#511-groups).
@@ -375,6 +375,12 @@ Read: email, account name, fantasy name, role, status icons.
 
 ---
 
+## 7.5 Projects (`/projects`)
+
+Primary nav tab (between Teammates and Events). Toolbar: hint + create/request (name, acronym). **Pending** requests sit in a dashed band (operator: Accept + trash). **Accepted** projects are a card grid: heading `SIR · Name` (same pattern as the task card), category chips + add on the card (**both roles**). Caps: [P3-PRJ-11](./REQUIREMENTS.md#72-group-projects-p3-16)–[P3-PRJ-13](./REQUIREMENTS.md#72-group-projects-p3-16). Category does not appear on the task card.
+
+---
+
 ## 8. Profile & Settings
 
 **Profile** = account across SirRelay. **Settings** = **active group**. Telegram link on Profile only (relay for assignees; operators also get alerts).
@@ -400,10 +406,6 @@ Read: email, account name, fantasy name, role, status icons.
 | General | Group name (operator); role (+ owner line); your fantasy name |
 | Notifications | Operator: alert toggles + Events link; teammate: hint + Events link; banner → Profile if unlinked |
 | Leave / delete | Leave · delete (owner) — [P1-GRP-09/10](./REQUIREMENTS.md#511-groups) |
-
-### 8.2.1 Group projects (`/projects`)
-
-Primary nav tab (between Teammates and Events). Toolbar: hint + create/request (name, acronym). **Pending** requests sit in a dashed band (operator: Accept + trash). **Accepted** projects are a card grid: heading `SIR · Name` (same pattern as the task card), category chips + add on the card (**both roles**). Caps: [P3-PRJ-11](./REQUIREMENTS.md#72-group-projects-p3-16)–[P3-PRJ-13](./REQUIREMENTS.md#72-group-projects-p3-16). Category does not appear on the task card.
 
 ### 8.3 Events (`/events`)
 

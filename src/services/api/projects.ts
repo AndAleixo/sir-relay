@@ -9,7 +9,7 @@ import {
   MAX_PENDING_PROJECTS,
   MAX_CATEGORIES_PER_PROJECT,
   parseCategoryName,
-  sortProjectsForSettings,
+  sortProjectsPendingFirst,
 } from "@/lib/project";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
@@ -115,7 +115,7 @@ export const apiProjectService: ProjectService = {
         },
       },
     });
-    return sortProjectsForSettings(rows.map(toManaged));
+    return sortProjectsPendingFirst(rows.map(toManaged));
   },
 
   async create(input, ctx) {

@@ -17,7 +17,7 @@ import {
   PROJECT_NAME_MAX,
   resolveStoredProjectId,
   nextTaskCategoryId,
-  sortProjectsForSettings,
+  sortProjectsPendingFirst,
   tagFromOpenProjects,
 } from "../src/lib/project";
 import { parseTasksProject, tasksListHref } from "../src/lib/tasks-url";
@@ -34,7 +34,7 @@ assert.equal(
 );
 assert.equal(isPendingProject({ archivedAt: null, pendingAt: null }), false);
 assert.deepEqual(
-  sortProjectsForSettings([
+  sortProjectsPendingFirst([
     { pendingAt: null, id: "a" },
     { pendingAt: "2026-08-16T00:00:00Z", id: "p" },
   ]).map((row) => row.id),

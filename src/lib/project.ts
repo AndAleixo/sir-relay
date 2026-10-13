@@ -14,8 +14,8 @@ export function isPendingProject(row: {
   return row.archivedAt == null && row.pendingAt != null;
 }
 
-/** Pending requests first; caller order otherwise preserved. */
-export function sortProjectsForSettings<T extends { pendingAt: string | null }>(
+/** Pending requests first; caller order otherwise preserved (`/projects` manager). */
+export function sortProjectsPendingFirst<T extends { pendingAt: string | null }>(
   rows: readonly T[],
 ): T[] {
   return [...rows].sort(

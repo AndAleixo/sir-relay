@@ -141,7 +141,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-09 | Group invite | Operator invites by **email** → invite link (72h) → `/join/<token>` → set password + name · **or** sign-up with same email (P1-AUTH-13) |
 | P1-AUTH-10 | Post-login routing | No group → `/groups` · operator in active group → `/teammates` · teammate in active group → `/tasks` |
 | P1-AUTH-11 | Sign up | `/signup` — name, email, password; **new email** → `email_verified_at` null + check-email (P3-MAIL-03), no group until create/join. **Invited email** → P1-AUTH-13 (verified) |
-| P1-AUTH-12 | Active group | Session holds `activeGroupId`; all app data (tasks, teammates, alerts) scoped to active group |
+| P1-AUTH-12 | Active group | Session holds `activeGroupId`; all app data (tasks, teammates, projects, alerts) scoped to active group |
 | P1-AUTH-13 | Sign-up merge | Match **`invited`** placeholder → set name + password on that row, `account_status → active`, keep memberships, consume open invite tokens; **reject** if email is already **`active`** (“Email taken”) |
 | P1-AUTH-14 | Post merge routing | After merge: set `activeGroupId` via pick-default (single group → that group; 2+ → last valid / null → `/groups`) → `resolveEntryPath` (teammate → `/tasks`) |
 | P1-AUTH-15 | Delete account | Profile link → `/profile/delete` · password confirm · leave every group (same succession as leave) · delete assignee tasks · reassign remaining `created_by` to group owner · hard-delete user · clear session · **Done** |
@@ -229,7 +229,7 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TASK-11 | Queue order | Next / head: `sort_order ASC`, then `due_date ASC NULLS LAST`, then `created_at ASC`. Web: drag to place/reorder in editable To do columns; drop inside scroll list = insert by Y, drop on section chrome = append; Telegram follows queue head |
 | P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). Same for teammate **and** operator assignees. |
 | P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves (or other operators); visible on web board in the **self column** (member label, not “Me”) and other member columns; **Telegram relay** when linked (same queue rules as teammates) |
-| P1-TASK-14 | Clone | Who can **create** a task for that assignee may clone an editable task. Copy title, description, due, difficulty, assignee, status; insert **immediately below** source in that status queue (`sort_order`). Does not copy Telegram message ids. UI: board **⋯** menu — [UIUX.md §4](./UIUX.md#4-task-card) |
+| P1-TASK-14 | Clone | Who can **create** a task for that assignee may clone an editable task. Copy title, description, due, difficulty, assignee, status, project, category; insert **immediately below** source in that status queue (`sort_order`). Does not copy Telegram message ids. UI: board **⋯** menu — [UIUX.md §4](./UIUX.md#4-task-card) |
 
 ### 5.4 Telegram activity (no web comment UI)
 
@@ -616,7 +616,7 @@ Permissions apply **within the active group**. The same user may be operator in 
 | Export data (CSV) | Yes | — | — |
 | Manage group projects | Yes (create / accept / archive) | Request only (read list) | — |
 | Manage project categories | Yes | Yes | — |
-| Tag task with project | Yes | Own tasks only | — |
+| Tag task with project / category | Yes | Own tasks only | — |
 
 ---
 

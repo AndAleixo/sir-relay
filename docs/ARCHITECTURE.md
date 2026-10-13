@@ -25,7 +25,7 @@ src/
 │   ├── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
 │   └── mail/             # P3-17 — sendMail · tokens · templates
 ├── app/actions/
-│   ├── auth.ts           # Login, signup, logout, password, verify/reset, delete account
+│   ├── auth.ts           # Login, signup, logout, password, verify (POST confirm), reset, delete account
 │   ├── contact.ts        # Public contact form → CONTACT_EMAIL
 │   ├── groups.ts         # Group panel
 │   ├── invitations.ts    # Accept / decline pending group invites
@@ -50,7 +50,7 @@ src/
 | Tipos | `UserGroup` | `Group & { role }` — paridade `GET /groups` (`ownerUserId` on `Group`) |
 | Mock | `services/mock/groups.mock.ts` | `listForUser` devolve roles · leave/delete/transfer · ownership succession |
 | Projects (P3-16) | `/projects` tab (`ProjectsManager`) · `tasks.project_id` · `tasks.category_id` | [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16) |
-| Email (P3-17) | `lib/mail` · contact form · verify / reset tokens | [REQUIREMENTS §7.3](./REQUIREMENTS.md#73-transactional-email-p3-17) · inbound ImprovMX · outbound Resend |
+| Email (P3-17) | `lib/mail` · contact · verify (GET+POST) / reset tokens | [REQUIREMENTS §7.3](./REQUIREMENTS.md#73-transactional-email-p3-17) · ImprovMX inbound · Resend outbound |
 | Invitation consent | `services/{api,mock}/invitations*` | Existing active account: pending → accept/decline; membership only on accept |
 | Auto-select / resume | `api/membership.ts` · `users.last_active_group_id` | 1 grupo → auto · 2+ → último grupo no login |
 | Auto-select 1 grupo | `groups/auto/route.ts` | Cookie write (Route Handler, não RSC) |
@@ -66,7 +66,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]` | Public | CDN-friendly | Landing; redirects if session |
 | `/[locale]/login`, `/signup` | Public | CDN-friendly | Account sign-in / sign-up |
 | `/[locale]/forgot-password`, `/reset-password` | Public | CDN-friendly | Password reset (P3-17) |
-| `/[locale]/verify-email`, `/check-email` | Public | CDN-friendly | Signup email verify (P3-17) |
+| `/[locale]/verify-email`, `/check-email` | Public | CDN-friendly | GET confirm · POST consume · `?email=` locks resend (P3-17) |
 | `/[locale]/contact` | Public | CDN-friendly | Contact form → `CONTACT_EMAIL` |
 | `/[locale]/privacy`, `/terms`, `/join/[token]` | Public | CDN-friendly | Legal · group invite activation |
 | `/[locale]/groups` | Session | private | No active group — panel opens automatically |

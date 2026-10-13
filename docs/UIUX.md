@@ -100,9 +100,9 @@ Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeade
 | Page | Route | Header | Purpose |
 |------|-------|--------|---------|
 | Sign up | `/signup` | Yes | New email → check-email / verify. Invited email → activates (P1-AUTH-13), verified |
-| Log in | `/login` | Yes | → role home or `/groups`; link forgot password; unverified → resend |
+| Log in | `/login` | Yes | → role home or `/groups`; forgot password; unverified → check-email with `?email=` |
 | Forgot / reset | `/forgot-password`, `/reset-password` | Yes | Generic success; set new password via token |
-| Verify / check email | `/verify-email`, `/check-email` | Yes | GET confirm + POST consume · check-email locks signup email when known |
+| Verify / check email | `/verify-email`, `/check-email` | Yes | GET confirm + POST consume · `?email=` locks resend · free email field if no query |
 | Contact | `/contact` | Yes | Form → `CONTACT_EMAIL` (honeypot + rate limit) |
 | Join group | `/join/[token]` | Yes | Set password / accept invite |
 | Privacy / Terms | `/privacy`, `/terms` | Yes | Canonical English pack `legal/en.json` · `CONTACT_EMAIL` |
@@ -527,6 +527,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Date | Change |
 |------|--------|
+| 2026-10-13 | Verify: GET confirm + POST consume; check-email locks `?email=` |
 | 2026-10-13 | Docs sync: delete account via `/profile/delete` (not Profile danger card) |
 | 2026-10-13 | Delete account: logout-adjacent link → `/profile/delete` (P1-AUTH-15) |
 | 2026-10-12 | P3-17 docs sync (screen inventory + phase map) |

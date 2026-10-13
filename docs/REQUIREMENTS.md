@@ -536,7 +536,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 |----|-------------|---------------------|
 | P3-MAIL-01 | Provider | **Done** — `sendMail` / `sendContactMail` in `lib/mail`; Resend when `MAIL_API_KEY` set; else log-only. Templates `en-gb` / `es-es` / `pt-br`. |
 | P3-MAIL-02 | Contact | **Done** — Public `/contact`: name, email, message. Honeypot + rate limit. Delivers to `CONTACT_EMAIL`. Generic success. |
-| P3-MAIL-03 | Signup verify | **Done** — New signup → `email_verified_at` null + link (~24h, hashed). GET `/verify-email` shows confirm; **POST** consumes token (mail scanners must not burn it). Login blocked until verified. Check-email locks signup email when known; resend otherwise. `/join` + demo seed → verified. Invited merge → verified. Mock skips inbox verify. |
+| P3-MAIL-03 | Signup verify | **Done** — New signup → `email_verified_at` null + link (~24h, hashed). GET `/verify-email` shows confirm; **POST** consumes token (mail scanners must not burn it). Login blocked until verified. `/check-email?email=` locks resend to that address; without `?email=` free email field. `/join` + demo seed → verified. Invited merge → verified. Mock skips inbox verify. |
 | P3-MAIL-04 | Forgot password | **Done** — `/forgot-password` + `/reset-password`. Always generic response (no enumeration). Token ~1h, single-use, hashed. |
 | P3-MAIL-05 | Schema | **Done** — `users.email_verified_at`; `email_tokens` (`email_verify` \| `password_reset`); `check:email-tokens`. |
 
@@ -770,6 +770,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 | Date | Change |
 |------|--------|
+| 2026-10-13 | P3-MAIL-03: scanner-safe POST confirm · locked check-email `?email=` |
 | 2026-10-13 | P1-AUTH-15 hard-delete via `/profile/delete` (link next to logout); legal pack bump |
 | 2026-10-12 | P3-17 shipped (ImprovMX + Resend · contact · verify · reset); drop backlog row + dead `MAIL_PROVIDER` / `MailService` |
 | 2026-09-20 | P3-16 list inline title/project/category; `tasks.category_id`; Projects tab categories (both roles) |

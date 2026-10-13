@@ -266,7 +266,7 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 
 **Legal:** pacote canónico inglês [`legal/en.json`](../legal/en.json) · `users.terms_version` · gate `/accept-terms` · bump `version` para forçar re-aceite.
 
-**Email (P3-17):** `/contact` · signup verify · forgot/reset · `sendMail` / Resend · ImprovMX inbound · `check:email-tokens`.
+**Email (P3-17):** `/contact` · signup verify (POST confirm) · forgot/reset · `sendMail` / Resend · ImprovMX · `check:email-tokens`.
 
 **Smoke (feito):** prod local + VPS · Telegram · fila · SEC · `/platform/login`.
 

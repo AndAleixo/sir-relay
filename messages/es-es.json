@@ -70,7 +70,7 @@
     "loginUnverified": "Confirma tu correo antes de iniciar sesión.",
     "resendVerification": "Reenviar correo de verificación",
     "checkEmailTitle": "Revisa tu correo",
-    "checkEmailSubtitle": "Enviamos un enlace de confirmación. Ábrelo para activar la cuenta.",
+    "checkEmailSubtitle": "Enviamos un enlace de confirmación. Ábrelo y confirma para activar la cuenta.",
     "checkEmailSubtitleLocked": "Enviamos un enlace de confirmación a {email}. Ábrelo y confirma para activar la cuenta.",
     "checkEmailResent": "Si ese correo necesita verificación, enviamos otro enlace.",
     "verifyTitle": "Verificación de correo",

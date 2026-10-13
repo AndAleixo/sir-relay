@@ -70,7 +70,7 @@
     "loginUnverified": "Confirm your email before signing in.",
     "resendVerification": "Resend verification email",
     "checkEmailTitle": "Check your email",
-    "checkEmailSubtitle": "We sent a confirmation link. Open it to activate your account.",
+    "checkEmailSubtitle": "We sent a confirmation link. Open it, then confirm to activate your account.",
     "checkEmailSubtitleLocked": "We sent a confirmation link to {email}. Open it, then confirm to activate your account.",
     "checkEmailResent": "If that email needs verification, we sent another link.",
     "verifyTitle": "Email verification",

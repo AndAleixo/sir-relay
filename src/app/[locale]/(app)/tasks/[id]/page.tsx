@@ -75,7 +75,7 @@ export default async function TaskDetailPage({
   );
   const listHref = tasksListHref(locale, { scope, view, project });
 
-  const overdue = isOverdue(task.dueDate);
+  const overdue = isOverdue(task.dueDate, task.status);
   const isOperator = session.user.role === "operator";
   const canEdit = isOperator || task.assigneeId === session.user.id;
   const errorMessage = detailErrorMessage(error, t);

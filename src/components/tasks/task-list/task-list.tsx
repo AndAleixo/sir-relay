@@ -109,7 +109,7 @@ function TaskListRow({
   labels: TaskListProps["labels"];
 }) {
   const { applyTaskUpdate } = useSync();
-  const overdue = isOverdue(task.dueDate);
+  const overdue = isOverdue(task.dueDate, task.status);
   const categories = useMemo(
     () =>
       openProjects.find((row) => row.id === task.projectId)?.categories ?? [],

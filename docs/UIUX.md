@@ -274,7 +274,7 @@ Member label left · inactive + Telegram icons right. No role chip; no active-ta
 | My work | Own tasks; sort due / status / updated |
 | Team | All group tasks; assignee + status filters |
 
-Columns: **Title**, **Project**, **Category**, assignee, status, due. Same fields on all widths: desktop is a 6-column grid; below 768px stacks title then a wrapping meta row (no wide table scroll). Click title → 2-line input (200 chars). Click project / category / assignee / status → vertical Family A picker. Assignee retag is operator-only. Click due → date field. Filters: 2-column Select grid on mobile (labels visually hidden, `aria-label` kept); labeled row from `md`. Category is inert until a project is set. Overdue uses `--severity` like the card, without the word Overdue. Board cards stay `SIR · title` with no category.
+Columns: **Title**, **Project**, **Category**, assignee, status, due. Same fields on all widths: desktop is a 6-column grid; below 768px stacks title then a wrapping meta row (no wide table scroll). Click title → 2-line input (200 chars). Click project / category / assignee / status → vertical Family A picker. Assignee retag is operator-only. Click due → date field. Filters: 2-column Select grid on mobile (labels visually hidden, `aria-label` kept); labeled row from `md`. Category is inert until a project is set. Overdue uses `--severity` like the card (not when status is Done), without the word Overdue. List body `text-xs` to match board cards. Board cards stay `SIR · title` with no category.
 
 Fallback for narrow screens and scanning.
 
@@ -299,7 +299,7 @@ Shared compact card on boards; list uses a table row. Clone rule: [P1-TASK-14](.
 | Title | Acronym + ` · ` inline on the first line; wrapped title continues underneath. Click title → inline edit. |
 | Acronym | Click → sideways segment like **⋯** (fade/slide; title fades to ~10%). Fills to the title end when items overflow; arrow overlays stay put (hide at ends). |
 | Description | One muted truncated line: under title when due set (`pr-2`); else in footer due slot |
-| Due | Overdue in `--severity`; empty + no description → **Add due date** (editable) |
+| Due | Overdue in `--severity` (skipped when Done); empty + no description → **Add due date** (editable) |
 | Status controls | Queue head **→** (start); In progress **✓** → Done; Done green ✓ mark |
 | **⋯** menu | Segment left of trigger (card `bg-surface-card`); **Open · Clone · Delete** (Open only if read-only). Footer due/description fades to ~10% while open. Same fade timings as Family A |
 | Notify failed | Accent corner dot (`telegramFailed` tooltip) |

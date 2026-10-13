@@ -222,7 +222,7 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TASK-04 | List / Kanban | Both roles: **My work** (own) · **Team** (group). Teammate Team = view others, edit own only |
 | P1-TASK-05 | Update / delete | Operator: any field on any task · Teammate: edit + delete own tasks (title, status, due, description, difficulty) |
 | P1-TASK-06 | Detail | Editable form when allowed + Telegram delivery banner; teammate **read-only** on others’ tasks; **no web comment UI** |
-| P1-TASK-07 | Due date | Optional `DATE`; overdue when `due_date` < today UTC |
+| P1-TASK-07 | Due date | Optional `DATE`; overdue in UI when `due_date` < today UTC **and** status ≠ `done` |
 | P1-TASK-08 | Limits | Title ≤ 200 · description ≤ 10 000 |
 | P1-TASK-09 | Reply threading | Store `telegram_message_id` + `telegram_chat_id` on each notify; replies must reference latest message |
 | P1-TASK-10 | Status sync | Telegram keyword or web update persists immediately for both roles |

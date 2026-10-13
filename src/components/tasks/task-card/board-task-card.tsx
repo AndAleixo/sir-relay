@@ -62,7 +62,7 @@ export function BoardTaskCard({
   onClone,
   onDelete,
 }: BoardTaskCardProps) {
-  const overdue = isOverdue(task.dueDate);
+  const overdue = isOverdue(task.dueDate, task.status);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(task.title);
   const [editingDue, setEditingDue] = useState(false);

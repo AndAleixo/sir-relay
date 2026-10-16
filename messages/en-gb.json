@@ -437,31 +437,32 @@
     "headerNav": "Site navigation",
     "language": "Language",
     "footerNav": "Footer links",
-    "eyebrow": "Simple team relay",
-    "heroTitle": "One clear task at a time for your team.",
-    "heroSubtitle": "SirRelay keeps small groups aligned on the web and Telegram — assign work, follow progress, and send the next task when the current one is done.",
-    "ctaPrimary": "Create account",
-    "ctaSecondary": "How we handle data",
+    "eyebrow": "Your work, or a group",
+    "heroTitle": "See the work. Skip the scores.",
+    "heroSubtitle": "Assign tasks and follow progress — on your own, or with people you invite.",
+    "contactLead": "Questions, implementation ideas, or more information? Use",
     "demoAria": "SirRelay board preview",
     "demoUrl": "app.sirrelay.com/{locale}/tasks",
     "demoTaskA": "Restock front display",
     "demoTaskB": "Confirm inventory",
     "demoTaskC": "Reply to supplier",
-    "demoCaption": "One task in focus — the next one arrives when the current one is done.",
-    "featuresTitle": "Built for small teams",
-    "featuresLead": "You run the group. Everyone sees the work that matters now.",
+    "demoCaption": "A day’s work: restock, inventory, supplier reply.",
+    "demoPause": "Pause",
+    "demoPlay": "Play",
+    "featuresTitle": "Clarity over scores",
+    "featuresLead": "Tasks and due dates. That’s the picture.",
     "feature": {
       "simple": {
-        "title": "Simple to run",
-        "body": "Invite members, assign tasks, and follow progress on a clean board or list. My work for your queue; Team for the whole group."
+        "title": "Board or list",
+        "body": "See what’s open, in progress, and done — without dashboards in the way."
       },
       "calm": {
-        "title": "Only what matters now",
-        "body": "Tasks and due dates — that's the whole picture. No dashboards to maintain, no noise in the way of the next step."
+        "title": "Invite when you need to",
+        "body": "Start alone, or bring people in by email. Shared work lives in the same group."
       },
       "relay": {
-        "title": "One task at a time",
-        "body": "On Telegram, linked members get a single active task. Mark it done and the next one arrives — focused relay, not overload."
+        "title": "No scores",
+        "body": "We don’t rank people or track velocity. Tasks and due dates are enough."
       }
     },
     "footerCopy": "© {year} Sir · SirRelay",
@@ -469,19 +470,15 @@
     "faq": {
       "what": {
         "q": "What is SirRelay?",
-        "a": "A task relay for small groups — web for the full picture, Telegram for one task at a time."
+        "a": "A simple task board — assign work, follow progress, stay clear of productivity metrics."
       },
       "groups": {
         "q": "How do groups work?",
-        "a": "Create an account, start a group or accept an invite. Tasks and members live inside each group."
+        "a": "Start a group for yourself, or invite others by email. Tasks stay inside each group, any size."
       },
       "metrics": {
         "q": "Do you track productivity metrics?",
-        "a": "No. No leaderboards, velocity charts, or surveillance KPIs — just tasks, due dates, and relay."
-      },
-      "telegram": {
-        "q": "Is Telegram required?",
-        "a": "Optional but useful for everyone. Linked members get one task at a time on Telegram; operators also get alert DMs. The web always shows the same state."
+        "a": "No. No leaderboards, velocity charts, or surveillance KPIs — just tasks and due dates."
       },
       "data": {
         "q": "Where is my data stored?",

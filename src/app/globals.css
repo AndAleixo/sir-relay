@@ -29,3 +29,9 @@
 .landing-demo-card-b {
   animation: landing-demo-pulse 2.4s ease-in-out infinite;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-demo-card-b {
+    animation: none;
+  }
+}

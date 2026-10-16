@@ -20,17 +20,11 @@ export async function LandingHeader({ locale }: LandingHeaderProps) {
         </Link>
         <nav className={landingStyles.nav} aria-label={t("landing.headerNav")}>
           <LandingLocaleNav locale={locale} />
-          <Link
-            href={`/${locale}/contact`}
-            className="hidden text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] sm:inline"
-          >
-            {t("contact.title")}
+          <Link href={`/${locale}/login`} className={landingStyles.headerLoginLink}>
+            {t("auth.login")}
           </Link>
           <Link href={`/${locale}/signup`}>
-            <Button variant="ghost">{t("auth.signup")}</Button>
-          </Link>
-          <Link href={`/${locale}/login`}>
-            <Button variant="secondary">{t("auth.login")}</Button>
+            <Button>{t("auth.signup")}</Button>
           </Link>
         </nav>
       </div>

@@ -79,7 +79,7 @@
     "verifyInvalid": "Este link de verificação é inválido ou expirou."
   },
   "contact": {
-    "title": "Contacto",
+    "title": "Contato",
     "subtitle": "Envie uma mensagem — lemos todas.",
     "name": "Nome",
     "message": "Mensagem",
@@ -437,31 +437,32 @@
     "headerNav": "Navegação do site",
     "language": "Idioma",
     "footerNav": "Links do rodapé",
-    "eyebrow": "Relay simples para equipes",
-    "heroTitle": "Uma tarefa clara de cada vez para sua equipe.",
-    "heroSubtitle": "O SirRelay mantém grupos pequenos alinhados na web e no Telegram — atribua trabalho, acompanhe o progresso e envie a próxima tarefa quando a atual terminar.",
-    "ctaPrimary": "Criar conta",
-    "ctaSecondary": "Como tratamos os dados",
+    "eyebrow": "Seu trabalho, ou um grupo",
+    "heroTitle": "Veja o trabalho. Sem as notas.",
+    "heroSubtitle": "Atribua tarefas e acompanhe o progresso — sozinho, ou com pessoas que você convidar.",
+    "contactLead": "Dúvidas, ideias de implementação ou mais informações? Use",
     "demoAria": "Pré-visualização do quadro SirRelay",
     "demoUrl": "app.sirrelay.com/{locale}/tasks",
     "demoTaskA": "Reorganizar a vitrine",
     "demoTaskB": "Confirmar inventário",
     "demoTaskC": "Responder ao fornecedor",
-    "demoCaption": "Uma tarefa em foco — a próxima chega quando a atual termina.",
-    "featuresTitle": "Feito para equipes pequenas",
-    "featuresLead": "Você gerencia o grupo. Todo mundo vê o trabalho que importa agora.",
+    "demoCaption": "Um dia de trabalho: vitrine, inventário, fornecedor.",
+    "demoPause": "Pausar",
+    "demoPlay": "Reproduzir",
+    "featuresTitle": "Clareza, sem notas",
+    "featuresLead": "Tarefas e prazos. Esse é o panorama.",
     "feature": {
       "simple": {
-        "title": "Simples de gerenciar",
-        "body": "Convide membros, atribua tarefas e acompanhe o progresso em um quadro ou lista limpos. Meu trabalho para sua fila; Equipe para o grupo todo."
+        "title": "Quadro ou lista",
+        "body": "Veja o que está aberto, em andamento e concluído — sem dashboards no caminho."
       },
       "calm": {
-        "title": "Só o que importa agora",
-        "body": "Tarefas e prazos — esse é o panorama. Sem dashboards para manter, sem ruído atrapalhando o próximo passo."
+        "title": "Convide quando precisar",
+        "body": "Comece sozinho, ou traga pessoas por e-mail. O trabalho compartilhado fica no mesmo grupo."
       },
       "relay": {
-        "title": "Uma tarefa de cada vez",
-        "body": "No Telegram, membros vinculados recebem uma única tarefa ativa. Marque como concluída e chega a próxima — relay focado, sem sobrecarga."
+        "title": "Sem notas",
+        "body": "Não ranqueamos pessoas nem medimos velocidade. Tarefas e prazos bastam."
       }
     },
     "footerCopy": "© {year} Sir · SirRelay",
@@ -469,19 +470,15 @@
     "faq": {
       "what": {
         "q": "O que é o SirRelay?",
-        "a": "Um relay de tarefas para grupos pequenos — web para a visão completa, Telegram para uma tarefa de cada vez."
+        "a": "Um quadro de tarefas simples — atribua trabalho, acompanhe o progresso, longe de métricas de produtividade."
       },
       "groups": {
         "q": "Como funcionam os grupos?",
-        "a": "Crie uma conta, inicie um grupo ou aceite um convite. Tarefas e membros ficam dentro de cada grupo."
+        "a": "Inicie um grupo só para você, ou convide outros por e-mail. As tarefas ficam dentro de cada grupo, de qualquer tamanho."
       },
       "metrics": {
         "q": "Vocês medem métricas de produtividade?",
-        "a": "Não. Sem rankings, gráficos de velocidade nem KPIs de vigilância — só tarefas, prazos e relay."
-      },
-      "telegram": {
-        "q": "O Telegram é obrigatório?",
-        "a": "Opcional, mas útil para todos. Membros vinculados recebem uma tarefa de cada vez no Telegram; operadores também recebem alertas. A web mostra sempre o mesmo estado."
+        "a": "Não. Sem rankings, gráficos de velocidade nem KPIs de vigilância — só tarefas e prazos."
       },
       "data": {
         "q": "Onde ficam meus dados?",

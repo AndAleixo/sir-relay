@@ -23,23 +23,23 @@ function ProductDemoBoard({
     <div className={demoStyles.wrap}>
       <div className={demoStyles.frame} aria-label={labels.ariaLabel}>
         <div className={demoStyles.chrome}>
-          <span className={demoStyles.dot} />
-          <span className={demoStyles.dot} />
-          <span className={demoStyles.dot} />
+          <span className={demoStyles.dot} aria-hidden />
+          <span className={demoStyles.dot} aria-hidden />
+          <span className={demoStyles.dot} aria-hidden />
           <span className={demoStyles.url}>{demoUrl}</span>
         </div>
         <div className={demoStyles.body}>
-          <div className={demoStyles.column}>
+          <div className={`${demoStyles.column} ${demoStyles.columnMuted}`}>
             <p className={demoStyles.columnTitle}>{labels.todo}</p>
             <div className={`${demoStyles.card} landing-demo-card-a`}>{labels.taskA}</div>
           </div>
-          <div className={demoStyles.column}>
+          <div className={`${demoStyles.column} ${demoStyles.columnFocus}`}>
             <p className={demoStyles.columnTitle}>{labels.doing}</p>
             <div className={`${demoStyles.card} ${demoStyles.cardActive} landing-demo-card-b`}>
               {labels.taskB}
             </div>
           </div>
-          <div className={demoStyles.column}>
+          <div className={`${demoStyles.column} ${demoStyles.columnMuted}`}>
             <p className={demoStyles.columnTitle}>{labels.done}</p>
             <div className={`${demoStyles.card} landing-demo-card-c`}>{labels.taskC}</div>
           </div>
@@ -69,6 +69,8 @@ export async function ProductDemo({ locale }: { locale: string }) {
       ariaLabel={boardLabels.ariaLabel}
       demoUrl={demoUrl}
       caption={caption}
+      pauseLabel={t("landing.demoPause")}
+      playLabel={t("landing.demoPlay")}
       fallback={
         <ProductDemoBoard demoUrl={demoUrl} caption={caption} labels={boardLabels} />
       }

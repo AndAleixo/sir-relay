@@ -20,10 +20,7 @@ export async function LandingHero({ locale }: LandingHeroProps) {
           <p className={landingStyles.heroSubtitle}>{t("landing.heroSubtitle")}</p>
           <div className={landingStyles.heroActions}>
             <Link href={`/${locale}/signup`}>
-              <Button>{t("landing.ctaPrimary")}</Button>
-            </Link>
-            <Link href={`/${locale}/privacy`}>
-              <Button variant="ghost">{t("landing.ctaSecondary")}</Button>
+              <Button>{t("auth.signup")}</Button>
             </Link>
           </div>
         </div>

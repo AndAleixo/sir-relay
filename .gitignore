@@ -40,4 +40,23 @@ yarn-error.log*
 .idea
 .vscode
 
+# --- Cursor / AI ---
+# Tracked (team-shared): .cursor/rules/, .cursor/agents/, .cursor/skills/ (playbooks),
+#   .cursor/hooks.json, .cursor/mcp.json (no secrets — use ${env:NAME} if needed),
+#   PRODUCT.md, DESIGN.md when present.
+# Local / ephemeral / platform binaries:
+.cursor/**/*.log
+.cursor/plans/
+.cursor/debug.log
+.cursor/mcp.local.json
+.cursor/skills/**/scripts/bin/
+.impeccable/critique/
+.impeccable/live/
+.impeccable/config.local.json
+# Playwright MCP / critique scratch (local agent dumps — never push)
+.playwright-mcp/
+/critique-*.png
+/critique-*-snapshot.yml
+/critique-*.yml
+
 /src/generated/prisma

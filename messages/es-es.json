@@ -83,7 +83,7 @@
     "tryDemo": "Probar demo",
     "gateTitle": "Prueba el tablero",
     "gateSubtitle": "Tu nombre y un tablero inicial. Se queda en esta pestaña.",
-    "notice": "Nada de esto se guarda. Crear una cuenta empieza vacía.",
+    "notice": "Aquí solo está lo básico de la aplicación, para conocerla. Una cuenta nueva no usa lo que hagas aquí.",
     "start": "Empezar demo",
     "nameRequired": "Escribe al menos 2 caracteres.",
     "nameHint": "Hasta {max} caracteres.",

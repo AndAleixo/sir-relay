@@ -83,7 +83,7 @@
     "tryDemo": "Experimentar demo",
     "gateTitle": "Experimente o quadro",
     "gateSubtitle": "Seu nome e um quadro inicial. Fica nesta aba.",
-    "notice": "Nada disso é salvo. Criar uma conta começa vazia.",
+    "notice": "Aqui só está o básico da aplicação, para você conhecer. Uma conta nova não usa o que você fizer aqui.",
     "start": "Começar demo",
     "nameRequired": "Digite pelo menos 2 caracteres.",
     "nameHint": "Até {max} caracteres.",

@@ -83,7 +83,7 @@
     "tryDemo": "Try demo",
     "gateTitle": "Try the board",
     "gateSubtitle": "Your name and a starting board. This stays in this tab.",
-    "notice": "Nothing here is saved. Creating an account starts empty.",
+    "notice": "Only the basics of the app, so you can look around. A new account does not use what you do here.",
     "start": "Start demo",
     "nameRequired": "Enter at least 2 characters.",
     "nameHint": "Up to {max} characters.",

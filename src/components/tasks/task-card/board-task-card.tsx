@@ -27,7 +27,7 @@ export type TaskCardFieldPatch = {
 interface BoardTaskCardProps {
   task: Task;
   locale: string;
-  href: string;
+  href: string | null;
   labels: TaskCardLabels;
   openProjects?: readonly TaskOpenProject[];
   /** View-only: no drag, inline edit, or status controls. Menu: Open only. */

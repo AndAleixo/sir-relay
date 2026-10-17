@@ -65,9 +65,9 @@ interface TeamBoardProps {
   openProjects?: readonly TaskOpenProject[];
   /** `all` = edit every column; `self-only` = edit own column, view others. */
   editMode?: "all" | "self-only";
-  /** Override task detail links (e.g. demo sandbox). */
-  getTaskHref?: (taskId: string) => string;
-  /** When false, member names are plain text (demo sandbox). */
+  /** Task detail URL. Return null when there is no detail page. */
+  getTaskHref?: (taskId: string) => string | null;
+  /** When false, member names are plain text. */
   linkMembers?: boolean;
   labels: TaskCardLabels & {
     todo: string;
@@ -152,15 +152,16 @@ function BoardTaskItem({
   onMarkDone?: () => void;
   onClone: (taskId: string) => void;
   onDelete: (taskId: string) => void;
-  getTaskHref?: (taskId: string) => string;
+  getTaskHref?: (taskId: string) => string | null;
 }) {
   return (
     <BoardTaskCard
       task={task}
       locale={locale}
       href={
-        getTaskHref?.(task.id) ??
-        taskDetailHref(locale, task.id, { scope, view, project })
+        getTaskHref
+          ? getTaskHref(task.id)
+          : taskDetailHref(locale, task.id, { scope, view, project })
       }
       labels={labels}
       openProjects={openProjects}
@@ -312,7 +313,7 @@ function TaskColumn({
   }) => Promise<boolean>;
   onClone: (taskId: string) => void;
   onDelete: (taskId: string) => void;
-  getTaskHref?: (taskId: string) => string;
+  getTaskHref?: (taskId: string) => string | null;
 }) {
   const [doneOpen, setDoneOpen] = useState(false);
   const [doneLimit, setDoneLimit] = useState(DONE_PREVIEW_INITIAL);
@@ -529,7 +530,6 @@ function MemberColumnHeader({
   };
   locale: string;
   labels: TeamBoardProps["labels"];
-  /** Demo sandbox: names are not real profile routes. */
   linkMembers?: boolean;
 }) {
   const inactiveLabel = memberInactiveLabel(member, {

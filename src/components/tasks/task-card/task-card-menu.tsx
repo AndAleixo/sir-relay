@@ -8,7 +8,7 @@ import { useFadeOpen } from "@/hooks/use-fade-open";
 import { taskCardStyles } from "./task-card.styles";
 
 type TaskCardMenuProps = {
-  href: string;
+  href: string | null;
   taskMenu: string;
   menuOpen: string;
   menuClone: string;
@@ -48,6 +48,8 @@ export function TaskCardMenu({
   const dismiss = useCallback(() => setOpen(false), []);
   useDismissable(open, dismiss, rootRef);
 
+  if (!href && !canMutate) return null;
+
   return (
     <div ref={rootRef} className={taskCardStyles.menuRoot}>
       {rendered ? (
@@ -62,15 +64,17 @@ export function TaskCardMenu({
           )}
           onTransitionEnd={onTransitionEnd}
         >
-          <Link
-            href={href}
-            role="menuitem"
-            tabIndex={visible ? 0 : -1}
-            className={taskCardStyles.menuItem}
-            onClick={() => setOpen(false)}
-          >
-            {menuOpen}
-          </Link>
+          {href ? (
+            <Link
+              href={href}
+              role="menuitem"
+              tabIndex={visible ? 0 : -1}
+              className={taskCardStyles.menuItem}
+              onClick={() => setOpen(false)}
+            >
+              {menuOpen}
+            </Link>
+          ) : null}
           {canMutate ? (
             <>
               <button

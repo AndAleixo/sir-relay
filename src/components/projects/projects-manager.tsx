@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import {
   acceptProjectForm,
@@ -44,12 +45,21 @@ const CATEGORY_ERRORS = {
   failed: "categoryErrorFailed",
 } as const;
 
+export type ProjectsLocalApi = {
+  create: (input: { name: string; acronym: string }) => string | null;
+  archive: (projectId: string) => void;
+  addCategory: (projectId: string, name: string) => string | null;
+  removeCategory: (categoryId: string) => void;
+};
+
 type ProjectsManagerProps = {
   locale: string;
   projects: ManagedProject[];
   isOperator: boolean;
   error?: string;
   categoryError?: string;
+  /** Edits stay in the caller. Server form actions are not used. */
+  local?: ProjectsLocalApi;
 };
 
 export function ProjectsManager({
@@ -58,8 +68,11 @@ export function ProjectsManager({
   isOperator,
   error,
   categoryError,
+  local,
 }: ProjectsManagerProps) {
   const t = useTranslations("projects");
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [localCategoryError, setLocalCategoryError] = useState<string | null>(null);
   const createAction = createProjectForm.bind(null, locale);
   const requestAction = requestProjectForm.bind(null, locale);
   const acceptAction = acceptProjectForm.bind(null, locale);
@@ -72,16 +85,44 @@ export function ProjectsManager({
   const atOpenLimit = open.length >= MAX_OPEN_PROJECTS;
   const atPendingLimit = pending.length >= MAX_PENDING_PROJECTS;
   const hideForm = isOperator ? atOpenLimit : atOpenLimit || atPendingLimit;
+  const shownError = local ? localError : error;
+  const shownCategoryError = local ? localCategoryError : categoryError;
   const errorKey =
-    error && error in PROJECT_ERRORS
-      ? PROJECT_ERRORS[error as keyof typeof PROJECT_ERRORS]
+    shownError && shownError in PROJECT_ERRORS
+      ? PROJECT_ERRORS[shownError as keyof typeof PROJECT_ERRORS]
       : null;
   const errorCount =
     error === "pendingLimit" ? MAX_PENDING_PROJECTS : MAX_OPEN_PROJECTS;
   const categoryErrorKey =
-    categoryError && categoryError in CATEGORY_ERRORS
-      ? CATEGORY_ERRORS[categoryError as keyof typeof CATEGORY_ERRORS]
+    shownCategoryError && shownCategoryError in CATEGORY_ERRORS
+      ? CATEGORY_ERRORS[shownCategoryError as keyof typeof CATEGORY_ERRORS]
       : null;
+
+  function onCreate(event: FormEvent<HTMLFormElement>) {
+    if (!local) return;
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const result = local.create({
+      name: String(data.get("name") ?? ""),
+      acronym: String(data.get("acronym") ?? ""),
+    });
+    setLocalError(result);
+    if (!result) form.reset();
+  }
+
+  function onAddCategory(event: FormEvent<HTMLFormElement>) {
+    if (!local) return;
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const result = local.addCategory(
+      String(data.get("projectId") ?? ""),
+      String(data.get("name") ?? ""),
+    );
+    setLocalCategoryError(result);
+    if (!result) form.reset();
+  }
 
   return (
     <div>
@@ -111,7 +152,8 @@ export function ProjectsManager({
           </p>
         ) : (
           <form
-            action={isOperator ? createAction : requestAction}
+            action={local ? undefined : isOperator ? createAction : requestAction}
+            onSubmit={local ? onCreate : undefined}
             className={s.form}
           >
             <div className={s.formName}>
@@ -164,6 +206,7 @@ export function ProjectsManager({
                     </form>
                     <ArchiveForm
                       action={archiveAction}
+                      onRemove={local ? () => local.archive(project.id) : undefined}
                       name="projectId"
                       id={project.id}
                       confirm={t("removeConfirm", { name: project.name })}
@@ -194,6 +237,7 @@ export function ProjectsManager({
                     {isOperator ? (
                       <ArchiveForm
                         action={archiveAction}
+                        onRemove={local ? () => local.archive(project.id) : undefined}
                         name="projectId"
                         id={project.id}
                         confirm={t("removeConfirm", { name: project.name })}
@@ -217,6 +261,9 @@ export function ProjectsManager({
                             <span className={s.chipLabel}>{category.name}</span>
                             <ArchiveForm
                               action={removeCategoryAction}
+                              onRemove={
+                                local ? () => local.removeCategory(category.id) : undefined
+                              }
                               name="categoryId"
                               id={category.id}
                               confirm={t("categoryRemoveConfirm", {
@@ -235,7 +282,8 @@ export function ProjectsManager({
                       </p>
                     ) : (
                       <form
-                        action={addCategoryAction}
+                        action={local ? undefined : addCategoryAction}
+                        onSubmit={local ? onAddCategory : undefined}
                         className="mt-auto flex items-center gap-2"
                       >
                         <input type="hidden" name="projectId" value={project.id} />
@@ -266,6 +314,7 @@ export function ProjectsManager({
 
 function ArchiveForm({
   action,
+  onRemove,
   name,
   id,
   confirm,
@@ -273,12 +322,29 @@ function ArchiveForm({
   compact,
 }: {
   action: (formData: FormData) => void;
+  onRemove?: () => void;
   name: string;
   id: string;
   confirm: string;
   label: string;
   compact?: boolean;
 }) {
+  if (onRemove) {
+    return (
+      <button
+        type="button"
+        className={cn(s.iconBtnDanger, compact && "p-0.5")}
+        aria-label={label}
+        title={label}
+        onClick={() => {
+          if (window.confirm(confirm)) onRemove();
+        }}
+      >
+        <TrashIcon className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} />
+      </button>
+    );
+  }
+
   return (
     <form
       action={action}

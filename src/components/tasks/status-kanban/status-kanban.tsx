@@ -40,8 +40,8 @@ interface StatusKanbanProps {
   project?: string | null;
   openProjects?: readonly TaskOpenProject[];
   self: { id: string; name: string };
-  /** Override task detail links (e.g. demo sandbox). */
-  getTaskHref?: (taskId: string) => string;
+  /** Task detail URL. Return null when there is no detail page. */
+  getTaskHref?: (taskId: string) => string | null;
   labels: TaskCardLabels & {
     todo: string;
     doing: string;
@@ -173,8 +173,9 @@ export function StatusKanban({
         task={task}
         locale={locale}
         href={
-          getTaskHref?.(task.id) ??
-          taskDetailHref(locale, task.id, { scope, view, project })
+          getTaskHref
+            ? getTaskHref(task.id)
+            : taskDetailHref(locale, task.id, { scope, view, project })
         }
         labels={labels}
         openProjects={openProjects}

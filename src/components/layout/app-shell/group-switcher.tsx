@@ -49,6 +49,58 @@ function GroupIcon({ className }: { className?: string }) {
   );
 }
 
+/** Demo: the name only. Create and join post to the server. */
+export function GroupName({
+  groups,
+  activeGroupId,
+  compact = false,
+}: {
+  groups: UserGroup[];
+  activeGroupId: string | null;
+  compact?: boolean;
+}) {
+  const t = useTranslations();
+  const active =
+    activeGroupId != null
+      ? (groups.find((group) => group.id === activeGroupId) ?? null)
+      : null;
+  const label =
+    active?.name ?? (groups.length === 0 ? t("groups.create") : t("shell.switchGroup"));
+
+  return (
+    <div
+      className={cn(
+        shellStyles.groupSwitcherRoot,
+        compact && shellStyles.groupSwitcherCompact,
+      )}
+    >
+      <div
+        className={cn(
+          shellStyles.headerControl,
+          shellStyles.groupSwitcherTrigger,
+          compact && shellStyles.groupSwitcherTriggerCompact,
+        )}
+      >
+        {compact ? (
+          <span className={shellStyles.groupSwitcherNameCompact}>{label}</span>
+        ) : (
+          <>
+            <GroupIcon className="h-4 w-4 shrink-0 text-[var(--text-muted)]" />
+            <span className={shellStyles.groupSwitcherText}>
+              <span className={shellStyles.groupSwitcherName}>{label}</span>
+              {active ? (
+                <span className={shellStyles.groupSwitcherRole}>
+                  {t(`roles.${active.role}`)}
+                </span>
+              ) : null}
+            </span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function GroupSwitcher({
   locale,
   groups,

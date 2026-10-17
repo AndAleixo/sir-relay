@@ -6,8 +6,8 @@ import { useTranslations } from "next-intl";
 import type { GroupInvitation, User, UserGroup } from "@/domain/types";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
-import { isPrimaryNavActive } from "@/lib/navigation";
-import { GroupSwitcher } from "./group-switcher";
+import { isNavItemActive } from "@/lib/navigation";
+import { GroupName, GroupSwitcher } from "./group-switcher";
 import { LocaleSwitcher } from "./locale-switcher";
 import {
   SidebarNavIcon,
@@ -29,10 +29,9 @@ interface MobileTopBarProps {
   invitations: GroupInvitation[];
   activeGroupId: string | null;
   items: MobileNavItem[];
-}
-
-function isNavActive(pathname: string, href: string) {
-  return isPrimaryNavActive(pathname, href);
+  homeHref: string;
+  accountHref: string;
+  groupLocked?: boolean;
 }
 
 export function MobileTopBar({
@@ -43,6 +42,9 @@ export function MobileTopBar({
   invitations,
   activeGroupId,
   items,
+  homeHref,
+  accountHref,
+  groupLocked = false,
 }: MobileTopBarProps) {
   const pathname = usePathname();
   const t = useTranslations();
@@ -51,7 +53,7 @@ export function MobileTopBar({
     <header className={shellStyles.mobileHeader} data-mobile-shell-header>
       <div className={shellStyles.mobileHeaderTop}>
         <Link
-          href={`/${locale}/tasks`}
+          href={homeHref}
           className={shellStyles.mobileLogoLink}
           title={appName}
         >
@@ -63,18 +65,22 @@ export function MobileTopBar({
           />
         </Link>
         <div className={shellStyles.mobileHeaderSwitcher}>
-          <GroupSwitcher
-            locale={locale}
-            groups={groups}
-            invitations={invitations}
-            activeGroupId={activeGroupId}
-            compact
-          />
+          {groupLocked ? (
+            <GroupName groups={groups} activeGroupId={activeGroupId} compact />
+          ) : (
+            <GroupSwitcher
+              locale={locale}
+              groups={groups}
+              invitations={invitations}
+              activeGroupId={activeGroupId}
+              compact
+            />
+          )}
         </div>
         <div className={shellStyles.mobileHeaderEnd}>
           <LocaleSwitcher locale={locale} compact />
           <Link
-            href={`/${locale}/profile`}
+            href={accountHref}
             className={shellStyles.mobileUserLink}
             title={t("common.account")}
           >
@@ -84,7 +90,7 @@ export function MobileTopBar({
       </div>
       <nav className={shellStyles.mobileNav} aria-label={appName}>
         {items.map((item) => {
-          const active = isNavActive(pathname, item.href);
+          const active = isNavItemActive(pathname, item.href, groupLocked ? homeHref : undefined);
           return (
             <Link
               key={item.href}

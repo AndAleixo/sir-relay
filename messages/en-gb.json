@@ -78,6 +78,120 @@
     "verifyConfirm": "Confirm email",
     "verifyInvalid": "This verification link is invalid or has expired."
   },
+  "demo": {
+    "tryDemo": "Try demo",
+    "gateTitle": "Try the board",
+    "gateSubtitle": "Your name and a starting board. This stays in this tab.",
+    "notice": "Nothing here is saved. Creating an account starts empty.",
+    "start": "Start demo",
+    "nameRequired": "Enter at least 2 characters.",
+    "nameHint": "Up to {max} characters.",
+    "presetLabel": "Starting point",
+    "presets": {
+      "personal": {
+        "label": "Personal",
+        "teammates": ["Ana", "Luis", "Sofia"],
+        "projects": [
+          { "name": "Home", "acronym": "HOM", "categories": ["Errands", "Bills"] },
+          { "name": "Family", "acronym": "FAM", "categories": ["Plans"] }
+        ],
+        "tasks": [
+          { "title": "Pay the electricity bill", "who": "self", "project": "HOM", "due": true },
+          { "title": "Book the dentist", "who": "Ana", "project": "HOM" },
+          { "title": "Buy school supplies", "who": "Luis", "project": "FAM" },
+          { "title": "Plan Sunday lunch", "who": "Sofia", "project": "FAM" },
+          { "title": "Renew the bus pass", "who": "self", "project": "HOM" },
+          { "title": "Call the landlord", "who": "Ana", "project": "HOM" }
+        ]
+      },
+      "finance": {
+        "label": "Finance",
+        "teammates": ["Marta", "Pedro", "Elena"],
+        "projects": [
+          { "name": "Books", "acronym": "BKS", "categories": ["Invoices", "Tax"] },
+          { "name": "Payroll", "acronym": "PAY", "categories": ["Month"] }
+        ],
+        "tasks": [
+          { "title": "Send the March invoice", "who": "Marta", "project": "BKS", "due": true },
+          { "title": "Reconcile the account", "who": "self", "project": "BKS" },
+          { "title": "File the tax receipt", "who": "Pedro", "project": "BKS" },
+          { "title": "Confirm the salaries", "who": "Elena", "project": "PAY" },
+          { "title": "Chase the late payment", "who": "self", "project": "BKS" },
+          { "title": "Update the budget", "who": "Marta", "project": "PAY" }
+        ]
+      },
+      "software": {
+        "label": "Software",
+        "teammates": ["Daniel", "Laura", "Marco"],
+        "projects": [
+          { "name": "App", "acronym": "APP", "categories": ["Review", "Bugs"] },
+          { "name": "Release", "acronym": "REL", "categories": ["Ship"] }
+        ],
+        "tasks": [
+          { "title": "Fix the login bug", "who": "Daniel", "project": "APP", "due": true },
+          { "title": "Review the pull request", "who": "Laura", "project": "APP" },
+          { "title": "Write the release notes", "who": "self", "project": "REL" },
+          { "title": "Update the README", "who": "Marco", "project": "APP" },
+          { "title": "Test the signup form", "who": "self", "project": "APP" },
+          { "title": "Tag the release", "who": "Laura", "project": "REL" }
+        ]
+      },
+      "hardware": {
+        "label": "Hardware",
+        "teammates": ["Nina", "David", "Rosa"],
+        "projects": [
+          { "name": "Board", "acronym": "BRD", "categories": ["Prototype", "Test"] },
+          { "name": "Lab", "acronym": "LAB", "categories": ["Parts"] }
+        ],
+        "tasks": [
+          { "title": "Flash the prototype", "who": "self", "project": "BRD", "due": true },
+          { "title": "Order the sensors", "who": "Nina", "project": "LAB" },
+          { "title": "Measure the voltage", "who": "David", "project": "BRD" },
+          { "title": "Label the cables", "who": "Rosa", "project": "LAB" },
+          { "title": "Log the test run", "who": "self", "project": "BRD" },
+          { "title": "Return the spare parts", "who": "David", "project": "LAB" }
+        ]
+      },
+      "purchasing": {
+        "label": "Purchasing",
+        "teammates": ["Sara", "Ana", "Pedro"],
+        "projects": [
+          { "name": "Orders", "acronym": "ORD", "categories": ["Quotes", "Delivery"] },
+          { "name": "Stock", "acronym": "STK", "categories": ["Count"] }
+        ],
+        "tasks": [
+          { "title": "Compare three quotes", "who": "self", "project": "ORD", "due": true },
+          { "title": "Confirm the delivery", "who": "Sara", "project": "ORD" },
+          { "title": "Count the stock", "who": "Ana", "project": "STK" },
+          { "title": "Approve the purchase", "who": "Pedro", "project": "ORD" },
+          { "title": "Call the supplier", "who": "self", "project": "ORD" },
+          { "title": "Update the reorder list", "who": "Ana", "project": "STK" }
+        ]
+      },
+      "sales": {
+        "label": "Sales",
+        "teammates": ["Laura", "Marco", "Marta"],
+        "projects": [
+          { "name": "Pipeline", "acronym": "PIP", "categories": ["Leads", "Quotes"] },
+          { "name": "Accounts", "acronym": "ACC", "categories": ["Follow"] }
+        ],
+        "tasks": [
+          { "title": "Call the new lead", "who": "Laura", "project": "PIP", "due": true },
+          { "title": "Send the proposal", "who": "self", "project": "PIP" },
+          { "title": "Follow up the quote", "who": "Marco", "project": "PIP" },
+          { "title": "Update the account notes", "who": "Marta", "project": "ACC" },
+          { "title": "Book the demo call", "who": "self", "project": "PIP" },
+          { "title": "Close the open quote", "who": "Laura", "project": "ACC" }
+        ]
+      }
+    },
+    "preferAccount": "Prefer a real account?",
+    "banner": "Demo on this tab — not saved to an account.",
+    "bannerCta": "Create account",
+    "leave": "Leave demo",
+    "groupName": "Demo group",
+    "addTeammate": "Add a teammate (name only)"
+  },
   "contact": {
     "title": "Contact",
     "subtitle": "Send us a message — we read every one.",

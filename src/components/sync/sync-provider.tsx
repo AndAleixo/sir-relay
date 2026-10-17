@@ -31,7 +31,7 @@ import {
 
 const { failuresBeforeBar: FAILURES_BEFORE_BAR } = syncRetryConfig;
 
-/** Shared by SyncProvider (real app) and DemoSyncProvider (sandbox). */
+/** Shared by the app sync provider and the demo provider. */
 export interface SyncContextValue {
   tasks: Task[];
   syncState: SyncState;

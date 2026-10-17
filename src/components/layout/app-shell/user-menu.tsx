@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { User } from "@/domain/types";
 import { logoutAction } from "@/app/actions/auth";
+import type { AppShellDemo } from "./app-shell";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
 import { useDismissable } from "@/hooks/use-dismissable";
@@ -16,9 +17,11 @@ import { shellStyles } from "./app-shell.styles";
 interface UserMenuProps {
   locale: string;
   user: User;
+  accountHref: string;
+  demo?: AppShellDemo;
 }
 
-export function UserMenu({ locale, user }: UserMenuProps) {
+export function UserMenu({ locale, user, accountHref, demo }: UserMenuProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const { rendered, visible, onTransitionEnd } = useFadeOpen(open);
@@ -58,7 +61,7 @@ export function UserMenu({ locale, user }: UserMenuProps) {
             <p className={shellStyles.userMenuName}>{user.name}</p>
           </div>
           <Link
-            href={`/${locale}/profile`}
+            href={accountHref}
             className={cn(popoverStyles.item, shellStyles.userMenuItem)}
             role="menuitem"
             tabIndex={visible ? 0 : -1}
@@ -66,20 +69,50 @@ export function UserMenu({ locale, user }: UserMenuProps) {
           >
             {t("common.account")}
           </Link>
-          <form action={logoutAction.bind(null, locale)} className={shellStyles.userMenuForm}>
-            <button
-              type="submit"
-              className={cn(
-                popoverStyles.item,
-                shellStyles.userMenuItem,
-                shellStyles.userMenuLogout,
-              )}
-              role="menuitem"
-              tabIndex={visible ? 0 : -1}
-            >
-              {t("common.logout")}
-            </button>
-          </form>
+          {demo ? (
+            <>
+              <Link
+                href={`/${locale}/signup`}
+                className={cn(popoverStyles.item, shellStyles.userMenuItem)}
+                role="menuitem"
+                tabIndex={visible ? 0 : -1}
+                onClick={() => setOpen(false)}
+              >
+                {t("demo.bannerCta")}
+              </Link>
+              <button
+                type="button"
+                className={cn(
+                  popoverStyles.item,
+                  shellStyles.userMenuItem,
+                  shellStyles.userMenuLogout,
+                )}
+                role="menuitem"
+                tabIndex={visible ? 0 : -1}
+                onClick={() => {
+                  setOpen(false);
+                  demo.onLeave();
+                }}
+              >
+                {t("demo.leave")}
+              </button>
+            </>
+          ) : (
+            <form action={logoutAction.bind(null, locale)} className={shellStyles.userMenuForm}>
+              <button
+                type="submit"
+                className={cn(
+                  popoverStyles.item,
+                  shellStyles.userMenuItem,
+                  shellStyles.userMenuLogout,
+                )}
+                role="menuitem"
+                tabIndex={visible ? 0 : -1}
+              >
+                {t("common.logout")}
+              </button>
+            </form>
+          )}
         </div>
       ) : null}
     </div>

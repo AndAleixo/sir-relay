@@ -14,8 +14,8 @@ import {
 interface OperatorAlertsListProps {
   alerts: OperatorAlert[];
   locale: string;
-  /** When set (e.g. sandbox), task titles link here instead of /tasks/:id. */
-  taskHrefBase?: string;
+  /** Plain title when there is no task page (demo). */
+  linkTasks?: boolean;
   labels: {
     empty: string;
     taskDone: string;
@@ -29,7 +29,7 @@ interface OperatorAlertsListProps {
 export function OperatorAlertsList({
   alerts,
   locale,
-  taskHrefBase,
+  linkTasks = true,
   labels,
 }: OperatorAlertsListProps) {
   const [visibleCount, setVisibleCount] = useState(ALERTS_PREVIEW_INITIAL);
@@ -58,20 +58,15 @@ export function OperatorAlertsList({
             <div className="min-w-0 flex-1">
               <p className="text-sm text-[var(--text-primary)]">
                 {alert.type === "task_done" ? labels.taskDone : labels.taskDue}{" "}
-                {taskHrefBase ? (
-                  <Link
-                    href={taskHrefBase}
-                    className="font-medium text-brand-accent hover:text-brand-accent-hover"
-                  >
-                    {alert.taskTitle}
-                  </Link>
-                ) : (
+                {linkTasks ? (
                   <Link
                     href={`/${locale}/tasks/${alert.taskId}`}
                     className="font-medium text-brand-accent hover:text-brand-accent-hover"
                   >
                     {alert.taskTitle}
                   </Link>
+                ) : (
+                  <span className="font-medium">{alert.taskTitle}</span>
                 )}
               </p>
               <p className="mt-1 text-xs text-[var(--text-muted)]">

@@ -78,6 +78,120 @@
     "verifyConfirm": "Confirmar correo",
     "verifyInvalid": "Este enlace de verificación no es válido o ha caducado."
   },
+  "demo": {
+    "tryDemo": "Probar demo",
+    "gateTitle": "Prueba el tablero",
+    "gateSubtitle": "Tu nombre y un tablero inicial. Se queda en esta pestaña.",
+    "notice": "Nada de esto se guarda. Crear una cuenta empieza vacía.",
+    "start": "Empezar demo",
+    "nameRequired": "Escribe al menos 2 caracteres.",
+    "nameHint": "Hasta {max} caracteres.",
+    "presetLabel": "Punto de partida",
+    "presets": {
+      "personal": {
+        "label": "Personal",
+        "teammates": ["Ana", "Luis", "Sofia"],
+        "projects": [
+          { "name": "Casa", "acronym": "CAS", "categories": ["Recados", "Recibos"] },
+          { "name": "Familia", "acronym": "FAM", "categories": ["Planes"] }
+        ],
+        "tasks": [
+          { "title": "Pagar la luz", "who": "self", "project": "CAS", "due": true },
+          { "title": "Pedir cita con el dentista", "who": "Ana", "project": "CAS" },
+          { "title": "Comprar material escolar", "who": "Luis", "project": "FAM" },
+          { "title": "Organizar la comida", "who": "Sofia", "project": "FAM" },
+          { "title": "Renovar el abono", "who": "self", "project": "CAS" },
+          { "title": "Llamar al casero", "who": "Ana", "project": "CAS" }
+        ]
+      },
+      "finance": {
+        "label": "Finanzas",
+        "teammates": ["Marta", "Pedro", "Elena"],
+        "projects": [
+          { "name": "Cuentas", "acronym": "CTA", "categories": ["Facturas", "Impuesto"] },
+          { "name": "Nóminas", "acronym": "NOM", "categories": ["Mes"] }
+        ],
+        "tasks": [
+          { "title": "Enviar la factura de marzo", "who": "Marta", "project": "CTA", "due": true },
+          { "title": "Conciliar la cuenta", "who": "self", "project": "CTA" },
+          { "title": "Archivar el recibo", "who": "Pedro", "project": "CTA" },
+          { "title": "Confirmar las nóminas", "who": "Elena", "project": "NOM" },
+          { "title": "Cobrar el pago atrasado", "who": "self", "project": "CTA" },
+          { "title": "Actualizar el presupuesto", "who": "Marta", "project": "NOM" }
+        ]
+      },
+      "software": {
+        "label": "Software",
+        "teammates": ["Daniel", "Laura", "Marco"],
+        "projects": [
+          { "name": "App", "acronym": "APP", "categories": ["Revisión", "Fallos"] },
+          { "name": "Versión", "acronym": "VER", "categories": ["Entrega"] }
+        ],
+        "tasks": [
+          { "title": "Corregir el acceso", "who": "Daniel", "project": "APP", "due": true },
+          { "title": "Revisar el pull request", "who": "Laura", "project": "APP" },
+          { "title": "Escribir las notas", "who": "self", "project": "VER" },
+          { "title": "Actualizar el README", "who": "Marco", "project": "APP" },
+          { "title": "Probar el registro", "who": "self", "project": "APP" },
+          { "title": "Etiquetar la versión", "who": "Laura", "project": "VER" }
+        ]
+      },
+      "hardware": {
+        "label": "Hardware",
+        "teammates": ["Nina", "David", "Rosa"],
+        "projects": [
+          { "name": "Placa", "acronym": "PLC", "categories": ["Prototipo", "Prueba"] },
+          { "name": "Lab", "acronym": "LAB", "categories": ["Piezas"] }
+        ],
+        "tasks": [
+          { "title": "Grabar el prototipo", "who": "self", "project": "PLC", "due": true },
+          { "title": "Pedir los sensores", "who": "Nina", "project": "LAB" },
+          { "title": "Medir el voltaje", "who": "David", "project": "PLC" },
+          { "title": "Etiquetar los cables", "who": "Rosa", "project": "LAB" },
+          { "title": "Anotar la prueba", "who": "self", "project": "PLC" },
+          { "title": "Devolver las piezas", "who": "David", "project": "LAB" }
+        ]
+      },
+      "purchasing": {
+        "label": "Compras",
+        "teammates": ["Sara", "Ana", "Pedro"],
+        "projects": [
+          { "name": "Pedidos", "acronym": "PED", "categories": ["Ofertas", "Entrega"] },
+          { "name": "Stock", "acronym": "STK", "categories": ["Conteo"] }
+        ],
+        "tasks": [
+          { "title": "Comparar tres ofertas", "who": "self", "project": "PED", "due": true },
+          { "title": "Confirmar la entrega", "who": "Sara", "project": "PED" },
+          { "title": "Contar el stock", "who": "Ana", "project": "STK" },
+          { "title": "Aprobar la compra", "who": "Pedro", "project": "PED" },
+          { "title": "Llamar al proveedor", "who": "self", "project": "PED" },
+          { "title": "Actualizar el pedido", "who": "Ana", "project": "STK" }
+        ]
+      },
+      "sales": {
+        "label": "Ventas",
+        "teammates": ["Laura", "Marco", "Marta"],
+        "projects": [
+          { "name": "Embudo", "acronym": "EMB", "categories": ["Leads", "Ofertas"] },
+          { "name": "Cuentas", "acronym": "CTA", "categories": ["Seguimiento"] }
+        ],
+        "tasks": [
+          { "title": "Llamar al lead nuevo", "who": "Laura", "project": "EMB", "due": true },
+          { "title": "Enviar la propuesta", "who": "self", "project": "EMB" },
+          { "title": "Retomar la oferta", "who": "Marco", "project": "EMB" },
+          { "title": "Actualizar la cuenta", "who": "Marta", "project": "CTA" },
+          { "title": "Agendar la llamada", "who": "self", "project": "EMB" },
+          { "title": "Cerrar la oferta", "who": "Laura", "project": "CTA" }
+        ]
+      }
+    },
+    "preferAccount": "¿Prefieres una cuenta real?",
+    "banner": "Demo en esta pestaña — no se guarda en una cuenta.",
+    "bannerCta": "Crear cuenta",
+    "leave": "Salir de la demo",
+    "groupName": "Grupo demo",
+    "addTeammate": "Añadir un compañero (solo el nombre)"
+  },
   "contact": {
     "title": "Contacto",
     "subtitle": "Envíanos un mensaje — leemos todos.",

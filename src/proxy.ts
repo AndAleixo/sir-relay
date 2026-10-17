@@ -47,7 +47,7 @@ function stripLocale(pathname: string): string {
 function isPublicPage(pathname: string): boolean {
   const stripped = stripLocale(pathname);
   if (stripped === "/") return true;
-  return /^\/(login|signup|privacy|terms|join|contact|forgot-password|reset-password|verify-email|check-email)(\/|$)/.test(
+  return /^\/(login|signup|demo|privacy|terms|join|contact|forgot-password|reset-password|verify-email|check-email)(\/|$)/.test(
     stripped,
   );
 }

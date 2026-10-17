@@ -8,7 +8,7 @@ import type {
   User,
   UserGroup,
 } from "@/domain/types";
-import { isPrimaryNavActive } from "@/lib/navigation";
+import { isNavItemActive } from "@/lib/navigation";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { cn } from "@/lib/cn";
 import { AppHeader } from "./app-header";
@@ -27,12 +27,19 @@ interface NavItem {
   icon: SidebarNavIconName;
 }
 
+/** Try-demo: same chrome, links stay under `basePath`, no server session. */
+export type AppShellDemo = {
+  basePath: string;
+  onLeave: () => void;
+};
+
 interface AppShellProps {
   locale: string;
   user: User;
   groups: UserGroup[];
   invitations: GroupInvitation[];
   activeGroupId: string | null;
+  demo?: AppShellDemo;
   children: React.ReactNode;
 }
 
@@ -42,39 +49,46 @@ export function AppShell({
   groups,
   invitations,
   activeGroupId,
+  demo,
   children,
 }: AppShellProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarCollapsed();
   const hasActiveGroup = activeGroupId != null;
+  const homeHref = demo?.basePath ?? `/${locale}/tasks`;
+  const accountHref = demo ? `${demo.basePath}/profile` : `/${locale}/profile`;
 
   const nav: NavItem[] = [
     {
-      href: `/${locale}/tasks`,
+      href: homeHref,
       label: t("common.tasks"),
       icon: "tasks",
     },
     {
-      href: `/${locale}/teammates`,
+      href: demo ? `${demo.basePath}/teammates` : `/${locale}/teammates`,
       label: t("common.teammates"),
       icon: "teammates",
     },
     {
-      href: `/${locale}/projects`,
+      href: demo ? `${demo.basePath}/projects` : `/${locale}/projects`,
       label: t("common.projects"),
       icon: "projects",
     },
     {
-      href: `/${locale}/events`,
+      href: demo ? `${demo.basePath}/events` : `/${locale}/events`,
       label: t("common.events"),
       icon: "events",
     },
-    {
-      href: `/${locale}/settings`,
-      label: t("common.settings"),
-      icon: "settings",
-    },
+    ...(demo
+      ? []
+      : [
+          {
+            href: `/${locale}/settings`,
+            label: t("common.settings"),
+            icon: "settings" as const,
+          },
+        ]),
   ];
 
   const visibleNav = hasActiveGroup ? nav : [];
@@ -89,7 +103,7 @@ export function AppShell({
       >
         <aside className={shellStyles.sidebar}>
           <Link
-            href={`/${locale}/tasks`}
+            href={homeHref}
             className={cn(
               shellStyles.logoLink,
               collapsed && shellStyles.logoLinkCollapsed,
@@ -103,7 +117,7 @@ export function AppShell({
             className={cn(shellStyles.nav, collapsed && shellStyles.navCollapsed)}
           >
             {visibleNav.map((item) => {
-              const active = isPrimaryNavActive(pathname, item.href);
+              const active = isNavItemActive(pathname, item.href, demo?.basePath);
 
               return (
                 <Link
@@ -138,7 +152,7 @@ export function AppShell({
             )}
           >
             <Link
-              href={`/${locale}/profile`}
+              href={accountHref}
               className={cn(
                 shellStyles.sidebarProfileLink,
                 collapsed && shellStyles.sidebarProfileLinkCollapsed,
@@ -194,6 +208,9 @@ export function AppShell({
           invitations={invitations}
           activeGroupId={activeGroupId}
           items={visibleNav}
+          homeHref={homeHref}
+          accountHref={accountHref}
+          groupLocked={Boolean(demo)}
         />
         <AppHeader
           locale={locale}
@@ -201,6 +218,8 @@ export function AppShell({
           groups={groups}
           invitations={invitations}
           activeGroupId={activeGroupId}
+          demo={demo}
+          accountHref={accountHref}
         />
         <main className={cn(shellStyles.content, shellStyles.contentWide)}>
           {children}

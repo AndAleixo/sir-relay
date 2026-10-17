@@ -146,6 +146,17 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 | P1-AUTH-14 | Post merge routing | After merge: set `activeGroupId` via pick-default (single group → that group; 2+ → last valid / null → `/groups`) → `resolveEntryPath` (teammate → `/tasks`) |
 | P1-AUTH-15 | Delete account | Profile link → `/profile/delete` · password confirm · leave every group (same succession as leave) · delete assignee tasks · reassign remaining `created_by` to group owner · hard-delete user · clear session · **Done** |
 
+### 5.1.0 Try demo
+
+Client workspace in `sessionStorage` (this tab). No `users` row and no server writes. Signup does not read it.
+
+| ID | Requirement | Acceptance criteria |
+|----|-------------|---------------------|
+| P1-DEMO-01 | Start | Landing hero → `/demo` · name (2–40) · starting preset from messages (personal, finance, software, hardware, purchasing, sales) · seed in `sessionStorage` → `/demo/app`. Events are derived from done and due tasks |
+| P1-DEMO-02 | Chrome | Banner + real AppShell under `/demo/app` (tasks / teammates / projects / events / profile) · no Settings · group switcher does not create or join · CTA → `/signup` |
+| P1-DEMO-03 | Edits | Board, list, new task, projects, and add-by-name update `sessionStorage` only |
+| P1-DEMO-04 | End | Opening `/demo`, Leave, or closing the tab clears it. A new account stays empty |
+
 ### 5.1.1 Groups
 
 | ID | Requirement | Acceptance criteria |
@@ -382,6 +393,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `login`, `signup` | Public | Public | Account entry |
 | `forgot-password`, `reset-password`, `verify-email`, `check-email` | Public | Public | P3-17 |
 | `contact` | Public | Public | Contact → `CONTACT_EMAIL` |
+| `demo`, `demo/app` | Public | Public | Tab-local seed (P1-DEMO). Signup does not import it |
 | `groups` | Yes | Yes | No active group; panel opens |
 | `privacy`, `terms` | Public | Public | Legal |
 | `join/[token]`, `change-password` | — | — | Auth flows |

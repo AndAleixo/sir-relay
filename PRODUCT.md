@@ -35,7 +35,8 @@ SirRelay is for **who wants to manage work** — their own tasks, or a group’s
 
 ## Operating Context
 
-- Marketing landing at `/[locale]` for logged-out visitors (signup / login CTAs) — solo + group, anti-KPI story.
+- Marketing landing at `/[locale]` for logged-out visitors (try demo / signup / login) — solo + group, anti-KPI story.
+- Try demo (`/demo`) opens the app shell with a seed kept in the browser tab. Creating an account does not import it.
 - Signed-in web app: Tasks (board/list), Teammates, Projects, Events, Settings (group), Profile (account).
 - Chat bot for linked members (currently Telegram): task delivery, status replies, operator alerts.
 - Invite by email only; activation via `/join/<token>` or signup with the same email.

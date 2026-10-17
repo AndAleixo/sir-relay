@@ -1,6 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { resendGroupInvitation } from "@/app/actions/invitations";
 import { ExportDataButton } from "@/components/teammates/export-data-button";
 import { teamListStyles } from "@/components/teammates/team-list.styles";
@@ -23,26 +25,25 @@ export type TeammatesManagerProps = {
   isOperator: boolean;
   invitationError?: boolean;
   /**
-   * Sandbox: hide export / invite-to-app; self → profile under basePath;
-   * other names are plain text (no member detail routes).
+   * Demo: self links here, other names stay text, invite and export stay off.
    */
-  sandboxBasePath?: string;
+  profileHref?: string;
   /** Extra toolbar / below-list content (e.g. demo add-member form). */
   children?: ReactNode;
 };
 
-export async function TeammatesManager({
+export function TeammatesManager({
   locale,
   currentUserId,
   users,
   invitations,
   isOperator,
   invitationError,
-  sandboxBasePath,
+  profileHref,
   children,
 }: TeammatesManagerProps) {
-  const t = await getTranslations();
-  const sandbox = Boolean(sandboxBasePath);
+  const t = useTranslations();
+  const localList = Boolean(profileHref);
 
   return (
     <>
@@ -53,7 +54,7 @@ export async function TeammatesManager({
       ) : null}
       <div className={viewToggleStyles.toolbar}>
         <p className={viewToggleStyles.toolbarText}>{t("teammate.listSubtitle")}</p>
-        {isOperator && !sandbox ? (
+        {isOperator && !localList ? (
           <div className="flex flex-wrap items-center gap-2">
             <ExportDataButton label={t("teammate.exportAll")} variant="secondary" />
             <Link href={`/${locale}/teammates/new`}>
@@ -84,7 +85,7 @@ export async function TeammatesManager({
                   >
                     {t(`teammate.invitationStatus.${invitation.status}`)}
                   </ToneBadge>
-                  {isOperator && !sandbox ? (
+                  {isOperator && !localList ? (
                     <form action={resendGroupInvitation.bind(null, locale, invitation.id)}>
                       <Button type="submit" variant="secondary">
                         {t("teammate.resendInvitation")}
@@ -116,9 +117,9 @@ export async function TeammatesManager({
           <tbody>
             {users.map((user) => {
               const isSelf = user.id === currentUserId;
-              const detailHref = sandbox
+              const detailHref = localList
                 ? isSelf
-                  ? `${sandboxBasePath}/profile`
+                  ? profileHref
                   : null
                 : isSelf
                   ? `/${locale}/settings`

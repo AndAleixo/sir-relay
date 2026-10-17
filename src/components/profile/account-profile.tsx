@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useTranslations } from "next-intl";
 import {
   profileChangePasswordForm,
   profileUpdateNameForm,
@@ -26,13 +27,9 @@ export type AccountProfileProps = {
   showTelegram: boolean;
   nameError?: string;
   passwordErrorMessage?: string | null;
-  /** Sandbox: same UI, mutations disabled; locale switches via URL only. */
-  readOnly?: boolean;
-  /** Replace logout / delete (e.g. signup + leave demo). */
-  footer?: ReactNode;
 };
 
-export async function AccountProfile({
+export function AccountProfile({
   locale,
   user,
   telegramStatus,
@@ -40,10 +37,8 @@ export async function AccountProfile({
   showTelegram,
   nameError,
   passwordErrorMessage,
-  readOnly = false,
-  footer,
 }: AccountProfileProps) {
-  const t = await getTranslations();
+  const t = useTranslations();
 
   return (
     <div className="grid max-w-3xl gap-3 md:max-w-4xl md:grid-cols-2 md:gap-4">
@@ -55,7 +50,6 @@ export async function AccountProfile({
           <ProfileAvatarEditor
             userId={user.id}
             userName={user.name || user.email}
-            readOnly={readOnly}
           />
           <dl className="text-sm">
             <dt className="text-[var(--text-muted)]">{t("auth.email")}</dt>
@@ -63,30 +57,10 @@ export async function AccountProfile({
               {user.email}
             </dd>
           </dl>
-          {readOnly ? (
-            <div className="space-y-2 border-t border-[var(--border)] pt-3">
-              <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">
-                  {t("profile.accountName")}
-                </p>
-                <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-                  {t("profile.accountNameHint")}
-                </p>
-              </div>
-              <Input
-                id="name"
-                name="name"
-                className="min-w-0 flex-1"
-                defaultValue={user.name}
-                disabled
-                readOnly
-              />
-            </div>
-          ) : (
-            <form
-              action={profileUpdateNameForm.bind(null, locale)}
-              className="space-y-2 border-t border-[var(--border)] pt-3"
-            >
+          <form
+            action={profileUpdateNameForm.bind(null, locale)}
+            className="space-y-2 border-t border-[var(--border)] pt-3"
+          >
               <div>
                 <Label htmlFor="name" className="mb-0">
                   {t("profile.accountName")}
@@ -111,8 +85,7 @@ export async function AccountProfile({
               {nameError === "short" ? (
                 <Banner variant="severity">{t("profile.nameTooShort")}</Banner>
               ) : null}
-            </form>
-          )}
+          </form>
           <div className="space-y-2 border-t border-[var(--border)] pt-3">
             <div>
               <p className="text-sm font-medium text-[var(--text-primary)]">
@@ -122,7 +95,7 @@ export async function AccountProfile({
                 {t("profile.languageHint")}
               </p>
             </div>
-            <SettingsLocaleField locale={locale} sessionless={readOnly} />
+            <SettingsLocaleField locale={locale} />
           </div>
         </CardBody>
       </Card>
@@ -138,25 +111,10 @@ export async function AccountProfile({
           {passwordErrorMessage ? (
             <Banner variant="severity">{passwordErrorMessage}</Banner>
           ) : null}
-          {readOnly ? (
-            <fieldset disabled className="space-y-3 opacity-60">
-              <PasswordFormFields
-                labels={{
-                  currentPassword: t("auth.currentPassword"),
-                  newPassword: t("auth.newPassword"),
-                  confirmPassword: t("auth.confirmPassword"),
-                  passwordHint: t("auth.passwordHint"),
-                }}
-              />
-              <Button type="button" className="w-full sm:w-auto" disabled>
-                {t("auth.changePassword")}
-              </Button>
-            </fieldset>
-          ) : (
-            <form
-              action={profileChangePasswordForm.bind(null, locale)}
-              className="space-y-3"
-            >
+          <form
+            action={profileChangePasswordForm.bind(null, locale)}
+            className="space-y-3"
+          >
               <PasswordFormFields
                 labels={{
                   currentPassword: t("auth.currentPassword"),
@@ -168,8 +126,7 @@ export async function AccountProfile({
               <Button type="submit" className="w-full sm:w-auto">
                 {t("auth.changePassword")}
               </Button>
-            </form>
-          )}
+          </form>
         </CardBody>
       </Card>
 
@@ -198,14 +155,14 @@ export async function AccountProfile({
                   ? t("profile.telegramOperatorPendingHint")
                   : t("profile.telegramTeammatePendingHint")}
             </p>
-            {readOnly ? null : telegramStatus === "linked" ? (
+            {telegramStatus === "linked" ? (
               <form action={regenerateTelegramLinkAction.bind(null, locale)}>
                 <Button type="submit" variant="secondary" className="w-full sm:w-auto">
                   {t("profile.unlinkTelegram")}
                 </Button>
               </form>
             ) : null}
-            {readOnly ? null : telegramStatus === "pending" && telegramUrl ? (
+            {telegramStatus === "pending" && telegramUrl ? (
               <div className="space-y-3">
                 <div className="flex flex-wrap items-start gap-2">
                   <code className="min-w-0 flex-1 basis-full break-all rounded-button bg-[var(--surface-bg)] p-2 text-xs sm:basis-0">
@@ -236,23 +193,19 @@ export async function AccountProfile({
       ) : null}
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center md:col-span-2">
-        {footer ?? (
-          <>
-            <LogoutButton
-              locale={locale}
-              label={t("common.logout")}
-              variant="secondary"
-              className="w-full sm:w-auto"
-            />
-            <ButtonLink
-              href={`/${locale}/profile/delete`}
-              variant="ghost"
-              className="w-full text-[var(--severity)] hover:bg-[var(--severity-soft)] hover:text-[var(--severity)] sm:w-auto"
-            >
-              {t("profile.deleteAccount")}
-            </ButtonLink>
-          </>
-        )}
+        <LogoutButton
+          locale={locale}
+          label={t("common.logout")}
+          variant="secondary"
+          className="w-full sm:w-auto"
+        />
+        <ButtonLink
+          href={`/${locale}/profile/delete`}
+          variant="ghost"
+          className="w-full text-[var(--severity)] hover:bg-[var(--severity-soft)] hover:text-[var(--severity)] sm:w-auto"
+        >
+          {t("profile.deleteAccount")}
+        </ButtonLink>
       </div>
     </div>
   );

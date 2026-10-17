@@ -104,6 +104,7 @@ Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeade
 | Forgot / reset | `/forgot-password`, `/reset-password` | Yes | Generic success; set new password via token |
 | Verify / check email | `/verify-email`, `/check-email` | Yes | GET confirm + POST consume · `?email=` locks resend · free email field if no query |
 | Contact | `/contact` | Yes | Form → `CONTACT_EMAIL` (honeypot + rate limit) |
+| Try demo | `/demo` | Yes | Name (max 40) and a starting preset → `/demo/app`. State in this tab only; signup starts empty |
 | Join group | `/join/[token]` | Yes | Set password / accept invite |
 | Privacy / Terms | `/privacy`, `/terms` | Yes | Canonical English pack `legal/en.json` · `CONTACT_EMAIL` |
 | No active group | `/groups` | App shell | Placeholder; **group panel opens** |
@@ -341,6 +342,7 @@ Route: `/[locale]/tasks/[id]`. Same field order as **New task**; plus status and
 | Sign up / Log in | `/signup`, `/login` | Public | Public |
 | Forgot / reset / verify / check-email | `/forgot-password`, `/reset-password`, `/verify-email`, `/check-email` | Public | Public |
 | Contact | `/contact` | Public | Public |
+| Try demo | `/demo`, `/demo/app` | Public | Same shell as the app; edits stay in the tab |
 | No active group | `/groups` | Panel opens | Panel opens |
 | Tasks / new / detail | `/tasks…` | Full | Own edit · Team view others |
 | Teammates | `/teammates…` | Yes | Read list/detail; no add / export / invite / promote |

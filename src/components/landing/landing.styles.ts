@@ -3,18 +3,15 @@ export const landingStyles = {
   header:
     "sticky top-0 z-10 border-b border-[var(--border)] bg-surface-card/95 backdrop-blur-sm",
   headerInner:
-    "mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-6 md:py-4",
-  logo: "h-7 w-auto shrink-0 md:h-8",
-  nav: "flex min-w-0 flex-nowrap items-center justify-end gap-1.5 sm:gap-3 md:gap-4",
+    "mx-auto flex w-full max-w-6xl items-center gap-2 px-4 py-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-4 md:px-6 md:py-4",
+  headerBrand: "shrink-0 sm:justify-self-start",
+  headerLocale: "shrink-0 sm:col-start-2 sm:justify-self-center",
+  logoCompact: "h-7 w-auto shrink-0 sm:hidden",
+  logo: "hidden h-7 w-auto shrink-0 sm:block md:h-8",
+  nav: "ml-auto flex shrink-0 flex-nowrap items-center justify-end gap-1.5 sm:col-start-3 sm:ml-0 sm:justify-self-end sm:gap-3 md:gap-4",
   headerLoginLink:
-    "inline-flex min-h-9 shrink-0 items-center px-1.5 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent sm:min-h-11 sm:px-2",
-  localeNav: "shrink-0",
-  localeSegmentGroup:
-    "inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--surface-bg)] p-0.5 shadow-sm",
-  localeSegment:
-    "min-w-[2.25rem] rounded-full px-2 py-1 text-center text-[11px] font-medium tracking-wide text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent sm:min-w-[2.75rem] sm:px-3 sm:py-1.5 sm:text-xs",
-  localeSegmentActive:
-    "min-w-[2.25rem] rounded-full bg-surface-card px-2 py-1 text-center text-[11px] font-semibold tracking-wide text-[var(--text-primary)] shadow-sm ring-1 ring-[var(--border)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent sm:min-w-[2.75rem] sm:px-3 sm:py-1.5 sm:text-xs",
+    "inline-flex min-h-9 shrink-0 items-center px-1 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent sm:min-h-11 sm:px-2 sm:text-sm",
+  headerSignup: "px-2.5 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm",
   main: "flex-1",
   hero: "mx-auto w-full max-w-6xl px-4 py-12 md:px-6 md:py-20",
   heroGrid: "grid items-center gap-10 lg:grid-cols-2 lg:gap-16",

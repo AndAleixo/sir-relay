@@ -89,7 +89,7 @@ export function AccountProfile({
           <div className="space-y-2 border-t border-[var(--border)] pt-3">
             <div>
               <p className="text-sm font-medium text-[var(--text-primary)]">
-                {t("profile.language")}
+                {t("common.language")}
               </p>
               <p className="mt-0.5 text-xs text-[var(--text-muted)]">
                 {t("profile.languageHint")}

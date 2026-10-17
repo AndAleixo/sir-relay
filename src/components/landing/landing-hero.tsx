@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ButtonLink } from "@/components/ui/button";
 import { ProductDemo } from "./product-demo";
@@ -20,9 +19,6 @@ export async function LandingHero({ locale }: LandingHeroProps) {
           <p className={landingStyles.heroSubtitle}>{t("landing.heroSubtitle")}</p>
           <div className={landingStyles.heroActions}>
             <ButtonLink href={`/${locale}/demo`}>{t("demo.tryDemo")}</ButtonLink>
-            <Link href={`/${locale}/signup`} className={landingStyles.headerLoginLink}>
-              {t("auth.signup")}
-            </Link>
           </div>
         </div>
         <ProductDemo locale={locale} />

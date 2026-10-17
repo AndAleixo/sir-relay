@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { resolveEntryPath } from "@/lib/entry-route";
-import { localeNames, locales, type AppLocale } from "@/i18n/config";
 import { getServices } from "@/services";
 
 export default async function LoginPage({
@@ -119,21 +118,6 @@ export default async function LoginPage({
             <p className="text-center text-xs text-[var(--text-muted)]">{t("auth.sessionNotice")}</p>
           </CardBody>
         </Card>
-        <div className="mt-6 flex justify-center gap-2">
-          {locales.map((loc) => (
-            <Link
-              key={loc}
-              href={`/${loc}/login`}
-              className={
-                loc === locale
-                  ? "text-sm font-medium text-[var(--text-primary)]"
-                  : "text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-              }
-            >
-              {localeNames[loc as AppLocale]}
-            </Link>
-          ))}
-        </div>
       </div>
       <SiteFooter locale={locale} />
     </div>

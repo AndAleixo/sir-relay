@@ -4,8 +4,8 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   defaultLocale,
-  localeCompactLabels,
   localeNames,
+  localeShortLabels,
   locales,
   type AppLocale,
 } from "@/i18n/config";
@@ -29,7 +29,7 @@ export function LocalePicker({
   fullWidth = false,
   onSelect,
 }: LocalePickerProps) {
-  const t = useTranslations("profile");
+  const t = useTranslations("common");
   const [open, setOpen] = useState(false);
   const { rendered, visible, onTransitionEnd } = useFadeOpen(open);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -62,11 +62,11 @@ export function LocalePicker({
         )}
         aria-expanded={open}
         aria-haspopup="listbox"
-        aria-label={t("language")}
+        aria-label={localeNames[current]}
         onClick={() => setOpen((value) => !value)}
       >
         <span className={shellStyles.localePickerLabel}>
-          {compact ? localeCompactLabels[current] : localeNames[current]}
+          {fullWidth ? localeNames[current] : localeShortLabels[current]}
         </span>
         <ChevronDown className={open ? "rotate-180" : undefined} />
       </button>
@@ -103,9 +103,7 @@ export function LocalePicker({
                   )}
                   onClick={() => pick(loc)}
                 >
-                  <span className={shellStyles.localePickerItemMain}>
-                    <span className="truncate">{localeNames[loc]}</span>
-                  </span>
+                  <span className="truncate">{localeNames[loc]}</span>
                   {active ? <CheckIcon /> : null}
                 </button>
               </li>

@@ -18,7 +18,8 @@
     "dragHandle": "Drag task",
     "copy": "Copy link",
     "copied": "Copied",
-    "close": "Close"
+    "close": "Close",
+    "language": "Language"
   },
   "shell": {
     "collapseSidebar": "Collapse sidebar",
@@ -483,7 +484,6 @@
     "accountNameHint": "Your name across SirRelay. Only you can change this.",
     "nameSaved": "Name updated.",
     "nameTooShort": "Name must be at least 2 characters.",
-    "language": "Language",
     "languageHint": "Applies across all groups on your account.",
     "telegramSection": "Telegram",
     "telegramLinkedHintOperator": "Telegram is linked — assigned tasks are relayed one at a time, and you receive alerts when teammates finish work or tasks become due.",
@@ -549,10 +549,9 @@
   },
   "landing": {
     "headerNav": "Site navigation",
-    "language": "Language",
     "footerNav": "Footer links",
     "eyebrow": "Your work, or a group",
-    "heroTitle": "See the work. Skip the scores.",
+    "heroTitle": "Organize your work. See what's left.",
     "heroSubtitle": "Assign tasks and follow progress — on your own, or with people you invite.",
     "contactLead": "Questions, implementation ideas, or more information? Use",
     "demoAria": "SirRelay board preview",
@@ -563,7 +562,7 @@
     "demoCaption": "A day’s work: restock, inventory, supplier reply.",
     "demoPause": "Pause",
     "demoPlay": "Play",
-    "featuresTitle": "Clarity over scores",
+    "featuresTitle": "Clarity in the work",
     "featuresLead": "Tasks and due dates. That’s the picture.",
     "feature": {
       "simple": {
@@ -575,7 +574,7 @@
         "body": "Start alone, or bring people in by email. Shared work lives in the same group."
       },
       "relay": {
-        "title": "No scores",
+        "title": "No measuring people",
         "body": "We don’t rank people or track velocity. Tasks and due dates are enough."
       }
     },

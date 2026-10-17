@@ -72,13 +72,12 @@ export const shellStyles = {
   localePickerRootFull: "w-full shrink",
   localePickerTrigger:
     "gap-2 px-2.5 text-sm hover:bg-[var(--surface-bg)]",
-  localePickerTriggerCompact: "min-w-[4.5rem] gap-1.5 px-2 text-xs font-medium",
+  localePickerTriggerCompact: "gap-1.5 px-2 text-xs font-medium tracking-wide",
   localePickerTriggerFull: "w-full justify-between px-3",
   localePickerLabel: "truncate",
   localePickerPanelWidth: "min-w-[11rem]",
   localePickerPanelFull: "left-0 right-0 min-w-0",
   localePickerItem: "justify-between gap-2",
-  localePickerItemMain: "flex min-w-0 items-center gap-2.5",
   userMenuRoot: "relative",
   userMenuTrigger:
     "flex h-9 items-center gap-0.5 rounded-button pl-0.5 pr-1 text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",

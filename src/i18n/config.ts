@@ -13,13 +13,7 @@ export const localeNames: Record<AppLocale, string> = {
   "pt-br": "Português (Brasil)",
 };
 
-export const localeCompactLabels: Record<AppLocale, string> = {
-  "en-gb": "EN-GB",
-  "es-es": "ES-ES",
-  "pt-br": "PT-BR",
-};
-
-/** Short labels for marketing header (EN · ES · PT). */
+/** Short mark for chrome (EN · ES · PT). Full names stay in menus and settings. */
 export const localeShortLabels: Record<AppLocale, string> = {
   "en-gb": "EN",
   "es-es": "ES",
@@ -44,6 +38,15 @@ export function toDbLocale(locale: AppLocale): DbLocale {
 
 export function toAppLocale(locale: DbLocale): AppLocale {
   return dbToApp[locale];
+}
+
+/** Replace the locale prefix, keeping the rest of the path. */
+export function withLocale(pathname: string, locale: AppLocale): string {
+  const head = pathname.split("/")[1] ?? "";
+  if ((locales as readonly string[]).includes(head)) {
+    return `/${locale}${pathname.slice(head.length + 1)}`;
+  }
+  return pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
 }
 
 /** Regex segment for middleware — hyphens escaped */

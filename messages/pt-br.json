@@ -18,7 +18,8 @@
     "dragHandle": "Arrastar tarefa",
     "copy": "Copiar link",
     "copied": "Copiado",
-    "close": "Fechar"
+    "close": "Fechar",
+    "language": "Idioma"
   },
   "shell": {
     "collapseSidebar": "Recolher barra lateral",
@@ -483,7 +484,6 @@
     "accountNameHint": "Seu nome no SirRelay. Só você pode alterá-lo.",
     "nameSaved": "Nome atualizado.",
     "nameTooShort": "O nome deve ter pelo menos 2 caracteres.",
-    "language": "Idioma",
     "languageHint": "Vale para todos os seus grupos.",
     "telegramSection": "Telegram",
     "telegramLinkedHintOperator": "Telegram vinculado — tarefas atribuídas chegam uma de cada vez, e você recebe alertas quando colegas concluem trabalho ou prazos vencem.",
@@ -549,10 +549,9 @@
   },
   "landing": {
     "headerNav": "Navegação do site",
-    "language": "Idioma",
     "footerNav": "Links do rodapé",
     "eyebrow": "Seu trabalho, ou um grupo",
-    "heroTitle": "Veja o trabalho. Sem as notas.",
+    "heroTitle": "Organize o seu trabalho. Veja o que falta.",
     "heroSubtitle": "Atribua tarefas e acompanhe o progresso — sozinho, ou com pessoas que você convidar.",
     "contactLead": "Dúvidas, ideias de implementação ou mais informações? Use",
     "demoAria": "Pré-visualização do quadro SirRelay",
@@ -563,7 +562,7 @@
     "demoCaption": "Um dia de trabalho: vitrine, inventário, fornecedor.",
     "demoPause": "Pausar",
     "demoPlay": "Reproduzir",
-    "featuresTitle": "Clareza, sem notas",
+    "featuresTitle": "Clareza no trabalho",
     "featuresLead": "Tarefas e prazos. Esse é o panorama.",
     "feature": {
       "simple": {
@@ -575,7 +574,7 @@
         "body": "Comece sozinho, ou traga pessoas por e-mail. O trabalho compartilhado fica no mesmo grupo."
       },
       "relay": {
-        "title": "Sem notas",
+        "title": "Sem medir pessoas",
         "body": "Não ranqueamos pessoas nem medimos velocidade. Tarefas e prazos bastam."
       }
     },

@@ -62,16 +62,16 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  logo.svg          [EN · ES · PT]              [ Log in ]    │  ← sticky header
+│  logo     [EN · ES · PT]              Log in · Sign up       │  ← sticky header
 ├──────────────────────────────────────────────────────────────┤
 │  Eyebrow · Headline · Subtitle                               │
-│  [ Get started ]  [ How we handle data ]                     │
+│  [ Try demo ]                                                │
 │                                                              │
 │  ┌─ browser chrome ─────────────────────────────────────┐   │
 │  │  Product demo (demo.webm · CSS board fallback)       │   │
 │  └──────────────────────────────────────────────────────┘   │
 ├──────────────────────────────────────────────────────────────┤
-│  3 feature cards — simple · what matters now · one task at a time │
+│  3 feature cards — board or list · invite · no measuring people │
 ├──────────────────────────────────────────────────────────────┤
 │  © Sir · SirRelay    FAQ · Privacy · Terms · Log in · Sign up │  ← footer
 └──────────────────────────────────────────────────────────────┘
@@ -79,10 +79,10 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 
 | Element | Spec |
 |---------|------|
-| Header | Sticky; logo → home; locale links; **Sign up** (ghost) + **Log in** |
-| Hero | One clear task at a time; web + Telegram; CTA **Create account** → `/signup` |
+| Header | Sticky. Desktop: logo, locale centered, Log in + Sign up. Mobile: compact mark, locale, then Log in + Sign up on one line |
+| Hero | Eyebrow, headline, subtitle. One CTA: **Try demo** → `/demo` |
 | Demo | `/brand/demo.webm` (autoplay, muted, loop); CSS board fallback |
-| Features | Three cards — simple · what matters now · one task at a time |
+| Features | Three cards — board or list · invite when you need to · no measuring people |
 | FAQ | `#faq` — groups, anti-KPI, Telegram, data/cache |
 | Footer | Shared `SiteFooter` on auth/legal pages |
 | App store badges | None in Phase 1 |
@@ -95,7 +95,7 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 
 ## 2.1 Auth & group entry (pre-shell)
 
-Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeader`** (logo + back to landing).
+Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeader`** (logo, locale, back to landing).
 
 | Page | Route | Header | Purpose |
 |------|-------|--------|---------|

@@ -13,9 +13,14 @@ import { cn } from "@/lib/cn";
 interface ProfileAvatarEditorProps {
   userId: string;
   userName: string;
+  readOnly?: boolean;
 }
 
-export function ProfileAvatarEditor({ userId, userName }: ProfileAvatarEditorProps) {
+export function ProfileAvatarEditor({
+  userId,
+  userName,
+  readOnly = false,
+}: ProfileAvatarEditorProps) {
   const t = useTranslations("profile");
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -27,6 +32,14 @@ export function ProfileAvatarEditor({ userId, userName }: ProfileAvatarEditorPro
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   useDismissable(menuOpen, closeMenu, rootRef);
+
+  if (readOnly) {
+    return (
+      <div className="flex items-center gap-3">
+        <UserAvatar userId={userId} userName={userName} size="lg" />
+      </div>
+    );
+  }
 
   function openPicker() {
     setError(null);

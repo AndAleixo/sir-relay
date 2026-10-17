@@ -65,6 +65,10 @@ interface TeamBoardProps {
   openProjects?: readonly TaskOpenProject[];
   /** `all` = edit every column; `self-only` = edit own column, view others. */
   editMode?: "all" | "self-only";
+  /** Override task detail links (e.g. demo sandbox). */
+  getTaskHref?: (taskId: string) => string;
+  /** When false, member names are plain text (demo sandbox). */
+  linkMembers?: boolean;
   labels: TaskCardLabels & {
     todo: string;
     doing: string;
@@ -125,6 +129,7 @@ function BoardTaskItem({
   onClone,
   onDelete,
   openProjects = [],
+  getTaskHref,
 }: {
   task: Task;
   locale: string;
@@ -147,12 +152,16 @@ function BoardTaskItem({
   onMarkDone?: () => void;
   onClone: (taskId: string) => void;
   onDelete: (taskId: string) => void;
+  getTaskHref?: (taskId: string) => string;
 }) {
   return (
     <BoardTaskCard
       task={task}
       locale={locale}
-      href={taskDetailHref(locale, task.id, { scope, view, project })}
+      href={
+        getTaskHref?.(task.id) ??
+        taskDetailHref(locale, task.id, { scope, view, project })
+      }
       labels={labels}
       openProjects={openProjects}
       readOnly={readOnly}
@@ -263,6 +272,7 @@ function TaskColumn({
   onClone,
   onDelete,
   openProjects = [],
+  getTaskHref,
 }: {
   assigneeId: string;
   assigneeName: string;
@@ -302,6 +312,7 @@ function TaskColumn({
   }) => Promise<boolean>;
   onClone: (taskId: string) => void;
   onDelete: (taskId: string) => void;
+  getTaskHref?: (taskId: string) => string;
 }) {
   const [doneOpen, setDoneOpen] = useState(false);
   const [doneLimit, setDoneLimit] = useState(DONE_PREVIEW_INITIAL);
@@ -347,6 +358,7 @@ function TaskColumn({
                 <BoardTaskItem
                   task={task}
                   locale={locale}
+                  getTaskHref={getTaskHref}
                   scope={scope}
                   view={view} project={project} openProjects={openProjects}
                   labels={labels}
@@ -372,6 +384,7 @@ function TaskColumn({
               key={task.id}
               task={task}
               locale={locale}
+                  getTaskHref={getTaskHref}
               scope={scope}
               view={view} project={project} openProjects={openProjects}
               labels={labels}
@@ -503,6 +516,7 @@ function MemberColumnHeader({
   member,
   locale,
   labels,
+  linkMembers = true,
 }: {
   member: {
     id: string;
@@ -515,6 +529,8 @@ function MemberColumnHeader({
   };
   locale: string;
   labels: TeamBoardProps["labels"];
+  /** Demo sandbox: names are not real profile routes. */
+  linkMembers?: boolean;
 }) {
   const inactiveLabel = memberInactiveLabel(member, {
     invited: labels.invited,
@@ -525,12 +541,16 @@ function MemberColumnHeader({
   return (
     <MemberNameRow
       nameNode={
-        <Link
-          href={`/${locale}/teammates/${member.id}`}
-          className={teamBoardStyles.memberName}
-        >
-          {name}
-        </Link>
+        linkMembers ? (
+          <Link
+            href={`/${locale}/teammates/${member.id}`}
+            className={teamBoardStyles.memberName}
+          >
+            {name}
+          </Link>
+        ) : (
+          <span className={teamBoardStyles.memberName}>{name}</span>
+        )
       }
       telegramStatus={member.telegramStatus}
       inactiveLabel={inactiveLabel}
@@ -549,6 +569,8 @@ export function TeamBoard({
   project = null,
   openProjects = [],
   editMode = "all",
+  getTaskHref,
+  linkMembers = true,
   labels,
 }: TeamBoardProps) {
   const { applyTaskUpdate, createTaskQuick, placeInTodoQueue, cloneTask, deleteTask } =
@@ -738,6 +760,7 @@ export function TeamBoard({
               }}
               locale={locale}
               labels={labels}
+              linkMembers={linkMembers}
             />
           }
           tasks={selfTasks}
@@ -758,6 +781,7 @@ export function TeamBoard({
           onQuickCreate={handleQuickCreate}
           onClone={(taskId) => void cloneTask(taskId)}
           onDelete={(taskId) => void deleteTask(taskId)}
+          getTaskHref={getTaskHref}
         />
         {members.map((member) => {
           const columnTasks = tasks.filter((t) => t.assigneeId === member.id);
@@ -772,6 +796,7 @@ export function TeamBoard({
                   member={member}
                   locale={locale}
                   labels={labels}
+                  linkMembers={linkMembers}
                 />
               }
               tasks={columnTasks}
@@ -792,6 +817,7 @@ export function TeamBoard({
               onQuickCreate={handleQuickCreate}
               onClone={(taskId) => void cloneTask(taskId)}
               onDelete={(taskId) => void deleteTask(taskId)}
+              getTaskHref={getTaskHref}
             />
           );
         })}

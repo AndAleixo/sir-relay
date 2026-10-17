@@ -31,7 +31,8 @@ import {
 
 const { failuresBeforeBar: FAILURES_BEFORE_BAR } = syncRetryConfig;
 
-interface SyncContextValue {
+/** Shared by SyncProvider (real app) and DemoSyncProvider (sandbox). */
+export interface SyncContextValue {
   tasks: Task[];
   syncState: SyncState;
   pendingCount: number;
@@ -64,7 +65,7 @@ interface SyncContextValue {
   resolveConflict: (keepLocal: boolean) => Promise<void>;
 }
 
-const SyncContext = createContext<SyncContextValue | null>(null);
+export const SyncContext = createContext<SyncContextValue | null>(null);
 
 function createMutation(
   input: MutationInput,

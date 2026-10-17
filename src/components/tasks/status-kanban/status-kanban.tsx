@@ -40,6 +40,8 @@ interface StatusKanbanProps {
   project?: string | null;
   openProjects?: readonly TaskOpenProject[];
   self: { id: string; name: string };
+  /** Override task detail links (e.g. demo sandbox). */
+  getTaskHref?: (taskId: string) => string;
   labels: TaskCardLabels & {
     todo: string;
     doing: string;
@@ -60,6 +62,7 @@ export function StatusKanban({
   project = null,
   openProjects = [],
   self,
+  getTaskHref,
   labels,
 }: StatusKanbanProps) {
   const { applyTaskUpdate, createTaskQuick, placeInTodoQueue, cloneTask, deleteTask } =
@@ -169,7 +172,10 @@ export function StatusKanban({
       <BoardTaskCard
         task={task}
         locale={locale}
-        href={taskDetailHref(locale, task.id, { scope, view, project })}
+        href={
+          getTaskHref?.(task.id) ??
+          taskDetailHref(locale, task.id, { scope, view, project })
+        }
         labels={labels}
         openProjects={openProjects}
         isDragging={draggingTaskId === task.id}

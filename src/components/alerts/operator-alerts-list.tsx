@@ -14,6 +14,8 @@ import {
 interface OperatorAlertsListProps {
   alerts: OperatorAlert[];
   locale: string;
+  /** When set (e.g. sandbox), task titles link here instead of /tasks/:id. */
+  taskHrefBase?: string;
   labels: {
     empty: string;
     taskDone: string;
@@ -27,6 +29,7 @@ interface OperatorAlertsListProps {
 export function OperatorAlertsList({
   alerts,
   locale,
+  taskHrefBase,
   labels,
 }: OperatorAlertsListProps) {
   const [visibleCount, setVisibleCount] = useState(ALERTS_PREVIEW_INITIAL);
@@ -55,12 +58,21 @@ export function OperatorAlertsList({
             <div className="min-w-0 flex-1">
               <p className="text-sm text-[var(--text-primary)]">
                 {alert.type === "task_done" ? labels.taskDone : labels.taskDue}{" "}
-                <Link
-                  href={`/${locale}/tasks/${alert.taskId}`}
-                  className="font-medium text-brand-accent hover:text-brand-accent-hover"
-                >
-                  {alert.taskTitle}
-                </Link>
+                {taskHrefBase ? (
+                  <Link
+                    href={taskHrefBase}
+                    className="font-medium text-brand-accent hover:text-brand-accent-hover"
+                  >
+                    {alert.taskTitle}
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/${locale}/tasks/${alert.taskId}`}
+                    className="font-medium text-brand-accent hover:text-brand-accent-hover"
+                  >
+                    {alert.taskTitle}
+                  </Link>
+                )}
               </p>
               <p className="mt-1 text-xs text-[var(--text-muted)]">
                 {alert.assigneeName}

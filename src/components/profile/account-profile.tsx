@@ -192,7 +192,7 @@ export function AccountProfile({
         </Card>
       ) : null}
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center md:col-span-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between md:col-span-2">
         <LogoutButton
           locale={locale}
           label={t("common.logout")}

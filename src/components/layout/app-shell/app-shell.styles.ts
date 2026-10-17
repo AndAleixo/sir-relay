@@ -86,7 +86,7 @@ export const shellStyles = {
   userMenuName: "truncate text-sm font-medium text-[var(--text-primary)]",
   userMenuItem: "block",
   userMenuForm: "border-t border-[var(--border)]",
-  userMenuLogout: "text-[var(--text-muted)] hover:text-[var(--text-primary)]",
+  userMenuLogout: "text-[var(--text-primary)]",
   groupSwitcherRoot: "relative min-w-0",
   groupSwitcherCompact: "w-full min-w-0",
   groupSwitcherTrigger:

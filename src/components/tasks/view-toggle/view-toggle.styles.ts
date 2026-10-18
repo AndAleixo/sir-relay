@@ -3,7 +3,8 @@
  * Mobile: h-8 / text-xs. sm+: shell-aligned h-9 / text-sm.
  */
 export const viewToggleStyles = {
-  toolbar: "mb-4 flex items-center gap-2 sm:gap-3",
+  /** Above board card overlays (z-20) so Project Select options stay readable. */
+  toolbar: "relative z-30 mb-4 flex items-center gap-2 sm:gap-3",
   toolbarText: "min-w-0 text-sm text-[var(--text-muted)]",
   /**
    * No overflow here — `overflow-x-auto` clips the Project Select panel
@@ -18,7 +19,7 @@ export const viewToggleStyles = {
     "rounded-[5px] px-2 py-1 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] sm:px-3 sm:py-1.5 sm:text-sm",
   buttonActive: "bg-[var(--surface-bg)] text-[var(--text-primary)] shadow-sm",
   /** Floor width so short acronyms (MV) do not shrink the trigger/panel. */
-  projectSelect: "relative z-10 w-auto min-w-[7.25rem] shrink-0 sm:min-w-[8.5rem]",
+  projectSelect: "relative w-auto min-w-[7.25rem] shrink-0 sm:min-w-[8.5rem]",
   projectTrigger:
     "h-8 min-h-8 w-full gap-1 px-2 text-xs sm:h-9 sm:min-h-9 sm:gap-2 sm:px-3 sm:text-sm",
   projectAdd: "shrink-0 self-center whitespace-nowrap text-xs text-[var(--text-muted)]",

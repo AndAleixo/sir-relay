@@ -25,7 +25,8 @@ export const taskListStyles = {
   filterField: "min-w-0 flex-1 sm:w-auto sm:min-w-[7.25rem] sm:flex-none",
   filterFieldWide: "min-w-0 flex-1 sm:w-auto sm:min-w-[8.5rem] sm:flex-none",
   filterFieldSort: "ml-auto",
-  filterSelect: "relative z-10 min-w-0 w-full",
+  /** Stack with toolbar (z-30) above board/list row chrome. */
+  filterSelect: "relative z-30 min-w-0 w-full",
   /** Same chrome as toolbar Project select. */
   filterTrigger:
     "h-8 min-h-8 w-full gap-1 px-2 text-xs sm:h-9 sm:min-h-9 sm:gap-2 sm:px-3 sm:text-sm",

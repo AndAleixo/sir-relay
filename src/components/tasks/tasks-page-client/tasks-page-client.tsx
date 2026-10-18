@@ -14,7 +14,11 @@ import type { TaskCardLabels } from "@/components/tasks/task-card";
 import { StatusKanban } from "@/components/tasks/status-kanban";
 import { TaskListWithFilters } from "@/components/tasks/task-list/task-list-with-filters";
 import { TeamBoard } from "@/components/tasks/team-board";
-import { ScopeToggle, ViewToggle } from "@/components/tasks/view-toggle";
+import {
+  ProjectSelect,
+  ScopeToggle,
+  ViewToggle,
+} from "@/components/tasks/view-toggle";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 
 interface TasksPageClientProps {
@@ -146,7 +150,7 @@ export function TasksPageClient({
     return tasks;
   }, [tasks, scope, self.id]);
 
-  const listTasks = useMemo(() => {
+  const visibleTasks = useMemo(() => {
     if (!project) return scopedTasks;
     return scopedTasks.filter((task) => task.projectId === project);
   }, [scopedTasks, project]);
@@ -228,7 +232,6 @@ export function TasksPageClient({
     statusColumn: labels.statusColumn,
     status: labels.status,
     project: labels.project,
-    addProject: labels.addProject,
     category: labels.category,
     projectNone: labels.projectNone,
     categoryNone: labels.categoryNone,
@@ -240,29 +243,41 @@ export function TasksPageClient({
     <div className="space-y-4">
       <div className={viewToggleStyles.toolbar}>
         <div className={viewToggleStyles.toolbarStart}>
-          <ScopeToggle
-            value={scope}
-            onChange={setScope}
-            mineLabel={labels.myWork}
-            teamLabel={labels.team}
-            ariaLabel={labels.scopeAria}
-          />
-          <ViewToggle
-            value={view}
-            onChange={setView}
-            boardLabel={labels.board}
-            listLabel={labels.list}
-            ariaLabel={labels.viewAria}
+          <div className={viewToggleStyles.toggleCluster}>
+            <ScopeToggle
+              value={scope}
+              onChange={setScope}
+              mineLabel={labels.myWork}
+              teamLabel={labels.team}
+              ariaLabel={labels.scopeAria}
+            />
+            <ViewToggle
+              value={view}
+              onChange={setView}
+              boardLabel={labels.board}
+              listLabel={labels.list}
+              ariaLabel={labels.viewAria}
+            />
+          </div>
+          <ProjectSelect
+            projects={openProjects}
+            value={project}
+            onChange={setProject}
+            allLabel={labels.filterAll}
+            projectLabel={labels.project}
+            addProjectHref={`/${locale}/projects`}
+            addProjectLabel={labels.addProject}
           />
         </div>
         <Link
           href={taskNewHref(locale, {
             scope,
             view,
-            project: view === "list" ? project : null,
+            project,
           })}
+          className={viewToggleStyles.newTaskWrap}
         >
-          <Button>{labels.newTask}</Button>
+          <Button className={viewToggleStyles.newTask}>{labels.newTask}</Button>
         </Link>
       </div>
 
@@ -273,7 +288,7 @@ export function TasksPageClient({
           <TeamBoard
             self={self}
             members={boardMembers}
-            tasks={scopedTasks}
+            tasks={visibleTasks}
             locale={locale}
             scope={scope}
             view={view}
@@ -283,7 +298,7 @@ export function TasksPageClient({
           />
         ) : (
           <StatusKanban
-            tasks={scopedTasks}
+            tasks={visibleTasks}
             locale={locale}
             scope={scope}
             view={view}
@@ -301,14 +316,12 @@ export function TasksPageClient({
         )
       ) : (
         <TaskListWithFilters
-          tasks={listTasks}
+          tasks={visibleTasks}
           locale={locale}
           scope={scope}
           view={view}
           project={project}
-          projects={openProjects}
-          onProjectChange={setProject}
-          addProjectHref={`/${locale}/projects`}
+          openProjects={openProjects}
           currentUserId={self.id}
           canEditAll={isOperator}
           assigneeOptions={assigneeOptions}

@@ -11,7 +11,11 @@ import { StatusKanban } from "@/components/tasks/status-kanban";
 import { TaskListWithFilters } from "@/components/tasks/task-list/task-list-with-filters";
 import { TaskFormFields } from "@/components/tasks/task-form";
 import { TeamBoard } from "@/components/tasks/team-board";
-import { ScopeToggle, ViewToggle } from "@/components/tasks/view-toggle";
+import {
+  ProjectSelect,
+  ScopeToggle,
+  ViewToggle,
+} from "@/components/tasks/view-toggle";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -88,7 +92,7 @@ export function DemoBoard() {
 
   const selfTasks = tasks.filter((task) => task.assigneeId === self.id);
   const scopedTasks = scope === "mine" ? selfTasks : tasks;
-  const listTasks = project
+  const visibleTasks = project
     ? scopedTasks.filter((task) => task.projectId === project)
     : scopedTasks;
   const emptyMyWork = scope === "mine" && scopedTasks.length === 0;
@@ -111,38 +115,55 @@ export function DemoBoard() {
           selfName={self.name}
           members={workspace.members}
           projects={openProjects}
-          defaultProjectId={view === "list" ? project : null}
+          defaultProjectId={project}
           onDone={() => setCreating(false)}
         />
       ) : (
         <div className="space-y-4">
           <div className={viewToggleStyles.toolbar}>
             <div className={viewToggleStyles.toolbarStart}>
-              <ScopeToggle
-                value={scope}
-                onChange={setScope}
-                mineLabel={t("tasks.myWork")}
-                teamLabel={t("tasks.team")}
-                ariaLabel={t("tasks.scopeAria")}
-              />
-              <ViewToggle
-                value={view}
-                onChange={setView}
-                boardLabel={t("common.board")}
-                listLabel={t("common.list")}
-                ariaLabel={t("tasks.viewAria")}
+              <div className={viewToggleStyles.toggleCluster}>
+                <ScopeToggle
+                  value={scope}
+                  onChange={setScope}
+                  mineLabel={t("tasks.myWork")}
+                  teamLabel={t("tasks.team")}
+                  ariaLabel={t("tasks.scopeAria")}
+                />
+                <ViewToggle
+                  value={view}
+                  onChange={setView}
+                  boardLabel={t("common.board")}
+                  listLabel={t("common.list")}
+                  ariaLabel={t("tasks.viewAria")}
+                />
+              </div>
+              <ProjectSelect
+                projects={openProjects}
+                value={project}
+                onChange={setProject}
+                allLabel={t("tasks.filterAll")}
+                projectLabel={t("tasks.project")}
+                addProjectHref={`/${locale}/demo/app/projects`}
+                addProjectLabel={t("tasks.addProject")}
               />
             </div>
-            <Button type="button" onClick={() => setCreating(true)}>
-              {t("common.newTask")}
-            </Button>
+            <div className={viewToggleStyles.newTaskWrap}>
+              <Button
+                type="button"
+                className={viewToggleStyles.newTask}
+                onClick={() => setCreating(true)}
+              >
+                {t("common.newTask")}
+              </Button>
+            </div>
           </div>
           {emptyMyWork ? (
             <p className="text-sm text-[var(--text-muted)]">{t("tasks.emptyMyWork")}</p>
           ) : view === "board" ? (
             scope === "mine" ? (
               <StatusKanban
-                tasks={selfTasks}
+                tasks={visibleTasks}
                 locale={locale}
                 scope="mine"
                 view="board"
@@ -155,7 +176,7 @@ export function DemoBoard() {
               <TeamBoard
                 self={{ id: self.id, name: self.name }}
                 members={members}
-                tasks={tasks}
+                tasks={visibleTasks}
                 locale={locale}
                 scope="team"
                 view="board"
@@ -168,14 +189,12 @@ export function DemoBoard() {
             )
           ) : (
             <TaskListWithFilters
-              tasks={listTasks}
+              tasks={visibleTasks}
               locale={locale}
               scope={scope}
               view="list"
               project={project}
-              projects={openProjects}
-              onProjectChange={setProject}
-              addProjectHref={`/${locale}/demo/app/projects`}
+              openProjects={openProjects}
               currentUserId={self.id}
               canEditAll
               assigneeOptions={[
@@ -203,7 +222,6 @@ export function DemoBoard() {
                   done: t("status.done"),
                 },
                 project: t("tasks.project"),
-                addProject: t("tasks.addProject"),
                 category: t("tasks.category"),
                 projectNone: t("tasks.projectNone"),
                 categoryNone: t("tasks.categoryNone"),

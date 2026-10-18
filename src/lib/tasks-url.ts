@@ -1,6 +1,6 @@
 /**
  * Tasks list URL: ?scope=mine|team&view=board|list&project=<id> (+ one-shot success flash).
- * Defaults: operator → team, teammate → mine; view → board; omit project = All.
+ * Defaults: operator → team, teammate → mine; view → board; omit project = All (board + list).
  */
 export type TasksScope = "mine" | "team";
 export type TasksView = "board" | "list";

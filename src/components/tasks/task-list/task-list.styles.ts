@@ -20,10 +20,14 @@ export const taskListStyles = {
   pickerPanel: "z-50 min-w-[8rem] max-w-[16rem]",
   inlineInput: "min-h-0 resize-none py-1 text-xs leading-snug",
   inlineDate: "h-7 w-full min-w-0 max-w-[11rem] py-0 text-xs",
-  filterBar: "grid grid-cols-2 gap-2 md:flex md:flex-wrap md:gap-4",
-  filterField: "min-w-0 md:min-w-[140px]",
-  filterFieldWide: "min-w-0 md:min-w-[180px]",
-  filterLabel: "max-md:sr-only",
-  filterSelect: "md:mt-1.5",
-  filterAdd: "col-span-2 self-center text-xs text-[var(--text-muted)] md:col-span-1 md:self-end",
+  /** One row: same value-first Select chrome as toolbar Project. Sort sits right. */
+  filterBar: "flex flex-nowrap items-center gap-1.5 sm:gap-2",
+  filterField: "min-w-0 flex-1 sm:w-auto sm:min-w-[7.25rem] sm:flex-none",
+  filterFieldWide: "min-w-0 flex-1 sm:w-auto sm:min-w-[8.5rem] sm:flex-none",
+  filterFieldSort: "ml-auto",
+  filterSelect: "relative z-10 min-w-0 w-full",
+  /** Same chrome as toolbar Project select. */
+  filterTrigger:
+    "h-8 min-h-8 w-full gap-1 px-2 text-xs sm:h-9 sm:min-h-9 sm:gap-2 sm:px-3 sm:text-sm",
+  filterAdd: "self-center text-xs text-[var(--text-muted)]",
 } as const;

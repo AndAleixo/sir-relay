@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import type { ManagedProject, Task, TaskStatus } from "@/domain/types";
 import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { sortTasksForList, type TaskListSort } from "@/lib/task-list-sort";
+import { cn } from "@/lib/cn";
 import { TaskList } from "@/components/tasks/task-list";
 import { taskListStyles } from "./task-list.styles";
-import { Label, Select } from "@/components/ui/input";
+import { Select } from "@/components/ui/input";
 
 type AssigneeFilterOption = {
   id: string;
@@ -20,9 +20,8 @@ type TaskListWithFiltersProps = {
   scope: TasksScope;
   view: TasksView;
   project?: string | null;
-  projects?: ManagedProject[];
-  onProjectChange?: (projectId: string | null) => void;
-  addProjectHref?: string;
+  /** Open projects for inline list editors (project stays in the toolbar). */
+  openProjects?: ManagedProject[];
   currentUserId: string;
   canEditAll: boolean;
   assigneeOptions?: AssigneeFilterOption[];
@@ -40,7 +39,6 @@ type TaskListWithFiltersProps = {
     sortUpdated: string;
     status: Record<TaskStatus, string>;
     project: string;
-    addProject: string;
     category: string;
     projectNone: string;
     categoryNone: string;
@@ -53,9 +51,7 @@ export function TaskListWithFilters({
   scope,
   view,
   project = null,
-  projects = [],
-  onProjectChange,
-  addProjectHref,
+  openProjects = [],
   currentUserId,
   canEditAll,
   assigneeOptions = [],
@@ -68,23 +64,31 @@ export function TaskListWithFilters({
 
   const assigneeSelectOptions = useMemo(
     () => [
-      { value: "all", label: labels.filterAll },
+      {
+        value: "all",
+        label: labels.filterAll,
+        compactLabel: labels.assignee,
+      },
       ...assigneeOptions.map((option) => ({
         value: option.id,
         label: option.label,
       })),
     ],
-    [assigneeOptions, labels.filterAll],
+    [assigneeOptions, labels.filterAll, labels.assignee],
   );
 
   const statusSelectOptions = useMemo(
     () => [
-      { value: "all", label: labels.filterAll },
+      {
+        value: "all",
+        label: labels.filterAll,
+        compactLabel: labels.statusColumn,
+      },
       { value: "todo", label: labels.status.todo },
       { value: "doing", label: labels.status.doing },
       { value: "done", label: labels.status.done },
     ],
-    [labels.filterAll, labels.status],
+    [labels.filterAll, labels.status, labels.statusColumn],
   );
 
   const sortSelectOptions = useMemo(
@@ -94,17 +98,6 @@ export function TaskListWithFilters({
       { value: "updated", label: labels.sortUpdated },
     ],
     [labels.sortDue, labels.statusColumn, labels.sortUpdated],
-  );
-
-  const projectSelectOptions = useMemo(
-    () => [
-      { value: "", label: labels.filterAll },
-      ...projects.map((row) => ({
-        value: row.id,
-        label: row.acronym,
-      })),
-    ],
-    [projects, labels.filterAll],
   );
 
   const visible = useMemo(() => {
@@ -121,69 +114,42 @@ export function TaskListWithFilters({
   return (
     <div className="space-y-4">
       <div className={taskListStyles.filterBar}>
-        {projects.length > 0 && onProjectChange ? (
-          <div className={taskListStyles.filterField}>
-            <Label htmlFor="filter-project" className={taskListStyles.filterLabel}>
-              {labels.project}
-            </Label>
-            <Select
-              id="filter-project"
-              className={taskListStyles.filterSelect}
-              value={project ?? ""}
-              onChange={(next) => onProjectChange(next || null)}
-              options={projectSelectOptions}
-              aria-label={labels.project}
-            />
-          </div>
-        ) : addProjectHref ? (
-          <p className={taskListStyles.filterAdd}>
-            <Link
-              href={addProjectHref}
-              className="underline-offset-2 hover:text-[var(--text-primary)] hover:underline"
-            >
-              {labels.addProject}
-            </Link>
-          </p>
-        ) : null}
         {showAssigneeFilter ? (
           <div className={taskListStyles.filterFieldWide}>
-            <Label htmlFor="filter-assignee" className={taskListStyles.filterLabel}>
-              {labels.filterAssignee}
-            </Label>
             <Select
               id="filter-assignee"
               className={taskListStyles.filterSelect}
+              triggerClassName={taskListStyles.filterTrigger}
               value={assigneeId}
               onChange={setAssigneeId}
               options={assigneeSelectOptions}
               aria-label={labels.filterAssignee}
+              compactTrigger
             />
           </div>
         ) : null}
         <div className={taskListStyles.filterField}>
-          <Label htmlFor="filter-status" className={taskListStyles.filterLabel}>
-            {labels.filterStatus}
-          </Label>
           <Select
             id="filter-status"
             className={taskListStyles.filterSelect}
+            triggerClassName={taskListStyles.filterTrigger}
             value={status}
             onChange={(next) => setStatus(next as TaskStatus | "all")}
             options={statusSelectOptions}
             aria-label={labels.filterStatus}
+            compactTrigger
           />
         </div>
-        <div className={taskListStyles.filterField}>
-          <Label htmlFor="filter-sort" className={taskListStyles.filterLabel}>
-            {labels.filterSort}
-          </Label>
+        <div className={cn(taskListStyles.filterField, taskListStyles.filterFieldSort)}>
           <Select
             id="filter-sort"
             className={taskListStyles.filterSelect}
+            triggerClassName={taskListStyles.filterTrigger}
             value={sort}
             onChange={(next) => setSort(next as TaskListSort)}
             options={sortSelectOptions}
             aria-label={labels.filterSort}
+            compactTrigger
           />
         </div>
       </div>
@@ -195,7 +161,7 @@ export function TaskListWithFilters({
         project={project}
         currentUserId={currentUserId}
         canEditAll={canEditAll}
-        openProjects={projects}
+        openProjects={openProjects}
         assigneeOptions={assigneeOptions}
         labels={{
           title: labels.title,

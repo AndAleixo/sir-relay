@@ -186,9 +186,9 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 
 ## 3. Task boards — scope + layout
 
-Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · New task. Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on the **Projects** tab. List view: project filter with the other list filters (not on the board); inline edit title, project, and category.
+Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · **Project** · New task. Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on the **Projects** tab. Project filter sits in the toolbar and applies to **board and list**; list keeps assignee / status / sort filters. Inline edit title, project, and category on the list.
 
-**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`. List-only project filter (P3-16): `?project=<id>` or omit = All — [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16). The board ignores `project` and always shows every task in the current scope.
+**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`. Project filter (P3-16): `?project=<id>` or omit = All — [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16). Same `project` query scopes board and list.
 
 | Scope | Default | Board | List |
 |-------|---------|-------|------|
@@ -275,7 +275,7 @@ Member label left · inactive + Telegram icons right. No role chip; no active-ta
 | My work | Own tasks; sort due / status / updated |
 | Team | All group tasks; assignee + status filters |
 
-Columns: **Title**, **Project**, **Category**, assignee, status, due. Same fields on all widths: desktop is a 6-column grid; below 768px stacks title then a wrapping meta row (no wide table scroll). Click title → 2-line input (200 chars). Click project / category / assignee / status → vertical Family A picker. Assignee retag is operator-only. Click due → date field. Filters: 2-column Select grid on mobile (labels visually hidden, `aria-label` kept); labeled row from `md`. Category is inert until a project is set. Overdue uses `--severity` like the card (not when status is Done), without the word Overdue. List body `text-xs` to match board cards. Board cards stay `SIR · title` with no category.
+Columns: **Title**, **Project**, **Category**, assignee, status, due. Same fields on all widths: desktop is a 6-column grid; below 768px stacks title then a wrapping meta row (no wide table scroll). Click title → 2-line input (200 chars). Click project / category / assignee / status → vertical Family A picker. Assignee retag is operator-only. Click due → date field. List filters (assignee / status / sort): one row of Selects, same value-first chrome as toolbar Project (`compactTrigger`). Closed “All” shows the filter noun at every width; an active value shows the value. Sort sits at the right of the row (always a value — Due date / Status / Updated). Category is inert until a project is set. Overdue uses `--severity` like the card (not when status is Done), without the word Overdue. List body `text-xs` to match board cards. Board cards stay `SIR · title` with no category.
 
 Fallback for narrow screens and scanning.
 
@@ -506,7 +506,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | Breakpoint | Shell | Team | My work |
 |------------|-------|------|---------|
 | ≥768px | Sidebar + header utilities | Member columns (H-scroll) | 3-column Kanban |
-| <768px | Top bar + tabs | Board or list | Kanban stacks; list: title + wrapping meta, 2-col filters |
+| <768px | Top bar + tabs | Board or list | Kanban stacks; list: title + wrapping meta, one-row filters |
 
 ---
 

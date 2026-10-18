@@ -10,6 +10,8 @@ import { popoverStyles } from "@/components/ui/popover";
 export type SelectOption = {
   value: string;
   label: string;
+  /** Closed-trigger text below md (or always when `compactTrigger`). */
+  compactLabel?: string;
 };
 
 type SelectProps = {
@@ -22,7 +24,10 @@ type SelectProps = {
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  triggerClassName?: string;
   "aria-label"?: string;
+  /** Use `compactLabel` on the closed trigger at every width (toolbar filters). */
+  compactTrigger?: boolean;
 };
 
 export function Select({
@@ -35,7 +40,9 @@ export function Select({
   required,
   disabled,
   className,
+  triggerClassName,
   "aria-label": ariaLabel,
+  compactTrigger = false,
 }: SelectProps) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -46,8 +53,9 @@ export function Select({
   );
   const controlled = valueProp !== undefined;
   const value = controlled ? valueProp : uncontrolled;
-  const selectedLabel =
-    options.find((option) => option.value === value)?.label ?? value;
+  const selected = options.find((option) => option.value === value);
+  const selectedLabel = selected?.label ?? value;
+  const compactLabel = selected?.compactLabel;
 
   useDismissable(open, () => setOpen(false), rootRef);
 
@@ -65,7 +73,7 @@ export function Select({
       <button
         type="button"
         id={id}
-        className={popoverStyles.trigger}
+        className={cn(popoverStyles.trigger, triggerClassName)}
         disabled={disabled}
         aria-label={ariaLabel}
         aria-haspopup="listbox"
@@ -73,7 +81,20 @@ export function Select({
         aria-controls={rendered ? listId : undefined}
         onClick={() => setOpen((current) => !current)}
       >
-        <span className="min-w-0 truncate">{selectedLabel}</span>
+        <span className="min-w-0 truncate">
+          {compactLabel ? (
+            compactTrigger ? (
+              compactLabel
+            ) : (
+              <>
+                <span className="md:hidden">{compactLabel}</span>
+                <span className="hidden md:inline">{selectedLabel}</span>
+              </>
+            )
+          ) : (
+            selectedLabel
+          )}
+        </span>
         <ChevronDown className={open ? "rotate-180" : undefined} />
       </button>
       {rendered ? (

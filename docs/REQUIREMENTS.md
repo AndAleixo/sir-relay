@@ -571,7 +571,7 @@ Both roles. Requires Phase 1 API + DB. PWA install → P3-14. Out of scope here:
 
 ### 7.2 Group projects (P3-16)
 
-Optional labels **inside the active group**. The group remains the team (members, board, Telegram queue). A **project** is a named bucket with a short **acronym**; a task may carry at most one. CRUD lives on the **Projects** nav tab (`/projects`, between Teammates and Events). The board shows the acronym; the list view filters and inline-edits title, project, and category. Categories live **on the project**; a task may carry at most one (`category_id`) from its current project. Not on the task card.
+Optional labels **inside the active group**. The group remains the team (members, board, Telegram queue). A **project** is a named bucket with a short **acronym**; a task may carry at most one. CRUD lives on the **Projects** nav tab (`/projects`, between Teammates and Events). The board shows the acronym; toolbar project filter scopes board and list; list also inline-edits title, project, and category. Categories live **on the project**; a task may carry at most one (`category_id`) from its current project. Not on the task card.
 
 Out of scope: free-form tags, colours, people-per-project, per-project boards, nested categories, category on task cards / Telegram heading.
 
@@ -589,7 +589,7 @@ Task.category_id → nullable FK (SET NULL; must belong to the task’s project)
 | P3-PRJ-03 | Acronym | 1–3 letters A–Z (store uppercase). Unique among **open and pending** projects in the group. |
 | P3-PRJ-04 | Archive | Trash on `/projects` archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. Operator may trash a pending request (frees a pending slot). |
 | P3-PRJ-05 | Tag task | Create/edit: Select of **accepted open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` (and `category_id` if still open on that project) if the project is still accepted-open, else both `null`. Pending is not taggable. |
-| P3-PRJ-06 | List filter | List view: Select of **accepted open** projects with the other list filters (`All` or one project). Board / kanban: no project filter (all tasks in scope). Zero projects: quiet link to `/projects` (both roles). |
+| P3-PRJ-06 | Project filter | Toolbar Select of **accepted open** projects (`All` or one project); applies to **board and list**. Zero projects: quiet link to `/projects` (both roles). |
 | P3-PRJ-07 | Display | Board, task detail, Telegram: `SIR · Fix login`. Card: click acronym → retag; click title → edit title only. Untagged: title only. Category is **not** shown on the card. **List:** Title, Project, Category, assignee, status, due. Click title → input (≤200, wrap 2 lines); click project/category/assignee/status → vertical picker (assignee: operator). Click due → date. Changing project clears the category unless that category id still exists on the new project. |
 | P3-PRJ-08 | Relay | Queue / notify / re-notify use the same display string. Project does not change queue order. |
 | P3-PRJ-09 | Permissions | Operator: create / accept / archive project. Teammate: request project (not archive). Both roles: add / archive **categories** on accepted projects; set **accepted** project and that project’s **category** on tasks they can edit. |

@@ -2,13 +2,20 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { LocaleSegment } from "@/components/layout/locale-segment";
 import { Button } from "@/components/ui/button";
+import { withVsCodeNext } from "@/lib/vscode-next";
 import { landingStyles } from "./landing.styles";
 
 type LandingHeaderProps = {
   locale: string;
+  returnTo?: string | null;
+  showAccountLinks?: boolean;
 };
 
-export async function LandingHeader({ locale }: LandingHeaderProps) {
+export async function LandingHeader({
+  locale,
+  returnTo = null,
+  showAccountLinks = true,
+}: LandingHeaderProps) {
   const t = await getTranslations();
 
   return (
@@ -30,12 +37,19 @@ export async function LandingHeader({ locale }: LandingHeaderProps) {
         </Link>
         <LocaleSegment locale={locale} className={landingStyles.headerLocale} />
         <nav className={landingStyles.nav} aria-label={t("landing.headerNav")}>
-          <Link href={`/${locale}/login`} className={landingStyles.headerLoginLink}>
-            {t("auth.login")}
-          </Link>
-          <Link href={`/${locale}/signup`}>
-            <Button className={landingStyles.headerSignup}>{t("auth.signup")}</Button>
-          </Link>
+          {showAccountLinks ? (
+            <>
+              <Link
+                href={withVsCodeNext(`/${locale}/login`, returnTo)}
+                className={landingStyles.headerLoginLink}
+              >
+                {t("auth.login")}
+              </Link>
+              <Link href={withVsCodeNext(`/${locale}/signup`, returnTo)}>
+                <Button className={landingStyles.headerSignup}>{t("auth.signup")}</Button>
+              </Link>
+            </>
+          ) : null}
         </nav>
       </div>
     </header>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { resolveEntryPath } from "@/lib/entry-route";
+import { safeVsCodeNext } from "@/lib/vscode-next";
 import { getServices } from "@/services";
 
 export default async function LoginPage({
@@ -21,10 +22,13 @@ export default async function LoginPage({
     session?: string;
     reset?: string;
     email?: string;
+    next?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { error, session: sessionParam, reset, email: emailParam } = await searchParams;
+  const { error, session: sessionParam, reset, email: emailParam, next: nextParam } =
+    await searchParams;
+  const next = safeVsCodeNext(locale, nextParam);
   const checkEmailHref = emailParam?.includes("@")
     ? `/${locale}/check-email?email=${encodeURIComponent(emailParam.trim().toLowerCase())}`
     : `/${locale}/check-email`;
@@ -32,7 +36,7 @@ export default async function LoginPage({
   const session = await getServices().auth.getSession();
 
   if (session) {
-    redirect(resolveEntryPath(locale, session));
+    redirect(next ?? resolveEntryPath(locale, session));
   }
 
   return (
@@ -71,6 +75,7 @@ export default async function LoginPage({
               </p>
             ) : null}
             <form action={loginForm.bind(null, locale)} className="space-y-4">
+              {next ? <input type="hidden" name="next" value={next} /> : null}
               <div>
                 <Label htmlFor="email">{t("auth.email")}</Label>
                 <Input

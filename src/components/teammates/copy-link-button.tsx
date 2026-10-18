@@ -8,6 +8,7 @@ type CopyLinkButtonProps = {
   text: string;
   label: string;
   copiedLabel: string;
+  showLabel?: boolean;
   className?: string;
 };
 
@@ -50,6 +51,7 @@ export function CopyLinkButton({
   text,
   label,
   copiedLabel,
+  showLabel = false,
   className,
 }: CopyLinkButtonProps) {
   const [copied, setCopied] = useState(false);
@@ -82,7 +84,7 @@ export function CopyLinkButton({
       ) : (
         <ClipboardIcon className="h-4 w-4" />
       )}
-      <span className="sr-only">{actionLabel}</span>
+      <span className={showLabel ? undefined : "sr-only"}>{actionLabel}</span>
     </Button>
   );
 }

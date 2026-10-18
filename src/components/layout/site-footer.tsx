@@ -1,13 +1,19 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { landingStyles } from "@/components/landing/landing.styles";
+import { withVsCodeNext } from "@/lib/vscode-next";
 
 type SiteFooterProps = {
   locale: string;
   variant?: "marketing" | "auth";
+  returnTo?: string | null;
 };
 
-export async function SiteFooter({ locale, variant = "auth" }: SiteFooterProps) {
+export async function SiteFooter({
+  locale,
+  variant = "auth",
+  returnTo = null,
+}: SiteFooterProps) {
   const t = await getTranslations();
   const year = new Date().getFullYear();
 
@@ -32,10 +38,10 @@ export async function SiteFooter({ locale, variant = "auth" }: SiteFooterProps) 
           <Link href={`/${locale}/terms`} className={landingStyles.footerLink}>
             {t("legal.terms")}
           </Link>
-          <Link href={`/${locale}/login`} className={landingStyles.footerLink}>
+          <Link href={withVsCodeNext(`/${locale}/login`, returnTo)} className={landingStyles.footerLink}>
             {t("auth.login")}
           </Link>
-          <Link href={`/${locale}/signup`} className={landingStyles.footerLink}>
+          <Link href={withVsCodeNext(`/${locale}/signup`, returnTo)} className={landingStyles.footerLink}>
             {t("auth.signup")}
           </Link>
         </nav>

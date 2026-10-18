@@ -1,7 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   localeNames,
@@ -26,7 +27,24 @@ type LocaleSegmentProps = {
 };
 
 /** Visible EN / ES / PT. The full name stays on the link for assistive tech. */
-export function LocaleSegment({ locale, className }: LocaleSegmentProps) {
+export function LocaleSegment(props: LocaleSegmentProps) {
+  return (
+    <Suspense fallback={<LocaleLinks {...props} query="" />}>
+      <LocaleSegmentSearch {...props} />
+    </Suspense>
+  );
+}
+
+function LocaleSegmentSearch({ locale, className }: LocaleSegmentProps) {
+  const search = useSearchParams();
+  return <LocaleLinks locale={locale} className={className} query={search.toString()} />;
+}
+
+function LocaleLinks({
+  locale,
+  className,
+  query,
+}: LocaleSegmentProps & { query: string }) {
   const pathname = usePathname();
   const t = useTranslations("common");
 
@@ -38,7 +56,7 @@ export function LocaleSegment({ locale, className }: LocaleSegmentProps) {
           return (
             <Link
               key={loc}
-              href={withLocale(pathname, loc)}
+              href={`${withLocale(pathname, loc)}${query ? `?${query}` : ""}`}
               className={active ? segment.itemActive : segment.item}
               aria-current={active ? "true" : undefined}
               aria-label={localeNames[loc]}

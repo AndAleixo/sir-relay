@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Locale } from "@/domain/types";
 import { loginPath, resolveEntryPath } from "@/lib/entry-route";
+import { safeVsCodeNext } from "@/lib/vscode-next";
 import { checkPasswordPolicy } from "@/lib/password-policy";
 import { locales, defaultLocale } from "@/i18n/config";
 import { getServices } from "@/services";
@@ -11,6 +12,7 @@ import { getServices } from "@/services";
 export async function loginForm(locale: string, formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const next = safeVsCodeNext(locale, String(formData.get("next") ?? ""));
 
   let session;
   try {
@@ -21,13 +23,14 @@ export async function loginForm(locale: string, formData: FormData) {
         loginPath(locale, {
           error: "unverified",
           email: email.trim().toLowerCase(),
+          ...(next ? { next } : {}),
         }),
       );
     }
-    redirect(loginPath(locale, { error: "invalid" }));
+    redirect(loginPath(locale, { error: "invalid", ...(next ? { next } : {}) }));
   }
   revalidatePath("/", "layout");
-  redirect(resolveEntryPath(locale, session));
+  redirect(next ?? resolveEntryPath(locale, session));
 }
 
 export async function signupForm(locale: string, formData: FormData) {

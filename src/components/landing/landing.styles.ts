@@ -25,6 +25,13 @@ export const landingStyles = {
     "mx-auto max-w-2xl px-4 py-8 text-center text-sm leading-relaxed text-[var(--text-muted)] md:px-6 md:py-10",
   contactNoteLink:
     "font-medium text-[var(--text-primary)] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
+  editor: "border-t border-[var(--border)] bg-surface-bg",
+  editorInner:
+    "mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-16 md:px-6 md:py-20 lg:grid-cols-2 lg:gap-16",
+  editorCopy: "max-w-prose",
+  editorTitle: "text-2xl font-semibold text-balance md:text-3xl",
+  editorLead: "mt-4 text-lg text-[var(--text-muted)]",
+  editorPoint: "mt-3 text-sm leading-relaxed text-[var(--text-muted)]",
   features: "border-t border-[var(--border)] bg-surface-card",
   featuresInner: "mx-auto w-full max-w-6xl px-4 py-16 md:px-6 md:py-20",
   featuresTitle: "text-center text-2xl font-semibold md:text-3xl",
@@ -48,6 +55,17 @@ export const landingStyles = {
   footerLink:
     "inline-flex min-h-11 items-center hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   footerCopy: "text-sm text-[var(--text-muted)]",
+  editorFrame:
+    "overflow-hidden rounded-card border border-[#3c3c3c] bg-[#1e1e1e] text-[#cccccc] shadow-md shadow-black/25 selection:bg-[#eab308] selection:text-[#0a0a0a]",
+  editorBar: "flex items-center gap-2 border-b border-[#3c3c3c] px-4 py-3",
+  editorDot: "h-2.5 w-2.5 rounded-full bg-[#3c3c3c]",
+  editorLabel: "ml-2 text-xs font-medium",
+  editorBody: "space-y-4 p-4",
+  editorSection:
+    "text-[11px] font-semibold uppercase tracking-[0.04em] text-[#9d9d9d]",
+  editorCard: "mt-2 rounded-md border border-[#3c3c3c] bg-[#252526] px-3 py-2 text-sm",
+  editorAcronym: "font-semibold text-[#eab308]",
+  editorDue: "mt-1 text-[11px] font-semibold text-[#f48771]",
 } as const;
 
 export const demoStyles = {

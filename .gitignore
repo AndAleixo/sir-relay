@@ -38,7 +38,14 @@ yarn-error.log*
 
 # IDE
 .idea
-.vscode
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# VS Code extension prototype
+extensions/vscode/node_modules/
+extensions/vscode/out/
+extensions/vscode/*.vsix
 
 # --- Cursor / AI (local only) ---
 .cursor/

@@ -68,6 +68,8 @@ model User {
   passwordHash       String?       @map("password_hash")
   locale             Locale        @default(en)
   telegramChatId     String?       @map("telegram_chat_id")
+  /** SHA-256 of the VS Code bearer token. Plaintext is shown once. */
+  vscodeTokenHash    String?       @unique @map("vscode_token_hash")
   active             Boolean       @default(true)
   mustChangePassword Boolean       @default(false) @map("must_change_password")
   accountStatus      AccountStatus @default(active) @map("account_status")

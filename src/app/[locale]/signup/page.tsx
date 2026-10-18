@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { resolveEntryPath } from "@/lib/entry-route";
+import { safeVsCodeNext, withVsCodeNext } from "@/lib/vscode-next";
 import { getServices } from "@/services";
 
 const errorKeys = {
@@ -25,15 +26,16 @@ export default async function SignupPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const { locale } = await params;
-  const { error } = await searchParams;
+  const { error, next: nextParam } = await searchParams;
+  const next = safeVsCodeNext(locale, nextParam);
   const t = await getTranslations();
   const session = await getServices().auth.getSession();
 
   if (session) {
-    redirect(resolveEntryPath(locale, session));
+    redirect(next ?? resolveEntryPath(locale, session));
   }
 
   const errorKey =
@@ -57,6 +59,7 @@ export default async function SignupPage({
               </p>
             ) : null}
             <form action={signupForm.bind(null, locale)} className="space-y-4">
+              {next ? <input type="hidden" name="next" value={next} /> : null}
               <div>
                 <Label htmlFor="name">{t("auth.name")}</Label>
                 <Input id="name" name="name" required autoComplete="name" />
@@ -110,7 +113,7 @@ export default async function SignupPage({
             <p className="text-center text-sm text-[var(--text-muted)]">
               {t("auth.hasAccount")}{" "}
               <Link
-                href={`/${locale}/login`}
+                href={withVsCodeNext(`/${locale}/login`, next)}
                 className="font-medium text-brand-accent hover:text-brand-accent-hover"
               >
                 {t("auth.login")}

@@ -1,0 +1,68 @@
+{
+  "name": "sirrelay",
+  "displayName": "Sir Relay",
+  "description": "Your SRelay column in the sidebar.",
+  "version": "0.0.1",
+  "publisher": "sirrelay",
+  "license": "FSL-1.1-MIT",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#0A0A0A",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AndAleixo/sir-relay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AndAleixo/sir-relay/issues"
+  },
+  "homepage": "https://app.sirrelay.com",
+  "keywords": ["srelay", "tasks", "todo"],
+  "qna": "marketplace",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onView:sirrelay.board", "onUri"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sirrelay",
+          "title": "SRelay",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "sirrelay": [
+        {
+          "type": "webview",
+          "id": "sirrelay.board",
+          "name": "My work",
+          "retainContextWhenHidden": true
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SRelay",
+      "properties": {
+        "sirrelay.url": {
+          "type": "string",
+          "default": "https://app.sirrelay.com",
+          "description": "Origin of the SRelay app, with no path."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -p . -w"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.6.3"
+  }
+}

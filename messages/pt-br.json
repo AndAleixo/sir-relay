@@ -73,6 +73,7 @@
     "checkEmailTitle": "Confira seu e-mail",
     "checkEmailSubtitle": "Enviamos um link de confirmação. Abra-o e confirme para ativar a conta.",
     "checkEmailSubtitleLocked": "Enviamos um link de confirmação para {email}. Abra-o e confirme para ativar a conta.",
+    "checkEmailEditor": "Depois de confirmar, entre. Trazemos você de volta para ligar o editor.",
     "checkEmailResent": "Se esse e-mail precisar de verificação, enviamos outro link.",
     "verifyTitle": "Verificação de e-mail",
     "verifyConfirmHint": "Clique abaixo para confirmar este e-mail e ativar a conta.",
@@ -597,6 +598,22 @@
         "q": "Onde ficam meus dados?",
         "a": "Nos servidores SirRelay (PostgreSQL). Páginas autenticadas não são colocadas em cache; a sessão usa um cookie essencial."
       }
+    },
+    "editor": {
+      "title": "Sua coluna, no editor.",
+      "subtitle": "As mesmas tarefas, no VS Code ou no Cursor. A barra lateral mostra só o trabalho atribuído a você.",
+      "pointYours": "As tarefas das outras pessoas ficam na web.",
+      "linkTitle": "Ligar este editor",
+      "accountLine": "Isto liga {name}. Um código novo substitui o anterior.",
+      "link": "Ligar esta conta",
+      "linking": "A ligar…",
+      "linked": "Conta ligada. Se o editor não abrir, cole este código no SRelay.",
+      "openEditor": "Abrir no editor",
+      "copyCode": "Copiar código",
+      "copied": "Copiado",
+      "expired": "A sessão expirou. Entre outra vez.",
+      "column": "Meu trabalho",
+      "previewLabel": "SRelay no editor"
     }
   },
   "platform": {

@@ -60,4 +60,12 @@ No **critical** in prod deps. **High** → upgrade if safe, else record. On Next
 
 ## License
 
-TBD.
+SirRelay is [FSL-1.1-MIT](./LICENSE). Copyright 2026 Andre Aleixo.
+
+You may use, modify, and share it for any purpose except a Competing Use: offering SirRelay, or something with the same function, as a commercial product or service to others. Internal use is allowed. Two years after a version is published, that version is available under the MIT license. See [NOTICE](./NOTICE) for third-party material.
+
+Contributions are accepted under the same terms.
+
+## Security
+
+Report vulnerabilities to contact@sirrelay.com. Do not open a public issue for a security report.

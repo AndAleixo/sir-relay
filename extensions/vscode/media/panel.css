@@ -224,6 +224,7 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
 .card {
   display: flex;
   gap: 6px;
+  align-items: stretch;
   margin: 0 0 6px;
   padding: 6px;
   border: 1px solid var(--line);
@@ -239,6 +240,7 @@ body.vscode-high-contrast-light .card {
 .handle {
   width: 8px;
   flex: none;
+  align-self: stretch;
   border-radius: 2px;
   background: var(--line);
 }
@@ -247,12 +249,22 @@ body.vscode-high-contrast-light .card {
 .handle.medium { background: var(--medium); }
 .handle.hard { background: var(--hard); }
 
-.body { min-width: 0; flex: 1; }
-
-.title-row {
+.body {
+  min-width: 0;
+  flex: 1;
   display: flex;
-  gap: 6px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rail {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2px;
+  width: 22px;
 }
 
 .acronym {
@@ -266,8 +278,8 @@ body.vscode-high-contrast-light .card {
 }
 
 .title {
-  flex: 1;
-  min-width: 0;
+  display: block;
+  width: 100%;
   margin: 0;
   border: 0;
   padding: 0;
@@ -283,7 +295,7 @@ body.vscode-high-contrast-light .card {
 
 .desc,
 .due {
-  margin: 4px 0 0;
+  margin: 0;
   color: var(--muted);
   font-size: 11px;
 }
@@ -323,7 +335,6 @@ body.vscode-high-contrast-light .card {
 .menu {
   position: relative;
   flex: none;
-  align-self: flex-start;
 }
 
 .menu-toggle {
@@ -351,7 +362,7 @@ body.vscode-high-contrast-light .card {
 .menu-panel {
   position: absolute;
   right: 0;
-  top: calc(100% + 2px);
+  bottom: calc(100% + 2px);
   z-index: 5;
   display: grid;
   min-width: 96px;

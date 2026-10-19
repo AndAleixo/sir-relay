@@ -51,7 +51,7 @@ function dueLabel(iso) {
   return `${day}/${month}/${year}`;
 }
 
-function card(task, actions) {
+function card(task, primary, menu) {
   const title =
     state.editingId === task.id
       ? `<input class="title-input" data-title="${task.id}" value="${escapeHtml(task.title)}" ${state.busy ? "disabled" : ""} />`
@@ -65,10 +65,11 @@ function card(task, actions) {
   return `<article class="card">
     <span class="handle ${escapeHtml(task.difficulty)}"></span>
     <div class="body">
-      <div class="title-row">${title}${actions}</div>
+      ${title}
       ${description}
       ${due}
     </div>
+    <div class="rail">${primary}${menu}</div>
   </article>`;
 }
 
@@ -207,7 +208,8 @@ function boardView() {
               .map((task) =>
                 card(
                   task,
-                  `${iconButton(`data-start="${task.id}"`, "Start", iconStart)}${taskMenu(task.id)}`,
+                  iconButton(`data-start="${task.id}"`, "Start", iconStart),
+                  taskMenu(task.id),
                 ),
               )
               .join(""),
@@ -221,7 +223,8 @@ function boardView() {
           .map((task) =>
             card(
               task,
-              `${iconButton(`data-done="${task.id}"`, "Complete", iconDone)}${taskMenu(task.id)}`,
+              iconButton(`data-done="${task.id}"`, "Complete", iconDone),
+              taskMenu(task.id),
             ),
           )
           .join(""),
@@ -235,7 +238,8 @@ function boardView() {
           .map((task) =>
             card(
               task,
-              `<span class="icon" title="Completed">${iconDone}</span>${taskMenu(task.id)}`,
+              `<span class="icon" title="Completed">${iconDone}</span>`,
+              taskMenu(task.id),
             ),
           )
           .join(""),

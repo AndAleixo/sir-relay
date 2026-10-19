@@ -28,9 +28,6 @@ const iconStart =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>';
 const iconDone =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
-const iconUp =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>';
-
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -93,7 +90,7 @@ function createBlock() {
   const board = state.board;
   if (!board) return "";
   if (!state.creating) {
-    return `<button type="button" class="link" id="open-create" ${state.busy ? "disabled" : ""}>+ Add task</button>`;
+    return `<button type="button" class="link add" id="open-create" ${state.busy ? "disabled" : ""}>+ Add task</button>`;
   }
   const draft = state.draft;
   const memberRows = board.members.map((member) => ({
@@ -102,8 +99,7 @@ function createBlock() {
   }));
   const assignee =
     memberRows.length > 1
-      ? `<label>Assignee<select name="assigneeId" ${state.busy ? "disabled" : ""}>${options(memberRows, draft.assigneeId || board.userId)}</select></label>
-         <p class="hint">Linked assignees get Telegram relay (one task at a time). Unlinked stay on the web.</p>`
+      ? `<label>Assignee<select name="assigneeId" ${state.busy ? "disabled" : ""}>${options(memberRows, draft.assigneeId || board.userId)}</select></label>`
       : `<input type="hidden" name="assigneeId" value="${escapeHtml(draft.assigneeId || board.userId)}" />`;
   return `<form class="create" id="create">
     <label>Title
@@ -191,24 +187,19 @@ function boardView() {
   const doing = section("doing");
   const done = section("done");
   const none = todo.length + doing.length + done.length === 0;
-  return `${header()}${banners()}
+  return `${header()}${banners()}${createBlock()}
     ${
       none
-        ? `<p class="empty">No tasks assigned to you yet.</p>${createBlock()}`
+        ? `<p class="empty">No tasks assigned to you yet.</p>`
         : `${column(
             "To do",
             todo,
             todo
-              .map((task, index) =>
-                card(
-                  task,
-                  index === 0
-                    ? iconButton(`data-start="${task.id}"`, "Start", iconStart)
-                    : iconButton(`data-up="${task.id}"`, "Move up", iconUp),
-                ),
+              .map((task) =>
+                card(task, iconButton(`data-start="${task.id}"`, "Start", iconStart)),
               )
               .join(""),
-            createBlock(),
+            "",
             { scroll: true, tall: true },
           )}
       ${column(
@@ -254,16 +245,19 @@ function render() {
   app.innerHTML = state.signedIn
     ? boardView()
     : `<div class="login">
-        <h1 class="login-title">Your column, in the editor.</h1>
-        <p>Tasks and due dates. This sidebar shows only the work assigned to you — the same tasks as on SRelay.</p>
+        <h1 class="login-title">SRelay extension to bring your work into the editor</h1>
+        <p>This shows only your work — other people's tasks stay on the web. Open the site to learn more about the project.</p>
         ${banners()}
-        <button type="button" class="primary" id="sign-in" ${state.busy ? "disabled" : ""}>Sign in</button>
         <button type="button" class="link" id="open-site">See SRelay</button>
+        <button type="button" class="primary" id="sign-in" ${state.busy ? "disabled" : ""}>Sign in</button>
         <details class="code">
           <summary>I have a code</summary>
           <form id="paste">
             <label>Code
-              <input name="token" placeholder="vscode-…" autocomplete="off" spellcheck="false" />
+              <span class="code-row">
+                <input name="token" placeholder="vscode-…" autocomplete="off" spellcheck="false" />
+                <button type="button" class="link" id="paste-clip">Paste</button>
+              </span>
             </label>
             <button class="primary" type="submit">Use code</button>
           </form>
@@ -283,6 +277,9 @@ function bind() {
   document.getElementById("sign-in")?.addEventListener("click", () => {
     if (state.busy) return;
     vscode.postMessage({ type: "sign-in" });
+  });
+  document.getElementById("paste-clip")?.addEventListener("click", () => {
+    vscode.postMessage({ type: "clip" });
   });
   document.getElementById("paste")?.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -391,14 +388,6 @@ function bind() {
   for (const button of app.querySelectorAll("[data-done]")) {
     button.addEventListener("click", () => sendMove(button, "data-done", "done"));
   }
-  for (const button of app.querySelectorAll("[data-up]")) {
-    button.addEventListener("click", () => {
-      if (state.busy) return;
-      state.busy = true;
-      render();
-      vscode.postMessage({ type: "nudge", id: button.getAttribute("data-up") });
-    });
-  }
 }
 
 function sendMove(button, attr, status) {
@@ -410,6 +399,11 @@ function sendMove(button, attr, status) {
 
 window.addEventListener("message", (event) => {
   const message = event.data;
+  if (message?.type === "clipboard") {
+    const input = document.querySelector('#paste input[name="token"]');
+    if (input) input.value = message.text || "";
+    return;
+  }
   if (!message || message.type !== "state") return;
   state.loading = false;
   state.busy = false;

@@ -99,9 +99,14 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
   background: #ca8a04;
 }
 
-.group {
-  margin: 0 0 12px;
+.group,
+.group-pick {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .group-pick,
@@ -129,6 +134,22 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
   gap: 4px;
 }
 
+#paste .code-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+#paste .code-row input {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
+#paste .code-row .link {
+  flex: none;
+}
+
 .group-pick select,
 .create input,
 .create select,
@@ -152,12 +173,11 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
   color: var(--vscode-input-placeholderForeground);
 }
 
-.group-pick {
-  margin: 0 0 12px;
-}
-
 .group-pick select {
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .banner {
@@ -266,6 +286,11 @@ body.vscode-high-contrast-light .card {
   font-weight: 600;
 }
 
+.title,
+.title-input {
+  font-size: 12px;
+}
+
 .title {
   flex: 1;
   min-width: 0;
@@ -321,10 +346,14 @@ body.vscode-high-contrast-light .card {
   color: var(--text);
 }
 
+.add,
+.create {
+  margin: 0 0 18px;
+}
+
 .create {
   display: grid;
   gap: 8px;
-  margin-top: 6px;
 }
 
 .create textarea {

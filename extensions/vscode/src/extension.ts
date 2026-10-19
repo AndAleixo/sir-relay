@@ -10,6 +10,7 @@ type WebviewMessage =
   | { type: "open-site" }
   | { type: "sign-out" }
   | { type: "paste"; token: string }
+  | { type: "clip" }
   | { type: "select-group"; groupId: string }
   | { type: "create"; fields: Record<string, string> }
   | { type: "move"; id: string; status: "doing" | "done" }
@@ -90,6 +91,11 @@ async function onMessage(
   if (message.type === "sign-out") {
     await context.secrets.delete(SECRET);
     await publish(context, {});
+    return;
+  }
+  if (message.type === "clip") {
+    const text = (await vscode.env.clipboard.readText()).trim();
+    panel?.postMessage({ type: "clipboard", text });
     return;
   }
   if (message.type === "paste") {

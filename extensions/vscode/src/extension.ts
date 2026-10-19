@@ -152,6 +152,17 @@ async function onMessage(
       await publish(context, {});
       return;
     }
+    if (message.type === "delete") {
+      const pick = await vscode.window.showWarningMessage(
+        "Delete this task permanently? This cannot be undone.",
+        { modal: true },
+        "Delete",
+      );
+      if (pick !== "Delete") {
+        await publish(context, {});
+        return;
+      }
+    }
     await mutate(context, token, groupId, message.id, { op: message.type });
     return;
   }

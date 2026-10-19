@@ -411,14 +411,16 @@ function bind() {
     });
   }
   for (const button of app.querySelectorAll("[data-open]")) {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
       state.menuId = null;
       render();
       vscode.postMessage({ type: "open-task", id: button.getAttribute("data-open") });
     });
   }
   for (const button of app.querySelectorAll("[data-clone]")) {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
       if (state.busy) return;
       state.menuId = null;
       state.busy = true;
@@ -427,13 +429,9 @@ function bind() {
     });
   }
   for (const button of app.querySelectorAll("[data-delete]")) {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
       if (state.busy) return;
-      if (!window.confirm("Delete this task permanently? This cannot be undone.")) {
-        state.menuId = null;
-        render();
-        return;
-      }
       state.menuId = null;
       state.busy = true;
       render();

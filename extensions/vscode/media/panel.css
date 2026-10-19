@@ -222,6 +222,7 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
 }
 
 .card {
+  position: relative;
   display: flex;
   gap: 6px;
   align-items: stretch;
@@ -230,6 +231,7 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--card);
+  overflow: visible;
 }
 
 body.vscode-high-contrast .card,
@@ -334,6 +336,7 @@ body.vscode-high-contrast-light .card {
 
 .menu {
   position: relative;
+  z-index: 5;
   flex: none;
 }
 
@@ -361,32 +364,36 @@ body.vscode-high-contrast-light .card {
 
 .menu-panel {
   position: absolute;
-  right: 0;
-  bottom: calc(100% + 2px);
-  z-index: 5;
-  display: grid;
-  min-width: 96px;
+  right: 100%;
+  top: 50%;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 2px;
+  padding: 2px;
   border: 1px solid var(--line);
   border-radius: 4px;
   background: var(--card);
-  box-shadow: 0 2px 8px var(--vscode-widget-shadow, transparent);
-  overflow: hidden;
+  white-space: nowrap;
+  transform: translateY(-50%);
 }
 
 body.vscode-high-contrast .menu-panel,
 body.vscode-high-contrast-light .menu-panel {
   border-color: var(--vscode-contrastBorder);
-  box-shadow: none;
 }
 
 .menu-panel button {
   border: 0;
-  background: transparent;
+  border-radius: 4px;
+  background: var(--card);
   color: var(--text);
-  text-align: left;
-  padding: 6px 10px;
+  padding: 2px 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
 }
 
 .menu-panel button:hover:not(:disabled) {

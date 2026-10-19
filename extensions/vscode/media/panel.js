@@ -174,16 +174,15 @@ function statusLine() {
   return state.busy ? `<p class="status">Saving…</p>` : "";
 }
 
-function column(title, tasks, html, extra = "", opts = {}) {
+function column(title, tasks, html, opts = {}) {
   const body = tasks.length ? html : `<p class="empty">Nothing here.</p>`;
-  const list = opts.scroll
-    ? `<div class="scroll${opts.tall ? " tall" : ""}">${body}</div>`
-    : body;
+  const list = opts.scroll ? `<div class="scroll">${body}</div>` : body;
   const hidden = opts.hide && state.doneHidden;
   const head = opts.hide
     ? `<div class="section-head"><h2>${title} (${tasks.length})</h2><button type="button" class="link" id="toggle-done">${hidden ? "Show" : "Hide"}</button></div>`
     : `<h2>${title} (${tasks.length})</h2>`;
-  return `<section class="section">${head}${hidden ? "" : list}${hidden ? "" : extra}</section>`;
+  const kind = opts.kind ? ` ${opts.kind}` : "";
+  return `<section class="section${kind}">${head}${hidden ? "" : list}</section>`;
 }
 
 function boardView() {
@@ -197,25 +196,31 @@ function boardView() {
   const doing = section("doing");
   const done = section("done");
   const none = todo.length + doing.length + done.length === 0;
-  return `${header()}${statusLine()}${createBlock()}
-    ${
-      none
-        ? `<p class="empty">No tasks assigned to you yet.</p>`
-        : `${column(
-            "To do",
-            todo,
-            todo
-              .map((task) =>
-                card(
-                  task,
-                  iconButton(`data-start="${task.id}"`, "Start", iconStart),
-                  taskMenu(task.id),
-                ),
-              )
-              .join(""),
-            "",
-            { scroll: true, tall: true },
-          )}
+  const roomy = state.creating || !state.doneHidden;
+  if (none) {
+    return `<div class="board${roomy ? " roomy" : ""}">
+      <div class="board-top">${header()}${statusLine()}${createBlock()}
+        <p class="empty">No tasks assigned to you yet.</p>
+      </div>
+    </div>`;
+  }
+  return `<div class="board${roomy ? " roomy" : ""}">
+    <div class="board-top">${header()}${statusLine()}${createBlock()}</div>
+    <div class="board-cols">
+      ${column(
+        "To do",
+        todo,
+        todo
+          .map((task) =>
+            card(
+              task,
+              iconButton(`data-start="${task.id}"`, "Start", iconStart),
+              taskMenu(task.id),
+            ),
+          )
+          .join(""),
+        { scroll: true, kind: "todo" },
+      )}
       ${column(
         "In progress",
         doing,
@@ -228,25 +233,24 @@ function boardView() {
             ),
           )
           .join(""),
-        "",
-        { scroll: true },
+        { scroll: true, kind: "doing" },
       )}
-      ${column(
-        "Done",
-        done,
-        done
-          .map((task) =>
-            card(
-              task,
-              `<span class="icon" title="Completed">${iconDone}</span>`,
-              taskMenu(task.id),
-            ),
-          )
-          .join(""),
-        "",
-        { hide: true },
-      )}`
-    }`;
+    </div>
+    ${column(
+      "Done",
+      done,
+      done
+        .map((task) =>
+          card(
+            task,
+            `<span class="icon" title="Completed">${iconDone}</span>`,
+            taskMenu(task.id),
+          ),
+        )
+        .join(""),
+      { hide: true, kind: "done" },
+    )}
+  </div>`;
 }
 
 function rememberDraft() {

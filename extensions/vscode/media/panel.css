@@ -23,14 +23,55 @@ body.vscode-high-contrast-light {
   --accent-ink: var(--vscode-textLink-foreground);
 }
 
+html,
+body,
+#app {
+  height: 100%;
+}
+
 body {
   margin: 0;
   padding: 12px;
+  box-sizing: border-box;
   color: var(--text);
   background: var(--vscode-sideBar-background);
   font-family: var(--vscode-font-family);
   font-size: 13px;
   line-height: 1.35;
+  overflow: hidden;
+}
+
+#app {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.board {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.board.roomy {
+  overflow-y: auto;
+}
+
+.board-top {
+  flex: none;
+  display: grid;
+  gap: 8px;
+}
+
+.board-cols {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 ::selection {
@@ -63,6 +104,8 @@ button:disabled {
 .login {
   display: grid;
   gap: 12px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .login-title {
@@ -101,7 +144,7 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
 
 .group,
 .group-pick {
-  margin: 0 0 22px;
+  margin: 0;
   color: var(--muted);
   font-size: 11px;
   font-weight: 600;
@@ -181,7 +224,23 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
 }
 
 .section {
-  margin: 0 0 14px;
+  margin: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.section.todo {
+  flex: 1 1 0;
+}
+
+.section.doing {
+  flex: 0 1 28%;
+  max-height: 28%;
+}
+
+.section.done {
+  flex: none;
 }
 
 .section h2 {
@@ -206,13 +265,9 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
 }
 
 .scroll {
-  max-height: 22vh;
-  margin-bottom: 6px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
-}
-
-.scroll.tall {
-  max-height: 52vh;
 }
 
 .empty {
@@ -406,7 +461,11 @@ body.vscode-high-contrast-light .menu-panel {
 
 .add,
 .create {
-  margin: 0 0 18px;
+  margin: 0;
+}
+
+.add {
+  justify-self: end;
 }
 
 .create {
@@ -441,7 +500,7 @@ body.vscode-high-contrast-light .menu-panel {
 }
 
 .status {
-  margin: 0 0 8px;
+  margin: 0;
   color: var(--muted);
   font-size: 11px;
 }

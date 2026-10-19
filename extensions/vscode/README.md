@@ -1,6 +1,6 @@
 # Sir Relay
 
-Your column in the sidebar. The tasks and due dates assigned to you are the same ones on [SRelay](https://app.sirrelay.com).
+Sir Relay organizes your own work, or the work of a group. That work lives on [SRelay](https://app.sirrelay.com). This extension makes those tasks easier to manage: your column stays in the sidebar, and a change here is the same task on the site.
 
 ## Set up
 
@@ -23,8 +23,6 @@ A new code replaces the previous one.
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | `sirrelay.url` | `https://app.sirrelay.com` | Origin of the SRelay app, with no path. |
-
-For a local app, set this to `http://localhost` or `http://localhost:3000`.
 
 ## License
 

@@ -1,8 +1,8 @@
 {
   "name": "sirrelay",
   "displayName": "Sir Relay",
-  "description": "Your SRelay column in the sidebar.",
-  "version": "0.0.1",
+  "description": "Organize your own work, or a group's. Your tasks stay in the sidebar.",
+  "version": "0.0.3",
   "publisher": "sirrelay",
   "license": "FSL-1.1-MIT",
   "icon": "media/icon.png",

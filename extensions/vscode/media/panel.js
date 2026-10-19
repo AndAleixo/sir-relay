@@ -14,11 +14,10 @@ const state = {
   signedIn: false,
   loading: true,
   busy: false,
-  error: "",
-  notice: "",
   creating: false,
   editingId: null,
   cancelEdit: false,
+  menuId: null,
   doneHidden: vscode.getState()?.doneHidden !== false,
   draft: emptyDraft(),
   board: null,
@@ -84,6 +83,22 @@ function options(rows, selected) {
 
 function iconButton(attr, label, svg) {
   return `<button type="button" class="icon${attr.startsWith("data-start") ? " start" : ""}" ${attr} title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}" ${state.busy ? "disabled" : ""}>${svg}</button>`;
+}
+
+function taskMenu(id) {
+  const open = state.menuId === id;
+  return `<div class="menu">
+    <button type="button" class="menu-toggle${open ? " open" : ""}" data-menu="${id}" aria-label="Task actions" aria-haspopup="menu" aria-expanded="${open}" ${state.busy ? "disabled" : ""}>⋯</button>
+    ${
+      open
+        ? `<div class="menu-panel" role="menu">
+      <button type="button" role="menuitem" data-open="${id}">Open</button>
+      <button type="button" role="menuitem" data-clone="${id}" ${state.busy ? "disabled" : ""}>Clone</button>
+      <button type="button" role="menuitem" class="danger" data-delete="${id}" ${state.busy ? "disabled" : ""}>Delete</button>
+    </div>`
+        : ""
+    }
+  </div>`;
 }
 
 function createBlock() {
@@ -154,14 +169,8 @@ function header() {
   return `<p class="group">${escapeHtml(board.groupName || "No group")}</p>`;
 }
 
-function banners() {
-  return [
-    state.error
-      ? `<p class="banner error">${escapeHtml(state.error)} <button type="button" class="link" id="retry">Try again</button></p>`
-      : "",
-    state.notice ? `<p class="banner notice">${escapeHtml(state.notice)}</p>` : "",
-    state.busy ? `<p class="status">Saving…</p>` : "",
-  ].join("");
+function statusLine() {
+  return state.busy ? `<p class="status">Saving…</p>` : "";
 }
 
 function column(title, tasks, html, extra = "", opts = {}) {
@@ -178,16 +187,16 @@ function column(title, tasks, html, extra = "", opts = {}) {
 
 function boardView() {
   if (!state.board) {
-    return `${banners()}<p class="hint">No column yet.</p>`;
+    return `${statusLine()}<p class="hint">No column yet.</p>`;
   }
   if (!state.board.groupId) {
-    return `${header()}${banners()}<p class="hint">You are not in a group yet.</p>`;
+    return `${header()}${statusLine()}<p class="hint">You are not in a group yet.</p>`;
   }
   const todo = section("todo");
   const doing = section("doing");
   const done = section("done");
   const none = todo.length + doing.length + done.length === 0;
-  return `${header()}${banners()}${createBlock()}
+  return `${header()}${statusLine()}${createBlock()}
     ${
       none
         ? `<p class="empty">No tasks assigned to you yet.</p>`
@@ -196,7 +205,10 @@ function boardView() {
             todo,
             todo
               .map((task) =>
-                card(task, iconButton(`data-start="${task.id}"`, "Start", iconStart)),
+                card(
+                  task,
+                  `${iconButton(`data-start="${task.id}"`, "Start", iconStart)}${taskMenu(task.id)}`,
+                ),
               )
               .join(""),
             "",
@@ -206,7 +218,12 @@ function boardView() {
         "In progress",
         doing,
         doing
-          .map((task) => card(task, iconButton(`data-done="${task.id}"`, "Complete", iconDone)))
+          .map((task) =>
+            card(
+              task,
+              `${iconButton(`data-done="${task.id}"`, "Complete", iconDone)}${taskMenu(task.id)}`,
+            ),
+          )
           .join(""),
         "",
         { scroll: true },
@@ -214,7 +231,14 @@ function boardView() {
       ${column(
         "Done",
         done,
-        done.map((task) => card(task, `<span class="icon" title="Completed">${iconDone}</span>`)).join(""),
+        done
+          .map((task) =>
+            card(
+              task,
+              `<span class="icon" title="Completed">${iconDone}</span>${taskMenu(task.id)}`,
+            ),
+          )
+          .join(""),
         "",
         { hide: true },
       )}`
@@ -246,8 +270,8 @@ function render() {
     : `<div class="login">
         <h1 class="login-title">SRelay extension to bring your work into the editor</h1>
         <p>This shows only your work — other people's tasks stay on the web. Open the site to learn more about the project.</p>
-        ${banners()}
-        <button type="button" class="link" id="open-site">See SRelay</button>
+        ${statusLine()}
+        <button type="button" class="link" id="open-site">Open on SRelay</button>
         <button type="button" class="primary" id="sign-in" ${state.busy ? "disabled" : ""}>Sign in</button>
         <details class="code">
           <summary>I have a code</summary>
@@ -289,12 +313,6 @@ function bind() {
     render();
     vscode.postMessage({ type: "paste", token });
   });
-  document.getElementById("retry")?.addEventListener("click", () => {
-    state.busy = true;
-    state.error = "";
-    render();
-    vscode.postMessage({ type: "ready" });
-  });
   document.getElementById("toggle-done")?.addEventListener("click", () => {
     state.doneHidden = !state.doneHidden;
     vscode.setState({ doneHidden: state.doneHidden });
@@ -304,13 +322,14 @@ function bind() {
     if (state.busy) return;
     state.busy = true;
     state.creating = false;
+    state.menuId = null;
     state.draft = emptyDraft();
     render();
     vscode.postMessage({ type: "select-group", groupId: event.target.value });
   });
   document.getElementById("open-create")?.addEventListener("click", () => {
     state.creating = true;
-    state.notice = "";
+    state.menuId = null;
     state.draft = emptyDraft();
     render();
     app.querySelector("#create [name=title]")?.focus();
@@ -374,11 +393,59 @@ function bind() {
     render();
     vscode.postMessage({ type: "title", id, title });
   });
+  for (const button of app.querySelectorAll("[data-menu]")) {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (state.busy) return;
+      const id = button.getAttribute("data-menu");
+      state.menuId = state.menuId === id ? null : id;
+      render();
+    });
+  }
+  for (const button of app.querySelectorAll("[data-open]")) {
+    button.addEventListener("click", () => {
+      state.menuId = null;
+      render();
+      vscode.postMessage({ type: "open-task", id: button.getAttribute("data-open") });
+    });
+  }
+  for (const button of app.querySelectorAll("[data-clone]")) {
+    button.addEventListener("click", () => {
+      if (state.busy) return;
+      state.menuId = null;
+      state.busy = true;
+      render();
+      vscode.postMessage({ type: "clone", id: button.getAttribute("data-clone") });
+    });
+  }
+  for (const button of app.querySelectorAll("[data-delete]")) {
+    button.addEventListener("click", () => {
+      if (state.busy) return;
+      if (!window.confirm("Delete this task permanently? This cannot be undone.")) {
+        state.menuId = null;
+        render();
+        return;
+      }
+      state.menuId = null;
+      state.busy = true;
+      render();
+      vscode.postMessage({ type: "delete", id: button.getAttribute("data-delete") });
+    });
+  }
   for (const button of app.querySelectorAll("[data-start]")) {
     button.addEventListener("click", () => sendMove(button, "data-start", "doing"));
   }
   for (const button of app.querySelectorAll("[data-done]")) {
     button.addEventListener("click", () => sendMove(button, "data-done", "done"));
+  }
+  if (state.menuId) {
+    const close = () => {
+      state.menuId = null;
+      render();
+    };
+    setTimeout(() => {
+      document.addEventListener("click", close, { once: true });
+    }, 0);
   }
 }
 
@@ -399,9 +466,8 @@ window.addEventListener("message", (event) => {
   if (!message || message.type !== "state") return;
   state.loading = false;
   state.busy = false;
+  state.menuId = null;
   state.signedIn = message.signedIn;
-  state.error = message.error || "";
-  state.notice = message.notice || "";
   if (message.board) state.board = message.board;
   else if (!message.signedIn) state.board = null;
   if (message.created) {

@@ -32,6 +32,10 @@ export async function PATCH(
     } else if (body.op === "reorder" && Array.isArray(body.orderedTodoIds)) {
       const orderedTodoIds = body.orderedTodoIds.map((item) => String(item));
       await tasks.placeInTodoQueue(id, session.user.id, orderedTodoIds, { session });
+    } else if (body.op === "clone") {
+      await tasks.cloneTask(id, { session });
+    } else if (body.op === "delete") {
+      await tasks.deleteTask(id, { session });
     } else {
       return NextResponse.json({ error: "invalid" }, { status: 400 });
     }

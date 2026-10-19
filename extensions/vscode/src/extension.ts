@@ -8,6 +8,9 @@ type WebviewMessage =
   | { type: "ready" }
   | { type: "sign-in" }
   | { type: "open-site" }
+  | { type: "open-task"; id: string }
+  | { type: "clone"; id: string }
+  | { type: "delete"; id: string }
   | { type: "sign-out" }
   | { type: "paste"; token: string }
   | { type: "clip" }
@@ -37,7 +40,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("sirrelay.refresh", () =>
       publish(context, {}),
     ),
-    vscode.commands.registerCommand("sirrelay.openSite", () => openSite()),
+    vscode.commands.registerCommand("sirrelay.openSite", () =>
+      openOnSrelay(context),
+    ),
     vscode.commands.registerCommand("sirrelay.signOut", () => signOut(context)),
     vscode.window.registerUriHandler({
       handleUri(uri) {
@@ -78,12 +83,45 @@ class BoardViewProvider implements vscode.WebviewViewProvider {
   }
 }
 
-async function openSite(): Promise<void> {
+async function openOnSrelay(
+  context: vscode.ExtensionContext,
+  taskId?: string,
+): Promise<void> {
+  if (taskId) {
+    await vscode.env.openExternal(
+      vscode.Uri.parse(
+        `${appOrigin()}/en-gb/tasks/${encodeURIComponent(taskId)}?scope=mine&view=board`,
+      ),
+    );
+    return;
+  }
+  const token = await context.secrets.get(SECRET);
+  if (token) {
+    await vscode.env.openExternal(
+      vscode.Uri.parse(`${appOrigin()}/en-gb/tasks?scope=mine&view=board`),
+    );
+    return;
+  }
   const scheme = vscode.env.uriScheme === "cursor" ? "cursor" : "vscode";
   const next = `/en-gb/vscode/connect?scheme=${scheme}`;
   await vscode.env.openExternal(
     vscode.Uri.parse(`${appOrigin()}/en-gb?next=${encodeURIComponent(next)}`),
   );
+}
+
+function toast(
+  context: vscode.ExtensionContext,
+  opts: { error?: string; notice?: string },
+): void {
+  if (opts.error) {
+    void vscode.window
+      .showErrorMessage(opts.error, "Try again")
+      .then((pick) => {
+        if (pick === "Try again") void publish(context, {});
+      });
+    return;
+  }
+  if (opts.notice) void vscode.window.showInformationMessage(opts.notice);
 }
 
 async function signOut(context: vscode.ExtensionContext): Promise<void> {
@@ -100,7 +138,21 @@ async function onMessage(
     return;
   }
   if (message.type === "open-site") {
-    await openSite();
+    await openOnSrelay(context);
+    return;
+  }
+  if (message.type === "open-task") {
+    await openOnSrelay(context, message.id);
+    return;
+  }
+  if (message.type === "clone" || message.type === "delete") {
+    const token = await context.secrets.get(SECRET);
+    const groupId = context.globalState.get<string>(GROUP) ?? "";
+    if (!token) {
+      await publish(context, {});
+      return;
+    }
+    await mutate(context, token, groupId, message.id, { op: message.type });
     return;
   }
   if (message.type === "sign-in") {
@@ -301,11 +353,11 @@ async function publish(
   const token = await context.secrets.get(SECRET);
   if (!token) {
     updateChrome(false, null);
+    const error = extra.error ?? "";
+    toast(context, { error, notice: error ? undefined : notice });
     post({
       type: "state",
       signedIn: false,
-      error: extra.error ?? "",
-      notice: "",
       board: null,
       created: false,
     });
@@ -318,11 +370,10 @@ async function publish(
   );
   if (!response) {
     updateChrome(true, null);
+    toast(context, { error: extra.error || offline() });
     post({
       type: "state",
       signedIn: true,
-      error: extra.error || offline(),
-      notice,
       board: null,
       created: false,
     });
@@ -331,11 +382,10 @@ async function publish(
   if (response.status === 401) {
     await context.secrets.delete(SECRET);
     updateChrome(false, null);
+    toast(context, { error: "The code expired. Sign in again." });
     post({
       type: "state",
       signedIn: false,
-      error: "The code expired. Sign in again.",
-      notice: "",
       board: null,
       created: false,
     });
@@ -343,11 +393,10 @@ async function publish(
   }
   if (!response.ok) {
     updateChrome(true, null);
+    toast(context, { error: extra.error || offline() });
     post({
       type: "state",
       signedIn: true,
-      error: extra.error || offline(),
-      notice: "",
       board: null,
       created: false,
     });
@@ -356,11 +405,11 @@ async function publish(
   const board = (await response.json()) as Board;
   if (board.groupId) await context.globalState.update(GROUP, board.groupId);
   updateChrome(true, board);
+  if (extra.error) toast(context, { error: extra.error });
+  else if (notice) toast(context, { notice });
   post({
     type: "state",
     signedIn: true,
-    error: extra.error ?? "",
-    notice,
     board,
     created: extra.created === true,
   });

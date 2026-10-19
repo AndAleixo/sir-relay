@@ -54,7 +54,7 @@
       },
       {
         "command": "sirrelay.openSite",
-        "title": "See SRelay",
+        "title": "Open on SRelay",
         "icon": "$(link-external)"
       },
       {

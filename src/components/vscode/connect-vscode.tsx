@@ -49,7 +49,7 @@ export function ConnectVsCode({ scheme }: { scheme: string }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col items-center gap-3">
       {error ? <p className="text-sm text-[var(--severity)]">{error}</p> : null}
       <Button type="button" disabled={pending} onClick={() => void link()}>
         {pending ? t("linking") : t("link")}

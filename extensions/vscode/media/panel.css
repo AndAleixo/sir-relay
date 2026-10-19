@@ -382,10 +382,6 @@ body.vscode-high-contrast-light .card {
   color: var(--text);
 }
 
-.foot {
-  margin-top: 4px;
-}
-
 .status {
   margin: 0 0 8px;
   color: var(--muted);

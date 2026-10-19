@@ -178,10 +178,10 @@ function column(title, tasks, html, extra = "", opts = {}) {
 
 function boardView() {
   if (!state.board) {
-    return `${banners()}<p class="hint">No column yet.</p><p class="foot"><button type="button" class="link" id="sign-out">Sign out</button></p>`;
+    return `${banners()}<p class="hint">No column yet.</p>`;
   }
   if (!state.board.groupId) {
-    return `${header()}${banners()}<p class="hint">You are not in a group yet.</p><p class="foot"><button type="button" class="link" id="sign-out">Sign out</button></p>`;
+    return `${header()}${banners()}<p class="hint">You are not in a group yet.</p>`;
   }
   const todo = section("todo");
   const doing = section("doing");
@@ -218,8 +218,7 @@ function boardView() {
         "",
         { hide: true },
       )}`
-    }
-    <p class="foot"><button type="button" class="link" id="sign-out" ${state.busy ? "disabled" : ""}>Sign out</button></p>`;
+    }`;
 }
 
 function rememberDraft() {
@@ -300,13 +299,6 @@ function bind() {
     state.doneHidden = !state.doneHidden;
     vscode.setState({ doneHidden: state.doneHidden });
     render();
-  });
-  document.getElementById("sign-out")?.addEventListener("click", () => {
-    if (state.busy) return;
-    state.creating = false;
-    state.editingId = null;
-    state.draft = emptyDraft();
-    vscode.postMessage({ type: "sign-out" });
   });
   document.getElementById("group")?.addEventListener("change", (event) => {
     if (state.busy) return;

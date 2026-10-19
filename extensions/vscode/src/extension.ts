@@ -18,14 +18,27 @@ type WebviewMessage =
   | { type: "nudge"; id: string };
 
 let panel: vscode.Webview | undefined;
+let boardView: vscode.WebviewView | undefined;
+let statusItem: vscode.StatusBarItem | undefined;
 let pendingNotice = "";
 
 export function activate(context: vscode.ExtensionContext): void {
+  statusItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Left,
+    100,
+  );
+  statusItem.command = "sirrelay.board.focus";
   context.subscriptions.push(
+    statusItem,
     vscode.window.registerWebviewViewProvider(
       "sirrelay.board",
       new BoardViewProvider(context),
     ),
+    vscode.commands.registerCommand("sirrelay.refresh", () =>
+      publish(context, {}),
+    ),
+    vscode.commands.registerCommand("sirrelay.openSite", () => openSite()),
+    vscode.commands.registerCommand("sirrelay.signOut", () => signOut(context)),
     vscode.window.registerUriHandler({
       handleUri(uri) {
         const token = new URLSearchParams(uri.query).get("token");
@@ -47,6 +60,7 @@ class BoardViewProvider implements vscode.WebviewViewProvider {
 
   resolveWebviewView(webviewView: vscode.WebviewView): void {
     const webview = webviewView.webview;
+    boardView = webviewView;
     panel = webview;
     webview.options = {
       enableScripts: true,
@@ -58,9 +72,23 @@ class BoardViewProvider implements vscode.WebviewViewProvider {
     webviewView.onDidDispose(() => {
       subscription.dispose();
       if (panel === webview) panel = undefined;
+      if (boardView === webviewView) boardView = undefined;
     });
     webview.html = boardHtml(webview, this.context.extensionUri);
   }
+}
+
+async function openSite(): Promise<void> {
+  const scheme = vscode.env.uriScheme === "cursor" ? "cursor" : "vscode";
+  const next = `/en-gb/vscode/connect?scheme=${scheme}`;
+  await vscode.env.openExternal(
+    vscode.Uri.parse(`${appOrigin()}/en-gb?next=${encodeURIComponent(next)}`),
+  );
+}
+
+async function signOut(context: vscode.ExtensionContext): Promise<void> {
+  await context.secrets.delete(SECRET);
+  await publish(context, {});
 }
 
 async function onMessage(
@@ -72,11 +100,7 @@ async function onMessage(
     return;
   }
   if (message.type === "open-site") {
-    const scheme = vscode.env.uriScheme === "cursor" ? "cursor" : "vscode";
-    const next = `/en-gb/vscode/connect?scheme=${scheme}`;
-    await vscode.env.openExternal(
-      vscode.Uri.parse(`${appOrigin()}/en-gb?next=${encodeURIComponent(next)}`),
-    );
+    await openSite();
     return;
   }
   if (message.type === "sign-in") {
@@ -89,8 +113,7 @@ async function onMessage(
     return;
   }
   if (message.type === "sign-out") {
-    await context.secrets.delete(SECRET);
-    await publish(context, {});
+    await signOut(context);
     return;
   }
   if (message.type === "clip") {
@@ -240,6 +263,36 @@ function offline(): string {
   return `Could not reach SRelay at ${appOrigin()}.`;
 }
 
+function updateChrome(signedIn: boolean, board: Board | null): void {
+  void vscode.commands.executeCommand("setContext", "sirrelay.signedIn", signedIn);
+  if (!signedIn) {
+    if (boardView) boardView.badge = undefined;
+    statusItem?.hide();
+    return;
+  }
+  if (!board) return;
+
+  const todo = board.tasks.filter((task) => task.status === "todo").length;
+  if (boardView) {
+    boardView.badge =
+      todo > 0 ? { value: todo, tooltip: `${todo} to do` } : undefined;
+  }
+
+  const doing = board.tasks
+    .filter((task) => task.status === "doing")
+    .sort((a, b) => a.order - b.order)[0];
+  if (!statusItem) return;
+  if (!doing) {
+    statusItem.hide();
+    return;
+  }
+  const label =
+    doing.title.length > 40 ? `${doing.title.slice(0, 37)}…` : doing.title;
+  statusItem.text = `$(play) SRelay: ${label}`;
+  statusItem.tooltip = doing.title;
+  statusItem.show();
+}
+
 async function publish(
   context: vscode.ExtensionContext,
   extra: { error?: string; notice?: string; created?: boolean },
@@ -247,6 +300,7 @@ async function publish(
   const notice = extra.notice || pendingNotice;
   const token = await context.secrets.get(SECRET);
   if (!token) {
+    updateChrome(false, null);
     post({
       type: "state",
       signedIn: false,
@@ -263,6 +317,7 @@ async function publish(
     `/api/v1/vscode/board?groupId=${encodeURIComponent(groupId)}`,
   );
   if (!response) {
+    updateChrome(true, null);
     post({
       type: "state",
       signedIn: true,
@@ -275,6 +330,7 @@ async function publish(
   }
   if (response.status === 401) {
     await context.secrets.delete(SECRET);
+    updateChrome(false, null);
     post({
       type: "state",
       signedIn: false,
@@ -286,6 +342,7 @@ async function publish(
     return;
   }
   if (!response.ok) {
+    updateChrome(true, null);
     post({
       type: "state",
       signedIn: true,
@@ -298,6 +355,7 @@ async function publish(
   }
   const board = (await response.json()) as Board;
   if (board.groupId) await context.globalState.update(GROUP, board.groupId);
+  updateChrome(true, board);
   post({
     type: "state",
     signedIn: true,

@@ -46,6 +46,42 @@
         }
       ]
     },
+    "commands": [
+      {
+        "command": "sirrelay.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sirrelay.openSite",
+        "title": "See SRelay",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "sirrelay.signOut",
+        "title": "Sign out",
+        "icon": "$(sign-out)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "sirrelay.refresh",
+          "when": "view == sirrelay.board",
+          "group": "navigation@1"
+        },
+        {
+          "command": "sirrelay.openSite",
+          "when": "view == sirrelay.board",
+          "group": "navigation@2"
+        },
+        {
+          "command": "sirrelay.signOut",
+          "when": "view == sirrelay.board && sirrelay.signedIn",
+          "group": "navigation@3"
+        }
+      ]
+    },
     "configuration": {
       "title": "SRelay",
       "properties": {

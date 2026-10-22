@@ -6,7 +6,6 @@ import { getServices, serviceMode } from "@/services";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
 import { toUser } from "@/services/api/mappers";
 
-export const EDITOR_API_KEY_NAME = "Editor";
 export const MAX_API_KEYS_PER_USER = 10;
 export const MAX_API_KEY_NAME_LEN = 40;
 
@@ -149,32 +148,6 @@ export async function deleteClientApiKey(
   if (idx < 0) return false;
   mockKeys.splice(idx, 1);
   return true;
-}
-
-/** /connect: replace the dedicated Editor key (at most one auto-link key). */
-export async function issueLinkToken(userId: string): Promise<string> {
-  if (serviceMode === "api") {
-    await prisma.clientApiKey.deleteMany({
-      where: { userId, name: EDITOR_API_KEY_NAME },
-    });
-  } else {
-    for (let i = mockKeys.length - 1; i >= 0; i--) {
-      if (
-        mockKeys[i].userId === userId &&
-        mockKeys[i].name === EDITOR_API_KEY_NAME
-      ) {
-        mockKeys.splice(i, 1);
-      }
-    }
-  }
-  const result = await createClientApiKey(userId, {
-    name: EDITOR_API_KEY_NAME,
-    groupIds: [],
-  });
-  if ("error" in result) {
-    throw new Error(`issueLinkToken failed: ${result.error}`);
-  }
-  return result.token;
 }
 
 type ResolvedToken = {

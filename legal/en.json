@@ -1,10 +1,10 @@
 {
-  "version": "2026-10-22",
+  "version": "2026-10-23",
   "termsTitle": "Terms of Service",
   "privacyTitle": "Privacy Policy",
-  "updated": "Last updated: 22 October 2026",
-  "termsIntro": "These Terms govern access to and use of SirRelay, a hosted task service for small teams (web app, optional Telegram, and optional editor or MCP clients). By creating an account or using the service, you agree to these Terms.",
-  "privacyIntro": "This Privacy Policy explains how SirRelay collects and uses personal data when you use our hosted web app, optional Telegram integration, and optional editor or MCP clients that use a link token.",
+  "updated": "Last updated: 23 October 2026",
+  "termsIntro": "These Terms govern access to and use of SirRelay, a hosted task coordination service (web application and optional integrations or clients). By creating an account or using the service, you agree to these Terms.",
+  "privacyIntro": "This Privacy Policy explains how SirRelay collects and uses personal data when you use the hosted service, including optional integrations and clients you connect while signed in.",
   "terms": [
     {
       "title": "1. Acceptance",
@@ -12,19 +12,19 @@
     },
     {
       "title": "2. The service",
-      "body": "SirRelay helps small groups coordinate tasks via a web app, an optional Telegram bot, and optional clients (VS Code / Cursor extension, MCP) that use a link token you create while signed in. Features may change as the product evolves. SirRelay is not a general messaging platform, CRM, or guaranteed enterprise SLA."
+      "body": "SirRelay helps people and groups coordinate tasks through a web application and optional add-ons (for example messaging delivery or editor or AI clients). How you authenticate those add-ons may include secrets or credentials you create while signed in. Features and available integrations may change as the product evolves. SirRelay is not a general messaging platform, CRM, or guaranteed enterprise SLA."
     },
     {
       "title": "3. Accounts",
-      "body": "You must provide accurate account details and keep your password confidential. You are responsible for activity under your account. Operators are responsible for who they invite into a group and for content they create or assign."
+      "body": "You must provide accurate account details and keep your password and any access credentials confidential. You are responsible for activity under your account. Operators are responsible for who they invite into a group and for content they create or assign."
     },
     {
       "title": "4. Acceptable use",
-      "body": "You may not misuse the service: no unlawful content, no attempts to break security or access other groups’ data, no abuse of Telegram or our infrastructure. We may suspend accounts that violate these rules."
+      "body": "You may not misuse the service: no unlawful content, no attempts to break security or access other groups’ data, and no abuse of our infrastructure or of third-party services you connect. We may suspend accounts that violate these rules."
     },
     {
-      "title": "5. Telegram",
-      "body": "Telegram features depend on Telegram’s availability and your link between SirRelay and Telegram. We are not responsible for Telegram outages, policy changes, or account bans on Telegram’s side."
+      "title": "5. Integrations",
+      "body": "Optional integrations (such as messaging platforms or third-party editors) depend on those providers’ availability and on the link you establish with them. We are not responsible for those providers’ outages, policy changes, or account actions on their side."
     },
     {
       "title": "6. Availability",
@@ -40,7 +40,7 @@
     },
     {
       "title": "9. Changes",
-      "body": "We may update these Terms. The version identifier and “Last updated” date will change when we do. Continued use after changes, or explicit re-acceptance when prompted, means you accept the updated Terms."
+      "body": "We may update these Terms. Material changes that affect your rights or how we process personal data will update the version identifier and “Last updated” date, and may ask you to accept again. Routine clarifications or product-description updates that do not change those obligations may be published without a new acceptance prompt. Continued use after a material update you accept, or after you are asked to re-accept, means you agree to the updated Terms."
     }
   ],
   "privacy": [
@@ -50,11 +50,11 @@
     },
     {
       "title": "2. Data we collect",
-      "body": "Account data (email, name, password hash, locale), group and task data, optional Telegram link data, session and security logs, and optional self-hosted usage analytics when enabled."
+      "body": "Account data (email, name, password hash, locale), group and task data, optional data for integrations you enable (for example messaging link identifiers), credentials or tokens for optional clients you create, session and security logs, and optional self-hosted usage analytics when enabled."
     },
     {
       "title": "3. Why we use data",
-      "body": "To provide and secure the service, send task and alert messages you enable, maintain operations, and—if analytics are enabled—understand aggregate product usage. We do not use your data for advertising."
+      "body": "To provide and secure the service, deliver notifications or tasks through integrations you enable, maintain operations, and—if analytics are enabled—understand aggregate product usage. We do not use your data for advertising."
     },
     {
       "title": "4. Cookies",
@@ -62,11 +62,11 @@
     },
     {
       "title": "5. Analytics",
-      "body": "When enabled, we run self-hosted Umami on our infrastructure. The tracker is designed to avoid advertising cookies and does not sell your data to third-party ad networks."
+      "body": "When enabled, we run self-hosted analytics on our infrastructure. The tracker is designed to avoid advertising cookies and does not sell your data to third-party ad networks."
     },
     {
-      "title": "6. Telegram",
-      "body": "Linking Telegram is optional. Telegram’s own privacy policy also applies to data Telegram processes as an independent service."
+      "title": "6. Integrations",
+      "body": "Connecting a third-party service is optional. That provider’s own privacy policy also applies to data it processes as an independent service."
     },
     {
       "title": "7. Retention and security",
@@ -74,7 +74,7 @@
     },
     {
       "title": "8. Sharing",
-      "body": "We do not sell personal data. We may share data with infrastructure providers needed to host the service, with Telegram when you use bot features, or when required by law."
+      "body": "We do not sell personal data. We may share data with infrastructure providers needed to host the service, with integration providers when you enable those features, or when required by law."
     },
     {
       "title": "9. Your rights",

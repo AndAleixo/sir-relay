@@ -10,7 +10,7 @@ import {
   resolveContactEmail,
 } from "../src/lib/legal";
 
-assert.equal(CURRENT_LEGAL_VERSION, "2026-10-22");
+assert.equal(CURRENT_LEGAL_VERSION, "2026-10-23");
 assert.equal(LEGAL_DOCUMENT.version, CURRENT_LEGAL_VERSION);
 assert.ok(LEGAL_DOCUMENT.terms.length >= 5);
 assert.ok(LEGAL_DOCUMENT.privacy.length >= 5);

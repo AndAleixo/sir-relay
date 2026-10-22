@@ -8,7 +8,6 @@ import {
 } from "@/app/actions/auth";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { PasswordFormFields } from "@/components/auth/password-form-fields";
-import { LinkTokenCard } from "@/components/profile/link-token-card";
 import { ProfileAvatarEditor } from "@/components/profile/profile-avatar-editor";
 import { RegenerateTelegramLinkButton } from "@/components/profile/regenerate-telegram-link-button";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
@@ -19,14 +18,10 @@ import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
 import type { TelegramLinkStatus, User } from "@/domain/types";
-import type { ClientApiKeyPublic } from "@/lib/link-token";
-import type { ApiKeyGroupOption } from "@/components/profile/link-token-card";
 
 export type AccountProfileProps = {
   locale: string;
   user: User;
-  apiKeys: ClientApiKeyPublic[];
-  apiKeyGroups: ApiKeyGroupOption[];
   telegramStatus: TelegramLinkStatus;
   telegramUrl: string;
   showTelegram: boolean;
@@ -37,8 +32,6 @@ export type AccountProfileProps = {
 export function AccountProfile({
   locale,
   user,
-  apiKeys,
-  apiKeyGroups,
   telegramStatus,
   telegramUrl,
   showTelegram,
@@ -137,11 +130,19 @@ export function AccountProfile({
         </CardBody>
       </Card>
 
-      <LinkTokenCard
-        locale={locale}
-        initialKeys={apiKeys}
-        groups={apiKeyGroups}
-      />
+      <Card className="min-w-0 md:col-span-2">
+        <CardHeader>
+          <h2 className="text-sm font-semibold">{t("profile.linkKeySection")}</h2>
+          <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+            {t("profile.linkKeyProfileHint")}
+          </p>
+        </CardHeader>
+        <CardBody>
+          <ButtonLink href={`/${locale}/connect`} className="w-full sm:w-auto">
+            {t("profile.linkKeyManageLink")}
+          </ButtonLink>
+        </CardBody>
+      </Card>
 
       {showTelegram ? (
         <Card className="min-w-0 md:col-span-2">

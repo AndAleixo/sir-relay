@@ -5,7 +5,6 @@ import {
 } from "../src/lib/client-upgrade";
 
 async function main() {
-  assert.ok(CLIENT_UPGRADE_MESSAGE.includes("Profile"));
   assert.ok(CLIENT_UPGRADE_MESSAGE.includes("/connect"));
   assert.ok(!/\b1\.0\b/.test(CLIENT_UPGRADE_MESSAGE), "upgrade copy must stay version-agnostic");
 

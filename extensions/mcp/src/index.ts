@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -27,7 +28,7 @@ function packageVersion(): string {
 function toolError(status: number, error: string) {
   const hint =
     status === 401
-      ? "Token rejected — open SirRelay → Profile → API keys (or /connect) for a new key."
+      ? "Token rejected — open SirRelay → /connect and create a new API key."
       : error;
   return {
     content: [{ type: "text" as const, text: `Error (${status}): ${hint}` }],
@@ -41,7 +42,7 @@ const origin = appOrigin(process.env.SIRRELAY_URL);
 
 if (!token) {
   console.error(
-    "sirrelay-mcp: set SIRRELAY_TOKEN (from SirRelay → Profile → API keys).",
+    "sirrelay-mcp: set SIRRELAY_TOKEN (from SirRelay → /connect)."
   );
   process.exit(1);
 }

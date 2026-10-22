@@ -28,7 +28,7 @@ Related docs: [UIUX.md](./UIUX.md) · [ARCHITECTURE.md](./ARCHITECTURE.md) · [B
 
 **In a group:** **Operator** — manage members/tasks, monitor web, Telegram relay + alerts. **Teammate** — Telegram primary; web My work / Team (edit own); may create self-assigned tasks. No web comment thread.
 
-**Positioning:** No KPI dashboards, leaderboards, or surveillance metrics. **Clients:** web first (Phase 1); VS Code / Cursor extension + MCP (`extensions/vscode`, `extensions/mcp`, `extensions/cursor-plugin`; shared `/api/v1/client/*`; `ClientApiKey` from Profile or `/connect`); optional Teams sideload package; native apps → Phase 3 (P3-13).
+**Positioning:** No KPI dashboards, leaderboards, or surveillance metrics. **Clients:** web first (Phase 1); VS Code / Cursor extension + MCP (`extensions/vscode`, `extensions/mcp`, `extensions/cursor-plugin`; shared `/api/v1/client/*`; `ClientApiKey` from `/connect`); optional Teams sideload package; native apps → Phase 3 (P3-13).
 
 **Languages:** UI locales `en-gb` · `es-es` · `pt-br` (DB may store short `en` / `es` / `pt`).
 
@@ -675,7 +675,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | GET | `/health` | 1 | Public |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
-**Bearer clients (shipped):** `/api/v1/client/board` · `POST /api/v1/client/tasks` · `PATCH /api/v1/client/tasks/:id` — `ClientApiKey` from Profile (**API keys**, optional group scope) or `/connect` (Editor key). Header `X-SirRelay-Client: extension|mcp/<semver>` (identity for future min-version gates). Retired `/api/v1/vscode/*` → **410** `{ error: "upgrade_required", message, minClient? }`. The session REST table above remains the planned cookie API; web UI uses server actions today.
+**Bearer clients (shipped):** `/api/v1/client/board` · `POST /api/v1/client/tasks` · `PATCH /api/v1/client/tasks/:id` — `ClientApiKey` from `/connect` (optional group scope; Profile links there). Header `X-SirRelay-Client: extension|mcp/<semver>` (identity for future min-version gates). Retired `/api/v1/vscode/*` → **410** `{ error: "upgrade_required", message, minClient? }`. The session REST table above remains the planned cookie API; web UI uses server actions today.
 
 ---
 

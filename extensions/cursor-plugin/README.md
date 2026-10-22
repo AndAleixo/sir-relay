@@ -6,11 +6,11 @@ Cursor Marketplace package for **`@sirrelay/mcp`**: the agent can list, create, 
 
 1. Install from the Cursor Marketplace (or [local test](#local-test) below).
 2. **Plugins → Configure**:
-   - **Link token** — [app.sirrelay.com](https://app.sirrelay.com) → **Profile** → **API keys** → create → copy
+   - **API key** — [app.sirrelay.com](https://app.sirrelay.com)/connect → create → copy
    - **App origin** (optional) — default `https://app.sirrelay.com`
 3. Chat: e.g. “list my SirRelay tasks”.
 
-Same key as the [VS Code / Cursor extension](../vscode/). Treat it like a password.
+Same keys as the [VS Code / Cursor extension](../vscode/). Treat like a password.
 
 ## Tools
 
@@ -30,7 +30,7 @@ mkdir -p ~/.cursor/plugins/local/sirrelay
 cp -R extensions/cursor-plugin/* ~/.cursor/plugins/local/sirrelay/
 ```
 
-Reload Window → **Plugins → Configure** → paste the Profile key into **Link token**.
+Reload Window → **Plugins → Configure** → paste the key from `/connect`.
 
 Requires [`@sirrelay/mcp`](https://www.npmjs.com/package/@sirrelay/mcp) on npm.
 

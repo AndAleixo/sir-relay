@@ -39,7 +39,7 @@ SirRelay is for **who wants to manage work** — their own tasks, or a group’s
 - Try demo (`/demo`) opens the app shell with a seed kept in the browser tab. Creating an account does not import it.
 - Signed-in web app: Tasks (board/list), Teammates, Projects, Events, Settings (group), Profile (account).
 - VS Code / Cursor extension: the signed-in user’s column in the sidebar (same tasks as the web; project filter).
-- MCP (`extensions/mcp`, `@sirrelay/mcp`): list / create / update / delete the signed-in user’s tasks from an AI client. Same `ClientApiKey` bearer as the editor (Profile → API keys, or `/[locale]/connect` · `/api/v1/client/*`); optional group scope per key; extension not required. Cursor install packaging: `extensions/cursor-plugin/` (Marketplace submit after npm publish — see `extensions/mcp/PUBLISH.md`).
+- MCP (`extensions/mcp`, `@sirrelay/mcp`): list / create / update / delete the signed-in user’s tasks from an AI client. Same `ClientApiKey` bearer as the editor (`/[locale]/connect` · `/api/v1/client/*`); optional group scope per key; Profile links to connect; extension not required. Cursor install packaging: `extensions/cursor-plugin/` (Marketplace submit after npm publish — see `extensions/mcp/PUBLISH.md`).
 - Teams package (`extensions/teams`): optional custom/sideload ZIP embedding the web board — not a public store listing unless a company Partner Center enrollment exists.
 - Chat bot for linked members (currently Telegram): task delivery, status replies, operator alerts.
 - Invite by email only; activation via `/join/<token>` or signup with the same email.

@@ -1,5 +1,5 @@
 -- Named API keys for editor / MCP (multi-key; optional group scope).
--- Clean break: drop single-hash column on users; clients create keys again from Profile.
+-- Clean break: drop single-hash column on users; clients create keys again from /connect.
 CREATE TABLE "client_api_keys" (
     "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,

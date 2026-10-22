@@ -3,22 +3,9 @@
 import {
   createClientApiKey,
   deleteClientApiKey,
-  issueLinkToken,
   type ClientApiKeyPublic,
 } from "@/lib/link-token";
-import { editorUriScheme } from "@/lib/connect-next";
 import { getServices } from "@/services";
-
-export async function connectClient(
-  schemeRaw: string,
-): Promise<{ token: string; uri: string } | { error: "unauthorized" }> {
-  const session = await getServices().auth.getSession();
-  if (!session) return { error: "unauthorized" };
-  const scheme = editorUriScheme(schemeRaw);
-  const token = await issueLinkToken(session.user.id);
-  const uri = `${scheme}://sirrelay.sirrelay/connect?token=${encodeURIComponent(token)}`;
-  return { token, uri };
-}
 
 export async function createClientApiKeyAction(input: {
   name: string;
@@ -32,7 +19,9 @@ export async function createClientApiKeyAction(input: {
 
   const memberships = await getServices().groups.listForUser(session.user.id);
   const memberIds = new Set(memberships.map((g) => g.id));
-  const groupIds = [...new Set(input.groupIds.map((id) => id.trim()).filter(Boolean))];
+  const groupIds = [
+    ...new Set(input.groupIds.map((id) => id.trim()).filter(Boolean)),
+  ];
   if (groupIds.some((id) => !memberIds.has(id))) {
     return { error: "bad_groups" };
   }

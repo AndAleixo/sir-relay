@@ -1,6 +1,6 @@
 # SirRelay — UI/UX
 
-**Purpose:** Layout, interaction, and visual behavior for the public landing (including the editor section), signed-in web app, Profile → API keys, `/connect` (editor deep-link), and Telegram copy.  
+**Purpose:** Layout, interaction, and visual behavior for the public landing (including the editor section), signed-in web app, `/connect` (API keys + IDE deep-link), Profile teaser to connect, and Telegram copy.  
 
 **Doc contract:** **How it looks and behaves on screen.** Product rules, acceptance IDs, and permissions → [REQUIREMENTS.md](./REQUIREMENTS.md). Visual tokens → [BRAND.md](./BRAND.md). Code map → [ARCHITECTURE.md](./ARCHITECTURE.md). Link to requirements for business rules; do not restate them here.
 
@@ -109,7 +109,7 @@ Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeade
 | Join group | `/join/[token]` | Yes | Set password / accept invite |
 | Privacy / Terms | `/privacy`, `/terms` | Yes | Canonical English pack `legal/en.json` · `CONTACT_EMAIL` |
 | No active group | `/groups` | App shell | Placeholder; **group panel opens** |
-| Link clients | `/connect` + Profile | Yes | Profile → **API keys** (name, groups, create/copy once/delete); `/connect` creates/replaces the Editor key and deep-links. Legacy `/vscode/connect` → `/connect`. |
+| Link clients | `/connect` | Yes | **API keys** hub (name, groups, create/copy once/delete + open IDE). Profile only links here. Legacy `/vscode/connect` → `/connect`. |
 
 **Group panel** (header): switch · create · join. Leave/delete → **Settings**. Rules: [REQUIREMENTS §5.1.1–5.1.2](./REQUIREMENTS.md#511-groups).
 
@@ -399,7 +399,7 @@ Primary nav tab (between Teammates and Events). Toolbar: hint + create/request (
 | Account | Own name; email read-only |
 | Language | Locale picker (persisted) |
 | Password | Change form |
-| API keys | Create (name + group permissions) / copy once / delete · link to `/connect` for editor deep-link |
+| API keys | Teaser → `/connect` (full create / copy once / delete lives on connect) |
 | Telegram | Link / unlink / new code · Open in Telegram |
 | Log out | Button |
 | Delete account | Ghost link next to Log out → `/profile/delete` · password + confirm (P1-AUTH-15) |

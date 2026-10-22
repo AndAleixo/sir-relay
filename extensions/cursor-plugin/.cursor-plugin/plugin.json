@@ -15,8 +15,8 @@
     "properties": {
       "SIRRELAY_TOKEN": {
         "type": "string",
-        "title": "Link token",
-        "description": "From SirRelay → Profile → API keys (or Link this editor). Treat like a password."
+        "title": "API key",
+        "description": "From SirRelay → /connect. Treat like a password."
       },
       "SIRRELAY_URL": {
         "type": "string",

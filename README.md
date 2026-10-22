@@ -2,7 +2,7 @@
 
 Hosted **web** task tool for small groups (by **Sir**), with optional **Telegram** relay, **VS Code / Cursor** extension, and **MCP** (`@sirrelay/mcp`). One active Telegram task per assignee; reply `done` → next in queue. No KPI dashboards.
 
-Editor / MCP: **Profile → API keys** (named keys, optional group scope; `/connect` creates/replaces the Editor key).
+Editor / MCP: **`/connect`** manages named API keys (optional group scope); Profile links there.
 
 | | |
 |---|---|

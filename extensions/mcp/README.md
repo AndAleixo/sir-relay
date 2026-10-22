@@ -5,10 +5,11 @@ SirRelay MCP (stdio): list, create, update, and delete **your** board tasks from
 ## Get a key
 
 1. Sign in at [app.sirrelay.com](https://app.sirrelay.com)
-2. **Profile** → **API keys** → create (name + groups) → copy
-3. Paste into `SIRRELAY_TOKEN` (treat like a password)
+2. Open **`/connect`** (or Profile → **Manage API keys**)
+3. Create a named key (optional group scope) → copy once
+4. Paste into `SIRRELAY_TOKEN` (treat like a password)
 
-Same keys as the VS Code / Cursor extension. For automatic editor linking, use **Link this editor** (`/connect`) — that creates/replaces the Editor key.
+After create you can also **Open in the IDE** for the VS Code / Cursor extension (same key).
 
 ## Install
 
@@ -19,7 +20,7 @@ Same keys as the VS Code / Cursor extension. For automatic editor linking, use *
       "command": "npx",
       "args": ["-y", "@sirrelay/mcp"],
       "env": {
-        "SIRRELAY_TOKEN": "paste-from-profile",
+        "SIRRELAY_TOKEN": "paste-from-connect",
         "SIRRELAY_URL": "https://app.sirrelay.com"
       }
     }
@@ -29,10 +30,10 @@ Same keys as the VS Code / Cursor extension. For automatic editor linking, use *
 
 | Env | Required | Meaning |
 | --- | --- | --- |
-| `SIRRELAY_TOKEN` | yes | API key from Profile |
+| `SIRRELAY_TOKEN` | yes | API key from `/connect` |
 | `SIRRELAY_URL` | no | Default `https://app.sirrelay.com` |
 
-Keep `mcp.json` out of git. Rotate or revoke from Profile if leaked.
+Keep `mcp.json` out of git. Delete the key on `/connect` if leaked.
 
 ## Tools
 

@@ -7,6 +7,7 @@ import { ConnectClient } from "@/components/connect/connect-client";
 import { Card, CardBody } from "@/components/ui/card";
 import { loginPath } from "@/lib/entry-route";
 import { editorUriScheme } from "@/lib/connect-next";
+import { listClientApiKeys } from "@/lib/link-token";
 import { getServices } from "@/services";
 
 export default async function ConnectPage({
@@ -29,21 +30,32 @@ export default async function ConnectPage({
     );
   }
 
+  const { groups } = getServices();
+  const [apiKeys, groupList] = await Promise.all([
+    listClientApiKeys(session.user.id),
+    groups.listForUser(session.user.id),
+  ]);
+  const apiKeyGroups = groupList.map((g) => ({ id: g.id, name: g.name }));
+
   return (
     <div className={`${authShellStyles.shell} flex min-h-screen flex-col`}>
-      <div className={authShellStyles.loginWrap}>
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center py-12">
         <AuthPageHeader locale={locale} />
         <Card>
-          <CardBody className="space-y-4">
+          <CardBody className="space-y-5">
             <div className="text-center">
               <h1 className="text-xl font-semibold text-[var(--text-primary)]">
-                {t("landing.editor.linkTitle")}
+                {t("profile.linkKeySection")}
               </h1>
               <p className="mt-1 text-sm text-[var(--text-muted)]">
-                {t("landing.editor.accountLine", { name: session.user.name })}
+                {t("profile.linkKeyPageLead", { name: session.user.name })}
               </p>
             </div>
-            <ConnectClient scheme={scheme} />
+            <ConnectClient
+              scheme={scheme}
+              initialKeys={apiKeys}
+              groups={apiKeyGroups}
+            />
           </CardBody>
         </Card>
       </div>

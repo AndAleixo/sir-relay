@@ -6,10 +6,8 @@ async function main() {
   const {
     createClientApiKey,
     deleteClientApiKey,
-    issueLinkToken,
     listClientApiKeys,
     userIdForLinkToken,
-    EDITOR_API_KEY_NAME,
   } = await import("../src/lib/link-token");
 
   const userId = "user-link-token-check";
@@ -26,25 +24,18 @@ async function main() {
   assert.equal((await listClientApiKeys(userId))[0].name, "MCP Casa");
   assert.deepEqual((await listClientApiKeys(userId))[0].groupIds, ["group-a"]);
 
-  const editorToken = await issueLinkToken(userId);
-  assert.notEqual(editorToken, created.token);
+  const second = await createClientApiKey(userId, {
+    name: "VS Code",
+    groupIds: [],
+  });
+  assert.ok(!("error" in second));
+  assert.equal((await listClientApiKeys(userId)).length, 2);
   assert.equal(await userIdForLinkToken(created.token), userId);
-  assert.equal(await userIdForLinkToken(editorToken), userId);
-  const afterEditor = await listClientApiKeys(userId);
-  assert.equal(afterEditor.length, 2);
-  assert.ok(afterEditor.some((k) => k.name === EDITOR_API_KEY_NAME));
-
-  const rotated = await issueLinkToken(userId);
-  assert.equal(await userIdForLinkToken(editorToken), null);
-  assert.equal(await userIdForLinkToken(rotated), userId);
-  assert.equal(
-    (await listClientApiKeys(userId)).filter((k) => k.name === EDITOR_API_KEY_NAME)
-      .length,
-    1,
-  );
+  assert.equal(await userIdForLinkToken(second.token), userId);
 
   assert.equal(await deleteClientApiKey(userId, created.key.id), true);
   assert.equal(await userIdForLinkToken(created.token), null);
+  assert.equal(await userIdForLinkToken(second.token), userId);
 
   const bad = await createClientApiKey(userId, { name: "  " });
   assert.deepEqual(bad, { error: "bad_name" });

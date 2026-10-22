@@ -29,6 +29,12 @@ export async function PATCH(
       const title = String(body.title ?? "").trim();
       if (!title) return NextResponse.json({ error: "title" }, { status: 400 });
       await tasks.updateTaskFields(id, { title }, { session });
+    } else if (body.op === "project") {
+      const projectId =
+        body.projectId == null || body.projectId === ""
+          ? null
+          : String(body.projectId);
+      await tasks.updateTaskFields(id, { projectId }, { session });
     } else if (body.op === "reorder" && Array.isArray(body.orderedTodoIds)) {
       const orderedTodoIds = body.orderedTodoIds.map((item) => String(item));
       await tasks.placeInTodoQueue(id, session.user.id, orderedTodoIds, { session });

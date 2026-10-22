@@ -18,6 +18,7 @@ const state = {
   editingId: null,
   cancelEdit: false,
   menuId: null,
+  projectMenuId: null,
   /** "" = all tasks, else project id. */
   projectFilter: "",
   doneHidden: vscode.getState()?.doneHidden !== false,
@@ -64,11 +65,43 @@ function dueLabel(iso) {
   return `${day}/${month}/${year}`;
 }
 
+function projectPicker(task) {
+  const open = state.projectMenuId === task.id;
+  const projects = state.board?.projects ?? [];
+  const rows = [{ value: "", label: "None" }];
+  if (
+    task.projectId &&
+    task.acronym &&
+    !projects.some((project) => project.id === task.projectId)
+  ) {
+    rows.push({ value: task.projectId, label: task.acronym });
+  }
+  for (const project of projects) {
+    rows.push({
+      value: project.id,
+      label: project.acronym,
+      hint: project.name,
+    });
+  }
+  const trigger = task.acronym
+    ? `<button type="button" class="acronym-btn${open ? " open" : ""}" data-project-menu="${task.id}" aria-label="Project" aria-haspopup="menu" aria-expanded="${open}" ${state.busy ? "disabled" : ""}>${escapeHtml(task.acronym)}</button><span class="acronym-sep">·</span>`
+    : `<button type="button" class="acronym-btn muted${open ? " open" : ""}" data-project-menu="${task.id}" aria-label="Project" aria-haspopup="menu" aria-expanded="${open}" ${state.busy ? "disabled" : ""}>+</button>`;
+  const strip = open
+    ? `<div class="project-strip" role="menu">${rows
+        .map((row) => {
+          const active = (task.projectId || "") === row.value;
+          return `<button type="button" role="menuitem" class="project-chip${active ? " active" : ""}" data-set-project="${task.id}" data-project-value="${escapeHtml(row.value)}" title="${escapeHtml(row.hint || row.label)}" ${state.busy ? "disabled" : ""}>${escapeHtml(row.label)}</button>`;
+        })
+        .join("")}</div>`
+    : "";
+  return `<span class="project-root">${trigger}${strip}</span>`;
+}
+
 function card(task, primary, menu) {
   const title =
     state.editingId === task.id
       ? `<input class="title-input" data-title="${task.id}" value="${escapeHtml(task.title)}" ${state.busy ? "disabled" : ""} />`
-      : `<button type="button" class="title" data-edit="${task.id}" ${state.busy ? "disabled" : ""}>${task.acronym ? `<span class="acronym">${escapeHtml(task.acronym)}</span> · ` : ""}${escapeHtml(task.title)}</button>`;
+      : `<button type="button" class="title" data-edit="${task.id}" ${state.busy ? "disabled" : ""}>${escapeHtml(task.title)}</button>`;
   const due = task.due
     ? `<p class="due${task.status !== "done" && task.due < today() ? " overdue" : ""}">${escapeHtml(dueLabel(task.due))}</p>`
     : "";
@@ -78,7 +111,7 @@ function card(task, primary, menu) {
   return `<article class="card">
     <span class="handle ${escapeHtml(task.difficulty)}"></span>
     <div class="body">
-      ${title}
+      <div class="title-row">${projectPicker(task)}${title}</div>
       ${description}
       ${due}
     </div>
@@ -372,6 +405,7 @@ function bind() {
     state.busy = true;
     state.creating = false;
     state.menuId = null;
+    state.projectMenuId = null;
     state.draft = emptyDraft();
     render();
     vscode.postMessage({ type: "select-group", groupId: event.target.value });
@@ -380,12 +414,14 @@ function bind() {
     if (state.busy) return;
     state.projectFilter = event.target.value;
     state.menuId = null;
+    state.projectMenuId = null;
     render();
     vscode.postMessage({ type: "select-project", projectFilter: event.target.value });
   });
   document.getElementById("open-create")?.addEventListener("click", () => {
     state.creating = true;
     state.menuId = null;
+    state.projectMenuId = null;
     state.draft = { ...emptyDraft(), projectId: defaultCreateProjectId() };
     render();
     app.querySelector("#create [name=title]")?.focus();
@@ -454,14 +490,43 @@ function bind() {
       event.stopPropagation();
       if (state.busy) return;
       const id = button.getAttribute("data-menu");
+      state.projectMenuId = null;
       state.menuId = state.menuId === id ? null : id;
       render();
+    });
+  }
+  for (const button of app.querySelectorAll("[data-project-menu]")) {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (state.busy) return;
+      const id = button.getAttribute("data-project-menu");
+      state.menuId = null;
+      state.projectMenuId = state.projectMenuId === id ? null : id;
+      render();
+    });
+  }
+  for (const button of app.querySelectorAll("[data-set-project]")) {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (state.busy) return;
+      const id = button.getAttribute("data-set-project");
+      const projectId = button.getAttribute("data-project-value") ?? "";
+      const current = state.board?.tasks?.find((task) => task.id === id);
+      state.projectMenuId = null;
+      if ((current?.projectId || "") === projectId) {
+        render();
+        return;
+      }
+      state.busy = true;
+      render();
+      vscode.postMessage({ type: "project", id, projectId });
     });
   }
   for (const button of app.querySelectorAll("[data-open]")) {
     button.addEventListener("click", (event) => {
       event.stopPropagation();
       state.menuId = null;
+      state.projectMenuId = null;
       render();
       vscode.postMessage({ type: "open-task", id: button.getAttribute("data-open") });
     });
@@ -471,6 +536,7 @@ function bind() {
       event.stopPropagation();
       if (state.busy) return;
       state.menuId = null;
+      state.projectMenuId = null;
       state.busy = true;
       render();
       vscode.postMessage({ type: "clone", id: button.getAttribute("data-clone") });
@@ -481,6 +547,7 @@ function bind() {
       event.stopPropagation();
       if (state.busy) return;
       state.menuId = null;
+      state.projectMenuId = null;
       state.busy = true;
       render();
       vscode.postMessage({ type: "delete", id: button.getAttribute("data-delete") });
@@ -492,9 +559,10 @@ function bind() {
   for (const button of app.querySelectorAll("[data-done]")) {
     button.addEventListener("click", () => sendMove(button, "data-done", "done"));
   }
-  if (state.menuId) {
+  if (state.menuId || state.projectMenuId) {
     const close = () => {
       state.menuId = null;
+      state.projectMenuId = null;
       render();
     };
     setTimeout(() => {
@@ -521,6 +589,7 @@ window.addEventListener("message", (event) => {
   state.loading = false;
   state.busy = false;
   state.menuId = null;
+  state.projectMenuId = null;
   state.signedIn = message.signedIn;
   state.projectFilter = message.projectFilter || "";
   if (message.board) state.board = message.board;

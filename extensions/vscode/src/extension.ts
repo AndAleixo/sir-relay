@@ -24,7 +24,8 @@ type WebviewMessage =
   | { type: "select-project"; projectFilter: string }
   | { type: "create"; fields: Record<string, string> }
   | { type: "move"; id: string; status: "doing" | "done" }
-  | { type: "title"; id: string; title: string };
+  | { type: "title"; id: string; title: string }
+  | { type: "project"; id: string; projectId: string };
 
 let panel: vscode.Webview | undefined;
 let boardView: vscode.WebviewView | undefined;
@@ -259,6 +260,13 @@ async function onMessage(
     await mutate(context, token, groupId, message.id, {
       op: "title",
       title: message.title,
+    });
+    return;
+  }
+  if (message.type === "project") {
+    await mutate(context, token, groupId, message.id, {
+      op: "project",
+      projectId: message.projectId,
     });
   }
 }

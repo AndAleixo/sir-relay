@@ -16,6 +16,7 @@ A new code replaces the previous one.
 - Filter by project (default **Project** shows all). The choice is remembered per group.
 - Add a task: title, assignee, project, difficulty, due date, description. With a project filter active, that project is pre-selected.
 - Start a to-do or complete the one in progress.
+- Change a task’s project from the acronym (lateral strip, like on the site). Untagged tasks use **+**.
 - Open, clone, or delete a task from the ⋯ menu. Open on SRelay also sits in the view title bar.
 - Edit a title. Escape cancels.
 - Hide **Done**. It starts hidden.

@@ -6,9 +6,9 @@ VS Code / Cursor extension for **SirRelay** ([app.sirrelay.com](https://app.sirr
 
 1. Open the **SRelay** icon in the activity bar → **Sign in**.
 2. The site opens **Link this editor** (`/connect`) and can deep-link the token into the editor.
-3. If the editor does not open: copy the key on the site (or from **Profile → Editor & MCP key**) and use **I have a code**.
+3. If the editor does not open: copy the code on the site (or create a key in **Profile → API keys**) and use **I have a code**.
 
-A new key replaces the previous one. Same key as the [MCP](../mcp/README.md).
+**Link this editor** creates/replaces the Editor API key. Same keys as the [MCP](../mcp/README.md).
 
 **v1.0+** uses `/connect` and `/api/v1/client/*`. Re-link after upgrading from 0.x.
 

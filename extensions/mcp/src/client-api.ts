@@ -1,7 +1,7 @@
 /** Shared HTTPS client for /api/v1/client/* — origin/token only from process env (no tool SSRF). */
 
 export const UPGRADE_MCP_MESSAGE =
-  "This SRelay MCP is out of date. Update @sirrelay/mcp to the latest version, then create a new key in Profile (or /connect).";
+  "This SRelay MCP is out of date. Update @sirrelay/mcp to the latest version, then create a new API key in Profile (or /connect).";
 
 /** Reject path tricks; ids are opaque server strings (e.g. task-…). */
 export function assertSafeId(id: string, label: string): string {

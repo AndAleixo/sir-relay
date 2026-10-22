@@ -5,10 +5,10 @@ SirRelay MCP (stdio): list, create, update, and delete **your** board tasks from
 ## Get a key
 
 1. Sign in at [app.sirrelay.com](https://app.sirrelay.com)
-2. **Profile** → **Editor & MCP key** → create → copy
+2. **Profile** → **API keys** → create (name + groups) → copy
 3. Paste into `SIRRELAY_TOKEN` (treat like a password)
 
-Same key as the VS Code / Cursor extension. For automatic editor linking, use **Link this editor** (`/connect`) instead.
+Same keys as the VS Code / Cursor extension. For automatic editor linking, use **Link this editor** (`/connect`) — that creates/replaces the Editor key.
 
 ## Install
 
@@ -29,7 +29,7 @@ Same key as the VS Code / Cursor extension. For automatic editor linking, use **
 
 | Env | Required | Meaning |
 | --- | --- | --- |
-| `SIRRELAY_TOKEN` | yes | Key from Profile |
+| `SIRRELAY_TOKEN` | yes | API key from Profile |
 | `SIRRELAY_URL` | no | Default `https://app.sirrelay.com` |
 
 Keep `mcp.json` out of git. Rotate or revoke from Profile if leaked.

@@ -16,7 +16,7 @@
       "SIRRELAY_TOKEN": {
         "type": "string",
         "title": "Link token",
-        "description": "From SirRelay → Profile → Editor & MCP key (or Link this editor). Treat like a password."
+        "description": "From SirRelay → Profile → API keys (or Link this editor). Treat like a password."
       },
       "SIRRELAY_URL": {
         "type": "string",

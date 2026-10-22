@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
 import { AccountProfile } from "@/components/profile/account-profile";
 import { telegramBotUrl } from "@/lib/app-url";
-import { hasLinkToken } from "@/lib/link-token";
+import { listClientApiKeys } from "@/lib/link-token";
 import { requireSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 
@@ -20,10 +20,15 @@ export default async function ProfilePage({
   const { passwordError, nameError } = await searchParams;
   const t = await getTranslations();
   const session = await requireSession(locale);
-  const { teammates, users } = getServices();
+  const { teammates, users, groups } = getServices();
   const { user } = session;
   const teammate =
     user.role === "teammate" ? await teammates.getTeammate(user.id, { session }) : null;
+  const [apiKeys, groupList] = await Promise.all([
+    listClientApiKeys(user.id),
+    groups.listForUser(user.id),
+  ]);
+  const apiKeyGroups = groupList.map((g) => ({ id: g.id, name: g.name }));
 
   const telegramStatus = teammate?.telegramStatus ?? user.telegramStatus ?? "pending";
   const telegramToken =
@@ -42,7 +47,6 @@ export default async function ProfilePage({
           : null;
 
   const showTelegram = Boolean(teammate || user.role === "operator");
-  const linkTokenActive = await hasLinkToken(user.id);
 
   return (
     <>
@@ -53,7 +57,8 @@ export default async function ProfilePage({
       <AccountProfile
         locale={locale}
         user={user}
-        hasLinkToken={linkTokenActive}
+        apiKeys={apiKeys}
+        apiKeyGroups={apiKeyGroups}
         telegramStatus={telegramStatus}
         telegramUrl={telegramUrl}
         showTelegram={showTelegram}

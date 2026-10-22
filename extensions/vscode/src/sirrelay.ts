@@ -25,7 +25,7 @@ export { taskMatchesProject } from "./project-filter";
 
 /** Fallback when the server omits `message` on upgrade_required. */
 export const UPGRADE_EXTENSION_MESSAGE =
-  "This SRelay extension is out of date. Update to the latest version, then create a new key in Profile (or Link this editor /connect).";
+  "This SRelay extension is out of date. Update to the latest version, then create a new API key in Profile (or Link this editor /connect).";
 
 let clientVersion = "0.0.0";
 

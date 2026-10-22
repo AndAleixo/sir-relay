@@ -19,11 +19,14 @@ import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
 import type { TelegramLinkStatus, User } from "@/domain/types";
+import type { ClientApiKeyPublic } from "@/lib/link-token";
+import type { ApiKeyGroupOption } from "@/components/profile/link-token-card";
 
 export type AccountProfileProps = {
   locale: string;
   user: User;
-  hasLinkToken: boolean;
+  apiKeys: ClientApiKeyPublic[];
+  apiKeyGroups: ApiKeyGroupOption[];
   telegramStatus: TelegramLinkStatus;
   telegramUrl: string;
   showTelegram: boolean;
@@ -34,7 +37,8 @@ export type AccountProfileProps = {
 export function AccountProfile({
   locale,
   user,
-  hasLinkToken,
+  apiKeys,
+  apiKeyGroups,
   telegramStatus,
   telegramUrl,
   showTelegram,
@@ -133,7 +137,11 @@ export function AccountProfile({
         </CardBody>
       </Card>
 
-      <LinkTokenCard locale={locale} initiallyHasKey={hasLinkToken} />
+      <LinkTokenCard
+        locale={locale}
+        initialKeys={apiKeys}
+        groups={apiKeyGroups}
+      />
 
       {showTelegram ? (
         <Card className="min-w-0 md:col-span-2">

@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import type { Session, User } from "@/domain/types";
 import { hashToken, newToken } from "@/lib/token-hash";
 import { prisma } from "@/lib/prisma";
@@ -5,46 +6,209 @@ import { getServices, serviceMode } from "@/services";
 import { MOCK_OPERATORS, MOCK_TEAMMATES } from "@/services/mock/data";
 import { toUser } from "@/services/api/mappers";
 
-/** ponytail: mock has no user column; one process-local token per account. */
-const mockTokenByUser = new Map<string, string>();
+export const EDITOR_API_KEY_NAME = "Editor";
+export const MAX_API_KEYS_PER_USER = 10;
+export const MAX_API_KEY_NAME_LEN = 40;
 
-export async function issueLinkToken(userId: string): Promise<string> {
+export type ClientApiKeyPublic = {
+  id: string;
+  name: string;
+  prefix: string;
+  /** Empty = all groups. */
+  groupIds: string[];
+  createdAt: string;
+};
+
+type MockKey = {
+  id: string;
+  userId: string;
+  name: string;
+  tokenHash: string;
+  prefix: string;
+  groupIds: string[];
+  createdAt: Date;
+};
+
+/** ponytail: mock has no ClientApiKey table; process-local rows. */
+const mockKeys: MockKey[] = [];
+
+function newKeyId(): string {
+  return `cak_${randomBytes(12).toString("base64url")}`;
+}
+
+function tokenPrefix(token: string): string {
+  return token.length <= 12 ? token : `${token.slice(0, 12)}…`;
+}
+
+function normalizeName(raw: string): string | null {
+  const name = raw.trim().replace(/\s+/g, " ");
+  if (name.length < 1 || name.length > MAX_API_KEY_NAME_LEN) return null;
+  return name;
+}
+
+function normalizeGroupIds(raw: string[] | undefined): string[] {
+  if (!raw?.length) return [];
+  return [...new Set(raw.map((id) => id.trim()).filter(Boolean))];
+}
+
+export async function listClientApiKeys(
+  userId: string,
+): Promise<ClientApiKeyPublic[]> {
+  if (serviceMode === "api") {
+    const rows = await prisma.clientApiKey.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        prefix: true,
+        groupIds: true,
+        createdAt: true,
+      },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      prefix: row.prefix,
+      groupIds: row.groupIds,
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
+  return mockKeys
+    .filter((row) => row.userId === userId)
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .map((row) => ({
+      id: row.id,
+      name: row.name,
+      prefix: row.prefix,
+      groupIds: row.groupIds,
+      createdAt: row.createdAt.toISOString(),
+    }));
+}
+
+export async function createClientApiKey(
+  userId: string,
+  opts: { name: string; groupIds?: string[] },
+): Promise<
+  { token: string; key: ClientApiKeyPublic } | { error: "bad_name" | "limit" }
+> {
+  const name = normalizeName(opts.name);
+  if (!name) return { error: "bad_name" };
+  const groupIds = normalizeGroupIds(opts.groupIds);
+  const existing = await listClientApiKeys(userId);
+  if (existing.length >= MAX_API_KEYS_PER_USER) return { error: "limit" };
+
   const token = newToken("link");
   const tokenHash = hashToken(token);
+  const prefix = tokenPrefix(token);
+  const id = newKeyId();
+  const createdAt = new Date();
+
   if (serviceMode === "api") {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { linkTokenHash: tokenHash },
+    const row = await prisma.clientApiKey.create({
+      data: { id, userId, name, tokenHash, prefix, groupIds },
     });
-    return token;
+    return {
+      token,
+      key: {
+        id: row.id,
+        name: row.name,
+        prefix: row.prefix,
+        groupIds: row.groupIds,
+        createdAt: row.createdAt.toISOString(),
+      },
+    };
   }
-  for (const [id, hash] of mockTokenByUser) {
-    if (id === userId || hash === tokenHash) mockTokenByUser.delete(id);
-  }
-  mockTokenByUser.set(userId, tokenHash);
-  return token;
+
+  mockKeys.push({ id, userId, name, tokenHash, prefix, groupIds, createdAt });
+  return {
+    token,
+    key: {
+      id,
+      name,
+      prefix,
+      groupIds,
+      createdAt: createdAt.toISOString(),
+    },
+  };
 }
 
-export async function hasLinkToken(userId: string): Promise<boolean> {
+export async function deleteClientApiKey(
+  userId: string,
+  keyId: string,
+): Promise<boolean> {
   if (serviceMode === "api") {
-    const row = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { linkTokenHash: true },
+    const result = await prisma.clientApiKey.deleteMany({
+      where: { id: keyId, userId },
     });
-    return Boolean(row?.linkTokenHash);
+    return result.count > 0;
   }
-  return mockTokenByUser.has(userId);
+  const idx = mockKeys.findIndex(
+    (row) => row.id === keyId && row.userId === userId,
+  );
+  if (idx < 0) return false;
+  mockKeys.splice(idx, 1);
+  return true;
 }
 
-export async function revokeLinkToken(userId: string): Promise<void> {
+/** /connect: replace the dedicated Editor key (at most one auto-link key). */
+export async function issueLinkToken(userId: string): Promise<string> {
   if (serviceMode === "api") {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { linkTokenHash: null },
+    await prisma.clientApiKey.deleteMany({
+      where: { userId, name: EDITOR_API_KEY_NAME },
     });
-    return;
+  } else {
+    for (let i = mockKeys.length - 1; i >= 0; i--) {
+      if (
+        mockKeys[i].userId === userId &&
+        mockKeys[i].name === EDITOR_API_KEY_NAME
+      ) {
+        mockKeys.splice(i, 1);
+      }
+    }
   }
-  mockTokenByUser.delete(userId);
+  const result = await createClientApiKey(userId, {
+    name: EDITOR_API_KEY_NAME,
+    groupIds: [],
+  });
+  if ("error" in result) {
+    throw new Error(`issueLinkToken failed: ${result.error}`);
+  }
+  return result.token;
+}
+
+type ResolvedToken = {
+  userId: string;
+  allowedGroupIds: string[];
+};
+
+async function resolveLinkToken(token: string): Promise<ResolvedToken | null> {
+  const tokenHash = hashToken(token.trim());
+  if (!tokenHash) return null;
+
+  if (serviceMode === "api") {
+    const key = await prisma.clientApiKey.findUnique({
+      where: { tokenHash },
+      select: {
+        id: true,
+        userId: true,
+        groupIds: true,
+        user: { select: { active: true } },
+      },
+    });
+    if (!key?.user.active) return null;
+    void prisma.clientApiKey
+      .update({
+        where: { id: key.id },
+        data: { lastUsedAt: new Date() },
+      })
+      .catch(() => undefined);
+    return { userId: key.userId, allowedGroupIds: key.groupIds };
+  }
+
+  const mock = mockKeys.find((row) => row.tokenHash === tokenHash);
+  if (!mock) return null;
+  return { userId: mock.userId, allowedGroupIds: mock.groupIds };
 }
 
 export async function sessionFromClientRequest(
@@ -53,25 +217,20 @@ export async function sessionFromClientRequest(
 ): Promise<Session | null> {
   const header = request.headers.get("authorization") ?? "";
   if (!header.startsWith("Bearer ")) return null;
-  const userId = await userIdForLinkToken(header.slice("Bearer ".length));
-  if (!userId) return null;
-  return sessionForClientUser(userId, groupId);
+  const resolved = await resolveLinkToken(header.slice("Bearer ".length));
+  if (!resolved) return null;
+  return sessionForClientUser(
+    resolved.userId,
+    groupId,
+    resolved.allowedGroupIds,
+  );
 }
 
-export async function userIdForLinkToken(token: string): Promise<string | null> {
-  const tokenHash = hashToken(token.trim());
-  if (!tokenHash) return null;
-  if (serviceMode === "api") {
-    const user = await prisma.user.findUnique({
-      where: { linkTokenHash: tokenHash },
-      select: { id: true, active: true },
-    });
-    return user?.active ? user.id : null;
-  }
-  for (const [userId, hash] of mockTokenByUser) {
-    if (hash === tokenHash) return userId;
-  }
-  return null;
+export async function userIdForLinkToken(
+  token: string,
+): Promise<string | null> {
+  const resolved = await resolveLinkToken(token);
+  return resolved?.userId ?? null;
 }
 
 function mockUser(userId: string): User | null {
@@ -86,9 +245,18 @@ function mockUser(userId: string): User | null {
 export async function sessionForClientUser(
   userId: string,
   groupId: string | null,
+  allowedGroupIds: string[] = [],
 ): Promise<Session | null> {
-  const groups = await getServices().groups.listForUser(userId);
-  const group = groups.find((row) => row.id === groupId) ?? groups[0] ?? null;
+  let groups = await getServices().groups.listForUser(userId);
+  if (allowedGroupIds.length > 0) {
+    const allow = new Set(allowedGroupIds);
+    groups = groups.filter((row) => allow.has(row.id));
+  }
+  const group =
+    groups.find((row) => row.id === groupId) ?? groups[0] ?? null;
+  if (groupId && allowedGroupIds.length > 0 && !group) {
+    return null;
+  }
 
   if (serviceMode === "api") {
     const row = await prisma.user.findUnique({ where: { id: userId } });

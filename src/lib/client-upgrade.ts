@@ -9,7 +9,7 @@ import { NextResponse } from "next/server";
  * against `minClient` or env without changing the status/error code.
  */
 export const CLIENT_UPGRADE_MESSAGE =
-  "This SRelay client is out of date. Update to the latest extension or @sirrelay/mcp, then create a new key in Profile (or Link this editor /connect).";
+  "This SRelay client is out of date. Update to the latest extension or @sirrelay/mcp, then create a new API key in Profile (or Link this editor /connect).";
 
 export type UpgradeRequiredBody = {
   error: "upgrade_required";

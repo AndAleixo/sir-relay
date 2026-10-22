@@ -25,7 +25,7 @@ src/
 │   ├── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
 │   ├── client-board.ts   # Client board payload + create input
 │   ├── client-upgrade.ts # 410 upgrade_required (+ optional minClient)
-│   ├── link-token.ts     # Bearer session from link token
+│   ├── link-token.ts     # ClientApiKey issue/resolve + bearer session
 │   ├── connect-next.ts   # Safe return path for /connect
 │   └── mail/             # P3-17 — sendMail · tokens · templates
 ├── app/actions/
@@ -38,7 +38,7 @@ src/
 │   ├── export.ts         # CSV export (server action)
 │   ├── settings.ts       # Locale + group rename
 │   ├── projects.ts       # Group projects + categories
-│   └── connect.ts        # Issue / revoke link token (Profile + /connect deep-link)
+│   └── connect.ts        # Client API keys + /connect Editor deep-link
 ├── app/api/v1/client/    # Bearer board + task mutate (editor extension + MCP)
 ├── app/api/v1/vscode/    # Retired — 410 upgrade_required (old clients)
 └── app/[locale]/
@@ -50,7 +50,7 @@ src/
 
 **Editor extension:** `extensions/vscode/` (v1.x) — sidebar webview (SRelay); talks HTTP to `/api/v1/client/*` only (no Next `src/` imports).
 
-**MCP:** `extensions/mcp/` (`@sirrelay/mcp` 1.x) — stdio; list / create / update / delete via `/api/v1/client/*`. Same Bearer as the extension (Profile → Editor & MCP key, or `/connect`). Cursor packaging: `extensions/cursor-plugin/`.
+**MCP:** `extensions/mcp/` (`@sirrelay/mcp` 1.x) — stdio; list / create / update / delete via `/api/v1/client/*`. Bearer = `ClientApiKey` (Profile → API keys, or `/connect` Editor key). Cursor packaging: `extensions/cursor-plugin/`.
 
 **Teams:** `extensions/teams/` — sideload ZIP (manifest + icons) embedding the live web board.
 
@@ -94,7 +94,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 | `/[locale]/profile/delete` | Session | private | Hard-delete account confirm (P1-AUTH-15) |
-| `/[locale]/connect` | Session | private | Link token for VS Code / Cursor deep-link (same key as Profile → Editor & MCP key / `SIRRELAY_TOKEN`) |
+| `/[locale]/connect` | Session | private | Creates/replaces Editor `ClientApiKey` and deep-links VS Code / Cursor (`SIRRELAY_TOKEN`) |
 | `/[locale]/vscode/connect` | Session | private | Legacy redirect → `/connect` |
 
 **Backend (Phase 1–2 + P3-17):** Prisma + server actions · `/api/v1/health` · Telegram webhook · `/api/v1/client/*` (bearer board/tasks for the editor extension and MCP) · SEC base + CSRF Origin guard in `proxy.ts` · outbound mail (`lib/mail` / Resend) · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS).

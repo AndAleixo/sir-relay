@@ -1,8 +1,8 @@
 {
   "name": "sirrelay",
-  "displayName": "Sir Relay",
+  "displayName": "SRelay",
   "description": "Organize your own work, or a group's. Your tasks stay in the sidebar.",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "publisher": "sirrelay",
   "license": "FSL-1.1-MIT",
   "icon": "media/icon.png",

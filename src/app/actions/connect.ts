@@ -1,16 +1,16 @@
 "use server";
 
-import { issueVsCodeToken } from "@/lib/vscode-link";
-import { vsCodeScheme } from "@/lib/vscode-next";
+import { issueLinkToken } from "@/lib/link-token";
+import { editorUriScheme } from "@/lib/connect-next";
 import { getServices } from "@/services";
 
-export async function connectVsCode(
+export async function connectClient(
   schemeRaw: string,
 ): Promise<{ token: string; uri: string } | { error: "unauthorized" }> {
   const session = await getServices().auth.getSession();
   if (!session) return { error: "unauthorized" };
-  const scheme = vsCodeScheme(schemeRaw);
-  const token = await issueVsCodeToken(session.user.id);
+  const scheme = editorUriScheme(schemeRaw);
+  const token = await issueLinkToken(session.user.id);
   const uri = `${scheme}://sirrelay.sirrelay/connect?token=${encodeURIComponent(token)}`;
   return { token, uri };
 }

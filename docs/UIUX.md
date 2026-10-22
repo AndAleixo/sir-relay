@@ -1,6 +1,6 @@
 # SirRelay — UI/UX
 
-**Purpose:** Layout, interaction, and visual behavior for the public landing (including the editor section), signed-in web app, VS Code / Cursor connect page, and Telegram copy.  
+**Purpose:** Layout, interaction, and visual behavior for the public landing (including the editor section), signed-in web app, `/connect` (editor + MCP link token), and Telegram copy.  
 
 **Doc contract:** **How it looks and behaves on screen.** Product rules, acceptance IDs, and permissions → [REQUIREMENTS.md](./REQUIREMENTS.md). Visual tokens → [BRAND.md](./BRAND.md). Code map → [ARCHITECTURE.md](./ARCHITECTURE.md). Link to requirements for business rules; do not restate them here.
 
@@ -109,7 +109,7 @@ Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeade
 | Join group | `/join/[token]` | Yes | Set password / accept invite |
 | Privacy / Terms | `/privacy`, `/terms` | Yes | Canonical English pack `legal/en.json` · `CONTACT_EMAIL` |
 | No active group | `/groups` | App shell | Placeholder; **group panel opens** |
-| Link editor | `/vscode/connect` | Yes | Issues vscode/cursor link code; centred card like auth |
+| Link clients | `/connect` | Yes | Issues link code for VS Code / Cursor extension **and** MCP (`SIRRELAY_TOKEN`); centred card like auth. Legacy `/vscode/connect` redirects here. |
 
 **Group panel** (header): switch · create · join. Leave/delete → **Settings**. Rules: [REQUIREMENTS §5.1.1–5.1.2](./REQUIREMENTS.md#511-groups).
 

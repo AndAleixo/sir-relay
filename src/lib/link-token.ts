@@ -8,13 +8,13 @@ import { toUser } from "@/services/api/mappers";
 /** ponytail: mock has no user column; one process-local token per account. */
 const mockTokenByUser = new Map<string, string>();
 
-export async function issueVsCodeToken(userId: string): Promise<string> {
-  const token = newToken("vscode");
+export async function issueLinkToken(userId: string): Promise<string> {
+  const token = newToken("link");
   const tokenHash = hashToken(token);
   if (serviceMode === "api") {
     await prisma.user.update({
       where: { id: userId },
-      data: { vscodeTokenHash: tokenHash },
+      data: { linkTokenHash: tokenHash },
     });
     return token;
   }
@@ -25,23 +25,23 @@ export async function issueVsCodeToken(userId: string): Promise<string> {
   return token;
 }
 
-export async function sessionFromVsCodeRequest(
+export async function sessionFromClientRequest(
   request: Request,
   groupId: string | null,
 ): Promise<Session | null> {
   const header = request.headers.get("authorization") ?? "";
   if (!header.startsWith("Bearer ")) return null;
-  const userId = await userIdForVsCodeToken(header.slice("Bearer ".length));
+  const userId = await userIdForLinkToken(header.slice("Bearer ".length));
   if (!userId) return null;
-  return sessionForVsCodeUser(userId, groupId);
+  return sessionForClientUser(userId, groupId);
 }
 
-export async function userIdForVsCodeToken(token: string): Promise<string | null> {
+export async function userIdForLinkToken(token: string): Promise<string | null> {
   const tokenHash = hashToken(token.trim());
   if (!tokenHash) return null;
   if (serviceMode === "api") {
     const user = await prisma.user.findUnique({
-      where: { vscodeTokenHash: tokenHash },
+      where: { linkTokenHash: tokenHash },
       select: { id: true, active: true },
     });
     return user?.active ? user.id : null;
@@ -61,7 +61,7 @@ function mockUser(userId: string): User | null {
 }
 
 /** Session scoped to one membership. Role comes from that group, not the account. */
-export async function sessionForVsCodeUser(
+export async function sessionForClientUser(
   userId: string,
   groupId: string | null,
 ): Promise<Session | null> {

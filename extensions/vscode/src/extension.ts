@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
 import {
   appOrigin,
+  failureMessage,
   sirFetch,
   taskMatchesProject,
+  setClientVersion,
+  UPGRADE_EXTENSION_MESSAGE,
   type Board,
 } from "./sirrelay";
 
@@ -33,6 +36,8 @@ let statusItem: vscode.StatusBarItem | undefined;
 let pendingNotice = "";
 
 export function activate(context: vscode.ExtensionContext): void {
+  const pkg = context.extension.packageJSON as { version?: string };
+  setClientVersion(String(pkg.version ?? "0.0.0"));
   statusItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left,
     100,
@@ -110,7 +115,7 @@ async function openOnSrelay(
     return;
   }
   const scheme = vscode.env.uriScheme === "cursor" ? "cursor" : "vscode";
-  const next = `/en-gb/vscode/connect?scheme=${scheme}`;
+  const next = `/en-gb/connect?scheme=${scheme}`;
   await vscode.env.openExternal(
     vscode.Uri.parse(`${appOrigin()}/en-gb?next=${encodeURIComponent(next)}`),
   );
@@ -177,7 +182,7 @@ async function onMessage(
     const scheme = vscode.env.uriScheme === "cursor" ? "cursor" : "vscode";
     await vscode.env.openExternal(
       vscode.Uri.parse(
-        `${appOrigin()}/en-gb/vscode/connect?scheme=${scheme}`,
+        `${appOrigin()}/en-gb/connect?scheme=${scheme}`,
       ),
     );
     return;
@@ -218,7 +223,7 @@ async function onMessage(
   }
 
   if (message.type === "create") {
-    const response = await call(token, "/api/v1/vscode/tasks", {
+    const response = await call(token, "/api/v1/client/tasks", {
       method: "POST",
       body: { ...message.fields, groupId },
     });
@@ -231,15 +236,17 @@ async function onMessage(
       await publish(context, { error: "The code expired. Sign in again." });
       return;
     }
+    if (!response.ok) {
+      await publish(context, {
+        error: await failureMessage(response, "Could not save the task."),
+      });
+      return;
+    }
     const body = (await response.json().catch(() => null)) as {
       error?: string;
       away?: boolean;
       assigneeName?: string;
     } | null;
-    if (!response.ok) {
-      await publish(context, { error: "Could not save the task." });
-      return;
-    }
     await publish(context, {
       created: true,
       notice: body?.away
@@ -278,7 +285,7 @@ async function mutate(
   id: string,
   body: Record<string, unknown>,
 ): Promise<void> {
-  const response = await call(token, `/api/v1/vscode/tasks/${id}`, {
+  const response = await call(token, `/api/v1/client/tasks/${id}`, {
     method: "PATCH",
     body: { ...body, groupId },
   });
@@ -292,7 +299,9 @@ async function mutate(
     return;
   }
   if (!response.ok) {
-    await publish(context, { error: "Could not save the task." });
+    await publish(context, {
+      error: await failureMessage(response, "Could not save the task."),
+    });
     return;
   }
   await publish(context, {});
@@ -394,10 +403,24 @@ async function publish(
     });
     return;
   }
+  // Pre-1.0 tokens used the "vscode-" prefix; API paths also moved.
+  if (token.startsWith("vscode-")) {
+    await context.secrets.delete(SECRET);
+    updateChrome(context, false, null);
+    toast(context, { error: UPGRADE_EXTENSION_MESSAGE });
+    post({
+      type: "state",
+      signedIn: false,
+      board: null,
+      projectFilter: "",
+      created: false,
+    });
+    return;
+  }
   const groupId = context.globalState.get<string>(GROUP) ?? "";
   const response = await call(
     token,
-    `/api/v1/vscode/board?groupId=${encodeURIComponent(groupId)}`,
+    `/api/v1/client/board?groupId=${encodeURIComponent(groupId)}`,
   );
   if (!response) {
     updateChrome(context, true, null);
@@ -426,7 +449,9 @@ async function publish(
   }
   if (!response.ok) {
     updateChrome(context, true, null);
-    toast(context, { error: extra.error || offline() });
+    toast(context, {
+      error: extra.error || (await failureMessage(response, offline())),
+    });
     post({
       type: "state",
       signedIn: true,

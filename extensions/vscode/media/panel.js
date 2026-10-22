@@ -360,7 +360,7 @@ function render() {
           <form id="paste">
             <label>Code
               <span class="code-row">
-                <input name="token" placeholder="vscode-…" autocomplete="off" spellcheck="false" />
+                <input name="token" placeholder="link-…" autocomplete="off" spellcheck="false" />
                 <button type="button" class="link" id="paste-clip">Paste</button>
               </span>
             </label>

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { buildVsCodeBoard } from "@/lib/vscode-board";
-import { sessionFromVsCodeRequest } from "@/lib/vscode-link";
+import { buildClientBoard } from "@/lib/client-board";
+import { sessionFromClientRequest } from "@/lib/link-token";
 
 export async function GET(request: Request) {
   const groupId = new URL(request.url).searchParams.get("groupId");
-  const session = await sessionFromVsCodeRequest(request, groupId);
+  const session = await sessionFromClientRequest(request, groupId);
   if (!session) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  const board = await buildVsCodeBoard(session);
+  const board = await buildClientBoard(session);
   return NextResponse.json(board);
 }

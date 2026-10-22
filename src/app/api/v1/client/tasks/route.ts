@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { createInputFromBody } from "@/lib/vscode-board";
-import { sessionFromVsCodeRequest } from "@/lib/vscode-link";
+import { createInputFromBody } from "@/lib/client-board";
+import { sessionFromClientRequest } from "@/lib/link-token";
 import { getServices } from "@/services";
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return NextResponse.json({ error: "invalid" }, { status: 400 });
 
-  const session = await sessionFromVsCodeRequest(
+  const session = await sessionFromClientRequest(
     request,
     String(body.groupId ?? "") || null,
   );

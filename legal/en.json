@@ -1,10 +1,10 @@
 {
-  "version": "2026-10-13",
+  "version": "2026-10-22",
   "termsTitle": "Terms of Service",
   "privacyTitle": "Privacy Policy",
-  "updated": "Last updated: 13 October 2026",
-  "termsIntro": "These Terms govern access to and use of SirRelay, a hosted web and Telegram task-relay service for small teams. By creating an account or using the service, you agree to these Terms.",
-  "privacyIntro": "This Privacy Policy explains how SirRelay collects and uses personal data when you use our hosted web app and optional Telegram integration.",
+  "updated": "Last updated: 22 October 2026",
+  "termsIntro": "These Terms govern access to and use of SirRelay, a hosted task service for small teams (web app, optional Telegram, and optional editor or MCP clients). By creating an account or using the service, you agree to these Terms.",
+  "privacyIntro": "This Privacy Policy explains how SirRelay collects and uses personal data when you use our hosted web app, optional Telegram integration, and optional editor or MCP clients that use a link token.",
   "terms": [
     {
       "title": "1. Acceptance",
@@ -12,7 +12,7 @@
     },
     {
       "title": "2. The service",
-      "body": "SirRelay helps small groups coordinate tasks via a web app and an optional Telegram bot. Features may change as the product evolves. SirRelay is not a general messaging platform, CRM, or guaranteed enterprise SLA."
+      "body": "SirRelay helps small groups coordinate tasks via a web app, an optional Telegram bot, and optional clients (VS Code / Cursor extension, MCP) that use a link token you create while signed in. Features may change as the product evolves. SirRelay is not a general messaging platform, CRM, or guaranteed enterprise SLA."
     },
     {
       "title": "3. Accounts",

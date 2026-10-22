@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "sirrelay": {
+      "command": "node",
+      "args": ["/absolute/path/to/sir-relay/extensions/mcp/out/index.js"],
+      "env": {
+        "SIRRELAY_TOKEN": "paste-link-token",
+        "SIRRELAY_URL": "https://app.sirrelay.com"
+      }
+    }
+  }
+}

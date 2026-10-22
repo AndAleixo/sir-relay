@@ -42,10 +42,13 @@ yarn-error.log*
 !.vscode/launch.json
 !.vscode/tasks.json
 
-# VS Code extension prototype
+# Extensions (local build artifacts)
 extensions/vscode/node_modules/
 extensions/vscode/out/
 extensions/vscode/*.vsix
+extensions/mcp/node_modules/
+extensions/mcp/out/
+extensions/teams/srelay-teams.zip
 
 # --- Cursor / AI (local only) ---
 .cursor/

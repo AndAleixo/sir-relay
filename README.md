@@ -1,6 +1,6 @@
 # SirRelay
 
-Hosted **web + Telegram task relay** for small groups (by **Sir**). One active Telegram task per assignee; reply `done` → next in queue. No KPI dashboards.
+Hosted **web** task tool for small groups (by **Sir**), with optional **Telegram** relay, **VS Code / Cursor** extension, and **MCP** (`@sirrelay/mcp`). One active Telegram task per assignee; reply `done` → next in queue. No KPI dashboards.
 
 | | |
 |---|---|

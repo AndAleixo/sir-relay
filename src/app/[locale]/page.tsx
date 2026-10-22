@@ -9,7 +9,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { LandingHero } from "@/components/landing/landing-hero";
 import { landingStyles } from "@/components/landing/landing.styles";
-import { safeVsCodeNext } from "@/lib/vscode-next";
+import { safeConnectNext } from "@/lib/connect-next";
 
 export default async function LocaleHomePage({
   params,
@@ -20,7 +20,7 @@ export default async function LocaleHomePage({
 }) {
   const { locale } = await params;
   const { next } = await searchParams;
-  const returnTo = safeVsCodeNext(locale, next);
+  const returnTo = safeConnectNext(locale, next);
   const { auth } = getServices();
   const session = await auth.getSession();
 

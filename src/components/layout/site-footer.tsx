@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { landingStyles } from "@/components/landing/landing.styles";
-import { withVsCodeNext } from "@/lib/vscode-next";
+import { withConnectNext } from "@/lib/connect-next";
 
 type SiteFooterProps = {
   locale: string;
@@ -38,10 +38,10 @@ export async function SiteFooter({
           <Link href={`/${locale}/terms`} className={landingStyles.footerLink}>
             {t("legal.terms")}
           </Link>
-          <Link href={withVsCodeNext(`/${locale}/login`, returnTo)} className={landingStyles.footerLink}>
+          <Link href={withConnectNext(`/${locale}/login`, returnTo)} className={landingStyles.footerLink}>
             {t("auth.login")}
           </Link>
-          <Link href={withVsCodeNext(`/${locale}/signup`, returnTo)} className={landingStyles.footerLink}>
+          <Link href={withConnectNext(`/${locale}/signup`, returnTo)} className={landingStyles.footerLink}>
             {t("auth.signup")}
           </Link>
         </nav>

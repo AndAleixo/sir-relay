@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { connectVsCode } from "@/app/actions/vscode";
+import { connectClient } from "@/app/actions/connect";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
 import { Button } from "@/components/ui/button";
 
-export function ConnectVsCode({ scheme }: { scheme: string }) {
+export function ConnectClient({ scheme }: { scheme: string }) {
   const t = useTranslations("landing.editor");
   const [pending, setPending] = useState(false);
   const [token, setToken] = useState<string | null>(null);
@@ -16,7 +16,7 @@ export function ConnectVsCode({ scheme }: { scheme: string }) {
   async function link() {
     setPending(true);
     setError(null);
-    const result = await connectVsCode(scheme);
+    const result = await connectClient(scheme);
     setPending(false);
     if ("error" in result) {
       setError(t("expired"));

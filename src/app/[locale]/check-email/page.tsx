@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
-import { safeVsCodeNext, withVsCodeNext } from "@/lib/vscode-next";
+import { safeConnectNext, withConnectNext } from "@/lib/connect-next";
 
 export default async function CheckEmailPage({
   params,
@@ -18,7 +18,7 @@ export default async function CheckEmailPage({
 }) {
   const { locale } = await params;
   const { resent, email: emailParam, next: nextParam } = await searchParams;
-  const next = safeVsCodeNext(locale, nextParam);
+  const next = safeConnectNext(locale, nextParam);
   const t = await getTranslations();
   const lockedEmail = emailParam?.trim().toLowerCase() ?? "";
   const hasLockedEmail = lockedEmail.includes("@");
@@ -71,7 +71,7 @@ export default async function CheckEmailPage({
             </form>
             <p className="text-center text-sm text-[var(--text-muted)]">
               <Link
-                href={withVsCodeNext(`/${locale}/login`, next)}
+                href={withConnectNext(`/${locale}/login`, next)}
                 className="font-medium text-brand-accent hover:text-brand-accent-hover"
               >
                 {t("auth.login")}

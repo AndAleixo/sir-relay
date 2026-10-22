@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { LocaleSegment } from "@/components/layout/locale-segment";
 import { Button } from "@/components/ui/button";
-import { withVsCodeNext } from "@/lib/vscode-next";
+import { withConnectNext } from "@/lib/connect-next";
 import { landingStyles } from "./landing.styles";
 
 type LandingHeaderProps = {
@@ -40,12 +40,12 @@ export async function LandingHeader({
           {showAccountLinks ? (
             <>
               <Link
-                href={withVsCodeNext(`/${locale}/login`, returnTo)}
+                href={withConnectNext(`/${locale}/login`, returnTo)}
                 className={landingStyles.headerLoginLink}
               >
                 {t("auth.login")}
               </Link>
-              <Link href={withVsCodeNext(`/${locale}/signup`, returnTo)}>
+              <Link href={withConnectNext(`/${locale}/signup`, returnTo)}>
                 <Button className={landingStyles.headerSignup}>{t("auth.signup")}</Button>
               </Link>
             </>

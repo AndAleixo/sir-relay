@@ -4,7 +4,7 @@ import { parseTaskDifficulty } from "@/lib/task-difficulty";
 import { getServices } from "@/services";
 import type { CreateTaskInput } from "@/services/contracts";
 
-export type VsCodeBoard = {
+export type ClientBoard = {
   userId: string;
   role: Session["user"]["role"];
   groups: { id: string; name: string }[];
@@ -29,7 +29,7 @@ function mine(task: Task, userId: string) {
   return task.assigneeId === userId;
 }
 
-export async function buildVsCodeBoard(session: Session): Promise<VsCodeBoard> {
+export async function buildClientBoard(session: Session): Promise<ClientBoard> {
   const services = getServices();
   const groupList = await services.groups.listForUser(session.user.id);
   const group = groupList.find((row) => row.id === session.activeGroupId) ?? null;

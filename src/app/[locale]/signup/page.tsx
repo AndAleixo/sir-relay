@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { resolveEntryPath } from "@/lib/entry-route";
-import { safeVsCodeNext, withVsCodeNext } from "@/lib/vscode-next";
+import { safeConnectNext, withConnectNext } from "@/lib/connect-next";
 import { getServices } from "@/services";
 
 const errorKeys = {
@@ -30,7 +30,7 @@ export default async function SignupPage({
 }) {
   const { locale } = await params;
   const { error, next: nextParam } = await searchParams;
-  const next = safeVsCodeNext(locale, nextParam);
+  const next = safeConnectNext(locale, nextParam);
   const t = await getTranslations();
   const session = await getServices().auth.getSession();
 
@@ -113,7 +113,7 @@ export default async function SignupPage({
             <p className="text-center text-sm text-[var(--text-muted)]">
               {t("auth.hasAccount")}{" "}
               <Link
-                href={withVsCodeNext(`/${locale}/login`, next)}
+                href={withConnectNext(`/${locale}/login`, next)}
                 className="font-medium text-brand-accent hover:text-brand-accent-hover"
               >
                 {t("auth.login")}

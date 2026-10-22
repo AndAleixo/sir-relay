@@ -6,16 +6,16 @@
   "developer": {
     "name": "SirRelay",
     "websiteUrl": "https://app.sirrelay.com",
-    "privacyUrl": "https://app.sirrelay.com/en/privacy",
-    "termsOfUseUrl": "https://app.sirrelay.com/en/terms"
+    "privacyUrl": "https://app.sirrelay.com/en-gb/privacy",
+    "termsOfUseUrl": "https://app.sirrelay.com/en-gb/terms"
   },
   "name": {
     "short": "SRelay",
-    "full": "Sir Relay"
+    "full": "SirRelay"
   },
   "description": {
     "short": "Tasks and due dates for solo work or a small group — no productivity theater.",
-    "full": "Sir Relay is a hosted task board for people who want to manage their own work or run a small group. Create tasks, assign them, follow due dates. No leaderboards, velocity charts, or “who is behind” scores — just the work."
+    "full": "SirRelay is a hosted task board for people who want to manage their own work or run a small group. Create tasks, assign them, follow due dates. No leaderboards, velocity charts, or “who is behind” scores — just the work."
   },
   "icons": {
     "color": "color.png",
@@ -26,8 +26,8 @@
     {
       "entityId": "srelay-work",
       "name": "My work",
-      "contentUrl": "https://app.sirrelay.com/en/tasks?scope=mine&view=board",
-      "websiteUrl": "https://app.sirrelay.com/en/tasks?scope=mine&view=board",
+      "contentUrl": "https://app.sirrelay.com/en-gb/tasks?scope=mine&view=board",
+      "websiteUrl": "https://app.sirrelay.com/en-gb/tasks?scope=mine&view=board",
       "scopes": ["personal"]
     }
   ],

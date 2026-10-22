@@ -28,7 +28,7 @@ Related docs: [UIUX.md](./UIUX.md) · [ARCHITECTURE.md](./ARCHITECTURE.md) · [B
 
 **In a group:** **Operator** — manage members/tasks, monitor web, Telegram relay + alerts. **Teammate** — Telegram primary; web My work / Team (edit own); may create self-assigned tasks. No web comment thread.
 
-**Positioning:** No KPI dashboards, leaderboards, or surveillance metrics. **Clients:** web first (Phase 1); native apps → Phase 3 (P3-13).
+**Positioning:** No KPI dashboards, leaderboards, or surveillance metrics. **Clients:** web first (Phase 1); VS Code / Cursor extension + MCP (`extensions/vscode`, `extensions/mcp`, shared `/api/v1/client/*` + `/connect`); optional Teams sideload package; native apps → Phase 3 (P3-13).
 
 **Languages:** UI locales `en-gb` · `es-es` · `pt-br` (DB may store short `en` / `es` / `pt`).
 
@@ -675,6 +675,8 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | GET | `/health` | 1 | Public |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
+**Bearer clients (shipped):** `/api/v1/client/board` · `POST /api/v1/client/tasks` · `PATCH /api/v1/client/tasks/:id` — link token from `/connect` (editor extension + MCP). Header `X-SirRelay-Client: extension|mcp/<semver>` (identity for future min-version gates). Retired `/api/v1/vscode/*` → **410** `{ error: "upgrade_required", message, minClient? }`. The session REST table above remains the planned cookie API; web UI uses server actions today.
+
 ---
 
 ## 10. Tech stack & repo layout
@@ -694,33 +696,21 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 /
 ├── README.md
 ├── docs/
-│   ├── REQUIREMENTS.md
-│   ├── UIUX.md
-│   ├── ARCHITECTURE.md
-│   ├── BRAND.md
-│   └── DEPLOY-DIGITALOCEAN.md
 ├── brand/
-├── public/              # brand assets · demo.webm (+ CSS fallback)
-├── docker-compose.yml
-├── Dockerfile
-├── prisma/              # schema + migrations + seed
+├── public/
+├── extensions/
+│   ├── vscode/          # SRelay editor extension 1.x (VS Code / Cursor)
+│   ├── mcp/             # @sirrelay/mcp — create_task via bearer API
+│   └── teams/           # Sideload ZIP (manifest + icons)
+├── prisma/
 ├── scripts/
-│   ├── env/             # dev-mock · prod-local · prod-vps
-│   ├── db/              # backup.sh · backup-offsite.sh · restore.sh
-│   └── check-entry-routes.mjs
 └── src/
-    ├── app/
-│   ├── actions/              # auth · groups · invitations · teammates · tasks · export · settings · projects
-│   └── [locale]/
-├── components/landing/
-├── domain/types.ts         # UserGroup, Session, …
-├── lib/task-queue.ts       # To do queue order helpers
-├── services/
-    │   ├── contracts.ts
-    │   ├── index.ts            # getServices()
-    │   ├── mock/
-    │   └── api/
-    └── messages/
+    ├── app/             # actions · [locale]/connect · api/v1/client
+    ├── components/
+    ├── domain/
+    ├── lib/             # link-token · client-board · connect-next
+    ├── services/
+    └── messages/        # (repo root messages/ — next-intl)
 ```
 
 **Repo status:**
@@ -740,7 +730,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Prod local smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--prod-local-test-drive) |
 | Telegram webhook (link) | Done — P1-TG-01, P1-TG-06 |
 | Telegram task relay + alert DMs | Done — P1-TG-02–05, 08–10 · create/done/renotify · replies · operator DMs |
-| REST `/api/v1/*` (beyond health + Telegram webhook) | Partial — `/api/v1/vscode/*` for the editor extension; web UI uses server actions |
+| REST `/api/v1/*` (beyond health + Telegram webhook) | Partial — `/api/v1/client/*` for the editor extension and MCP; web UI uses server actions |
 
 ---
 

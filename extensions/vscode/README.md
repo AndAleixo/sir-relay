@@ -1,6 +1,10 @@
-# Sir Relay
+# SRelay
 
-Sir Relay organizes your own work, or the work of a group. That work lives on [SRelay](https://app.sirrelay.com). This extension makes those tasks easier to manage: your column stays in the sidebar, and a change here is the same task on the site.
+**SirRelay** organizes your own work, or the work of a group. That work lives on [app.sirrelay.com](https://app.sirrelay.com). This extension (chrome name **SRelay**) makes those tasks easier to manage: your column stays in the sidebar, and a change here is the same task on the site.
+
+**v1.0** uses `/connect` and `/api/v1/client/*`. Re-link after upgrading from 0.x.
+
+The link code from **Link this editor** (`/connect`) is the same Bearer the [MCP](../mcp/README.md) can use — the extension is optional if you only want MCP.
 
 ## Set up
 

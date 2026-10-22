@@ -1,0 +1,52 @@
+{
+  "name": "@sirrelay/mcp",
+  "version": "1.0.0",
+  "description": "SirRelay MCP — create a task on your board from Cursor and other AI clients.",
+  "license": "FSL-1.1-MIT",
+  "type": "module",
+  "mcpName": "com.sirrelay/mcp",
+  "bin": {
+    "sirrelay-mcp": "./out/index.js"
+  },
+  "files": [
+    "out/index.js",
+    "out/create-task.js",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AndAleixo/sir-relay.git",
+    "directory": "extensions/mcp"
+  },
+  "homepage": "https://app.sirrelay.com",
+  "bugs": {
+    "url": "https://github.com/AndAleixo/sir-relay/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "srelay",
+    "sirrelay",
+    "tasks"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "check": "npm run compile && node --test out/check.js",
+    "prepublishOnly": "npm run check",
+    "start": "node out/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.6",
+    "typescript": "^5.6.3"
+  }
+}

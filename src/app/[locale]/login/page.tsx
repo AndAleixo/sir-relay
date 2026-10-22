@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { resolveEntryPath } from "@/lib/entry-route";
-import { safeVsCodeNext } from "@/lib/vscode-next";
+import { safeConnectNext } from "@/lib/connect-next";
 import { getServices } from "@/services";
 
 export default async function LoginPage({
@@ -28,7 +28,7 @@ export default async function LoginPage({
   const { locale } = await params;
   const { error, session: sessionParam, reset, email: emailParam, next: nextParam } =
     await searchParams;
-  const next = safeVsCodeNext(locale, nextParam);
+  const next = safeConnectNext(locale, nextParam);
   const checkEmailHref = emailParam?.includes("@")
     ? `/${locale}/check-email?email=${encodeURIComponent(emailParam.trim().toLowerCase())}`
     : `/${locale}/check-email`;

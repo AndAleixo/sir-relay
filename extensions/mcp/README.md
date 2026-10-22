@@ -1,16 +1,15 @@
 # `@sirrelay/mcp`
 
-MCP server with **one tool**: `create_task`. Runs **locally via stdio**; calls the hosted SirRelay app over HTTPS. Does **not** require the VS Code / Cursor extension.
+MCP server (stdio) for the signed-in user’s board: **list**, **create**, **update**, **delete**. Talks HTTPS to SirRelay; does **not** require the VS Code extension.
 
-Brand: product **SirRelay**, chrome **SRelay**, npm scope `@sirrelay`.
+Brand: product **SirRelay**, chrome **SRelay**, npm `@sirrelay/mcp`.
 
 ## Get a token
 
-1. Sign in on the site.
-2. Open **Link this editor** at `/[locale]/connect`.
-3. Copy the code. The same Bearer works for the editor extension **or** this MCP — neither needs the other.
+1. Sign in → **`/[locale]/connect`** → copy the link code.
+2. Put it in `SIRRELAY_TOKEN`. Treat it like a password (full board access for that user).
 
-## Install (until published to npm)
+## Install (local until published)
 
 ```bash
 cd extensions/mcp && npm install && npm run compile
@@ -31,54 +30,34 @@ cd extensions/mcp && npm install && npm run compile
 }
 ```
 
-Local app: set `SIRRELAY_URL` to `http://localhost:3000`.
+## Tools
 
-## Install (after `npm publish`)
+| Tool | Purpose |
+| --- | --- |
+| `list_tasks` | Read your board (own tasks only) |
+| `create_task` | Create (optional `status` after create: `todo` \| `doing` \| `done`) |
+| `update_task` | Change `status`, `title`, and/or `projectId` (`""` clears project) |
+| `delete_task` | Delete — requires `confirm: true` |
 
-```json
-{
-  "mcpServers": {
-    "sirrelay": {
-      "command": "npx",
-      "args": ["-y", "@sirrelay/mcp"],
-      "env": {
-        "SIRRELAY_TOKEN": "paste-link-token",
-        "SIRRELAY_URL": "https://app.sirrelay.com"
-      }
-    }
-  }
-}
-```
+## Security (MCP)
 
-See also `mcp.json.example`.
+- **Authz stays on the server** — same Bearer rules as the editor (`Forbidden` → 403). The MCP cannot bypass operator/teammate checks.
+- **No SSRF** — `SIRRELAY_URL` is fixed at process start; tools never pass a URL.
+- **Ids are validated** — only safe opaque ids (`task-…`, etc.); no path segments.
+- **Delete friction** — `confirm` must be the boolean `true`.
+- **No secrets in responses** — never echoes the token; board text is your column only.
+- **Token hygiene** — keep `mcp.json` out of git; rotate via `/connect` if leaked.
+- **Scope** — one user link token = that user’s groups/tasks only, not admin/platform.
 
 ## Env
 
 | Variable | Required | Meaning |
 | --- | --- | --- |
-| `SIRRELAY_TOKEN` | yes | Link token from `/connect`. |
-| `SIRRELAY_URL` | no | App origin. Default `https://app.sirrelay.com`. |
-
-## Tool
-
-`create_task` — `title` required; optional `description`, `dueDate` (`YYYY-MM-DD`), `projectId`, `groupId`, `assigneeId`, `difficulty`.
-
-## How it works
-
-```
-AI client ──stdio──► @sirrelay/mcp (on your machine)
-                           │
-                           │ HTTPS + Bearer
-                           ▼
-                    app.sirrelay.com
-                 POST /api/v1/client/tasks
-```
+| `SIRRELAY_TOKEN` | yes | Link token from `/connect` |
+| `SIRRELAY_URL` | no | Default `https://app.sirrelay.com` |
 
 ## Maintainers
 
 ```bash
-npm run check          # compile + tests
-npm publish            # prepublishOnly runs check; needs @sirrelay npm access
+npm run check
 ```
-
-Later: Cursor Marketplace plugin wrapping the `npx` entry; MCP Registry via `mcpName` `com.sirrelay/mcp`.

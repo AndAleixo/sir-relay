@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     const task = await getServices().tasks.createTask(input, { session });
     return NextResponse.json({
       ok: true,
+      id: task.id,
       away: task.assigneeId !== session.user.id,
       assigneeName: task.assigneeName,
     });

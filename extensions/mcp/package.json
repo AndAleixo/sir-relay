@@ -1,7 +1,7 @@
 {
   "name": "@sirrelay/mcp",
-  "version": "1.0.0",
-  "description": "SirRelay MCP — create a task on your board from Cursor and other AI clients.",
+  "version": "1.1.0",
+  "description": "SirRelay MCP \u2014 list, create, update, and delete board tasks from AI clients.",
   "license": "FSL-1.1-MIT",
   "type": "module",
   "mcpName": "com.sirrelay/mcp",
@@ -10,7 +10,7 @@
   },
   "files": [
     "out/index.js",
-    "out/create-task.js",
+    "out/client-api.js",
     "README.md"
   ],
   "publishConfig": {

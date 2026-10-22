@@ -4,7 +4,7 @@
 
 ## Platform
 
-web
+web, vscode-extension
 
 ## Users
 
@@ -38,6 +38,7 @@ SirRelay is for **who wants to manage work** — their own tasks, or a group’s
 - Marketing landing at `/[locale]` for logged-out visitors (try demo / signup / login) — solo + group, anti-KPI story.
 - Try demo (`/demo`) opens the app shell with a seed kept in the browser tab. Creating an account does not import it.
 - Signed-in web app: Tasks (board/list), Teammates, Projects, Events, Settings (group), Profile (account).
+- VS Code / Cursor extension: the signed-in user’s column in the sidebar (same tasks as the web; project filter; link via `/[locale]/vscode/connect`).
 - Chat bot for linked members (currently Telegram): task delivery, status replies, operator alerts.
 - Invite by email only; activation via `/join/<token>` or signup with the same email.
 - Locales: `en-gb`, `es-es`, `pt-br`.

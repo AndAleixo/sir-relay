@@ -13,10 +13,13 @@ A new code replaces the previous one.
 ## What you can do
 
 - Switch group, when you belong to more than one.
-- Add a task: title, assignee, project, difficulty, due date, description.
-- Start the first to-do, move another up, or complete the one in progress.
+- Filter by project (default **Project** shows all). The choice is remembered per group.
+- Add a task: title, assignee, project, difficulty, due date, description. With a project filter active, that project is pre-selected.
+- Start a to-do or complete the one in progress.
+- Open, clone, or delete a task from the ⋯ menu. Open on SRelay also sits in the view title bar.
 - Edit a title. Escape cancels.
 - Hide **Done**. It starts hidden.
+- See the current in-progress task in the status bar, and a to-do count on the activity bar icon.
 
 ## Settings
 

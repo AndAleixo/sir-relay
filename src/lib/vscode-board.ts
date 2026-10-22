@@ -15,6 +15,7 @@ export type VsCodeBoard = {
   tasks: {
     id: string;
     title: string;
+    projectId: string | null;
     acronym: string;
     description: string;
     due: string | null;
@@ -72,6 +73,7 @@ export async function buildVsCodeBoard(session: Session): Promise<VsCodeBoard> {
     .map((task) => ({
       id: task.id,
       title: task.title,
+      projectId: task.projectId ?? null,
       acronym: task.projectAcronym ?? "",
       description: task.description,
       due: task.dueDate,

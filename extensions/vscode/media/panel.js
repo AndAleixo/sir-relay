@@ -18,6 +18,8 @@ const state = {
   editingId: null,
   cancelEdit: false,
   menuId: null,
+  /** "" = all tasks, else project id. */
+  projectFilter: "",
   doneHidden: vscode.getState()?.doneHidden !== false,
   draft: emptyDraft(),
   board: null,
@@ -35,10 +37,21 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
+/** Keep in sync with extensions/vscode/src/project-filter.ts ("" | id). */
+function matchesProject(task) {
+  const filter = state.projectFilter;
+  if (!filter) return true;
+  return task.projectId === filter;
+}
+
 function section(status) {
   return (state.board?.tasks ?? [])
-    .filter((task) => task.status === status)
+    .filter((task) => task.status === status && matchesProject(task))
     .sort((a, b) => a.order - b.order);
+}
+
+function defaultCreateProjectId() {
+  return state.projectFilter || "";
 }
 
 function today() {
@@ -105,9 +118,7 @@ function taskMenu(id) {
 function createBlock() {
   const board = state.board;
   if (!board) return "";
-  if (!state.creating) {
-    return `<button type="button" class="link add" id="open-create" ${state.busy ? "disabled" : ""}>+ Add task</button>`;
-  }
+  if (!state.creating) return "";
   const draft = state.draft;
   const memberRows = board.members.map((member) => ({
     value: member.id,
@@ -156,6 +167,32 @@ function createBlock() {
   </form>`;
 }
 
+function addButton() {
+  if (!state.board || state.creating) return "";
+  return `<button type="button" class="link add" id="open-create" ${state.busy ? "disabled" : ""}>+ Add task</button>`;
+}
+
+function projectPick() {
+  const board = state.board;
+  if (!board?.groupId) return "";
+  const filter =
+    state.projectFilter && board.projects.some((project) => project.id === state.projectFilter)
+      ? state.projectFilter
+      : "";
+  const rows = [
+    { value: "", label: "Project" },
+    ...board.projects.map((project) => ({
+      value: project.id,
+      label: `${project.acronym} · ${project.name}`,
+    })),
+  ];
+  return `<select id="project" class="project-select" aria-label="Project" ${state.busy ? "disabled" : ""}>${options(rows, filter)}</select>`;
+}
+
+function toolbar() {
+  return `<div class="toolbar">${projectPick()}${addButton()}</div>`;
+}
+
 function header() {
   const board = state.board;
   if (!board) return "";
@@ -198,14 +235,18 @@ function boardView() {
   const none = todo.length + doing.length + done.length === 0;
   const roomy = state.creating || !state.doneHidden;
   if (none) {
+    const empty =
+      (state.board.tasks ?? []).length === 0
+        ? "No tasks assigned to you yet."
+        : "No tasks in this project.";
     return `<div class="board${roomy ? " roomy" : ""}">
-      <div class="board-top">${header()}${statusLine()}${createBlock()}
-        <p class="empty">No tasks assigned to you yet.</p>
+      <div class="board-top">${header()}${statusLine()}${toolbar()}${createBlock()}
+        <p class="empty">${empty}</p>
       </div>
     </div>`;
   }
   return `<div class="board${roomy ? " roomy" : ""}">
-    <div class="board-top">${header()}${statusLine()}${createBlock()}</div>
+    <div class="board-top">${header()}${statusLine()}${toolbar()}${createBlock()}</div>
     <div class="board-cols">
       ${column(
         "To do",
@@ -335,10 +376,17 @@ function bind() {
     render();
     vscode.postMessage({ type: "select-group", groupId: event.target.value });
   });
+  document.getElementById("project")?.addEventListener("change", (event) => {
+    if (state.busy) return;
+    state.projectFilter = event.target.value;
+    state.menuId = null;
+    render();
+    vscode.postMessage({ type: "select-project", projectFilter: event.target.value });
+  });
   document.getElementById("open-create")?.addEventListener("click", () => {
     state.creating = true;
     state.menuId = null;
-    state.draft = emptyDraft();
+    state.draft = { ...emptyDraft(), projectId: defaultCreateProjectId() };
     render();
     app.querySelector("#create [name=title]")?.focus();
   });
@@ -474,6 +522,7 @@ window.addEventListener("message", (event) => {
   state.busy = false;
   state.menuId = null;
   state.signedIn = message.signedIn;
+  state.projectFilter = message.projectFilter || "";
   if (message.board) state.board = message.board;
   else if (!message.signedIn) state.board = null;
   if (message.created) {

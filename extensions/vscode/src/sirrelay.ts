@@ -11,6 +11,7 @@ export type Board = {
   tasks: {
     id: string;
     title: string;
+    projectId: string | null;
     acronym: string;
     description: string;
     due: string | null;
@@ -19,6 +20,8 @@ export type Board = {
     order: number;
   }[];
 };
+
+export { taskMatchesProject } from "./project-filter";
 
 export function appOrigin(): string {
   const raw =

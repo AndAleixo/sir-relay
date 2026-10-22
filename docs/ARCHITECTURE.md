@@ -23,6 +23,9 @@ src/
 │   ├── safe-log.ts       # P2-SEC-11 — JSON logs + redaction
 │   ├── authz.ts          # P2-SEC-01 — requireOperator / requireSelfUserId
 │   ├── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
+│   ├── vscode-board.ts   # Extension board payload + create input
+│   ├── vscode-link.ts    # Bearer session from vscode token
+│   ├── vscode-next.ts    # Safe return path for editor connect
 │   └── mail/             # P3-17 — sendMail · tokens · templates
 ├── app/actions/
 │   ├── auth.ts           # Login, signup, logout, password, verify (POST confirm), reset, delete account
@@ -33,11 +36,16 @@ src/
 │   ├── tasks.ts          # Tasks + alert prefs + placeInTodoQueue
 │   ├── export.ts         # CSV export (server action)
 │   ├── settings.ts       # Locale + group rename
-│   └── projects.ts       # Group projects + categories
+│   ├── projects.ts       # Group projects + categories
+│   └── vscode.ts         # Issue vscode link token / URI
+├── app/api/v1/vscode/    # Bearer board + task mutate for the editor extension
 └── app/[locale]/
     ├── groups/auto/      # Route handler: persist sole-group auto-select
+    ├── vscode/connect/   # Link editor account (code / deep link)
     └── (app)/groups/     # Placeholder + panel auto-open
 ```
+
+**Editor extension:** `extensions/vscode/` — sidebar webview (SRelay); talks HTTP to `/api/v1/vscode/*` only (no Next `src/` imports).
 
 ## Groups (UI + boundary)
 
@@ -79,8 +87,9 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 | `/[locale]/profile/delete` | Session | private | Hard-delete account confirm (P1-AUTH-15) |
+| `/[locale]/vscode/connect` | Session | private | Link VS Code / Cursor; issues one-time code |
 
-**Backend (Phase 1–2 + P3-17):** Prisma + server actions · `/api/v1/health` · Telegram webhook · SEC base + CSRF Origin guard in `proxy.ts` · outbound mail (`lib/mail` / Resend) · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS) · (optional full REST).
+**Backend (Phase 1–2 + P3-17):** Prisma + server actions · `/api/v1/health` · Telegram webhook · `/api/v1/vscode/*` (bearer board/tasks for the editor extension) · SEC base + CSRF Origin guard in `proxy.ts` · outbound mail (`lib/mail` / Resend) · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS).
 
 ## Entry redirects
 
@@ -124,7 +133,7 @@ Demo seed: `src/services/mock/data.ts` · `sam@example.com` / `SirRelay1` (api /
 | Grupos | `MockGroupService` | Prisma `group_memberships` |
 | Actions | `app/actions/*` | Mode-agnostic — chamam `getServices()` |
 
-**API layer:** `src/services/api/` — Prisma-backed implementations of `contracts.ts`. Run via **prod-local** or **VPS** (`NEXT_PUBLIC_SERVICE_MODE=api`). Health: `GET /api/v1/health` · Telegram: `POST /api/v1/telegram/webhook`. Full REST `/api/v1/*` beyond those routes is optional — the UI uses server actions. Ambientes: [ENVIRONMENTS.md](./ENVIRONMENTS.md).
+**API layer:** `src/services/api/` — Prisma-backed implementations of `contracts.ts`. Run via **prod-local** or **VPS** (`NEXT_PUBLIC_SERVICE_MODE=api`). Health: `GET /api/v1/health` · Telegram: `POST /api/v1/telegram/webhook` · Editor: `GET/POST/PATCH /api/v1/vscode/*` (bearer). The web UI uses server actions; the VS Code / Cursor extension uses the vscode routes. Ambientes: [ENVIRONMENTS.md](./ENVIRONMENTS.md).
 
 ## Session & security (Phase 2 SEC)
 

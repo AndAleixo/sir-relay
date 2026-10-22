@@ -1,8 +1,14 @@
 import * as vscode from "vscode";
-import { appOrigin, sirFetch, type Board } from "./sirrelay";
+import {
+  appOrigin,
+  sirFetch,
+  taskMatchesProject,
+  type Board,
+} from "./sirrelay";
 
 const SECRET = "sirrelay.token";
 const GROUP = "sirrelay.groupId";
+const PROJECTS = "sirrelay.projectByGroup";
 
 type WebviewMessage =
   | { type: "ready" }
@@ -15,10 +21,10 @@ type WebviewMessage =
   | { type: "paste"; token: string }
   | { type: "clip" }
   | { type: "select-group"; groupId: string }
+  | { type: "select-project"; projectFilter: string }
   | { type: "create"; fields: Record<string, string> }
   | { type: "move"; id: string; status: "doing" | "done" }
-  | { type: "title"; id: string; title: string }
-  | { type: "nudge"; id: string };
+  | { type: "title"; id: string; title: string };
 
 let panel: vscode.Webview | undefined;
 let boardView: vscode.WebviewView | undefined;
@@ -196,6 +202,12 @@ async function onMessage(
     await publish(context, {});
     return;
   }
+  if (message.type === "select-project") {
+    const groupId = context.globalState.get<string>(GROUP) ?? "";
+    if (groupId) await setProjectFilter(context, groupId, message.projectFilter);
+    await publish(context, {});
+    return;
+  }
 
   const token = await context.secrets.get(SECRET);
   const groupId = context.globalState.get<string>(GROUP) ?? "";
@@ -248,29 +260,6 @@ async function onMessage(
       op: "title",
       title: message.title,
     });
-    return;
-  }
-  if (message.type === "nudge") {
-    const board = await loadBoard(token, groupId);
-    if (!board) {
-      await publish(context, { error: offline() });
-      return;
-    }
-    const todo = board.tasks
-      .filter((task) => task.status === "todo")
-      .sort((a, b) => a.order - b.order);
-    const index = todo.findIndex((task) => task.id === message.id);
-    if (index <= 0) return;
-    const orderedTodoIds = todo.map((task) => task.id);
-    const previous = orderedTodoIds[index - 1];
-    const current = orderedTodoIds[index];
-    if (!previous || !current) return;
-    orderedTodoIds[index - 1] = current;
-    orderedTodoIds[index] = previous;
-    await mutate(context, token, groupId, message.id, {
-      op: "reorder",
-      orderedTodoIds,
-    });
   }
 }
 
@@ -301,15 +290,6 @@ async function mutate(
   await publish(context, {});
 }
 
-async function loadBoard(token: string, groupId: string): Promise<Board | null> {
-  const response = await call(
-    token,
-    `/api/v1/vscode/board?groupId=${encodeURIComponent(groupId)}`,
-  );
-  if (!response?.ok) return null;
-  return (await response.json()) as Board;
-}
-
 async function call(
   token: string,
   path: string,
@@ -326,7 +306,34 @@ function offline(): string {
   return `Could not reach SRelay at ${appOrigin()}.`;
 }
 
-function updateChrome(signedIn: boolean, board: Board | null): void {
+function projectMap(
+  context: vscode.ExtensionContext,
+): Record<string, string> {
+  return context.globalState.get<Record<string, string>>(PROJECTS) ?? {};
+}
+
+async function setProjectFilter(
+  context: vscode.ExtensionContext,
+  groupId: string,
+  projectId: string,
+): Promise<void> {
+  const next = { ...projectMap(context), [groupId]: projectId };
+  await context.globalState.update(PROJECTS, next);
+}
+
+function resolveProjectFilter(context: vscode.ExtensionContext, board: Board): string {
+  if (!board.groupId) return "";
+  const raw = projectMap(context)[board.groupId] ?? "";
+  if (!raw) return "";
+  if (raw === "__none__") return raw;
+  return board.projects.some((project) => project.id === raw) ? raw : "";
+}
+
+function updateChrome(
+  context: vscode.ExtensionContext,
+  signedIn: boolean,
+  board: Board | null,
+): void {
   void vscode.commands.executeCommand("setContext", "sirrelay.signedIn", signedIn);
   if (!signedIn) {
     if (boardView) boardView.badge = undefined;
@@ -335,13 +342,17 @@ function updateChrome(signedIn: boolean, board: Board | null): void {
   }
   if (!board) return;
 
-  const todo = board.tasks.filter((task) => task.status === "todo").length;
+  const projectFilter = resolveProjectFilter(context, board);
+  const tasks = board.tasks.filter((task) =>
+    taskMatchesProject(task, projectFilter),
+  );
+  const todo = tasks.filter((task) => task.status === "todo").length;
   if (boardView) {
     boardView.badge =
       todo > 0 ? { value: todo, tooltip: `${todo} to do` } : undefined;
   }
 
-  const doing = board.tasks
+  const doing = tasks
     .filter((task) => task.status === "doing")
     .sort((a, b) => a.order - b.order)[0];
   if (!statusItem) return;
@@ -363,13 +374,14 @@ async function publish(
   const notice = extra.notice || pendingNotice;
   const token = await context.secrets.get(SECRET);
   if (!token) {
-    updateChrome(false, null);
+    updateChrome(context, false, null);
     const error = extra.error ?? "";
     toast(context, { error, notice: error ? undefined : notice });
     post({
       type: "state",
       signedIn: false,
       board: null,
+      projectFilter: "",
       created: false,
     });
     return;
@@ -380,48 +392,59 @@ async function publish(
     `/api/v1/vscode/board?groupId=${encodeURIComponent(groupId)}`,
   );
   if (!response) {
-    updateChrome(true, null);
+    updateChrome(context, true, null);
     toast(context, { error: extra.error || offline() });
     post({
       type: "state",
       signedIn: true,
       board: null,
+      projectFilter: "",
       created: false,
     });
     return;
   }
   if (response.status === 401) {
     await context.secrets.delete(SECRET);
-    updateChrome(false, null);
+    updateChrome(context, false, null);
     toast(context, { error: "The code expired. Sign in again." });
     post({
       type: "state",
       signedIn: false,
       board: null,
+      projectFilter: "",
       created: false,
     });
     return;
   }
   if (!response.ok) {
-    updateChrome(true, null);
+    updateChrome(context, true, null);
     toast(context, { error: extra.error || offline() });
     post({
       type: "state",
       signedIn: true,
       board: null,
+      projectFilter: "",
       created: false,
     });
     return;
   }
   const board = (await response.json()) as Board;
   if (board.groupId) await context.globalState.update(GROUP, board.groupId);
-  updateChrome(true, board);
+  const projectFilter = resolveProjectFilter(context, board);
+  if (board.groupId) {
+    const stored = projectMap(context)[board.groupId] ?? "";
+    if (stored !== projectFilter) {
+      await setProjectFilter(context, board.groupId, projectFilter);
+    }
+  }
+  updateChrome(context, true, board);
   if (extra.error) toast(context, { error: extra.error });
   else if (notice) toast(context, { notice });
   post({
     type: "state",
     signedIn: true,
     board,
+    projectFilter,
     created: extra.created === true,
   });
 }

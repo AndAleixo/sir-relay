@@ -1,0 +1,23 @@
+{
+  "name": "sirrelay",
+  "owner": {
+    "name": "Andre Aleixo"
+  },
+  "metadata": {
+    "description": "SirRelay plugins for Cursor",
+    "version": "1.1.0"
+  },
+  "plugins": [
+    {
+      "name": "sirrelay",
+      "source": "extensions/cursor-plugin",
+      "description": "Manage SirRelay tasks from the agent (MCP).",
+      "version": "1.1.0",
+      "homepage": "https://app.sirrelay.com",
+      "repository": "https://github.com/AndAleixo/sir-relay",
+      "license": "FSL-1.1-MIT",
+      "keywords": ["sirrelay", "srelay", "tasks", "mcp"],
+      "logo": "extensions/cursor-plugin/assets/logo.svg"
+    }
+  ]
+}

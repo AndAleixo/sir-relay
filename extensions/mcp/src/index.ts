@@ -27,7 +27,7 @@ function packageVersion(): string {
 function toolError(status: number, error: string) {
   const hint =
     status === 401
-      ? "Token rejected — open SirRelay → Link this editor (/connect) for a new code."
+      ? "Token rejected — open SirRelay → Profile → Editor & MCP key (or /connect) for a new key."
       : error;
   return {
     content: [{ type: "text" as const, text: `Error (${status}): ${hint}` }],
@@ -41,7 +41,7 @@ const origin = appOrigin(process.env.SIRRELAY_URL);
 
 if (!token) {
   console.error(
-    "sirrelay-mcp: set SIRRELAY_TOKEN (code from SirRelay → Link this editor → /connect).",
+    "sirrelay-mcp: set SIRRELAY_TOKEN (from SirRelay → Profile → Editor & MCP key).",
   );
   process.exit(1);
 }

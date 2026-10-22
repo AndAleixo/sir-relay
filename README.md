@@ -2,12 +2,15 @@
 
 Hosted **web** task tool for small groups (by **Sir**), with optional **Telegram** relay, **VS Code / Cursor** extension, and **MCP** (`@sirrelay/mcp`). One active Telegram task per assignee; reply `done` → next in queue. No KPI dashboards.
 
+Editor / MCP key: **Profile → Editor & MCP key** (same secret for extension and MCP; `/connect` deep-links the editor).
+
 | | |
 |---|---|
 | Brand / app / repo | **Sir** · **SirRelay** · wordmark **SRelay** / mark **SR** · `sir-relay` |
 | Locales | `en-gb` · `es-es` · `pt-br` |
 | Visual identity | [docs/BRAND.md](./docs/BRAND.md) |
 | Telegram bot | SRelay (e.g. `@SirRelayBot`) |
+| Clients | [VS Code](./extensions/vscode/) · [MCP](./extensions/mcp/) · [Cursor plugin](./extensions/cursor-plugin/) · [Teams](./extensions/teams/) |
 
 **Roles (per group):** Operator manages members/tasks on the web (+ alerts on Telegram). Teammate works mainly on Telegram; web My work / Team (edit own). Details: [docs/REQUIREMENTS.md](./docs/REQUIREMENTS.md).
 

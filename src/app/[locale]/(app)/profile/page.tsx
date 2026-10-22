@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
 import { AccountProfile } from "@/components/profile/account-profile";
 import { telegramBotUrl } from "@/lib/app-url";
+import { hasLinkToken } from "@/lib/link-token";
 import { requireSession } from "@/lib/require-session";
 import { getServices } from "@/services";
 
@@ -41,6 +42,7 @@ export default async function ProfilePage({
           : null;
 
   const showTelegram = Boolean(teammate || user.role === "operator");
+  const linkTokenActive = await hasLinkToken(user.id);
 
   return (
     <>
@@ -51,6 +53,7 @@ export default async function ProfilePage({
       <AccountProfile
         locale={locale}
         user={user}
+        hasLinkToken={linkTokenActive}
         telegramStatus={telegramStatus}
         telegramUrl={telegramUrl}
         showTelegram={showTelegram}

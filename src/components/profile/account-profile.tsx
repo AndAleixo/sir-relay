@@ -8,6 +8,7 @@ import {
 } from "@/app/actions/auth";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { PasswordFormFields } from "@/components/auth/password-form-fields";
+import { LinkTokenCard } from "@/components/profile/link-token-card";
 import { ProfileAvatarEditor } from "@/components/profile/profile-avatar-editor";
 import { RegenerateTelegramLinkButton } from "@/components/profile/regenerate-telegram-link-button";
 import { CopyLinkButton } from "@/components/teammates/copy-link-button";
@@ -22,6 +23,7 @@ import type { TelegramLinkStatus, User } from "@/domain/types";
 export type AccountProfileProps = {
   locale: string;
   user: User;
+  hasLinkToken: boolean;
   telegramStatus: TelegramLinkStatus;
   telegramUrl: string;
   showTelegram: boolean;
@@ -32,6 +34,7 @@ export type AccountProfileProps = {
 export function AccountProfile({
   locale,
   user,
+  hasLinkToken,
   telegramStatus,
   telegramUrl,
   showTelegram,
@@ -129,6 +132,8 @@ export function AccountProfile({
           </form>
         </CardBody>
       </Card>
+
+      <LinkTokenCard locale={locale} initiallyHasKey={hasLinkToken} />
 
       {showTelegram ? (
         <Card className="min-w-0 md:col-span-2">

@@ -25,6 +25,28 @@ export async function issueLinkToken(userId: string): Promise<string> {
   return token;
 }
 
+export async function hasLinkToken(userId: string): Promise<boolean> {
+  if (serviceMode === "api") {
+    const row = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { linkTokenHash: true },
+    });
+    return Boolean(row?.linkTokenHash);
+  }
+  return mockTokenByUser.has(userId);
+}
+
+export async function revokeLinkToken(userId: string): Promise<void> {
+  if (serviceMode === "api") {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { linkTokenHash: null },
+    });
+    return;
+  }
+  mockTokenByUser.delete(userId);
+}
+
 export async function sessionFromClientRequest(
   request: Request,
   groupId: string | null,

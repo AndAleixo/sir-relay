@@ -38,19 +38,19 @@ src/
 │   ├── export.ts         # CSV export (server action)
 │   ├── settings.ts       # Locale + group rename
 │   ├── projects.ts       # Group projects + categories
-│   └── connect.ts        # Issue link token / URI (editor + MCP clients)
+│   └── connect.ts        # Issue / revoke link token (Profile + /connect deep-link)
 ├── app/api/v1/client/    # Bearer board + task mutate (editor extension + MCP)
 ├── app/api/v1/vscode/    # Retired — 410 upgrade_required (old clients)
 └── app/[locale]/
     ├── groups/auto/      # Route handler: persist sole-group auto-select
-    ├── connect/          # Link token for editor / MCP
+    ├── connect/          # Editor deep-link (same key as Profile)
     ├── vscode/connect/   # Legacy redirect → /connect
     └── (app)/groups/     # Placeholder + panel auto-open
 ```
 
 **Editor extension:** `extensions/vscode/` (v1.x) — sidebar webview (SRelay); talks HTTP to `/api/v1/client/*` only (no Next `src/` imports).
 
-**MCP:** `extensions/mcp/` (`@sirrelay/mcp` 1.x) — stdio server; one tool `create_task` → `POST /api/v1/client/tasks`. Same Bearer as the extension; does not load the extension.
+**MCP:** `extensions/mcp/` (`@sirrelay/mcp` 1.x) — stdio; list / create / update / delete via `/api/v1/client/*`. Same Bearer as the extension (Profile → Editor & MCP key, or `/connect`). Cursor packaging: `extensions/cursor-plugin/`.
 
 **Teams:** `extensions/teams/` — sideload ZIP (manifest + icons) embedding the live web board.
 
@@ -94,7 +94,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/platform/login`, `/platform`, `/platform/audit`, … | Platform ops cookie | private | SirRelay platform admin (env credentials; not group chrome) |
 | `/[locale]/profile` | Session | private | Account (accessible without active group) |
 | `/[locale]/profile/delete` | Session | private | Hard-delete account confirm (P1-AUTH-15) |
-| `/[locale]/connect` | Session | private | Link token for VS Code / Cursor extension and MCP (`SIRRELAY_TOKEN`) |
+| `/[locale]/connect` | Session | private | Link token for VS Code / Cursor deep-link (same key as Profile → Editor & MCP key / `SIRRELAY_TOKEN`) |
 | `/[locale]/vscode/connect` | Session | private | Legacy redirect → `/connect` |
 
 **Backend (Phase 1–2 + P3-17):** Prisma + server actions · `/api/v1/health` · Telegram webhook · `/api/v1/client/*` (bearer board/tasks for the editor extension and MCP) · SEC base + CSRF Origin guard in `proxy.ts` · outbound mail (`lib/mail` / Resend) · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS).

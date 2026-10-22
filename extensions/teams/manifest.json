@@ -1,0 +1,36 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "abf0cd3a-cef5-41e0-8cbf-fb228bce8065",
+  "developer": {
+    "name": "SirRelay",
+    "websiteUrl": "https://app.sirrelay.com",
+    "privacyUrl": "https://app.sirrelay.com/en/privacy",
+    "termsOfUseUrl": "https://app.sirrelay.com/en/terms"
+  },
+  "name": {
+    "short": "SRelay",
+    "full": "Sir Relay"
+  },
+  "description": {
+    "short": "Tasks and due dates for solo work or a small group — no productivity theater.",
+    "full": "Sir Relay is a hosted task board for people who want to manage their own work or run a small group. Create tasks, assign them, follow due dates. No leaderboards, velocity charts, or “who is behind” scores — just the work."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#EAB308",
+  "staticTabs": [
+    {
+      "entityId": "srelay-work",
+      "name": "My work",
+      "contentUrl": "https://app.sirrelay.com/en/tasks?scope=mine&view=board",
+      "websiteUrl": "https://app.sirrelay.com/en/tasks?scope=mine&view=board",
+      "scopes": ["personal"]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": ["app.sirrelay.com", "sirrelay.com"]
+}

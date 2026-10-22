@@ -10,15 +10,13 @@ Upload file: **`srelay-teams.zip`** (this folder’s `manifest.json` + `color.pn
 
 You need a Microsoft 365 account that allows custom app upload (tenant admin policy, or a trial tenant).
 
-## Partner Center / Teams Store
+## Custom / org use (practical path)
 
-The screenshot **Apps and games** is the **Windows / Xbox** store path. For Teams Store / Microsoft Marketplace:
+Sideload or upload to an org’s app catalog with the same ZIP. No public store needed.
 
-1. In Partner Center, open **Office Store** / **Microsoft 365 and Copilot** (wording varies) — not “+ New product” under Apps and games for a Windows app.
-2. Create a **Teams app** offer and upload the same ZIP.
-3. Store listing still needs screenshots, test notes, and validation against [Teams Store guidelines](https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/prepare/teams-store-validation-guidelines).
+## Teams Store (later)
 
-Partner Center account = correct. This ZIP = what you upload. Store approval is a separate step after sideload works.
+Public listing needs a **company** Partner Center enrollment in **Microsoft 365 and Copilot** (not the Individual **Apps and games** Windows/Xbox path). Same ZIP when that day comes.
 
 ## Icons
 

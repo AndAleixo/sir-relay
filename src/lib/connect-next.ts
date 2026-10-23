@@ -1,4 +1,4 @@
-const SCHEMES = new Set(["vscode", "cursor"]);
+const SCHEMES = new Set(["vscode", "cursor", "antigravity"]);
 
 /** Only the connect page may be used as a post-login return path. */
 export function safeConnectNext(locale: string, raw: string | null | undefined): string | null {
@@ -26,7 +26,10 @@ export function withConnectNext(path: string, returnTo: string | null | undefine
   return `${path}${joiner}next=${encodeURIComponent(safe)}`;
 }
 
-/** Editor URI scheme for deep links (vscode:// / cursor://) — not the web path. */
-export function editorUriScheme(raw: string | null | undefined): "vscode" | "cursor" {
-  return raw === "cursor" ? "cursor" : "vscode";
+/** Editor URI scheme for deep links (vscode:// / cursor:// / antigravity://). */
+export function editorUriScheme(
+  raw: string | null | undefined,
+): "vscode" | "cursor" | "antigravity" {
+  if (raw === "cursor" || raw === "antigravity") return raw;
+  return "vscode";
 }

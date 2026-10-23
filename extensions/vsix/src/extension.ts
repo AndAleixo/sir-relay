@@ -13,6 +13,12 @@ const SECRET = "sirrelay.token";
 const GROUP = "sirrelay.groupId";
 const PROJECTS = "sirrelay.projectByGroup";
 
+function hostScheme(): "vscode" | "cursor" | "antigravity" {
+  const scheme = vscode.env.uriScheme;
+  if (scheme === "cursor" || scheme === "antigravity") return scheme;
+  return "vscode";
+}
+
 type WebviewMessage =
   | { type: "ready" }
   | { type: "sign-in" }
@@ -114,7 +120,7 @@ async function openOnSrelay(
     );
     return;
   }
-  const scheme = vscode.env.uriScheme === "cursor" ? "cursor" : "vscode";
+  const scheme = hostScheme();
   const next = `/en-gb/connect?scheme=${scheme}`;
   await vscode.env.openExternal(
     vscode.Uri.parse(`${appOrigin()}/en-gb?next=${encodeURIComponent(next)}`),
@@ -179,7 +185,7 @@ async function onMessage(
     return;
   }
   if (message.type === "sign-in") {
-    const scheme = vscode.env.uriScheme === "cursor" ? "cursor" : "vscode";
+    const scheme = hostScheme();
     await vscode.env.openExternal(
       vscode.Uri.parse(
         `${appOrigin()}/en-gb/connect?scheme=${scheme}`,

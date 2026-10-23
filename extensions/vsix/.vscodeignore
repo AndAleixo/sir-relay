@@ -3,4 +3,5 @@ tsconfig.json
 **/*.map
 *.tsbuildinfo
 *.vsix
+dist/**
 node_modules/**

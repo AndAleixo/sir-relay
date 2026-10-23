@@ -624,7 +624,7 @@
     },
     "editor": {
       "title": "Your column, in the editor.",
-      "subtitle": "The same tasks in VS Code or Cursor — and the same API key for the SirRelay MCP. The sidebar shows only the work assigned to you.",
+      "subtitle": "The same tasks in VS Code, Cursor, or Antigravity — and the same API key for the SirRelay MCP. The sidebar shows only the work assigned to you.",
       "pointYours": "Other people's tasks stay on the web.",
       "column": "My work",
       "previewLabel": "SRelay in the editor"

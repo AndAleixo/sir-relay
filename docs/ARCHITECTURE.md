@@ -39,7 +39,7 @@ src/
 │   ├── settings.ts       # Locale + group rename
 │   ├── projects.ts       # Group projects + categories
 │   └── connect.ts        # Create / delete ClientApiKey
-├── app/api/v1/client/    # Bearer board + task mutate (editor extension + MCP)
+├── app/api/v1/client/    # Bearer board + task mutate (IDE extension + MCP)
 ├── app/api/v1/vscode/    # 410 — old clients must update
 └── app/[locale]/
     ├── groups/auto/      # Route handler: persist sole-group auto-select
@@ -48,7 +48,7 @@ src/
 ```
 
 
-**Editor extension:** `extensions/vscode/` (v1.x) — sidebar webview (SRelay); talks HTTP to `/api/v1/client/*` only (no Next `src/` imports).
+**IDE extension:** `extensions/vsix/` (v1.x) — sidebar webview (SRelay) for VS Code, Cursor, and Antigravity; talks HTTP to `/api/v1/client/*` only (no Next `src/` imports). The installer is `extensions/vsix/dist/sirrelay.vsix` (`npm run package` in that folder), not committed.
 
 **MCP:** `extensions/mcp/` (`@sirrelay/mcp` 1.x) — stdio; list / full create / per-field set_* / clone / delete via `/api/v1/client/*`. Bearer = `ClientApiKey` from `/connect`. Cursor packaging: `extensions/cursor-plugin/`.
 
@@ -96,7 +96,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/profile/delete` | Session | private | Hard-delete account confirm (P1-AUTH-15) |
 | `/[locale]/connect` | Session | private | API keys hub (create/list/delete) + deep-link IDE when a new key is revealed |
 
-**Backend (Phase 1–2 + P3-17):** Prisma + server actions · `/api/v1/health` · Telegram webhook · `/api/v1/client/*` (bearer board/tasks for the editor extension and MCP) · SEC base + CSRF Origin guard in `proxy.ts` · outbound mail (`lib/mail` / Resend) · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS).
+**Backend (Phase 1–2 + P3-17):** Prisma + server actions · `/api/v1/health` · Telegram webhook · `/api/v1/client/*` (bearer board/tasks for the IDE extension and MCP) · SEC base + CSRF Origin guard in `proxy.ts` · outbound mail (`lib/mail` / Resend) · platform admin `/platform` · request id on security/auth logs (P2-MON-01) · ops runbook [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (P2-OPS).
 
 ## Entry redirects
 

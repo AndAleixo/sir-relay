@@ -2,7 +2,7 @@
   "name": "sirrelay",
   "displayName": "SRelay",
   "description": "Organize your own work, or a group's. Your tasks stay in the sidebar.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "sirrelay",
   "license": "FSL-1.1-MIT",
   "icon": "media/icon.png",
@@ -95,7 +95,8 @@
   },
   "scripts": {
     "compile": "tsc -p .",
-    "watch": "tsc -p . -w"
+    "watch": "tsc -p . -w",
+    "package": "npm run compile && mkdir -p dist && npx --yes @vscode/vsce package --out dist/sirrelay.vsix"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",

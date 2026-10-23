@@ -6,9 +6,9 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/extensions/vscode"
+        "--extensionDevelopmentPath=${workspaceFolder}/extensions/vsix"
       ],
-      "outFiles": ["${workspaceFolder}/extensions/vscode/out/**/*.js"],
+      "outFiles": ["${workspaceFolder}/extensions/vsix/out/**/*.js"],
       "preLaunchTask": "compile-sirrelay-extension"
     }
   ]

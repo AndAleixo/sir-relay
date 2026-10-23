@@ -11,6 +11,11 @@ assert.equal(safeConnectNext("en-gb", "/pt-br/connect"), null);
 assert.equal(safeConnectNext("pt-br", "/pt-br/connect?scheme=javascript"), null);
 assert.equal(safeConnectNext("pt-br", "/pt-br/vscode/connect?scheme=cursor"), null);
 assert.equal(editorUriScheme("cursor"), "cursor");
+assert.equal(editorUriScheme("antigravity"), "antigravity");
+assert.equal(
+  safeConnectNext("pt-br", "/pt-br/connect?scheme=antigravity"),
+  "/pt-br/connect?scheme=antigravity",
+);
 assert.equal(editorUriScheme("nope"), "vscode");
 assert.equal(
   withConnectNext("/en-gb/login", "/en-gb/connect?scheme=cursor"),

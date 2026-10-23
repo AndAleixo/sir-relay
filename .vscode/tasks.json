@@ -4,7 +4,7 @@
     {
       "type": "npm",
       "script": "compile",
-      "path": "extensions/vscode",
+      "path": "extensions/vsix",
       "problemMatcher": "$tsc",
       "label": "compile-sirrelay-extension"
     }

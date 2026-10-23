@@ -1,6 +1,6 @@
 # SirRelay
 
-Hosted **web** task tool for small groups (by **Sir**), with optional **Telegram** relay, **VS Code / Cursor** extension, and **MCP** (`@sirrelay/mcp`). One active Telegram task per assignee; reply `done` → next in queue. No KPI dashboards.
+Hosted **web** task tool for small groups (by **Sir**), with optional **Telegram** relay, an IDE extension (VS Code, Cursor, Antigravity), and **MCP** (`@sirrelay/mcp`). One active Telegram task per assignee; reply `done` → next in queue. No KPI dashboards.
 
 Editor / MCP: **`/connect`** manages named API keys (optional group scope); Profile links there.
 
@@ -10,7 +10,7 @@ Editor / MCP: **`/connect`** manages named API keys (optional group scope); Prof
 | Locales | `en-gb` · `es-es` · `pt-br` |
 | Visual identity | [docs/BRAND.md](./docs/BRAND.md) |
 | Telegram bot | SRelay (e.g. `@SirRelayBot`) |
-| Clients | [VS Code](./extensions/vscode/) · [MCP](./extensions/mcp/) · [Cursor plugin](./extensions/cursor-plugin/) · [Teams](./extensions/teams/) |
+| Clients | [VSIX](./extensions/vsix/) · [MCP](./extensions/mcp/) · [Cursor plugin](./extensions/cursor-plugin/) · [Teams](./extensions/teams/) |
 
 **Roles (per group):** Operator manages members/tasks on the web (+ alerts on Telegram). Teammate works mainly on Telegram; web My work / Team (edit own). Details: [docs/REQUIREMENTS.md](./docs/REQUIREMENTS.md).
 

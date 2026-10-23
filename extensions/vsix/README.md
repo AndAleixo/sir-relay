@@ -1,6 +1,6 @@
 # SRelay
 
-VS Code / Cursor extension for **SirRelay** ([app.sirrelay.com](https://app.sirrelay.com)). Chrome name **SRelay** — your column in the sidebar; changes here are the same tasks on the site.
+IDE extension for **SirRelay** ([app.sirrelay.com](https://app.sirrelay.com)). The same `.vsix` installs in VS Code, Cursor, or Antigravity. Chrome name **SRelay** — your column in the sidebar; changes here are the same tasks on the site.
 
 ## Set up
 
@@ -31,6 +31,10 @@ Keys are managed only on `/connect` (Profile links there). Same keys as the [MCP
 
 - MCP: [`../mcp/`](../mcp/) (`npx @sirrelay/mcp`)
 - Cursor Marketplace plugin: [`../cursor-plugin/`](../cursor-plugin/)
+
+## Package
+
+From this folder, `npm run package` writes `dist/sirrelay.vsix`. That file is the current installer and is not committed. Install it from the editor’s Extensions view with **Install from VSIX**.
 
 ## License
 

@@ -10,7 +10,7 @@ Cursor Marketplace package for **`@sirrelay/mcp`**: the agent can list, create, 
    - **App origin** (optional) — default `https://app.sirrelay.com`
 3. Chat: e.g. “list my SirRelay tasks”.
 
-Same keys as the [VS Code / Cursor extension](../vscode/). Treat like a password.
+Same keys as the [IDE extension](../vsix/). Treat like a password.
 
 ## Tools
 

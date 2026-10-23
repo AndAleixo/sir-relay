@@ -1,6 +1,6 @@
 # `@sirrelay/mcp`
 
-SirRelay MCP (stdio): list, create, update field-by-field, clone, and delete **your** board tasks from an AI client. Talks HTTPS to the app — the editor extension is optional.
+SirRelay MCP (stdio): list, create, update field-by-field, clone, and delete **your** board tasks from an AI client. Talks HTTPS to the app — the IDE extension is optional.
 
 ## Get a key
 
@@ -9,7 +9,7 @@ SirRelay MCP (stdio): list, create, update field-by-field, clone, and delete **y
 3. Create a named key (optional group scope) → copy once
 4. Paste into `SIRRELAY_TOKEN` (treat like a password)
 
-After create you can also **Open in the IDE** for the VS Code / Cursor extension (same key).
+After create you can also **Open in the IDE** for the IDE extension (same key).
 
 ## Install
 
@@ -56,7 +56,7 @@ Each `set_*` tool changes **one** field so the agent only touches what you asked
 ## Related
 
 - Cursor Marketplace plugin: [`../cursor-plugin/`](../cursor-plugin/)
-- VS Code / Cursor extension: [`../vscode/`](../vscode/)
+- IDE extension (VS Code, Cursor, Antigravity): [`../vsix/`](../vsix/)
 - Publish (maintainers): [PUBLISH.md](./PUBLISH.md)
 
 ```bash

@@ -28,7 +28,7 @@ Related docs: [UIUX.md](./UIUX.md) · [ARCHITECTURE.md](./ARCHITECTURE.md) · [B
 
 **In a group:** **Operator** — manage members/tasks, monitor web, Telegram relay + alerts. **Teammate** — Telegram primary; web My work / Team (edit own); may create self-assigned tasks. No web comment thread.
 
-**Positioning:** No KPI dashboards, leaderboards, or surveillance metrics. **Clients:** web first (Phase 1); VS Code / Cursor extension + MCP (`extensions/vscode`, `extensions/mcp`, `extensions/cursor-plugin`; shared `/api/v1/client/*`; `ClientApiKey` from `/connect`); optional Teams sideload package; native apps → Phase 3 (P3-13).
+**Positioning:** No KPI dashboards, leaderboards, or surveillance metrics. **Clients:** web first (Phase 1); IDE extension (VS Code, Cursor, Antigravity) + MCP (`extensions/vsix`, `extensions/mcp`, `extensions/cursor-plugin`; shared `/api/v1/client/*`; `ClientApiKey` from `/connect`); optional Teams sideload package; native apps → Phase 3 (P3-13).
 
 **Languages:** UI locales `en-gb` · `es-es` · `pt-br` (DB may store short `en` / `es` / `pt`).
 
@@ -589,7 +589,7 @@ Task.category_id → nullable FK (SET NULL; must belong to the task’s project)
 | P3-PRJ-03 | Acronym | 1–3 letters A–Z (store uppercase). Unique among **open and pending** projects in the group. |
 | P3-PRJ-04 | Archive | Trash on `/projects` archives (not hard-delete). Hides from create/edit Select. Existing tasks keep `project_id`; acronym still renders. Operator may trash a pending request (frees a pending slot). |
 | P3-PRJ-05 | Tag task | Create/edit: Select of **accepted open** projects; optional (`null` = untagged). One project per task. Clone copies `project_id` (and `category_id` if still open on that project) if the project is still accepted-open, else both `null`. Pending is not taggable. |
-| P3-PRJ-06 | Project filter | Toolbar Select of **accepted open** projects (`All` or one project); applies to **board and list**. Zero projects: quiet link to `/projects` (both roles). Editor extension: open projects with default **Project** (= all), remembered per group. |
+| P3-PRJ-06 | Project filter | Toolbar Select of **accepted open** projects (`All` or one project); applies to **board and list**. Zero projects: quiet link to `/projects` (both roles). IDE extension: open projects with default **Project** (= all), remembered per group. |
 | P3-PRJ-07 | Display | Board, task detail, Telegram: `SIR · Fix login`. Card: click acronym → retag; click title → edit title only. Untagged: title only. Category is **not** shown on the card. **List:** Title, Project, Category, assignee, status, due. Click title → input (≤200, wrap 2 lines); click project/category/assignee/status → vertical picker (assignee: operator). Click due → date. Changing project clears the category unless that category id still exists on the new project. |
 | P3-PRJ-08 | Relay | Queue / notify / re-notify use the same display string. Project does not change queue order. |
 | P3-PRJ-09 | Permissions | Operator: create / accept / archive project. Teammate: request project (not archive). Both roles: add / archive **categories** on accepted projects; set **accepted** project and that project’s **category** on tasks they can edit. |
@@ -699,7 +699,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 ├── brand/
 ├── public/
 ├── extensions/
-│   ├── vscode/          # SRelay editor extension 1.x (VS Code / Cursor)
+│   ├── vsix/            # SRelay IDE extension 1.x (VS Code, Cursor, Antigravity)
 │   ├── mcp/             # @sirrelay/mcp — list/create/set_*/clone/delete via bearer API
 │   ├── cursor-plugin/   # Cursor Marketplace wrapper for @sirrelay/mcp
 │   └── teams/           # Sideload ZIP (manifest + icons)
@@ -731,7 +731,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | Prod local smoke | Done — ver [ENVIRONMENTS.md §2](./ENVIRONMENTS.md#2--prod-local-test-drive) |
 | Telegram webhook (link) | Done — P1-TG-01, P1-TG-06 |
 | Telegram task relay + alert DMs | Done — P1-TG-02–05, 08–10 · create/done/renotify · replies · operator DMs |
-| REST `/api/v1/*` (beyond health + Telegram webhook) | Partial — `/api/v1/client/*` for the editor extension and MCP; web UI uses server actions |
+| REST `/api/v1/*` (beyond health + Telegram webhook) | Partial — `/api/v1/client/*` for the IDE extension and MCP; web UI uses server actions |
 
 ---
 

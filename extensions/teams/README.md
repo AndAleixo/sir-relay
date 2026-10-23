@@ -16,8 +16,8 @@ Needs a Microsoft 365 account that allows custom app upload.
 
 | File | Size | Source |
 | --- | --- | --- |
-| `color.png` | 192×192 | [`../vscode/media/icon.png`](../vscode/media/icon.png) |
-| `outline.png` | 32×32 white | [`../vscode/media/icon.svg`](../vscode/media/icon.svg) |
+| `color.png` | 192×192 | [`../vsix/media/icon.png`](../vsix/media/icon.png) |
+| `outline.png` | 32×32 white | [`../vsix/media/icon.svg`](../vsix/media/icon.svg) |
 
 ## Rebuild ZIP
 

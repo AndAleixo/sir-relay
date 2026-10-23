@@ -7,7 +7,7 @@ import {
   createTask,
   deleteTask,
   listBoard,
-  updateTask,
+  patchTask,
 } from "./client-api.js";
 
 describe("client-api", () => {
@@ -28,12 +28,14 @@ describe("client-api", () => {
         title: "  Ship MCP  ",
         dueDate: "2026-10-23",
         projectId: "p1",
+        categoryId: "c1",
         groupId: "g1",
       }),
       {
         title: "Ship MCP",
         dueDate: "2026-10-23",
         projectId: "p1",
+        categoryId: "c1",
         groupId: "g1",
       },
     );
@@ -96,8 +98,23 @@ describe("client-api", () => {
             groupId: "g1",
             groupName: "Casa",
             groups: [{ id: "g1", name: "Casa" }],
-            projects: [],
-            tasks: [{ id: "task-1", title: "A", status: "todo" }],
+            projects: [
+              {
+                id: "p1",
+                acronym: "SR",
+                name: "Relay",
+                categories: [{ id: "c1", name: "Bug" }],
+              },
+            ],
+            tasks: [
+              {
+                id: "task-1",
+                title: "A",
+                status: "todo",
+                categoryId: "c1",
+                categoryName: "Bug",
+              },
+            ],
           }),
           { status: 200 },
         ),
@@ -106,19 +123,53 @@ describe("client-api", () => {
     if (result.ok) {
       assert.equal(result.board.groupName, "Casa");
       assert.equal(result.board.tasks[0].title, "A");
+      assert.equal(result.board.tasks[0].categoryId, "c1");
+      assert.equal(result.board.projects[0].categories[0].name, "Bug");
     }
   });
 
-  it("update_task patches status", async () => {
-    const result = await updateTask(
+  it("patchTask status", async () => {
+    const result = await patchTask(
       "https://app.example",
       "tok",
-      { taskId: "task-1", status: "done" },
+      { taskId: "task-1", op: "status", status: "done" },
       "1.0.0",
       async (_url, init) => {
         const body = JSON.parse(String(init?.body));
         assert.equal(body.op, "status");
         assert.equal(body.status, "done");
+        return new Response(JSON.stringify({ ok: true }), { status: 200 });
+      },
+    );
+    assert.equal(result.ok, true);
+  });
+
+  it("patchTask difficulty clear", async () => {
+    const result = await patchTask(
+      "https://app.example",
+      "tok",
+      { taskId: "task-1", op: "difficulty", difficulty: "" },
+      "1.0.0",
+      async (_url, init) => {
+        const body = JSON.parse(String(init?.body));
+        assert.equal(body.op, "difficulty");
+        assert.equal(body.difficulty, null);
+        return new Response(JSON.stringify({ ok: true }), { status: 200 });
+      },
+    );
+    assert.equal(result.ok, true);
+  });
+
+  it("patchTask category", async () => {
+    const result = await patchTask(
+      "https://app.example",
+      "tok",
+      { taskId: "task-1", op: "category", categoryId: "cat-1" },
+      "1.0.0",
+      async (_url, init) => {
+        const body = JSON.parse(String(init?.body));
+        assert.equal(body.op, "category");
+        assert.equal(body.categoryId, "cat-1");
         return new Response(JSON.stringify({ ok: true }), { status: 200 });
       },
     );

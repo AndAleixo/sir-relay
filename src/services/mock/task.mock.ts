@@ -91,6 +91,14 @@ export class MockTaskService implements TaskService {
     const sortOrder =
       sameAssignee.reduce((max, t) => Math.max(max, t.sortOrder), -1) + 1;
 
+    const project = mockProjectTag(ctx.session, input.projectId);
+    const categoryId = nextTaskCategoryId({
+      projectId: project.projectId,
+      projectChanged: true,
+      requested: input.categoryId,
+      currentId: null,
+      openIds: mockOpenCategoryIds(project.projectId),
+    });
     const task: Task = {
       id: `task-${Date.now()}`,
       title: title.slice(0, 200),
@@ -102,9 +110,9 @@ export class MockTaskService implements TaskService {
       difficulty: input.difficulty ?? null,
       telegramNotifyFailed: false,
       sortOrder,
-      ...mockProjectTag(ctx.session, input.projectId),
-      categoryId: null,
-      categoryName: null,
+      ...project,
+      categoryId,
+      categoryName: mockCategoryLabel(categoryId),
       updatedAt: now,
       createdAt: now,
     };

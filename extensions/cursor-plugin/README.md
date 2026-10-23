@@ -1,6 +1,6 @@
 # SirRelay (Cursor plugin)
 
-Cursor Marketplace package for **`@sirrelay/mcp`**: the agent can list, create, update, and delete your board tasks.
+Cursor Marketplace package for **`@sirrelay/mcp`**: the agent can list, create, update field-by-field, clone, and delete your board tasks.
 
 ## Set up
 
@@ -17,8 +17,9 @@ Same keys as the [VS Code / Cursor extension](../vscode/). Treat like a password
 | Tool | Purpose |
 | --- | --- |
 | `list_tasks` | Your column |
-| `create_task` | Create (optional status) |
-| `update_task` | Title / status / project |
+| `create_task` | Full create (optional status, project, category, …) |
+| `set_task_*` | One field: status, title, description, due date, difficulty, project, category |
+| `clone_task` | Duplicate |
 | `delete_task` | Delete (`confirm: true`) |
 
 Full MCP docs: [`../mcp/README.md`](../mcp/README.md).

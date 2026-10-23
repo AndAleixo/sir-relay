@@ -103,6 +103,21 @@ export class ApiTaskService implements TaskService {
     await assertAssigneeInGroup(groupId, input.assigneeId);
     const name = await assigneeName(groupId, input.assigneeId);
     const projectId = await resolveOpenProjectId(groupId, input.projectId);
+    const openCategoryIds = projectId
+      ? (
+          await prisma.projectCategory.findMany({
+            where: { projectId, archivedAt: null },
+            select: { id: true },
+          })
+        ).map((row) => row.id)
+      : [];
+    const categoryId = nextTaskCategoryId({
+      projectId,
+      projectChanged: true,
+      requested: input.categoryId,
+      currentId: null,
+      openIds: openCategoryIds,
+    });
     const id = `task-${Date.now()}`;
     const sortOrder = await nextSortOrder(groupId, input.assigneeId);
 
@@ -119,6 +134,7 @@ export class ApiTaskService implements TaskService {
         difficulty: input.difficulty ?? null,
         sortOrder,
         projectId,
+        categoryId,
       },
     });
 

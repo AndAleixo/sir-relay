@@ -10,13 +10,20 @@ export type ClientBoard = {
   groups: { id: string; name: string }[];
   groupId: string | null;
   groupName: string;
-  projects: { id: string; acronym: string; name: string }[];
+  projects: {
+    id: string;
+    acronym: string;
+    name: string;
+    categories: { id: string; name: string }[];
+  }[];
   members: { id: string; label: string }[];
   tasks: {
     id: string;
     title: string;
     projectId: string | null;
     acronym: string;
+    categoryId: string | null;
+    categoryName: string;
     description: string;
     due: string | null;
     difficulty: string;
@@ -75,6 +82,8 @@ export async function buildClientBoard(session: Session): Promise<ClientBoard> {
       title: task.title,
       projectId: task.projectId ?? null,
       acronym: task.projectAcronym ?? "",
+      categoryId: task.categoryId ?? null,
+      categoryName: task.categoryName ?? "",
       description: task.description,
       due: task.dueDate,
       difficulty: task.difficulty ?? "",
@@ -92,6 +101,7 @@ export async function buildClientBoard(session: Session): Promise<ClientBoard> {
       id: row.id,
       acronym: row.acronym,
       name: row.name,
+      categories: row.categories.map((cat) => ({ id: cat.id, name: cat.name })),
     })),
     members,
     tasks,
@@ -103,6 +113,7 @@ export function createInputFromBody(
   selfId: string,
 ): CreateTaskInput {
   const assigneeId = String(body.assigneeId ?? selfId).trim() || selfId;
+  const categoryRaw = String(body.categoryId ?? "").trim();
   return {
     title: String(body.title ?? "").trim(),
     description: String(body.description ?? ""),
@@ -110,5 +121,6 @@ export function createInputFromBody(
     dueDate: String(body.dueDate ?? "").trim() || null,
     difficulty: parseTaskDifficulty(body.difficulty),
     projectId: String(body.projectId ?? "").trim() || null,
+    categoryId: categoryRaw || null,
   };
 }

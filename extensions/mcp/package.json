@@ -1,7 +1,7 @@
 {
   "name": "@sirrelay/mcp",
-  "version": "1.1.1",
-  "description": "SirRelay MCP \u2014 list, create, update, and delete board tasks from AI clients.",
+  "version": "1.2.0",
+  "description": "SirRelay MCP \u2014 list, create, per-field update, clone, and delete board tasks from AI clients.",
   "license": "FSL-1.1-MIT",
   "type": "module",
   "mcpName": "com.sirrelay/mcp",

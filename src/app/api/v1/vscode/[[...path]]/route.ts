@@ -1,6 +1,6 @@
 import { upgradeRequiredResponse } from "@/lib/client-upgrade";
 
-/** Retired bearer API — old extension / MCP builds called /api/v1/vscode/*. */
+/** Old clients — 410, update. */
 export function GET() {
   return upgradeRequiredResponse();
 }

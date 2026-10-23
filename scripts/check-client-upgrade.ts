@@ -5,7 +5,8 @@ import {
 } from "../src/lib/client-upgrade";
 
 async function main() {
-  assert.ok(CLIENT_UPGRADE_MESSAGE.includes("/connect"));
+  assert.ok(/out of date/i.test(CLIENT_UPGRADE_MESSAGE));
+  assert.ok(/update/i.test(CLIENT_UPGRADE_MESSAGE));
   assert.ok(!/\b1\.0\b/.test(CLIENT_UPGRADE_MESSAGE), "upgrade copy must stay version-agnostic");
 
   const res = upgradeRequiredResponse({ minClient: "2.0.0" });

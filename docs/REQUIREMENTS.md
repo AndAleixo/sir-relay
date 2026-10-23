@@ -675,7 +675,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | GET | `/health` | 1 | Public |
 | POST | `/sync` | 3 | Session — optional batch replay (P3-OFF-06) |
 
-**Bearer clients (shipped):** `/api/v1/client/board` · `POST /api/v1/client/tasks` · `PATCH /api/v1/client/tasks/:id` — `ClientApiKey` from `/connect` (optional group scope; Profile links there). Header `X-SirRelay-Client: extension|mcp/<semver>` (identity for future min-version gates). Retired `/api/v1/vscode/*` → **410** `{ error: "upgrade_required", message, minClient? }`. The session REST table above remains the planned cookie API; web UI uses server actions today.
+**Bearer clients (shipped):** `/api/v1/client/board` · `POST /api/v1/client/tasks` · `PATCH /api/v1/client/tasks/:id` — `ClientApiKey` from `/connect` (optional group scope; Profile links there). Header `X-SirRelay-Client: extension|mcp/<semver>`. Unknown/old client paths → **410** `{ error: "upgrade_required", message }` (“update it”). The session REST table above remains the planned cookie API; web UI uses server actions today.
 
 ---
 
@@ -700,7 +700,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 ├── public/
 ├── extensions/
 │   ├── vscode/          # SRelay editor extension 1.x (VS Code / Cursor)
-│   ├── mcp/             # @sirrelay/mcp — list/create/update/delete via bearer API
+│   ├── mcp/             # @sirrelay/mcp — list/create/set_*/clone/delete via bearer API
 │   ├── cursor-plugin/   # Cursor Marketplace wrapper for @sirrelay/mcp
 │   └── teams/           # Sideload ZIP (manifest + icons)
 ├── prisma/

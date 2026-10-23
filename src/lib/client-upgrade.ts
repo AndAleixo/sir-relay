@@ -1,20 +1,12 @@
 import { NextResponse } from "next/server";
 
-/**
- * Retired-client / future min-version gate.
- *
- * Contract: HTTP 410 + `{ error: "upgrade_required", message, minClient? }`.
- * Clients must prefer `message` from the body. Advertise identity via
- * `X-SirRelay-Client: extension|mcp/<semver>` so a later gate can compare
- * against `minClient` or env without changing the status/error code.
- */
+/** HTTP 410 + `{ error: "upgrade_required", message, minClient? }`. Prefer body `message`. */
 export const CLIENT_UPGRADE_MESSAGE =
-  "This SRelay client is out of date. Update to the latest extension or @sirrelay/mcp, then create a new API key at /connect.";
+  "This SRelay client is out of date. Update it.";
 
 export type UpgradeRequiredBody = {
   error: "upgrade_required";
   message: string;
-  /** Optional SemVer floor for future gates (clients may ignore today). */
   minClient?: string;
 };
 

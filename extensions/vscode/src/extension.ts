@@ -403,7 +403,6 @@ async function publish(
     });
     return;
   }
-  // Pre-1.0 tokens used the "vscode-" prefix; API paths also moved.
   if (token.startsWith("vscode-")) {
     await context.secrets.delete(SECRET);
     updateChrome(context, false, null);

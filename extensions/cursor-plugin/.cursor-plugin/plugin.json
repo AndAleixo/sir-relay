@@ -1,7 +1,7 @@
 {
   "name": "sirrelay",
-  "version": "1.1.1",
-  "description": "Manage SirRelay tasks from the agent — list, create, update, and delete on your board.",
+  "version": "1.2.0",
+  "description": "Manage SirRelay tasks from the agent — list, create, per-field update, clone, and delete on your board.",
   "author": {
     "name": "Andre Aleixo"
   },

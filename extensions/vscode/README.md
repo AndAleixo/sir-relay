@@ -10,8 +10,6 @@ VS Code / Cursor extension for **SirRelay** ([app.sirrelay.com](https://app.sirr
 
 Keys are managed only on `/connect` (Profile links there). Same keys as the [MCP](../mcp/README.md).
 
-**v1.0+** uses `/connect` and `/api/v1/client/*`. Re-link after upgrading from 0.x.
-
 ## What you can do
 
 - Switch group (when you belong to more than one)

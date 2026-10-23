@@ -1,6 +1,6 @@
 # `@sirrelay/mcp`
 
-SirRelay MCP (stdio): list, create, update, and delete **your** board tasks from an AI client. Talks HTTPS to the app — the editor extension is optional.
+SirRelay MCP (stdio): list, create, update field-by-field, clone, and delete **your** board tasks from an AI client. Talks HTTPS to the app — the editor extension is optional.
 
 ## Get a key
 
@@ -39,12 +39,19 @@ Keep `mcp.json` out of git. Delete the key on `/connect` if leaked.
 
 | Tool | Purpose |
 | --- | --- |
-| `list_tasks` | Your board (own tasks only) |
-| `create_task` | Create (optional `status`: `todo` \| `doing` \| `done`) |
-| `update_task` | `status`, `title`, and/or `projectId` (`""` clears project) |
+| `list_tasks` | Your board (own tasks only; projects include category ids) |
+| `create_task` | Full create: title + optional description, dueDate, project, category, difficulty, assignee, status |
+| `set_task_status` | `todo` \| `doing` \| `done` |
+| `set_task_title` | Rename |
+| `set_task_description` | Replace (empty string clears) |
+| `set_task_due_date` | `YYYY-MM-DD` (empty string clears) |
+| `set_task_difficulty` | `easy` \| `medium` \| `hard` (empty string clears) |
+| `set_task_project` | Project id (empty string clears; also clears category) |
+| `set_task_category` | Category id for the task’s project (empty string clears) |
+| `clone_task` | Duplicate |
 | `delete_task` | Delete — requires `confirm: true` |
 
-Authz stays on the server (same Bearer rules as the editor).
+Each `set_*` tool changes **one** field so the agent only touches what you asked for. Authz stays on the server (same Bearer rules as the editor).
 
 ## Related
 

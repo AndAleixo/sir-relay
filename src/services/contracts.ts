@@ -29,6 +29,7 @@ export interface CreateTaskInput {
   dueDate?: string | null;
   difficulty?: TaskDifficulty | null;
   projectId?: string | null;
+  categoryId?: string | null;
 }
 
 export interface CreateTeammateInput {

@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import type { TaskStatus } from "@/domain/types";
 import { sessionFromClientRequest } from "@/lib/link-token";
+import { parseTaskDifficulty } from "@/lib/task-difficulty";
 import { getServices } from "@/services";
 
 const STATUSES = new Set<TaskStatus>(["todo", "doing", "done"]);
+
+function optionalId(raw: unknown): string | null {
+  if (raw == null || raw === "") return null;
+  return String(raw);
+}
 
 export async function PATCH(
   request: Request,
@@ -29,12 +35,40 @@ export async function PATCH(
       const title = String(body.title ?? "").trim();
       if (!title) return NextResponse.json({ error: "title" }, { status: 400 });
       await tasks.updateTaskFields(id, { title }, { session });
-    } else if (body.op === "project") {
-      const projectId =
-        body.projectId == null || body.projectId === ""
+    } else if (body.op === "description") {
+      await tasks.updateTaskFields(
+        id,
+        { description: String(body.description ?? "") },
+        { session },
+      );
+    } else if (body.op === "dueDate") {
+      const dueDate =
+        body.dueDate == null || body.dueDate === ""
           ? null
-          : String(body.projectId);
-      await tasks.updateTaskFields(id, { projectId }, { session });
+          : String(body.dueDate).trim() || null;
+      await tasks.updateTaskFields(id, { dueDate }, { session });
+    } else if (body.op === "difficulty") {
+      const raw = body.difficulty;
+      if (raw != null && raw !== "" && parseTaskDifficulty(raw) === null) {
+        return NextResponse.json({ error: "difficulty" }, { status: 400 });
+      }
+      await tasks.updateTaskFields(
+        id,
+        { difficulty: parseTaskDifficulty(raw) },
+        { session },
+      );
+    } else if (body.op === "project") {
+      await tasks.updateTaskFields(
+        id,
+        { projectId: optionalId(body.projectId) },
+        { session },
+      );
+    } else if (body.op === "category") {
+      await tasks.updateTaskFields(
+        id,
+        { categoryId: optionalId(body.categoryId) },
+        { session },
+      );
     } else if (body.op === "reorder" && Array.isArray(body.orderedTodoIds)) {
       const orderedTodoIds = body.orderedTodoIds.map((item) => String(item));
       await tasks.placeInTodoQueue(id, session.user.id, orderedTodoIds, { session });

@@ -2,7 +2,7 @@
   "mcpServers": {
     "sirrelay": {
       "command": "npx",
-      "args": ["-y", "@sirrelay/mcp@^1.1.1"],
+      "args": ["-y", "@sirrelay/mcp@^1.2.0"],
       "env": {
         "SIRRELAY_TOKEN": "${SIRRELAY_TOKEN}",
         "SIRRELAY_URL": "${SIRRELAY_URL}"

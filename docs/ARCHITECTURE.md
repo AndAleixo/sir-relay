@@ -24,7 +24,6 @@ src/
 │   ├── authz.ts          # P2-SEC-01 — requireOperator / requireSelfUserId
 │   ├── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
 │   ├── client-board.ts   # Client board payload + create input
-│   ├── client-upgrade.ts # 410 upgrade_required (short “update it”)
 │   ├── link-token.ts     # ClientApiKey issue/resolve + bearer session
 │   ├── connect-next.ts   # Safe return path for /connect
 │   └── mail/             # P3-17 — sendMail · tokens · templates
@@ -40,7 +39,6 @@ src/
 │   ├── projects.ts       # Group projects + categories
 │   └── connect.ts        # Create / delete ClientApiKey
 ├── app/api/v1/client/    # Bearer board + task mutate (IDE extension + MCP)
-├── app/api/v1/vscode/    # 410 — old clients must update
 └── app/[locale]/
     ├── groups/auto/      # Route handler: persist sole-group auto-select
     ├── connect/          # API keys hub + IDE deep-link

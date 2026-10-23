@@ -1,11 +1,9 @@
 import * as vscode from "vscode";
 import {
   appOrigin,
-  failureMessage,
   sirFetch,
   taskMatchesProject,
   setClientVersion,
-  UPGRADE_EXTENSION_MESSAGE,
   type Board,
 } from "./sirrelay";
 
@@ -244,7 +242,7 @@ async function onMessage(
     }
     if (!response.ok) {
       await publish(context, {
-        error: await failureMessage(response, "Could not save the task."),
+        error: "Could not save the task.",
       });
       return;
     }
@@ -306,7 +304,7 @@ async function mutate(
   }
   if (!response.ok) {
     await publish(context, {
-      error: await failureMessage(response, "Could not save the task."),
+      error: "Could not save the task.",
     });
     return;
   }
@@ -409,19 +407,6 @@ async function publish(
     });
     return;
   }
-  if (token.startsWith("vscode-")) {
-    await context.secrets.delete(SECRET);
-    updateChrome(context, false, null);
-    toast(context, { error: UPGRADE_EXTENSION_MESSAGE });
-    post({
-      type: "state",
-      signedIn: false,
-      board: null,
-      projectFilter: "",
-      created: false,
-    });
-    return;
-  }
   const groupId = context.globalState.get<string>(GROUP) ?? "";
   const response = await call(
     token,
@@ -455,7 +440,7 @@ async function publish(
   if (!response.ok) {
     updateChrome(context, true, null);
     toast(context, {
-      error: extra.error || (await failureMessage(response, offline())),
+      error: extra.error || offline(),
     });
     post({
       type: "state",

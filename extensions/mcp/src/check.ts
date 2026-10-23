@@ -187,19 +187,4 @@ describe("client-api", () => {
     if (!denied.ok) assert.equal(denied.error, "confirm_required");
   });
 
-  it("maps upgrade_required", async () => {
-    const result = await createTask(
-      "https://app.example",
-      "tok",
-      { title: "X" },
-      "1.0.0",
-      async () =>
-        new Response(
-          JSON.stringify({ error: "upgrade_required", message: "Please update" }),
-          { status: 410 },
-        ),
-    );
-    assert.equal(result.ok, false);
-    if (!result.ok) assert.equal(result.error, "Please update");
-  });
 });

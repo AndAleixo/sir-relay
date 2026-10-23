@@ -1,8 +1,5 @@
 /** Shared HTTPS client for /api/v1/client/* — origin/token only from process env (no tool SSRF). */
 
-export const UPGRADE_MCP_MESSAGE =
-  "This SRelay MCP is out of date. Update it.";
-
 /** Reject path tricks; ids are opaque server strings (e.g. task-…). */
 export function assertSafeId(id: string, label: string): string {
   const trimmed = id.trim();
@@ -46,9 +43,6 @@ async function clientFetch(
 function mapError(status: number, json: Json): ApiFail {
   const error = typeof json?.error === "string" ? json.error : "failed";
   const message = typeof json?.message === "string" ? json.message.trim() : "";
-  if (status === 410 || error === "upgrade_required") {
-    return { ok: false, status, error: message || UPGRADE_MCP_MESSAGE };
-  }
   return { ok: false, status, error: message || error };
 }
 

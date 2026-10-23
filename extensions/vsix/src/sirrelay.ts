@@ -23,10 +23,6 @@ export type Board = {
 
 export { taskMatchesProject } from "./project-filter";
 
-/** Fallback when the server omits `message` on upgrade_required. */
-export const UPGRADE_EXTENSION_MESSAGE =
-  "This SRelay extension is out of date. Update it.";
-
 let clientVersion = "0.0.0";
 
 /** Call from activate with `context.extension.packageJSON.version`. */
@@ -57,19 +53,4 @@ export async function sirFetch(
     },
     body: init?.body ? JSON.stringify(init.body) : undefined,
   });
-}
-
-/** Prefer server upgrade copy (`message`) when present. */
-export async function failureMessage(
-  response: Response,
-  fallback: string,
-): Promise<string> {
-  const body = (await response.clone().json().catch(() => null)) as {
-    error?: string;
-    message?: string;
-  } | null;
-  if (response.status === 410 || body?.error === "upgrade_required") {
-    return body?.message?.trim() || UPGRADE_EXTENSION_MESSAGE;
-  }
-  return fallback;
 }

@@ -14,17 +14,119 @@ const state = {
   signedIn: false,
   loading: true,
   busy: false,
-  creating: false,
+  /** null | "create" | task id. */
+  sheet: null,
+  /** "enter" plays the open; "open" is settled; "leave" plays the close. */
+  sheetMotion: "open",
   editingId: null,
   cancelEdit: false,
   menuId: null,
   projectMenuId: null,
   /** "" = all tasks, else project id. */
   projectFilter: "",
-  doneHidden: vscode.getState()?.doneHidden !== false,
+  doneHidden: true,
   draft: emptyDraft(),
   board: null,
 };
+
+let sheetGen = 0;
+let sheetTimer = 0;
+
+function taskById(id) {
+  return state.board?.tasks?.find((task) => task.id === id) ?? null;
+}
+
+function draftFromTask(task) {
+  return {
+    title: task.title || "",
+    assigneeId: "",
+    projectId: task.projectId || "",
+    difficulty: task.difficulty || "",
+    dueDate: task.due ? String(task.due).slice(0, 10) : "",
+    description: task.description || "",
+  };
+}
+
+function openSheet(sheet, draft) {
+  window.clearTimeout(sheetTimer);
+  sheetGen += 1;
+  state.sheet = sheet;
+  state.sheetMotion = "enter";
+  state.menuId = null;
+  state.projectMenuId = null;
+  state.editingId = null;
+  state.cancelEdit = false;
+  state.draft = draft;
+  render();
+}
+
+function closeSheet() {
+  window.clearTimeout(sheetTimer);
+  const node = app.querySelector(".sheet");
+  if (!node || state.sheetMotion !== "open") {
+    dropSheet();
+    return;
+  }
+  const gen = ++sheetGen;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  state.sheetMotion = "leave";
+  node.classList.add("is-leaving");
+  const clip = node.closest(".sheet-clip");
+  if (clip && !reduce) {
+    clip.classList.add("is-leaving");
+    clip.style.height = `${clip.scrollHeight}px`;
+    requestAnimationFrame(() => {
+      if (gen !== sheetGen) return;
+      clip.style.height = "0px";
+    });
+  }
+  sheetTimer = window.setTimeout(() => {
+    if (gen !== sheetGen) return;
+    dropSheet();
+  }, reduce ? 150 : 300);
+}
+
+function dropSheet() {
+  window.clearTimeout(sheetTimer);
+  state.sheet = null;
+  state.sheetMotion = "open";
+  state.draft = emptyDraft();
+  render();
+}
+
+function armSheet() {
+  if (state.sheetMotion !== "enter") return;
+  const gen = sheetGen;
+  const reveal = () => {
+    if (gen !== sheetGen || state.sheetMotion !== "enter") return;
+    const node = app.querySelector(".sheet");
+    if (!node) return;
+    state.sheetMotion = "open";
+    node.classList.remove("is-closed");
+    const clip = node.closest(".sheet-clip");
+    clip?.classList.remove("is-closed");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (clip) {
+      if (reduce) clip.style.height = "auto";
+      else {
+        clip.style.height = `${clip.scrollHeight}px`;
+        const settle = (event) => {
+          if (event.target !== clip || event.propertyName !== "height") return;
+          clip.removeEventListener("transitionend", settle);
+          if (state.sheetMotion !== "open") return;
+          clip.style.height = "auto";
+        };
+        clip.addEventListener("transitionend", settle);
+      }
+    }
+    node.querySelector("[name=title]")?.focus();
+  };
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    reveal();
+    return;
+  }
+  requestAnimationFrame(() => requestAnimationFrame(reveal));
+}
 
 const iconStart =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>';
@@ -38,7 +140,7 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
-/** Keep in sync with extensions/vscode/src/project-filter.ts ("" | id). */
+/** Keep in sync with extensions/vsix/src/project-filter.ts ("" | id). */
 function matchesProject(task) {
   const filter = state.projectFilter;
   if (!filter) return true;
@@ -150,20 +252,34 @@ function taskMenu(id) {
 
 function createBlock() {
   const board = state.board;
-  if (!board) return "";
-  if (!state.creating) return "";
+  if (!board || !state.sheet) return "";
   const draft = state.draft;
+  const editing = state.sheet !== "create";
   const memberRows = board.members.map((member) => ({
     value: member.id,
     label: member.label,
   }));
-  const assignee =
-    memberRows.length > 1
+  const assignee = editing
+    ? ""
+    : memberRows.length > 1
       ? `<label>Assignee<select name="assigneeId" ${state.busy ? "disabled" : ""}>${options(memberRows, draft.assigneeId || board.userId)}</select></label>`
+      : "";
+  const hiddenAssignee =
+    editing || memberRows.length > 1
+      ? ""
       : `<input type="hidden" name="assigneeId" value="${escapeHtml(draft.assigneeId || board.userId)}" />`;
-  return `<form class="create" id="create">
+  const motion =
+    state.sheetMotion === "enter"
+      ? " is-closed"
+      : state.sheetMotion === "leave"
+        ? " is-leaving"
+        : "";
+  const clipStyle = state.sheetMotion === "open" ? ' style="height:auto"' : "";
+  return `<div class="sheet-clip${motion}"${clipStyle}><form class="create sheet${motion}" id="sheet">
+    <p class="sheet-kicker">${editing ? "Edit task" : "New task"}</p>
     <label>Title
       <input name="title" maxlength="200" required placeholder="What needs to be done?" value="${escapeHtml(draft.title)}" ${state.busy ? "disabled" : ""} />
+      ${hiddenAssignee}
     </label>
     ${assignee}
     <label>Project
@@ -195,13 +311,13 @@ function createBlock() {
     </label>
     <div class="actions">
       <button class="primary" type="submit" ${state.busy ? "disabled" : ""}>Save</button>
-      <button type="button" class="link" id="cancel-create" ${state.busy ? "disabled" : ""}>Cancel</button>
+      <button type="button" class="link" id="cancel-sheet" ${state.busy ? "disabled" : ""}>Cancel</button>
     </div>
-  </form>`;
+  </form></div>`;
 }
 
 function addButton() {
-  if (!state.board || state.creating) return "";
+  if (!state.board || state.sheet) return "";
   return `<button type="button" class="link add" id="open-create" ${state.busy ? "disabled" : ""}>+ Add task</button>`;
 }
 
@@ -213,7 +329,7 @@ function projectPick() {
       ? state.projectFilter
       : "";
   const rows = [
-    { value: "", label: "Project" },
+    { value: "", label: "All projects" },
     ...board.projects.map((project) => ({
       value: project.id,
       label: `${project.acronym} · ${project.name}`,
@@ -266,7 +382,7 @@ function boardView() {
   const doing = section("doing");
   const done = section("done");
   const none = todo.length + doing.length + done.length === 0;
-  const roomy = state.creating || !state.doneHidden;
+  const roomy = Boolean(state.sheet) || !state.doneHidden;
   if (none) {
     const empty =
       (state.board.tasks ?? []).length === 0
@@ -328,7 +444,7 @@ function boardView() {
 }
 
 function rememberDraft() {
-  const form = document.getElementById("create");
+  const form = document.getElementById("sheet");
   if (!form) return;
   state.draft = {
     title: form.elements.title?.value ?? "",
@@ -397,13 +513,14 @@ function bind() {
   });
   document.getElementById("toggle-done")?.addEventListener("click", () => {
     state.doneHidden = !state.doneHidden;
-    vscode.setState({ doneHidden: state.doneHidden });
     render();
   });
   document.getElementById("group")?.addEventListener("change", (event) => {
     if (state.busy) return;
     state.busy = true;
-    state.creating = false;
+    state.sheet = null;
+    state.sheetMotion = "open";
+    state.draft = emptyDraft();
     state.menuId = null;
     state.projectMenuId = null;
     state.draft = emptyDraft();
@@ -419,31 +536,28 @@ function bind() {
     vscode.postMessage({ type: "select-project", projectFilter: event.target.value });
   });
   document.getElementById("open-create")?.addEventListener("click", () => {
-    state.creating = true;
-    state.menuId = null;
-    state.projectMenuId = null;
-    state.draft = { ...emptyDraft(), projectId: defaultCreateProjectId() };
-    render();
-    app.querySelector("#create [name=title]")?.focus();
+    openSheet("create", { ...emptyDraft(), projectId: defaultCreateProjectId() });
   });
-  document.getElementById("cancel-create")?.addEventListener("click", () => {
-    state.creating = false;
-    state.draft = emptyDraft();
-    render();
+  document.getElementById("cancel-sheet")?.addEventListener("click", () => {
+    closeSheet();
   });
-  document.getElementById("create")?.addEventListener("input", rememberDraft);
-  document.getElementById("create")?.addEventListener("submit", (event) => {
+  document.getElementById("sheet")?.addEventListener("input", rememberDraft);
+  document.getElementById("sheet")?.addEventListener("submit", (event) => {
     event.preventDefault();
-    if (state.busy) return;
+    if (state.busy || !state.sheet) return;
     rememberDraft();
     const title = state.draft.title.trim();
     if (!title) return;
     state.busy = true;
+    const fields = { ...state.draft, title };
+    const editing = state.sheet !== "create";
+    const id = state.sheet;
     render();
-    vscode.postMessage({
-      type: "create",
-      fields: { ...state.draft, title },
-    });
+    vscode.postMessage(
+      editing
+        ? { type: "update", id, fields }
+        : { type: "create", fields },
+    );
   });
   for (const button of app.querySelectorAll("[data-edit]")) {
     button.addEventListener("click", () => {
@@ -525,10 +639,11 @@ function bind() {
   for (const button of app.querySelectorAll("[data-open]")) {
     button.addEventListener("click", (event) => {
       event.stopPropagation();
-      state.menuId = null;
-      state.projectMenuId = null;
-      render();
-      vscode.postMessage({ type: "open-task", id: button.getAttribute("data-open") });
+      if (state.busy) return;
+      const id = button.getAttribute("data-open");
+      const task = taskById(id);
+      if (!task) return;
+      openSheet(id, draftFromTask(task));
     });
   }
   for (const button of app.querySelectorAll("[data-clone]")) {
@@ -561,6 +676,7 @@ function bind() {
   }
   if (state.menuId || state.projectMenuId) {
     const close = () => {
+      if (!state.menuId && !state.projectMenuId) return;
       state.menuId = null;
       state.projectMenuId = null;
       render();
@@ -569,6 +685,7 @@ function bind() {
       document.addEventListener("click", close, { once: true });
     }, 0);
   }
+  armSheet();
 }
 
 function sendMove(button, attr, status) {
@@ -580,6 +697,11 @@ function sendMove(button, attr, status) {
 
 window.addEventListener("message", (event) => {
   const message = event.data;
+  if (message?.type === "hide-done") {
+    state.doneHidden = true;
+    render();
+    return;
+  }
   if (message?.type === "clipboard") {
     const input = document.querySelector('#paste input[name="token"]');
     if (input) input.value = message.text || "";
@@ -594,8 +716,11 @@ window.addEventListener("message", (event) => {
   state.projectFilter = message.projectFilter || "";
   if (message.board) state.board = message.board;
   else if (!message.signedIn) state.board = null;
-  if (message.created) {
-    state.creating = false;
+  if (message.created || message.updated) {
+    window.clearTimeout(sheetTimer);
+    sheetGen += 1;
+    state.sheet = null;
+    state.sheetMotion = "open";
     state.draft = emptyDraft();
   }
   render();

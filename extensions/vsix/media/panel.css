@@ -269,6 +269,20 @@ body:not(.vscode-high-contrast):not(.vscode-high-contrast-light) .primary:hover:
   flex: none;
 }
 
+/* Shown Done (or the create form) makes the board scroll. Percentage
+   heights would crush To do / In progress and pile the headings up. */
+.board.roomy .board-cols,
+.board.roomy .section.todo,
+.board.roomy .section.doing {
+  flex: none;
+  max-height: none;
+}
+
+.board.roomy .scroll {
+  flex: none;
+  overflow: visible;
+}
+
 .section h2 {
   margin: 0 0 6px;
   color: var(--muted);
@@ -583,6 +597,67 @@ body.vscode-high-contrast-light .menu-panel {
 .create {
   display: grid;
   gap: 8px;
+}
+
+.sheet-kicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Site popover: 8px / 0.98, 200ms ease-out in, 300ms ease-in out. Height is measured so the options unfold in the sidebar without a blank band. */
+.sheet-clip {
+  height: 0;
+  overflow: hidden;
+  transition: height 200ms ease-out;
+}
+
+.sheet-clip.is-leaving {
+  transition-duration: 300ms;
+  transition-timing-function: ease-in;
+}
+
+.sheet {
+  transform-origin: top center;
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+}
+
+.sheet.is-closed,
+.sheet.is-leaving {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  pointer-events: none;
+}
+
+.sheet.is-leaving {
+  transition-duration: 300ms;
+  transition-timing-function: ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-clip,
+  .sheet-clip.is-closed,
+  .sheet-clip.is-leaving {
+    height: auto !important;
+    transition: none;
+  }
+
+  .sheet {
+    transition: opacity 150ms ease-out;
+    transform: none;
+  }
+
+  .sheet.is-closed,
+  .sheet.is-leaving {
+    transform: none;
+  }
+
+  .sheet.is-leaving {
+    transition-duration: 150ms;
+  }
 }
 
 .create textarea {

@@ -21,7 +21,6 @@ type WebviewMessage =
   | { type: "ready" }
   | { type: "sign-in" }
   | { type: "open-site" }
-  | { type: "open-task"; id: string }
   | { type: "clone"; id: string }
   | { type: "delete"; id: string }
   | { type: "sign-out" }
@@ -30,6 +29,7 @@ type WebviewMessage =
   | { type: "select-group"; groupId: string }
   | { type: "select-project"; projectFilter: string }
   | { type: "create"; fields: Record<string, string> }
+  | { type: "update"; id: string; fields: Record<string, string> }
   | { type: "move"; id: string; status: "doing" | "done" }
   | { type: "title"; id: string; title: string }
   | { type: "project"; id: string; projectId: string };
@@ -90,8 +90,12 @@ class BoardViewProvider implements vscode.WebviewViewProvider {
     const subscription = webview.onDidReceiveMessage((message: WebviewMessage) => {
       void onMessage(this.context, message);
     });
+    const visibility = webviewView.onDidChangeVisibility(() => {
+      if (!webviewView.visible) webview.postMessage({ type: "hide-done" });
+    });
     webviewView.onDidDispose(() => {
       subscription.dispose();
+      visibility.dispose();
       if (panel === webview) panel = undefined;
       if (boardView === webviewView) boardView = undefined;
     });
@@ -99,18 +103,7 @@ class BoardViewProvider implements vscode.WebviewViewProvider {
   }
 }
 
-async function openOnSrelay(
-  context: vscode.ExtensionContext,
-  taskId?: string,
-): Promise<void> {
-  if (taskId) {
-    await vscode.env.openExternal(
-      vscode.Uri.parse(
-        `${appOrigin()}/en-gb/tasks/${encodeURIComponent(taskId)}?scope=mine&view=board`,
-      ),
-    );
-    return;
-  }
+async function openOnSrelay(context: vscode.ExtensionContext): Promise<void> {
   const token = await context.secrets.get(SECRET);
   if (token) {
     await vscode.env.openExternal(
@@ -155,10 +148,6 @@ async function onMessage(
   }
   if (message.type === "open-site") {
     await openOnSrelay(context);
-    return;
-  }
-  if (message.type === "open-task") {
-    await openOnSrelay(context, message.id);
     return;
   }
   if (message.type === "clone" || message.type === "delete") {
@@ -260,6 +249,26 @@ async function onMessage(
     return;
   }
 
+  if (message.type === "update") {
+    const fields = message.fields;
+    const ops: Record<string, unknown>[] = [
+      { op: "title", title: fields.title },
+      { op: "description", description: fields.description ?? "" },
+      { op: "dueDate", dueDate: fields.dueDate || null },
+      { op: "difficulty", difficulty: fields.difficulty || null },
+      { op: "project", projectId: fields.projectId || null },
+    ];
+    for (const op of ops) {
+      const error = await patchTask(context, token, groupId, message.id, op);
+      if (error) {
+        await publish(context, { error });
+        return;
+      }
+    }
+    await publish(context, { updated: true });
+    return;
+  }
+
   if (message.type === "move") {
     await mutate(context, token, groupId, message.id, {
       op: "status",
@@ -282,6 +291,26 @@ async function onMessage(
   }
 }
 
+async function patchTask(
+  context: vscode.ExtensionContext,
+  token: string,
+  groupId: string,
+  id: string,
+  body: Record<string, unknown>,
+): Promise<string | null> {
+  const response = await call(token, `/api/v1/client/tasks/${id}`, {
+    method: "PATCH",
+    body: { ...body, groupId },
+  });
+  if (!response) return offline();
+  if (response.status === 401) {
+    await context.secrets.delete(SECRET);
+    return "The code expired. Sign in again.";
+  }
+  if (!response.ok) return "Could not save the task.";
+  return null;
+}
+
 async function mutate(
   context: vscode.ExtensionContext,
   token: string,
@@ -289,26 +318,8 @@ async function mutate(
   id: string,
   body: Record<string, unknown>,
 ): Promise<void> {
-  const response = await call(token, `/api/v1/client/tasks/${id}`, {
-    method: "PATCH",
-    body: { ...body, groupId },
-  });
-  if (!response) {
-    await publish(context, { error: offline() });
-    return;
-  }
-  if (response.status === 401) {
-    await context.secrets.delete(SECRET);
-    await publish(context, { error: "The code expired. Sign in again." });
-    return;
-  }
-  if (!response.ok) {
-    await publish(context, {
-      error: "Could not save the task.",
-    });
-    return;
-  }
-  await publish(context, {});
+  const error = await patchTask(context, token, groupId, id, body);
+  await publish(context, error ? { error } : {});
 }
 
 async function call(
@@ -390,7 +401,7 @@ function updateChrome(
 
 async function publish(
   context: vscode.ExtensionContext,
-  extra: { error?: string; notice?: string; created?: boolean },
+  extra: { error?: string; notice?: string; created?: boolean; updated?: boolean },
 ): Promise<void> {
   const notice = extra.notice || pendingNotice;
   const token = await context.secrets.get(SECRET);
@@ -469,6 +480,7 @@ async function publish(
     board,
     projectFilter,
     created: extra.created === true,
+    updated: extra.updated === true,
   });
 }
 

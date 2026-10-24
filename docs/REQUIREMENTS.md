@@ -504,9 +504,9 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
 | P2-BAK-01 | Scripts | `scripts/db/backup.sh` (`pg_dump` → gzip `backups/{sirrelay,umami}-YYYYMMDD-HHMM.sql.gz`; skips `umami` if DB missing) · `scripts/db/restore.sh` (stop app/umami → restore matching DB → restart) · `scripts/db/backup-offsite.sh` (rclone both patterns); documented in README + [DEPLOY-DIGITALOCEAN.md §9.1](./DEPLOY-DIGITALOCEAN.md) |
-| P2-BAK-02 | Schedule & retention | **Done (prod VPS):** daily cron `0 5 * * *` → `backup-offsite.sh`; prune local copies older than 7 days (`BACKUP_RETAIN_DAYS`) |
-| P2-BAK-03 | Off-VPS copy | **Done:** Google Drive via rclone (`gdrive:sirrelay-backups`) |
-| P2-BAK-04 | Restore tested | **Done:** restore exercised; rely on offsite + local `.sql.gz` for recovery |
+| P2-BAK-02 | Schedule & retention | **Done:** daily cron example → `backup-offsite.sh`; prune local copies older than 7 days (`BACKUP_RETAIN_DAYS`) — [DEPLOY §9.1](./DEPLOY-DIGITALOCEAN.md) |
+| P2-BAK-03 | Off-VPS copy | **Done:** object storage via rclone (`RCLONE_REMOTE=…`) |
+| P2-BAK-04 | Restore tested | **Done:** restore path via offsite + local `.sql.gz` |
 
 **Out of scope:** in-app SQL download · import/restore from export (not planned).
 
@@ -542,7 +542,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 
 ### 7.3 Transactional email (P3-17) — **Done**
 
-**Inbound:** `contact@sirrelay.com` → ImprovMX → operator inbox ([DEPLOY §4](./DEPLOY-DIGITALOCEAN.md#4-dns)). **Outbound:** Resend (`MAIL_API_KEY` / `MAIL_FROM`); from `noreply@sirrelay.com`. No MTA on the Droplet. Env: [ENVIRONMENTS.md](./ENVIRONMENTS.md).
+**Inbound:** `contact@…` → DNS forwarder → operator mailbox ([DEPLOY §4](./DEPLOY-DIGITALOCEAN.md#4-dns)). **Outbound:** Resend (`MAIL_API_KEY` / `MAIL_FROM`); from `noreply@…`. No MTA on the Droplet. Env: [ENVIRONMENTS.md](./ENVIRONMENTS.md).
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|

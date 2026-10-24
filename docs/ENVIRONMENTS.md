@@ -4,7 +4,7 @@
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
-**Estado actual:** Três ambientes **Active** (mock · prod local · VPS). Phase 2 SEC + AUD + OPS · **Next 16** · P2-MON-01 · AUTH-13/14 · Umami · P3-17 email (ImprovMX + Resend).
+**Estado actual:** Três ambientes **Active** (mock · prod local · VPS). Phase 2 SEC + AUD + OPS · **Next 16** · P2-MON-01 · AUTH-13/14 · Umami · P3-17 email (inbound forwarder + Resend).
 
 ---
 
@@ -100,7 +100,7 @@ npm run prod-local-down
 | `APP_DOMAIN=localhost` | `http://localhost` |
 | `/etc/hosts`: `127.0.0.1 app.local` | `http://app.local` |
 
-Login demo (após seed): `sam@example.com` / **`SirRelay1`**.
+Login demo (após seed **local**): `sam@example.com` / **`SirRelay1`**. Seed só em mock / prod-local — **nunca** na VPS pública.
 
 **Checklist antes de ir ao VPS:**
 
@@ -130,8 +130,8 @@ Internet → Caddy (:443) → app (:3000) → postgres (rede interna)
               Telegram  POST /api/v1/telegram/webhook
 ```
 
-| Spec | 4 GB RAM · 2 vCPU · Ubuntu 24.04 · região EU (FRA1/AMS3) |
-| URL | `https://app.sirrelay.com` |
+| Spec | 4 GB RAM · 2 vCPU · Ubuntu 24.04+ · região EU |
+| URL | `https://app.<teu-domínio>` (ex. produto: `app.sirrelay.com`) |
 
 ```bash
 ssh deploy@SEU_IP
@@ -258,15 +258,15 @@ Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) ·
 **Feito (Phase 2 SEC parcial):**
 - P2-SEC-01–11 — incl. IDOR · safe JSON logging · **Next 16.2** (SEC-10 highs closed)
 - P2-AUD-01–04 — `audit_logs` · `/events/activity` · `/platform`
-- Demo seed password: **`SirRelay1`**
+- Demo seed password (local only): **`SirRelay1`** — never seed on a public VPS
 
-**Ops (feito):** P2-OPS-01–09 — [DEPLOY](./DEPLOY-DIGITALOCEAN.md).
+**Ops (feito):** P2-OPS-01–09 — [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (runbook genérico).
 
 **Umami:** P2-ANA-01–03 · tracker com `UMAMI_WEBSITE_ID` · DB via `ensure_umami_database`.
 
 **Legal:** pacote canónico inglês [`legal/en.json`](../legal/en.json) · `users.terms_version` · gate `/accept-terms` · bump `version` para forçar re-aceite.
 
-**Email (P3-17):** `/contact` · signup verify (POST confirm) · forgot/reset · `sendMail` / Resend · ImprovMX · `check:email-tokens`.
+**Email (P3-17):** `/contact` · signup verify (POST confirm) · forgot/reset · `sendMail` / Resend · inbound forwarder · `check:email-tokens`.
 
 **Smoke (feito):** prod local + VPS · Telegram · fila · SEC · `/platform/login`.
 

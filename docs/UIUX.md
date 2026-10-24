@@ -4,8 +4,6 @@
 
 **Doc contract:** **How it looks and behaves on screen.** Product rules, acceptance IDs, and permissions → [REQUIREMENTS.md](./REQUIREMENTS.md). Visual tokens → [BRAND.md](./BRAND.md). Code map → [ARCHITECTURE.md](./ARCHITECTURE.md). Link to requirements for business rules; do not restate them here.
 
-**Last updated:** 2026-09-20
-
 ### Status naming
 
 One convention everywhere:
@@ -510,44 +508,3 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 |------------|-------|------|---------|
 | ≥768px | Sidebar + header utilities | Member columns (H-scroll) | 3-column Kanban |
 | <768px | Top bar + tabs | Board or list | Kanban stacks; list: title + wrapping meta, one-row filters |
-
----
-
-## 13. Phase mapping
-
-| UX item | Phase | Status |
-|---------|-------|--------|
-| Landing, boards, forms, scopes, Profile/Settings | 1 | Shipped |
-| Queue DnD + status drops | 1 | Shipped |
-| Events + operator alerts | 1 | Shipped |
-| Group activity + platform admin | 2 | Shipped |
-| Sidebar collapse | 3 (P3-11) | In UI |
-| Kanban touch / a11y polish | 3 (P3-03) | Core in Phase 1 |
-| Native apps | 3 (P3-13) | — |
-| Group projects (`/projects` + acronym on tasks) | 3 (P3-16) | Implemented |
-| Contact + signup verify + forgot/reset | 3 (P3-17) | Implemented |
-| Delete account (`/profile/delete`) | 1 (P1-AUTH-15) | Implemented |
-
----
-
-## Revision history
-
-| Date | Change |
-|------|--------|
-| 2026-10-13 | Verify: GET confirm + POST consume; check-email locks `?email=` |
-| 2026-10-13 | Docs sync: delete account via `/profile/delete` (not Profile danger card) |
-| 2026-10-13 | Delete account: logout-adjacent link → `/profile/delete` (P1-AUTH-15) |
-| 2026-10-12 | P3-17 docs sync (screen inventory + phase map) |
-| 2026-10-12 | P3-17 contact + auth email pages |
-| 2026-09-20 | P3-16 Projects tab `/projects`; project heading `SIR · Name` like task cards; list inline title/project/category |
-| 2026-08-16 | Teammate read-only Teammates + Events; group activity operator-only |
-| 2026-08-15 | P3-16 group projects: Settings card; list filter; no fifth tab; card acronym segment (Family C) |
-| 2026-08-15 | Success flash → floating `Toast` card (3s, Family A). `Banner` kept for page-state / errors |
-| 2026-07-26 | Doc contract vs REQUIREMENTS; trim product-rule restatements; card/menu + Family A/B/C in one place |
-| 2026-07-25 | Board ⋯ segment (Open · Clone · Delete); description preview; Done Show more; Family A Select/popovers; scope URL |
-| 2026-07-23 | My work \| Team scope; member identity icons; teammates list columns |
-| 2026-07-22 | Invisible owner transfer / succession UX |
-| 2026-07-21 | `TeamBoard` / `BoardTaskCard` rename; board pan via chrome only |
-| 2026-07-20–18 | Self column naming; queue DnD; Telegram on Profile; landing voice |
-| 2026-07-14–11 | Invite join UX; user→group→role model; marketing landing |
-| 2026-06-28–27 | Shell, Profile/Settings split, status labels, operator board |

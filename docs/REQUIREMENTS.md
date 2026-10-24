@@ -1,13 +1,11 @@
 # SirRelay — Requirements
 
 **Product:** SirRelay · **Brand:** Sir  
-**Status:** Living spec — 3 phases, implement one at a time  
-**Audience:** Developer / AI implementer  
-**Last updated:** 2026-08-15
+**Audience:** Developer / AI implementer — 3 phases, implement one at a time
 
 **Doc contract:** Source of truth for **what must work** — product rules, acceptance IDs, permissions, schema, API. **Layout / interaction / screen chrome** → [UIUX.md](./UIUX.md). **Visual tokens** → [BRAND.md](./BRAND.md). Do not restate wireframes or component inventories here.
 
-Related docs: [UIUX.md](./UIUX.md) · [ARCHITECTURE.md](./ARCHITECTURE.md) · [BRAND.md](./BRAND.md) · [ENVIRONMENTS.md](./ENVIRONMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) · [README.md](../README.md)
+Related: [ARCHITECTURE.md](./ARCHITECTURE.md) · [UIUX.md](./UIUX.md) · [BRAND.md](./BRAND.md) · [ENVIRONMENTS.md](./ENVIRONMENTS.md) · [README.md](../README.md)
 
 ---
 
@@ -760,55 +758,9 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 
 ## 12. Implementation notes (AI)
 
+Default read order: **ARCHITECTURE** → **REQUIREMENTS** (target IDs) → **UIUX**/**BRAND** only if UI → **ENVIRONMENTS** §1–2 to run. Skip DEPLOY / PUBLISH / PRODUCT unless the task is ops, release, or landing.
+
 1. Read the target phase — implement **only that phase**.
 2. Phase 1 before Phase 2 or 3.
 3. Phase 2 extends Phase 1 (migrations for `audit_logs`, `token_version`; backup scripts + CSV export per §6.5).
 4. Phase 3: one backlog item at a time unless told otherwise.
-
-**Example prompt:** *Implement Phase 1 per [docs/REQUIREMENTS.md](./REQUIREMENTS.md). Do not implement Phase 2 or 3.*
-
----
-
-## Revision history
-
-| Date | Change |
-|------|--------|
-| 2026-10-13 | P3-MAIL-03: scanner-safe POST confirm · locked check-email `?email=` |
-| 2026-10-13 | P1-AUTH-15 hard-delete via `/profile/delete` (link next to logout); legal pack bump |
-| 2026-10-12 | P3-17 shipped (ImprovMX + Resend · contact · verify · reset); drop backlog row + dead `MAIL_PROVIDER` / `MailService` |
-| 2026-09-20 | P3-16 list inline title/project/category; `tasks.category_id`; Projects tab categories (both roles) |
-| 2026-08-16 | Teammate read-only Teammates + Events; group activity operator-only |
-| 2026-08-16 | P3-16 teammate project request (pending cap 2; any operator accepts) |
-| 2026-08-15 | P3-16 group projects (Settings CRUD; task acronym 1–3; no extra nav) |
-| 2026-07-26 | Export: CSV only (drop JSON product envelope / phantom `GET /export`); P3-12 folded into P2-DATA-02; drop P3-05 teammate due reminders; import out of scope |
-| 2026-07-26 | Doc contract vs UIUX; slim §1 / §5.5 / §5.10; P1-TASK-14 clone; locale codes `en-gb`/`es-es`/`pt-br` |
-| 2026-07-26 | P2-MON-02 `login_failed` audit + platform overview count (7d) |
-| 2026-07-26 | P2-OPS-01–09 marked Done; monthly updates procedure in DEPLOY §9 |
-| 2026-07-26 | P1-AUTH-13/14 signup merge; invite naming; drop obsolete P3-02 (multi-operator = P1-TM-10) |
-| 2026-07-19 | Platform admin: separate ops login + session cookie (not `users.platform_admin`) |
-| 2026-07-19 | Platform admin UI: `/platform/*` (P2-AUD-04) |
-| 2026-07-19 | Split activity vs audit: `lib/activity` for `/events/activity`; `lib/audit` = store write/query only |
-| 2026-07-19 | Removed public `GET /api/v1/audit` (ops use `/platform` instead) |
-| 2026-07-19 | Events: `/events` (alerts) + `/events/activity` (human group history); raw store stays `audit_logs` |
-| 2026-07-19 | Phase 2 IDOR: service-layer operator/self guards (P2-SEC-01) |
-| 2026-07-19 | Phase 2 safe JSON logging + redaction (P2-SEC-11) |
-| 2026-07-22 | Invisible `groups.owner_user_id`: create/transfer/succession on leave; demote; delete owner-only (P1-GRP-09/10/15, P1-TM-12/13) |
-| 2026-07-20 | Teammate may create self-assigned tasks (P1-TASK-01); `/tasks/new` + New task CTA for both roles |
-| 2026-07-20 | P2-MON-01: `x-request-id` + `requestId` on existing JSON logs; Docker log rotation 10m×5 |
-| 2026-07-19 | Next 16.2.10 + React 19 + next-intl 4 (P2-SEC-10 highs cleared); `middleware` → `proxy` |
-| 2026-07-19 | Phase 2 dependency audit policy in README + Image Optimizer off (P2-SEC-10) |
-| 2026-07-19 | Phase 2 Telegram sanitize: strip controls on inbound text + link codes (P2-SEC-09) |
-| 2026-07-19 | Phase 2 rate limits: login/signup/platform/login 10/min/IP, mutations 100/min/IP (P2-SEC-07) |
-| 2026-07-19 | Docs sync: health JSON shape; `PLATFORM_ADMIN_*` in §5.8; export via server action (P2-DATA) |
-| 2026-07-19 | Phase 2 CSRF: Origin/Referer same-origin guard (P2-SEC-06) on top of SameSite=Lax |
-| 2026-07-19 | Phase 2 SEC base: token_version, login lockout, password policy (grandfather), security headers |
-| 2026-07-19 | Phase 1 sync: self column (not “Me”); To do drop index rules; P3-03 narrowed; board column order by To do load |
-| 2026-07-18 | Telegram task relay + operator alert DMs (P1-TG-02–05, 08–10) |
-| 2026-07-18 | Task queue priority: `sort_order` + To do drag place/reorder; Telegram follows queue head (P1-TASK-11) |
-| 2026-07-18 | SQL backups ops done on prod VPS: daily cron 05:00 → Drive; restore tested (P2-BAK-01–04) |
-| 2026-06-25 | Initial spec; 3-phase structure; Sir brand |
-| 2026-06-28 | Operator self-tasks (P1-TASK-13); Operator Telegram alerts on teammate done + due/overdue (P1-TG-09–11) |
-| 2026-06-27 | Operator + Teammate roles; relay queue; unified `users` model; spec cleanup; [UIUX.md](./UIUX.md); P3-07 offline web sync (§7.1) |
-| 2026-07-11 | User → group → role model: groups hub, membership-scoped permissions, data model without `users.role` |
-| 2026-07-11 | §6.5 backup + JSON export; hosted web app model (landing, §4.1); P1-UI-03–07; P3-12–15 backlog |
-| 2026-07-14 | Invite teammate model (§5.1.2); sign-up merge with `invited` email (P1-AUTH-13/14); Telegram self-link on Profile only |

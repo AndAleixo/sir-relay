@@ -224,46 +224,11 @@ BRAND_LOGO_URL=           # optional CDN override
 
 ---
 
-## 8. Asset checklist
-
-| Asset | Status |
-|-------|--------|
-| Color tokens | Done — `brand/brand.css` |
-| Palette test sheet | Done — `brand/palette.svg` |
-| Icon (yellow) | Done — `brand/icon.svg` |
-| Logo compact (transparent) | Done — `brand/logo-compact.svg` |
-| Logo extended (transparent) | Done — `brand/logo.svg` |
-| Bot avatar (SVG) | Done — `brand/bot-avatar.svg` |
-| Favicon in public | Done — `public/favicon.svg` |
-| Bot avatar PNG | Export when registering bot |
-| Tagline final | Optional |
-
----
-
-## 9. Code integration (Phase 1)
+## 8. Assets
 
 ```
-brand/
-  icon.svg           # yellow SR mark
-  logo-compact.svg   # transparent SR
-  logo.svg           # transparent SRelay
-  brand.css
-public/
-  favicon.svg        # copy of icon
+brand/          icon.svg · logo-compact.svg · logo.svg · bot-avatar.svg · brand.css · palette.svg
+public/         favicon.svg
 ```
 
-- Import `brand/brand.css` in Next.js `globals.css`
-- Map tokens in `tailwind.config` → `colors.brand.accent`, etc.
-- Header expanded: `logo.svg` — collapsed: `logo-compact.svg` — favicon: `icon.svg`
-
----
-
-## Revision history
-
-| Date | Change |
-|------|--------|
-| 2026-08-16 | Wordmark **SRelay**; compact + yellow icon **SR** |
-| 2026-08-13 | Renamed `--danger` → `--severity` (overdue, hard, errors, destructive) |
-| 2026-08-13 | Task difficulty tokens; overdue shares `--severity` with hard |
-| 2026-06-25 | Initial draft (navy palette) |
-| 2026-06-25 | Icon (yellow) vs logo (transparent text+track); then compact SirR / extended SirRelay |
+Import `brand/brand.css` via `globals.css`. Header open → `logo.svg`; collapsed → `logo-compact.svg`; favicon → `icon.svg`.

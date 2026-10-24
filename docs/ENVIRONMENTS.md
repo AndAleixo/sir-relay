@@ -2,9 +2,7 @@
 
 **Propósito:** definir **três ambientes** — o que corre em cada um, variáveis e quando subir de degrau.
 
-**Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
-
-**Estado actual:** Três ambientes **Active** (mock · prod local · VPS). Phase 2 SEC + AUD + OPS · **Next 16** · P2-MON-01 · AUTH-13/14 · Umami · P3-17 email (inbound forwarder + Resend).
+**Companion:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [REQUIREMENTS.md](./REQUIREMENTS.md) · deploy → [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)
 
 ---
 
@@ -122,24 +120,12 @@ DATABASE_URL=postgresql://sirrelay:$POSTGRES_PASSWORD@localhost:5433/sirrelay np
 
 ## 3 · Prod VPS *(estrada)*
 
-Deploy público. Guia completo: **[DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)**.
-
-```
-Internet → Caddy (:443) → app (:3000) → postgres (rede interna)
-                              ↑
-              Telegram  POST /api/v1/telegram/webhook
-```
-
-| Spec | 4 GB RAM · 2 vCPU · Ubuntu 24.04+ · região EU |
-| URL | `https://app.<teu-domínio>` (ex. produto: `app.sirrelay.com`) |
+Deploy público: **[DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md)** (só quando fores publicar / ops).
 
 ```bash
 ssh deploy@SEU_IP
-cd sir-relay
-bash scripts/env/prod-vps.sh    # git pull + migrate + docker compose up --build
+cd sir-relay && bash scripts/env/prod-vps.sh
 ```
-
-Checklist: [DEPLOY-DIGITALOCEAN.md §10](./DEPLOY-DIGITALOCEAN.md#10-checklist-pos-deploy).
 
 ---
 
@@ -246,32 +232,3 @@ Fonte: `scripts/env/dev-mock.sh` · `prod-local.sh` · `prod-vps.sh`
 | Polir UI / demo | **Dev mock** | `npm run dev-mock` |
 | Testar stack completa | **Prod local** | `npm run prod-local` |
 | Publicar | **Prod VPS** | `bash scripts/env/prod-vps.sh` no servidor |
-
----
-
-## Backend — estado Phase 1–2
-
-Ver [REQUIREMENTS.md §5](./REQUIREMENTS.md#5-phase-1--core-workflow--deploy) · [§6 Phase 2](./REQUIREMENTS.md#6-phase-2--security-audit--operations) · [§9 API](./REQUIREMENTS.md#9-api-contract).
-
-**Feito (Phase 1):** Prisma + seed + `services/api/*` + actions · fila To do · invitations · Telegram relay + alerts.
-
-**Feito (Phase 2 SEC parcial):**
-- P2-SEC-01–11 — incl. IDOR · safe JSON logging · **Next 16.2** (SEC-10 highs closed)
-- P2-AUD-01–04 — `audit_logs` · `/events/activity` · `/platform`
-- Demo seed password (local only): **`SirRelay1`** — never seed on a public VPS
-
-**Ops (feito):** P2-OPS-01–09 — [DEPLOY](./DEPLOY-DIGITALOCEAN.md) (runbook genérico).
-
-**Umami:** P2-ANA-01–03 · tracker com `UMAMI_WEBSITE_ID` · DB via `ensure_umami_database`.
-
-**Legal:** pacote canónico inglês [`legal/en.json`](../legal/en.json) · `users.terms_version` · gate `/accept-terms` · bump `version` para forçar re-aceite.
-
-**Email (P3-17):** `/contact` · signup verify (POST confirm) · forgot/reset · `sendMail` / Resend · inbound forwarder · `check:email-tokens`.
-
-**Smoke (feito):** prod local + VPS · Telegram · fila · SEC · `/platform/login`.
-
-**Fronteira:** `contracts.ts` · `getServices()` · `app/actions/*`.
-
----
-
-**Last updated:** 2026-10-12 (P3-17 mail env; drop dead `MAIL_PROVIDER`)

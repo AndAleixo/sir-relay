@@ -20,14 +20,13 @@ Editor / MCP: **`/connect`** manages named API keys (optional group scope); Prof
 
 | File | Use for |
 |------|---------|
-| [**REQUIREMENTS.md**](./docs/REQUIREMENTS.md) | Product rules, phases, IDs, API, permissions |
-| [**UIUX.md**](./docs/UIUX.md) | Layout, boards, screens, interactions |
-| [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) | `src/`, services, mock → API |
-| [**ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) | Dev mock · prod local · VPS |
-| [**BRAND.md**](./docs/BRAND.md) | Colors, logos, tokens |
-| [**DEPLOY-DIGITALOCEAN.md**](./docs/DEPLOY-DIGITALOCEAN.md) | Production Droplet: firewall, SSH, deploy, backups, monthly updates (P2-OPS) |
+| [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) | Where code lives · services · mock → API |
+| [**REQUIREMENTS.md**](./docs/REQUIREMENTS.md) | Product rules, IDs, API, permissions |
+| [**UIUX.md**](./docs/UIUX.md) | Layout, boards, screens (UI work) |
+| [**ENVIRONMENTS.md**](./docs/ENVIRONMENTS.md) | Dev mock · prod local · how to run |
+| [**BRAND.md**](./docs/BRAND.md) | Colors, logos, tokens (UI work) |
 
-Phases 1–3: [REQUIREMENTS §3](./docs/REQUIREMENTS.md#3-development-phases).
+Ops / publish (only when needed): [DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md) · [extensions/mcp/PUBLISH.md](./extensions/mcp/PUBLISH.md) · [PRODUCT.md](./PRODUCT.md) (landing / Impeccable).
 
 ---
 
@@ -47,17 +46,9 @@ Open `http://localhost:3000` · demo `sam@example.com` / `ana@example.com` (any 
 
 Stack: Next.js 16 · React 19 · Prisma · PostgreSQL · grammy · Docker Compose + Caddy — [REQUIREMENTS §10](./docs/REQUIREMENTS.md#10-tech-stack--repo-layout).
 
-**Production ops:** [DEPLOY-DIGITALOCEAN.md](./docs/DEPLOY-DIGITALOCEAN.md) — firewall, `.env` `chmod 600`, backups, monthly OS/image updates (P2-OPS-01–09).
-
----
-
-## Dependency audit (P2-SEC-10)
-
 ```bash
-npm run audit:prod   # npm audit --omit=dev
+npm run audit:prod   # npm audit --omit=dev (P2-SEC-10)
 ```
-
-No **critical** in prod deps. **High** → upgrade if safe, else record. On Next 16.2: no critical/high; remaining moderate nested `postcss` (no safe bump without force). Image Optimizer off — app does not use `next/image`.
 
 ---
 

@@ -16,7 +16,8 @@ import {
 import { Button, buttonCompact } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
-import { joinInviteUrl, memberPageHref } from "@/lib/app-url";
+import { joinInviteUrl } from "@/lib/app-url";
+import { memberPageHref } from "@/lib/member-page-href";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { getServices } from "@/services";
 import { requireAppSession } from "@/lib/require-session";

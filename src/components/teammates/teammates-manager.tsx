@@ -15,7 +15,7 @@ import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
 import { memberInactiveLabel } from "@/components/ui/member-status-icons";
 import type { GroupInvitation, User } from "@/domain/types";
 import { cn } from "@/lib/cn";
-import { memberPageHref } from "@/lib/app-url";
+import { memberPageHref } from "@/lib/member-page-href";
 import { groupMemberLabel } from "@/lib/group-member-label";
 
 export type TeammatesManagerProps = {

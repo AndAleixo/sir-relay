@@ -7,7 +7,7 @@ import type { Task, TaskStatus } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
 import { cn } from "@/lib/cn";
 import { tagFromOpenProjects } from "@/lib/project";
-import { memberPageHref } from "@/lib/app-url";
+import { memberPageHref } from "@/lib/member-page-href";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
   buildTodoQueueOrder,

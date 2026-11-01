@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { exportDataAction } from "@/app/actions/export";
-import { Button, type ButtonVariant } from "@/components/ui/button";
+import { Button, buttonCompact, type ButtonVariant } from "@/components/ui/button";
 
 type ExportDataButtonProps = {
   userId?: string;
@@ -41,6 +41,7 @@ export function ExportDataButton({
     <Button
       type="button"
       variant={variant}
+      className={buttonCompact}
       onClick={handleExport}
       disabled={pending}
     >

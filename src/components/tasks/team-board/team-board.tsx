@@ -7,6 +7,7 @@ import type { Task, TaskStatus } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
 import { cn } from "@/lib/cn";
 import { tagFromOpenProjects } from "@/lib/project";
+import { memberPageHref } from "@/lib/app-url";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
   buildTodoQueueOrder,
@@ -755,11 +756,10 @@ export function TeamBoard({
               locale={locale}
               labels={labels}
               linkMembers={linkMembers}
-              href={
-                editMode === "self-only"
-                  ? `/${locale}/settings`
-                  : `/${locale}/teammates/${self.id}`
-              }
+              href={memberPageHref(locale, self.id, {
+                self: true,
+                operator: editMode !== "self-only",
+              })}
             />
           }
           tasks={selfTasks}

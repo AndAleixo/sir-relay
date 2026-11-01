@@ -17,7 +17,7 @@ import {
   ViewToggle,
 } from "@/components/tasks/view-toggle";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { demoMemberAsUser } from "@/lib/demo-workspace";
@@ -151,7 +151,7 @@ export function DemoBoard() {
             <div className={viewToggleStyles.newTaskWrap}>
               <Button
                 type="button"
-                className={viewToggleStyles.newTask}
+                className={buttonCompact}
                 onClick={() => setCreating(true)}
               >
                 {t("common.newTask")}

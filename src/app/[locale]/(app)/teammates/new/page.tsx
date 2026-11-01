@@ -5,8 +5,7 @@ import { getServices } from "@/services";
 import { requireRole } from "@/lib/require-session";
 import { PageHeader } from "@/components/layout/app-shell";
 import { Banner } from "@/components/ui/banner";
-import { teamListStyles } from "@/components/teammates/team-list.styles";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 
@@ -54,10 +53,14 @@ export default async function NewTeammatePage({
                 placeholder="teammate@example.com"
               />
             </div>
-            <div className={`flex gap-2 pt-2 ${teamListStyles.actionSize}`}>
-              <Button type="submit">{t("teammate.createTeammate")}</Button>
+            <div className="flex gap-2 pt-2">
+              <Button type="submit" className={buttonCompact}>
+                {t("teammate.createTeammate")}
+              </Button>
               <Link href={`/${locale}/teammates`}>
-                <Button variant="secondary">{t("common.cancel")}</Button>
+                <Button variant="secondary" className={buttonCompact}>
+                  {t("common.cancel")}
+                </Button>
               </Link>
             </div>
           </form>

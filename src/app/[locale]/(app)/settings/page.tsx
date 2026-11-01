@@ -2,12 +2,11 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { updateOwnDisplayNameForm } from "@/app/actions/teammates";
 import { PageHeader } from "@/components/layout/app-shell";
-import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { GroupDangerSettings } from "@/components/settings/group-danger-settings";
 import { GroupGeneralSettings } from "@/components/settings/group-general-settings";
 import { GroupNotificationSettings } from "@/components/settings/group-notification-settings";
 import { Banner } from "@/components/ui/banner";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { requireAppSession } from "@/lib/require-session";
@@ -106,7 +105,7 @@ export default async function SettingsPage({
                   <Button
                     type="submit"
                     variant="secondary"
-                    className={`w-full shrink-0 sm:w-auto ${viewToggleStyles.newTask}`}
+                    className={`w-full shrink-0 sm:w-auto ${buttonCompact}`}
                   >
                     {t("common.save")}
                   </Button>

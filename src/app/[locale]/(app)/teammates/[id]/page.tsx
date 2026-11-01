@@ -13,11 +13,10 @@ import {
   MemberStatusIcons,
   memberInactiveLabel,
 } from "@/components/ui/member-status-icons";
-import { teamListStyles } from "@/components/teammates/team-list.styles";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
-import { joinInviteUrl } from "@/lib/app-url";
+import { joinInviteUrl, memberPageHref } from "@/lib/app-url";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { getServices } from "@/services";
 import { requireAppSession } from "@/lib/require-session";
@@ -44,7 +43,7 @@ export default async function TeammateDetailPage({
 
   const isSelf = id === session.user.id;
   if (isSelf && !isOperator) {
-    redirect(`/${locale}/settings`);
+    redirect(memberPageHref(locale, id, { self: true, operator: false }));
   }
 
   const member = await teammates.getOrganizationUser(id, { session });
@@ -192,9 +191,9 @@ export default async function TeammateDetailPage({
                       />
                     </div>
                   ) : null}
-                  <div className={teamListStyles.actionSize}>
-                    <Button type="submit">{t("common.save")}</Button>
-                  </div>
+                  <Button type="submit" className={buttonCompact}>
+                    {t("common.save")}
+                  </Button>
                 </form>
               </CardBody>
             </Card>
@@ -226,11 +225,8 @@ export default async function TeammateDetailPage({
                       {t("teammate.inviteActiveHint")}
                     </p>
                   )}
-                  <form
-                    action={regenerateInviteForm.bind(null, locale, id)}
-                    className={teamListStyles.actionSize}
-                  >
-                    <Button type="submit" variant="secondary">
+                  <form action={regenerateInviteForm.bind(null, locale, id)}>
+                    <Button type="submit" variant="secondary" className={buttonCompact}>
                       {t("teammate.regenerateInvite")}
                     </Button>
                   </form>
@@ -238,9 +234,7 @@ export default async function TeammateDetailPage({
               </Card>
             ) : null}
 
-            <div
-              className={`flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center ${teamListStyles.actionSize}`}
-            >
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
               <ExportDataButton
                 userId={id}
                 label={t("teammate.export")}

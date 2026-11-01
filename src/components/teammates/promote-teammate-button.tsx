@@ -1,7 +1,7 @@
 "use client";
 
 import { promoteTeammate } from "@/app/actions/teammates";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 
 type PromoteTeammateButtonProps = {
   locale: string;
@@ -20,6 +20,7 @@ export function PromoteTeammateButton({
     <Button
       type="button"
       variant="secondary"
+      className={buttonCompact}
       onClick={() => {
         if (!window.confirm(confirmMessage)) return;
         void promoteTeammate(locale, teammateId);

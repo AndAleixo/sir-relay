@@ -10,8 +10,8 @@ const overlayClose = "pointer-events-none opacity-0 duration-300 ease-in";
 export const taskCardStyles = {
   // min-w-0: long description/title must not widen the column (esp. mobile stack).
   root: "relative block min-w-0 max-w-full overflow-visible rounded-card border border-[var(--border)] bg-surface-card shadow-sm transition-colors",
-  /** Row layout: default cursor + no text select; move via dragHandle; board pan outside cards. */
-  layout: "tasks-no-select flex cursor-default gap-1 p-1 select-none",
+  /** Row layout: default cursor; text select off via tasks-no-select. Move via dragHandle. */
+  layout: "tasks-no-select flex cursor-default gap-1 p-1",
   dragging: "opacity-40 ring-2 ring-brand-accent/40",
   dragHandle:
     "shrink-0 cursor-grab touch-none rounded px-0.5 text-[10px] leading-none text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] active:cursor-grabbing",
@@ -45,8 +45,8 @@ export const taskCardStyles = {
   /** In footer when no due — uses the due slot width (menu stays on the right). */
   descriptionInFooter:
     "block min-w-0 max-w-full truncate text-left text-[10px] leading-tight text-[var(--text-muted)]",
-  inlineInput: "h-6 select-text px-1.5 py-0 text-xs",
-  inlineDateInput: "h-5 w-full select-text px-1 py-0 text-[10px]",
+  inlineInput: "h-6 px-1.5 py-0 text-xs",
+  inlineDateInput: "h-5 w-full px-1 py-0 text-[10px]",
   dueButton:
     "truncate text-left text-[10px] leading-tight text-[var(--text-muted)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 rounded-[4px]",
   footer: "relative flex min-w-0 items-center justify-between gap-1 overflow-visible",

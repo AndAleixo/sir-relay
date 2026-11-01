@@ -1,3 +1,5 @@
+import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
+
 export const taskListStyles = {
   wrapper: "tasks-no-select rounded-card border border-[var(--border)] bg-surface-card",
   cols: "md:grid md:grid-cols-[minmax(8rem,2fr)_repeat(4,minmax(4.5rem,1fr))_minmax(9rem,10.5rem)] md:items-start md:gap-3",
@@ -28,7 +30,6 @@ export const taskListStyles = {
   /** Stack with toolbar (z-30) above board/list row chrome. */
   filterSelect: "relative z-30 min-w-0 w-full",
   /** Same chrome as toolbar Project select. */
-  filterTrigger:
-    "h-8 min-h-8 w-full gap-1 px-2 text-xs sm:h-9 sm:min-h-9 sm:gap-2 sm:px-3 sm:text-sm",
+  filterTrigger: viewToggleStyles.projectTrigger,
   filterAdd: "self-center text-xs text-[var(--text-muted)]",
 } as const;

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
 type CopyLinkButtonProps = {
@@ -78,7 +77,7 @@ export function CopyLinkButton({
       disabled={!text}
       aria-label={actionLabel}
       title={actionLabel}
-      className={cn("shrink-0", viewToggleStyles.newTask, className)}
+      className={cn("shrink-0", buttonCompact, className)}
     >
       {copied ? (
         <CheckIcon className="h-4 w-4 text-[var(--success)]" />

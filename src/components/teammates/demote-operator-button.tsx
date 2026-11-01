@@ -1,7 +1,7 @@
 "use client";
 
 import { demoteTeammate } from "@/app/actions/teammates";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 
 type DemoteOperatorButtonProps = {
   locale: string;
@@ -20,6 +20,7 @@ export function DemoteOperatorButton({
     <Button
       type="button"
       variant="secondary"
+      className={buttonCompact}
       onClick={() => {
         if (!window.confirm(confirmMessage)) return;
         void demoteTeammate(locale, memberId);

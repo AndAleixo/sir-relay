@@ -1,5 +1,5 @@
 /**
- * Tasks toolbar chrome — one optical size for toggles, project select, New task.
+ * Tasks toolbar chrome. Button height is `buttonCompact`.
  * Mobile: h-8 / text-xs. sm+: shell-aligned h-9 / text-sm.
  */
 export const viewToggleStyles = {
@@ -29,5 +29,4 @@ export const viewToggleStyles = {
     "h-8 min-h-8 w-full gap-1 px-2 text-xs sm:h-9 sm:min-h-9 sm:gap-2 sm:px-3 sm:text-sm",
   projectAdd: "shrink-0 self-center whitespace-nowrap text-xs text-[var(--text-muted)]",
   newTaskWrap: "shrink-0 self-end sm:self-auto",
-  newTask: "h-8 px-2.5 text-xs sm:h-9 sm:px-4 sm:text-sm",
 } as const;

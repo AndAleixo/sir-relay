@@ -9,12 +9,13 @@ import { teamListStyles } from "@/components/teammates/team-list.styles";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { ToneBadge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 import { AccountInactiveIcon } from "@/components/ui/account-inactive-icon";
 import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
 import { memberInactiveLabel } from "@/components/ui/member-status-icons";
 import type { GroupInvitation, User } from "@/domain/types";
 import { cn } from "@/lib/cn";
+import { memberPageHref } from "@/lib/app-url";
 import { groupMemberLabel } from "@/lib/group-member-label";
 
 export type TeammatesManagerProps = {
@@ -55,10 +56,10 @@ export function TeammatesManager({
       <div className={viewToggleStyles.toolbar}>
         <p className={viewToggleStyles.toolbarText}>{t("teammate.listSubtitle")}</p>
         {isOperator && !localList ? (
-          <div className={cn("flex flex-wrap items-center gap-2", teamListStyles.actionSize)}>
+          <div className="flex flex-wrap items-center gap-2">
             <ExportDataButton label={t("teammate.exportAll")} variant="secondary" />
             <Link href={`/${locale}/teammates/new`}>
-              <Button>{t("teammate.addTeammate")}</Button>
+              <Button className={buttonCompact}>{t("teammate.addTeammate")}</Button>
             </Link>
           </div>
         ) : null}
@@ -86,11 +87,8 @@ export function TeammatesManager({
                     {t(`teammate.invitationStatus.${invitation.status}`)}
                   </ToneBadge>
                   {isOperator && !localList ? (
-                    <form
-                      action={resendGroupInvitation.bind(null, locale, invitation.id)}
-                      className={teamListStyles.actionSize}
-                    >
-                      <Button type="submit" variant="secondary">
+                    <form action={resendGroupInvitation.bind(null, locale, invitation.id)}>
+                      <Button type="submit" variant="secondary" className={buttonCompact}>
                         {t("teammate.resendInvitation")}
                       </Button>
                     </form>
@@ -124,9 +122,10 @@ export function TeammatesManager({
                 ? isSelf
                   ? profileHref
                   : null
-                : isSelf && !isOperator
-                  ? `/${locale}/settings`
-                  : `/${locale}/teammates/${user.id}`;
+                : memberPageHref(locale, user.id, {
+                    self: isSelf,
+                    operator: isOperator,
+                  });
               const inactiveLabel = memberInactiveLabel(user, {
                 invited: t("teammate.invited"),
                 inactive: t("teammate.inactive"),

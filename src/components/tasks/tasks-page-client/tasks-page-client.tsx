@@ -9,7 +9,7 @@ import { groupMemberLabel } from "@/lib/group-member-label";
 import type { TasksScope, TasksView } from "@/lib/tasks-url";
 import { taskNewHref, tasksListHref } from "@/lib/tasks-url";
 import { useSync } from "@/components/sync";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 import type { TaskCardLabels } from "@/components/tasks/task-card";
 import { StatusKanban } from "@/components/tasks/status-kanban";
 import { TaskListWithFilters } from "@/components/tasks/task-list/task-list-with-filters";
@@ -277,7 +277,7 @@ export function TasksPageClient({
           })}
           className={viewToggleStyles.newTaskWrap}
         >
-          <Button className={viewToggleStyles.newTask}>{labels.newTask}</Button>
+          <Button className={buttonCompact}>{labels.newTask}</Button>
         </Link>
       </div>
 

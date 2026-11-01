@@ -1,7 +1,7 @@
 "use client";
 
 import { transferGroupOwnership } from "@/app/actions/teammates";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 
 type TransferOwnershipButtonProps = {
   locale: string;
@@ -20,6 +20,7 @@ export function TransferOwnershipButton({
     <Button
       type="button"
       variant="secondary"
+      className={buttonCompact}
       onClick={() => {
         if (!window.confirm(confirmMessage)) return;
         void transferGroupOwnership(locale, memberId);

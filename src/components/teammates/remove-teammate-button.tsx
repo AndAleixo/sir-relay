@@ -1,7 +1,7 @@
 "use client";
 
 import { removeTeammate } from "@/app/actions/teammates";
-import { Button } from "@/components/ui/button";
+import { Button, buttonCompact } from "@/components/ui/button";
 
 type RemoveTeammateButtonProps = {
   locale: string;
@@ -20,6 +20,7 @@ export function RemoveTeammateButton({
     <Button
       type="button"
       variant="severity"
+      className={buttonCompact}
       onClick={() => {
         if (!window.confirm(confirmMessage)) return;
         void removeTeammate(locale, teammateId);

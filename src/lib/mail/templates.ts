@@ -19,12 +19,12 @@ const copy = {
       `Restablece tu contraseña con este enlace (válido 1 hora):\n\n${url}\n\nSi no lo pediste, ignora este mensaje.`,
   },
   "pt-br": {
-    verifySubject: "Confirme o seu email SRelay",
+    verifySubject: "Confirme seu e-mail do SRelay",
     verifyText: (url: string) =>
-      `Confirme o email (válido 24 horas): abra este link e clique em Confirmar e-mail:\n\n${url}\n\nSe não criou a conta, ignore esta mensagem.`,
-    resetSubject: "Redefina a sua senha SRelay",
+      `Confirme o e-mail (válido por 24 horas): abra este link e clique em Confirmar e-mail:\n\n${url}\n\nSe você não criou a conta, ignore esta mensagem.`,
+    resetSubject: "Redefina sua senha do SRelay",
     resetText: (url: string) =>
-      `Redefina a senha com este link (válido 1 hora):\n\n${url}\n\nSe não pediu isto, ignore esta mensagem.`,
+      `Redefina a senha com este link (válido por 1 hora):\n\n${url}\n\nSe você não pediu isso, ignore esta mensagem.`,
   },
 } as const;
 

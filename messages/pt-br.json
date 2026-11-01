@@ -84,7 +84,7 @@
     "tryDemo": "Experimentar demo",
     "gateTitle": "Experimente o quadro",
     "gateSubtitle": "Seu nome e um quadro inicial. Fica nesta aba.",
-    "notice": "Aqui só está o básico da aplicação, para você conhecer. Uma conta nova não usa o que você fizer aqui.",
+    "notice": "Aqui só está o básico do app, para você conhecer. Uma conta nova não usa o que você fizer aqui.",
     "start": "Começar demo",
     "nameRequired": "Digite pelo menos 2 caracteres.",
     "nameHint": "Até {max} caracteres.",
@@ -102,8 +102,8 @@
           { "title": "Marcar o dentista", "who": "Ana", "project": "CAS" },
           { "title": "Comprar material escolar", "who": "Luis", "project": "FAM" },
           { "title": "Combinar o almoço", "who": "Sofia", "project": "FAM" },
-          { "title": "Renovar o passe", "who": "self", "project": "CAS" },
-          { "title": "Ligar para o senhorio", "who": "Ana", "project": "CAS" }
+          { "title": "Renovar o cartão de ônibus", "who": "self", "project": "CAS" },
+          { "title": "Ligar para o proprietário", "who": "Ana", "project": "CAS" }
         ]
       },
       "finance": {
@@ -131,7 +131,7 @@
         ],
         "tasks": [
           { "title": "Corrigir o login", "who": "Daniel", "project": "APP", "due": true },
-          { "title": "Rever o pull request", "who": "Laura", "project": "APP" },
+          { "title": "Revisar o pull request", "who": "Laura", "project": "APP" },
           { "title": "Escrever as notas", "who": "self", "project": "VER" },
           { "title": "Atualizar o README", "who": "Marco", "project": "APP" },
           { "title": "Testar o cadastro", "who": "self", "project": "APP" },
@@ -150,7 +150,7 @@
           { "title": "Encomendar sensores", "who": "Nina", "project": "LAB" },
           { "title": "Medir a tensão", "who": "David", "project": "PLC" },
           { "title": "Etiquetar os cabos", "who": "Rosa", "project": "LAB" },
-          { "title": "Registar o teste", "who": "self", "project": "PLC" },
+          { "title": "Registrar o teste", "who": "self", "project": "PLC" },
           { "title": "Devolver as peças", "who": "David", "project": "LAB" }
         ]
       },
@@ -159,15 +159,15 @@
         "teammates": ["Sara", "Ana", "Pedro"],
         "projects": [
           { "name": "Pedidos", "acronym": "PED", "categories": ["Cotações", "Entrega"] },
-          { "name": "Stock", "acronym": "STK", "categories": ["Contagem"] }
+          { "name": "Estoque", "acronym": "EST", "categories": ["Contagem"] }
         ],
         "tasks": [
           { "title": "Comparar três cotações", "who": "self", "project": "PED", "due": true },
           { "title": "Confirmar a entrega", "who": "Sara", "project": "PED" },
-          { "title": "Contar o stock", "who": "Ana", "project": "STK" },
+          { "title": "Contar o estoque", "who": "Ana", "project": "EST" },
           { "title": "Aprovar a compra", "who": "Pedro", "project": "PED" },
-          { "title": "Ligar ao fornecedor", "who": "self", "project": "PED" },
-          { "title": "Atualizar a reposição", "who": "Ana", "project": "STK" }
+          { "title": "Ligar para o fornecedor", "who": "self", "project": "PED" },
+          { "title": "Atualizar a reposição", "who": "Ana", "project": "EST" }
         ]
       },
       "sales": {
@@ -213,8 +213,8 @@
     "acceptIntro": "Revise e aceite a versão {version} para continuar. Contas existentes precisam aceitar atualizações quando alterarmos o pacote legal.",
     "acceptCheckbox": "Aceito os Termos de serviço e a Política de Privacidade, versão {version}.",
     "acceptSubmit": "Aceitar e continuar",
-    "contact": "Contacto: {email}.",
-    "canonicalNote": "Texto jurídico vinculativo em inglês (versão canónica)."
+    "contact": "Contato: {email}.",
+    "canonicalNote": "Texto jurídico vinculativo em inglês (versão canônica)."
   },
   "groups": {
     "title": "Seus grupos",
@@ -388,7 +388,7 @@
   },
   "projects": {
     "hint": "Rótulos curtos para tarefas deste grupo. A sigla aparece no quadro e no Telegram. Qualquer pessoa pode adicionar categorias.",
-    "hintTeammate": "Peça um projeto — um operador tem de aceitar antes de aparecer nas tarefas. Qualquer pessoa pode adicionar categorias nos projetos aceites.",
+    "hintTeammate": "Peça um projeto — um operador precisa aceitar antes de aparecer nas tarefas. Qualquer pessoa pode adicionar categorias nos projetos aceitos.",
     "empty": "Ainda não há projetos abertos.",
     "name": "Nome",
     "acronym": "Sigla",
@@ -396,7 +396,7 @@
     "request": "Pedir",
     "accept": "Aceitar",
     "pending": "Pendente",
-    "pendingSection": "À espera de aprovação",
+    "pendingSection": "Aguardando aprovação",
     "remove": "Remover projeto",
     "removeConfirm": "Remover {name}? As tarefas mantêm a sigla.",
     "limit": "Este grupo pode ter até {count} projetos.",
@@ -404,7 +404,7 @@
     "saved": "Projeto adicionado.",
     "removed": "Projeto removido.",
     "requested": "Projeto pedido.",
-    "accepted": "Projeto aceite.",
+    "accepted": "Projeto aceito.",
     "errorAcronym": "A sigla deve ter 1–3 letras (A–Z).",
     "errorName": "Informe o nome do projeto.",
     "errorTaken": "Essa sigla já está em uso.",
@@ -500,18 +500,18 @@
     "linkKeyOpenIde": "Abrir na IDE",
     "linkKeyCreate": "Criar API key",
     "linkKeyName": "Nome",
-    "linkKeyNamePlaceholder": "ex.: Cursor MCP, portátil",
+    "linkKeyNamePlaceholder": "ex.: Cursor MCP, notebook",
     "linkKeyPermissions": "Grupos",
     "linkKeyPermAll": "Todos os meus grupos",
     "linkKeyNeedGroup": "Selecione pelo menos um grupo, ou escolha Todos os meus grupos.",
     "linkKeyNoGroups": "Ainda não está em nenhum grupo.",
-    "linkKeyBadName": "Indique um nome (1–40 caracteres).",
+    "linkKeyBadName": "Informe um nome (1–40 caracteres).",
     "linkKeyLimit": "Já tem o número máximo de chaves.",
     "linkKeyBadGroups": "Um dos grupos selecionados é inválido.",
-    "linkKeyDelete": "Apagar",
-    "linkKeyDeleteConfirm": "Apagar esta API key? Clientes que a usam deixam de funcionar.",
-    "linkKeyDeleteFailed": "Não foi possível apagar essa chave.",
-    "linkKeyWorking": "A trabalhar…",
+    "linkKeyDelete": "Excluir",
+    "linkKeyDeleteConfirm": "Excluir esta API key? Clientes que a usam deixam de funcionar.",
+    "linkKeyDeleteFailed": "Não foi possível excluir essa chave.",
+    "linkKeyWorking": "Trabalhando…",
     "linkKeyCopy": "Copiar",
     "linkKeyCopied": "Copiado",
     "linkKeyUnauthorized": "Sessão expirada. Entre de novo.",
@@ -519,9 +519,9 @@
     "regenerateTelegramLink": "Novo código",
     "unlinkTelegram": "Desvincular Telegram",
     "deleteAccount": "Excluir conta",
-    "deleteAccountHint": "Apaga a conta de forma permanente. Você sai de todos os grupos (a ownership passa se houver outros membros). Tarefas atribuídas a você são removidas. Não dá para desfazer.",
+    "deleteAccountHint": "Exclui a conta de forma permanente. Você sai de todos os grupos (a propriedade passa se houver outros membros). Tarefas atribuídas a você são removidas. Não dá para desfazer.",
     "deleteAccountConfirm": "Excluir sua conta permanentemente? Não dá para desfazer.",
-    "deleteAccountFailed": "Não foi possível excluir a conta. Tente de novo ou contacte o suporte."
+    "deleteAccountFailed": "Não foi possível excluir a conta. Tente de novo ou fale com o suporte."
   },
   "events": {
     "title": "Eventos",
@@ -545,7 +545,7 @@
       "task_update": "{actor} atualizou «{task}»",
       "task_delete": "{actor} excluiu «{task}»",
       "task_status": "{actor} alterou «{task}» de {from} para {to}",
-      "task_reassign": "{actor} reatribuíu «{task}» a {assignee}",
+      "task_reassign": "{actor} reatribuiu «{task}» a {assignee}",
       "task_renotify": "{actor} reenviou o aviso de Telegram de «{task}»",
       "task_queue": "{actor} alterou a ordem de A fazer de {assignee}",
       "teammate_invite": "{actor} convidou {person} para o grupo",
@@ -557,15 +557,15 @@
       "invite_regenerate": "{actor} regenerou o link de convite de {person}",
       "telegram_reply": "{actor} respondeu no Telegram sobre «{task}»",
       "telegram_reply_status": "{actor} definiu «{task}» como {status} via Telegram",
-      "relay_dispatch": "O relay do Telegram enviou «{task}» a {actor}",
+      "relay_dispatch": "O relay do Telegram enviou «{task}» para {actor}",
       "export_full": "{actor} exportou os dados do grupo",
       "export_user": "{actor} exportou os dados de {person}"
     }
   },
   "sync": {
-    "pending": "Não sincronizado com o servidor — {count, plural, one {# alteração pendente} other {# alterações pendentes}}. A tentar de novo automaticamente.",
+    "pending": "Não sincronizado com o servidor — {count, plural, one {# alteração pendente} other {# alterações pendentes}}. Tentando de novo automaticamente.",
     "syncing": "Enviando alterações…",
-    "failed": "Ainda não gravado — {count, plural, one {# alteração} other {# alterações}}. A tentar de novo automaticamente.",
+    "failed": "Ainda não salvo — {count, plural, one {# alteração} other {# alterações}}. Tentando de novo automaticamente.",
     "conflict": "Uma alteração conflita com a versão do servidor.",
     "syncNow": "Tentar agora",
     "keepLocal": "Manter minha versão",
@@ -575,7 +575,7 @@
     "headerNav": "Navegação do site",
     "footerNav": "Links do rodapé",
     "eyebrow": "Seu trabalho, ou um grupo",
-    "heroTitle": "Organize o seu trabalho. Veja o que falta.",
+    "heroTitle": "Organize seu trabalho. Veja o que falta.",
     "heroSubtitle": "Atribua tarefas e acompanhe o progresso — sozinho, ou com pessoas que você convidar.",
     "contactLead": "Dúvidas, ideias de implementação ou mais informações? Use",
     "demoAria": "Pré-visualização do quadro SirRelay",
@@ -652,7 +652,7 @@
       "title": "Resumo",
       "subtitle": "Sinais da plataforma nos últimos 7 dias.",
       "logins7d": "Logins",
-      "loginFailed7d": "Logins falhados",
+      "loginFailed7d": "Logins com falha",
       "exports7d": "Exportações",
       "groups7d": "Grupos com atividade",
       "recent": "Atividade recente",

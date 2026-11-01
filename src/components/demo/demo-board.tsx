@@ -43,11 +43,15 @@ export function DemoBoard() {
 
   const members: OrganizationUser[] = workspace.members
     .filter((member) => member.id !== self.id)
-    .map((member) => ({
-      ...demoMemberAsUser(member, workspace.selfId, locale),
-      role: "teammate" as const,
-      accountStatus: "active" as const,
-    }));
+    .map((member) => {
+      const user = demoMemberAsUser(member, workspace.selfId, locale);
+      return {
+        ...user,
+        role: "teammate" as const,
+        accountStatus: "active" as const,
+        telegramStatus: user.telegramStatus ?? "pending",
+      };
+    });
 
   const openProjects = workspace.projects.filter(
     (row) => !row.archivedAt && !row.pendingAt,

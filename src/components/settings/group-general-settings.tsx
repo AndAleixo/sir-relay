@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { renameGroupForm } from "@/app/actions/settings";
+import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
@@ -69,7 +70,7 @@ export async function GroupGeneralSettings({
               minLength={2}
             />
           </div>
-          <Button type="submit" className="w-full shrink-0 sm:w-auto">
+          <Button type="submit" className={`w-full shrink-0 sm:w-auto ${viewToggleStyles.newTask}`}>
             {t("common.save")}
           </Button>
         </form>

@@ -10,6 +10,7 @@ import {
   createProjectForm,
   requestProjectForm,
 } from "@/app/actions/projects";
+import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { ToneBadge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
@@ -177,7 +178,7 @@ export function ProjectsManager({
                 autoComplete="off"
               />
             </div>
-            <Button type="submit" className="shrink-0">
+            <Button type="submit" className={cn("shrink-0", viewToggleStyles.newTask)}>
               {t(isOperator ? "add" : "request")}
             </Button>
           </form>
@@ -200,7 +201,7 @@ export function ProjectsManager({
                   <div className="flex shrink-0 items-center gap-1">
                     <form action={acceptAction}>
                       <input type="hidden" name="projectId" value={project.id} />
-                      <Button type="submit" variant="secondary" className="px-2.5">
+                      <Button type="submit" variant="secondary" className={viewToggleStyles.newTask}>
                         {t("accept")}
                       </Button>
                     </form>
@@ -296,7 +297,7 @@ export function ProjectsManager({
                           aria-label={t("categoryName")}
                           className="min-w-0 flex-1"
                         />
-                        <Button type="submit" variant="secondary" className="shrink-0 px-3">
+                        <Button type="submit" variant="secondary" className={cn("shrink-0", viewToggleStyles.newTask)}>
                           {t("addCategory")}
                         </Button>
                       </form>

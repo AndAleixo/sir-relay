@@ -159,7 +159,7 @@ export function DemoBoard() {
             </div>
           </div>
           {emptyMyWork ? (
-            <p className="text-sm text-[var(--text-muted)]">{t("tasks.emptyMyWork")}</p>
+            <p className="tasks-no-select text-sm text-[var(--text-muted)]">{t("tasks.emptyMyWork")}</p>
           ) : view === "board" ? (
             scope === "mine" ? (
               <StatusKanban

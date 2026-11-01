@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { UserGroup } from "@/domain/types";
 import type { GroupFormState } from "@/app/actions/groups";
 import { deleteGroupForm, leaveGroupForm } from "@/app/actions/groups";
+import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 
@@ -73,7 +74,7 @@ export function GroupDangerSettings({
           }}
         >
           <input type="hidden" name="groupId" value={group.id} />
-          <Button type="submit" variant="secondary">
+          <Button type="submit" variant="secondary" className={viewToggleStyles.newTask}>
             {t("groups.leave")}
           </Button>
         </form>
@@ -95,7 +96,7 @@ export function GroupDangerSettings({
             }}
           >
             <input type="hidden" name="groupId" value={group.id} />
-            <Button type="submit" variant="severity">
+            <Button type="submit" variant="severity" className={viewToggleStyles.newTask}>
               {t("groups.delete")}
             </Button>
           </form>

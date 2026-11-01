@@ -282,7 +282,7 @@ export function TasksPageClient({
       </div>
 
       {emptyMyWork ? (
-        <p className="text-sm text-[var(--text-muted)]">{labels.emptyMyWork}</p>
+        <p className="tasks-no-select text-sm text-[var(--text-muted)]">{labels.emptyMyWork}</p>
       ) : view === "board" ? (
         scope === "team" ? (
           <TeamBoard

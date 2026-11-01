@@ -518,6 +518,7 @@ function MemberColumnHeader({
   locale,
   labels,
   linkMembers = true,
+  href,
 }: {
   member: {
     id: string;
@@ -531,21 +532,21 @@ function MemberColumnHeader({
   locale: string;
   labels: TeamBoardProps["labels"];
   linkMembers?: boolean;
+  /** Overrides the default member-detail link (own column). */
+  href?: string;
 }) {
   const inactiveLabel = memberInactiveLabel(member, {
     invited: labels.invited,
     inactive: labels.inactive,
   });
   const name = groupMemberLabel(member);
+  const nameHref = href ?? `/${locale}/teammates/${member.id}`;
 
   return (
     <MemberNameRow
       nameNode={
         linkMembers ? (
-          <Link
-            href={`/${locale}/teammates/${member.id}`}
-            className={teamBoardStyles.memberName}
-          >
+          <Link href={nameHref} className={teamBoardStyles.memberName}>
             {name}
           </Link>
         ) : (
@@ -722,7 +723,7 @@ export function TeamBoard({
 
   if (members.length === 0 && selfTasks.length === 0) {
     return (
-      <p className="rounded-card border border-dashed border-[var(--border)] bg-surface-card p-8 text-center text-sm text-[var(--text-muted)]">
+      <p className="tasks-no-select rounded-card border border-dashed border-[var(--border)] bg-surface-card p-8 text-center text-sm text-[var(--text-muted)]">
         {labels.emptyBoard}
       </p>
     );
@@ -754,6 +755,11 @@ export function TeamBoard({
               locale={locale}
               labels={labels}
               linkMembers={linkMembers}
+              href={
+                editMode === "self-only"
+                  ? `/${locale}/settings`
+                  : `/${locale}/teammates/${self.id}`
+              }
             />
           }
           tasks={selfTasks}

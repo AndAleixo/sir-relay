@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { updateOwnDisplayNameForm } from "@/app/actions/teammates";
 import { PageHeader } from "@/components/layout/app-shell";
+import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { GroupDangerSettings } from "@/components/settings/group-danger-settings";
 import { GroupGeneralSettings } from "@/components/settings/group-general-settings";
 import { GroupNotificationSettings } from "@/components/settings/group-notification-settings";
@@ -105,7 +106,7 @@ export default async function SettingsPage({
                   <Button
                     type="submit"
                     variant="secondary"
-                    className="w-full shrink-0 sm:w-auto"
+                    className={`w-full shrink-0 sm:w-auto ${viewToggleStyles.newTask}`}
                   >
                     {t("common.save")}
                   </Button>

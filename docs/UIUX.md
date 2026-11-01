@@ -236,7 +236,7 @@ Three columns by status. Empty My work → §9 copy (not empty columns). Card an
 
 First column: **signed-in member**. Others by **To do count** when Tasks opens (stays put until you leave the page). Inside: To do + In progress expanded; Done collapsed.
 
-**Operator:** edit all; member names → `/teammates/[id]`. **Teammate:** own column editable; others view-only (**⋯ → Open**); names → `/teammates/[id]` (read-only).
+**Operator:** edit all; member names → `/teammates/[id]`, including their own (export is there). **Teammate:** own column editable; others view-only (**⋯ → Open**); other names → `/teammates/[id]` (read-only); own name → Settings.
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
@@ -365,7 +365,7 @@ Rules: [REQUIREMENTS §5.2](./REQUIREMENTS.md#52-teammates).
 
 ### List `/teammates`
 
-Table: **Name** · **Email** · **Role** · **Account** · **Telegram**. Name → **You** = Settings; else `/teammates/[id]`.
+Table: **Name** · **Email** · **Role** · **Account** · **Telegram**. Name → `/teammates/[id]`, including yourself when you are an operator (export is on that page). A teammate opening their own row still goes to Settings.
 
 **Operator:** **Add** → `/teammates/new` (email only). Pending invitations: Resend. **Export** → CSV. **Teammate:** same table and pending list; no Add / Export / Resend.
 
@@ -373,7 +373,7 @@ Table: **Name** · **Email** · **Role** · **Account** · **Telegram**. Name �
 
 Read: email, account name, fantasy name, role, status icons.
 
-**Operator only:** fantasy name form · email (while invited) · promote / demote / transfer ownership / remove · invite link · export.
+**Operator only:** fantasy name form · email (while invited) · promote / demote / transfer ownership / remove · invite link · export. On your own row: fantasy name and export only — no promote, demote, transfer, or remove.
 
 ---
 

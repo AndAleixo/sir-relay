@@ -514,7 +514,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 |----|-------------|---------------------|
 | P2-DATA-01 | Export | Operator via **server action** (Teammates UI); full group or per-person · **Done** |
 | P2-DATA-02 | CSV download | UTF-8 BOM · RFC4180 · sections: Members, Tasks, Alert preferences (full only) · never include password/token hashes or Telegram chat/message ids · **Done** (`toExportCsv`; `check:export-csv`) |
-| P2-DATA-03 | UI | [UIUX.md §7](./UIUX.md#7-teammates-operator) · **Done** |
+| P2-DATA-03 | UI | [UIUX.md §7](./UIUX.md#7-teammates) · **Done** |
 
 - **`scope: full`** — active members + all group tasks + operator alert prefs.
 - **`scope: user`** — one member + their assigned tasks (no alert prefs).

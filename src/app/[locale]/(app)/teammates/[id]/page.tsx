@@ -13,6 +13,7 @@ import {
   MemberStatusIcons,
   memberInactiveLabel,
 } from "@/components/ui/member-status-icons";
+import { teamListStyles } from "@/components/teammates/team-list.styles";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
@@ -41,7 +42,8 @@ export default async function TeammateDetailPage({
   const isOperator = session.user.role === "operator";
   const { teammates, groups } = getServices();
 
-  if (id === session.user.id) {
+  const isSelf = id === session.user.id;
+  if (isSelf && !isOperator) {
     redirect(`/${locale}/settings`);
   }
 
@@ -190,7 +192,9 @@ export default async function TeammateDetailPage({
                       />
                     </div>
                   ) : null}
-                  <Button type="submit">{t("common.save")}</Button>
+                  <div className={teamListStyles.actionSize}>
+                    <Button type="submit">{t("common.save")}</Button>
+                  </div>
                 </form>
               </CardBody>
             </Card>
@@ -222,7 +226,10 @@ export default async function TeammateDetailPage({
                       {t("teammate.inviteActiveHint")}
                     </p>
                   )}
-                  <form action={regenerateInviteForm.bind(null, locale, id)}>
+                  <form
+                    action={regenerateInviteForm.bind(null, locale, id)}
+                    className={teamListStyles.actionSize}
+                  >
                     <Button type="submit" variant="secondary">
                       {t("teammate.regenerateInvite")}
                     </Button>
@@ -231,7 +238,9 @@ export default async function TeammateDetailPage({
               </Card>
             ) : null}
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <div
+              className={`flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center ${teamListStyles.actionSize}`}
+            >
               <ExportDataButton
                 userId={id}
                 label={t("teammate.export")}
@@ -245,7 +254,7 @@ export default async function TeammateDetailPage({
                   confirmMessage={t("teammate.promoteConfirm", { name: label })}
                 />
               ) : null}
-              {canDemote ? (
+              {canDemote && !isSelf ? (
                 <DemoteOperatorButton
                   locale={locale}
                   memberId={id}
@@ -261,7 +270,7 @@ export default async function TeammateDetailPage({
                   confirmMessage={t("teammate.transferOwnershipConfirm", { name: label })}
                 />
               ) : null}
-              {memberIsOwner ? (
+              {isSelf ? null : memberIsOwner ? (
                 <p className="text-xs text-[var(--text-muted)] sm:basis-full">
                   {t("teammate.memberIsOwnerHint")}
                 </p>

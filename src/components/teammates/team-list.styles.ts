@@ -9,4 +9,7 @@ export const teamListStyles = {
   userCell: "font-medium",
   nameLink:
     "text-brand-accent hover:text-brand-accent-hover focus-visible:outline-none focus-visible:underline",
+  /** Same optical size as the tasks toolbar button (`viewToggleStyles.newTask`). */
+  actionSize:
+    "[&_button]:h-8 [&_button]:px-2.5 [&_button]:py-0 [&_button]:text-xs sm:[&_button]:h-9 sm:[&_button]:px-4 sm:[&_button]:text-sm",
 } as const;

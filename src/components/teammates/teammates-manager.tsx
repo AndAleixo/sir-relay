@@ -55,7 +55,7 @@ export function TeammatesManager({
       <div className={viewToggleStyles.toolbar}>
         <p className={viewToggleStyles.toolbarText}>{t("teammate.listSubtitle")}</p>
         {isOperator && !localList ? (
-          <div className="flex flex-wrap items-center gap-2">
+          <div className={cn("flex flex-wrap items-center gap-2", teamListStyles.actionSize)}>
             <ExportDataButton label={t("teammate.exportAll")} variant="secondary" />
             <Link href={`/${locale}/teammates/new`}>
               <Button>{t("teammate.addTeammate")}</Button>
@@ -86,7 +86,10 @@ export function TeammatesManager({
                     {t(`teammate.invitationStatus.${invitation.status}`)}
                   </ToneBadge>
                   {isOperator && !localList ? (
-                    <form action={resendGroupInvitation.bind(null, locale, invitation.id)}>
+                    <form
+                      action={resendGroupInvitation.bind(null, locale, invitation.id)}
+                      className={teamListStyles.actionSize}
+                    >
                       <Button type="submit" variant="secondary">
                         {t("teammate.resendInvitation")}
                       </Button>
@@ -121,7 +124,7 @@ export function TeammatesManager({
                 ? isSelf
                   ? profileHref
                   : null
-                : isSelf
+                : isSelf && !isOperator
                   ? `/${locale}/settings`
                   : `/${locale}/teammates/${user.id}`;
               const inactiveLabel = memberInactiveLabel(user, {

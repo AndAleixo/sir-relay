@@ -638,31 +638,24 @@ export function TeamBoard({
     const needsStatus = task.status !== targetStatus;
     if (!needsReassign && !needsStatus) return;
 
-    const mutations: MutationInput[] = [];
-    if (needsStatus) {
-      mutations.push({
-        type: "update_status",
-        taskId,
-        payload: { status: targetStatus },
-      });
-    }
-    if (needsReassign) {
-      mutations.push({
-        type: "reassign",
-        taskId,
-        payload: { assigneeId: target.id, assigneeName: target.name },
-      });
-    }
-
     await applyTaskUpdate(
       taskId,
       {
-        ...(needsReassign
-          ? { assigneeId: target.id, assigneeName: target.name }
-          : {}),
-        ...(needsStatus ? { status: targetStatus } : {}),
+        assigneeId: target.id,
+        assigneeName: target.name,
+        status: targetStatus,
       },
-      mutations,
+      [
+        {
+          type: "move_task",
+          taskId,
+          payload: {
+            status: targetStatus,
+            assigneeId: target.id,
+            assigneeName: target.name,
+          },
+        } satisfies MutationInput,
+      ],
     );
   }
 

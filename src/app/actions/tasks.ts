@@ -318,31 +318,89 @@ export async function deleteTaskInlineAction(
   }
 }
 
-export async function placeInTodoQueueAction(
+/** Atomic board move: status + optional reassign, or todo queue placement. */
+export async function moveTaskAction(
   taskId: string,
-  assigneeId: string,
-  orderedTodoIds: string[],
-): Promise<
-  | { ok: true; tasks: Task[] }
-  | { ok: false; error: "unauthorized" | "invalid" }
-> {
-  const { auth, tasks } = getServices();
+  input: {
+    status: TaskStatus;
+    assigneeId: string;
+    assigneeName: string;
+    orderedTodoIds?: string[];
+  },
+  options?: SyncActionOptions,
+): Promise<TaskActionResult> {
+  if (options?.clientMutationId) {
+    const cached = getAppliedMutation(options.clientMutationId);
+    if (cached) return { ok: true, task: cached };
+  }
+
+  const { auth, tasks, alerts } = getServices();
   const session = await auth.getSession();
   if (!session) {
     return { ok: false, error: "unauthorized" };
   }
 
+  const existing = await tasks.getTask(taskId, { session });
+  if (!existing) return { ok: false, error: "not_found" };
+
+  if (
+    options?.baseUpdatedAt &&
+    existing.updatedAt !== options.baseUpdatedAt
+  ) {
+    return { ok: false, error: "conflict", task: existing };
+  }
+
   try {
-    const updated = await tasks.placeInTodoQueue(
-      taskId,
-      assigneeId,
-      orderedTodoIds,
-      { session },
-    );
+    if (input.status === "todo") {
+      const orderedTodoIds = input.orderedTodoIds;
+      if (!orderedTodoIds?.length || !orderedTodoIds.includes(taskId)) {
+        return { ok: false, error: "network" };
+      }
+      const affected = await tasks.placeInTodoQueue(
+        taskId,
+        input.assigneeId,
+        orderedTodoIds,
+        { session },
+      );
+      const task = affected.find((row) => row.id === taskId);
+      if (!task) return { ok: false, error: "not_found" };
+      if (options?.clientMutationId) {
+        recordAppliedMutation(options.clientMutationId, task);
+      }
+      maybeRevalidate();
+      return { ok: true, task, affected };
+    }
+
+    let updated = existing;
+    if (existing.assigneeId !== input.assigneeId) {
+      if (session.user.role !== "operator") {
+        return { ok: false, error: "forbidden" };
+      }
+      updated = await tasks.reassignTask(
+        taskId,
+        input.assigneeId,
+        input.assigneeName,
+        { session },
+      );
+    }
+    if (updated.status !== input.status) {
+      const fromStatus = updated.status;
+      updated = await tasks.updateTaskStatus(taskId, input.status, { session });
+      if (fromStatus !== "done" && input.status === "done") {
+        await alerts.notifyTaskDone(updated, { session });
+      }
+    }
+
+    if (options?.clientMutationId) {
+      recordAppliedMutation(options.clientMutationId, updated);
+    }
     maybeRevalidate();
-    return { ok: true, tasks: updated };
-  } catch {
-    return { ok: false, error: "invalid" };
+    return { ok: true, task: updated };
+  } catch (error) {
+    if (error instanceof Error && error.message === "Forbidden") {
+      return { ok: false, error: "forbidden" };
+    }
+    return { ok: false, error: "network" };
   }
 }
 

@@ -16,12 +16,16 @@ import type {
   PendingMutation,
   SyncConflict,
   SyncState,
+  TaskActionResult,
 } from "@/domain/sync";
 import { executePendingMutation } from "@/lib/sync/execute-mutation";
 import {
+  applyServerTasks,
+  shouldAcceptServerSnapshot,
+} from "@/lib/sync/merge-tasks";
+import {
   cloneTaskAction,
   deleteTaskInlineAction,
-  placeInTodoQueueAction,
   quickCreateTaskAction,
 } from "@/app/actions/tasks";
 import {
@@ -78,8 +82,8 @@ function createMutation(
   };
 }
 
-function mergeTaskResult(tasks: Task[], task: Task): Task[] {
-  return tasks.map((t) => (t.id === task.id ? task : t));
+function mergeActionResult(tasks: Task[], result: Extract<TaskActionResult, { ok: true }>): Task[] {
+  return applyServerTasks(tasks, result.affected ?? [result.task]);
 }
 
 interface SyncProviderProps {
@@ -95,6 +99,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const syncInFlightRef = useRef(false);
+  const mutationInFlightRef = useRef(0);
   const failureCountRef = useRef(0);
   const tasksRef = useRef(tasks);
   const queueRef = useRef(queue);
@@ -147,7 +152,14 @@ export function SyncProvider({ children }: SyncProviderProps) {
   }, [clearRetryTimer]);
 
   const syncFromServer = useCallback((serverTasks: Task[]) => {
-    if (queueRef.current.length > 0) return;
+    if (
+      !shouldAcceptServerSnapshot({
+        queueLength: queueRef.current.length,
+        inFlightCount: mutationInFlightRef.current,
+      })
+    ) {
+      return;
+    }
     setTasks(serverTasks);
   }, []);
 
@@ -185,10 +197,16 @@ export function SyncProvider({ children }: SyncProviderProps) {
         continue;
       }
 
-      const result = await executePendingMutation(mutation);
+      mutationInFlightRef.current += 1;
+      let result: TaskActionResult;
+      try {
+        result = await executePendingMutation(mutation);
+      } finally {
+        mutationInFlightRef.current = Math.max(0, mutationInFlightRef.current - 1);
+      }
 
       if (result.ok) {
-        working = mergeTaskResult(working, result.task);
+        working = mergeActionResult(working, result);
         setTasks(working);
         dequeue(mutation.clientMutationId);
         continue;
@@ -226,10 +244,16 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
   const runMutation = useCallback(
     async (mutation: PendingMutation, currentTasks: Task[]) => {
-      const result = await executePendingMutation(mutation);
+      mutationInFlightRef.current += 1;
+      let result: TaskActionResult;
+      try {
+        result = await executePendingMutation(mutation);
+      } finally {
+        mutationInFlightRef.current = Math.max(0, mutationInFlightRef.current - 1);
+      }
 
       if (result.ok) {
-        const merged = mergeTaskResult(currentTasks, result.task);
+        const merged = mergeActionResult(currentTasks, result);
         setTasks(merged);
         dequeue(mutation.clientMutationId);
         registerSyncSuccess();
@@ -246,6 +270,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
         return { ok: false as const, error: "conflict" as const };
       }
 
+      // Temporary / network — keep optimistic UI (P3-OFF-04), enqueue + retry.
       enqueue(mutation);
       const failures = registerSyncFailure();
       scheduleRetry(() => {
@@ -335,11 +360,17 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
       setTasks((prev) => [...prev, optimistic]);
 
-      const result = await quickCreateTaskAction(locale, {
-        title: input.title,
-        assigneeId: input.assigneeId,
-        projectId: input.projectId ?? null,
-      });
+      mutationInFlightRef.current += 1;
+      let result: Awaited<ReturnType<typeof quickCreateTaskAction>>;
+      try {
+        result = await quickCreateTaskAction(locale, {
+          title: input.title,
+          assigneeId: input.assigneeId,
+          projectId: input.projectId ?? null,
+        });
+      } finally {
+        mutationInFlightRef.current = Math.max(0, mutationInFlightRef.current - 1);
+      }
 
       if (result.ok) {
         setTasks((prev) =>
@@ -355,16 +386,28 @@ export function SyncProvider({ children }: SyncProviderProps) {
   );
 
   const cloneTask = useCallback(async (taskId: string) => {
-    const result = await cloneTaskAction(taskId);
+    mutationInFlightRef.current += 1;
+    let result: Awaited<ReturnType<typeof cloneTaskAction>>;
+    try {
+      result = await cloneTaskAction(taskId);
+    } finally {
+      mutationInFlightRef.current = Math.max(0, mutationInFlightRef.current - 1);
+    }
     if (!result.ok) return false;
-    setTasks(result.tasks);
+    setTasks((prev) => applyServerTasks(prev, result.tasks));
     return true;
   }, []);
 
   const deleteTask = useCallback(async (taskId: string) => {
     const snapshot = tasksRef.current;
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
-    const result = await deleteTaskInlineAction(taskId);
+    mutationInFlightRef.current += 1;
+    let result: Awaited<ReturnType<typeof deleteTaskInlineAction>>;
+    try {
+      result = await deleteTaskInlineAction(taskId);
+    } finally {
+      mutationInFlightRef.current = Math.max(0, mutationInFlightRef.current - 1);
+    }
     if (result.ok) return true;
     setTasks(snapshot);
     return false;
@@ -372,43 +415,50 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
   const placeInTodoQueue = useCallback(
     async (taskId: string, assigneeId: string, orderedTodoIds: string[]) => {
+      const source = tasksRef.current;
+      const original = source.find((t) => t.id === taskId);
+      if (!original) return false;
+
       const order = new Map(orderedTodoIds.map((id, i) => [id, i]));
-      const snapshot = tasksRef.current;
       const now = new Date().toISOString();
+      const assigneeName =
+        source.find((x) => x.assigneeId === assigneeId)?.assigneeName ??
+        original.assigneeName;
 
-      setTasks((prev) =>
-        prev.map((t) => {
-          if (t.id === taskId) {
-            const assigneeName =
-              prev.find((x) => x.assigneeId === assigneeId)?.assigneeName ??
-              t.assigneeName;
-            return {
-              ...t,
-              assigneeId,
-              assigneeName,
-              status: "todo" as const,
-              sortOrder: order.get(taskId) ?? t.sortOrder,
-              updatedAt: now,
-            };
-          }
-          const sortOrder = order.get(t.id);
-          return sortOrder === undefined ? t : { ...t, sortOrder, updatedAt: now };
-        }),
+      const working = source.map((t) => {
+        if (t.id === taskId) {
+          return {
+            ...t,
+            assigneeId,
+            assigneeName,
+            status: "todo" as const,
+            sortOrder: order.get(taskId) ?? t.sortOrder,
+            updatedAt: now,
+          };
+        }
+        const sortOrder = order.get(t.id);
+        return sortOrder === undefined ? t : { ...t, sortOrder, updatedAt: now };
+      });
+      setTasks(working);
+
+      const mutation = createMutation(
+        {
+          type: "move_task",
+          taskId,
+          payload: {
+            status: "todo",
+            assigneeId,
+            assigneeName,
+            orderedTodoIds,
+          },
+        },
+        original.updatedAt,
       );
 
-      const result = await placeInTodoQueueAction(
-        taskId,
-        assigneeId,
-        orderedTodoIds,
-      );
-      if (result.ok) {
-        setTasks(result.tasks);
-        return true;
-      }
-      setTasks(snapshot);
-      return false;
+      const outcome = await runMutation(mutation, working);
+      return outcome.ok;
     },
-    [],
+    [runMutation],
   );
 
   const resolveConflict = useCallback(
@@ -431,7 +481,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
         setFailureCount(0);
         await runMutation(refreshed, tasksRef.current);
       } else {
-        setTasks((prev) => mergeTaskResult(prev, conflict.serverTask));
+        setTasks((prev) => applyServerTasks(prev, [conflict.serverTask]));
         dequeue(conflict.mutation.clientMutationId);
         setConflicts([]);
         registerSyncSuccess();
@@ -455,7 +505,9 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
   useEffect(() => {
     function handleBeforeUnload(event: BeforeUnloadEvent) {
-      if (queueRef.current.length === 0) return;
+      if (queueRef.current.length === 0 && mutationInFlightRef.current === 0) {
+        return;
+      }
       event.preventDefault();
       event.returnValue = "";
     }

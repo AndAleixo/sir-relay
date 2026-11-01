@@ -1,5 +1,7 @@
 import type { PendingMutation, TaskActionResult } from "@/domain/sync";
+import { isMoveTaskPayload } from "@/domain/sync";
 import {
+  moveTaskAction,
   reassignTaskAction,
   updateTaskFieldsAction,
   updateTaskStatusAction,
@@ -17,7 +19,7 @@ export async function executePendingMutation(
     switch (mutation.type) {
       case "update_status": {
         const payload = mutation.payload;
-        if (!("status" in payload)) {
+        if (!("status" in payload) || "assigneeId" in payload) {
           return { ok: false, error: "network" };
         }
         return await updateTaskStatusAction(
@@ -28,7 +30,10 @@ export async function executePendingMutation(
       }
       case "reassign": {
         const payload = mutation.payload;
-        if (!("assigneeId" in payload)) {
+        if (!("assigneeId" in payload) || !("assigneeName" in payload)) {
+          return { ok: false, error: "network" };
+        }
+        if ("status" in payload) {
           return { ok: false, error: "network" };
         }
         return await reassignTaskAction(
@@ -50,6 +55,13 @@ export async function executePendingMutation(
           return { ok: false, error: "network" };
         }
         return await updateTaskFieldsAction(mutation.taskId, payload, options);
+      }
+      case "move_task": {
+        const payload = mutation.payload;
+        if (!isMoveTaskPayload(payload)) {
+          return { ok: false, error: "network" };
+        }
+        return await moveTaskAction(mutation.taskId, payload, options);
       }
       default:
         return { ok: false, error: "network" };

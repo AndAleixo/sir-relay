@@ -2,7 +2,11 @@ import type { Task, TaskStatus } from "@/domain/types";
 
 export type SyncState = "synced" | "syncing" | "failed" | "conflict";
 
-export type MutationType = "update_status" | "reassign" | "update_fields";
+export type MutationType =
+  | "update_status"
+  | "reassign"
+  | "update_fields"
+  | "move_task";
 
 export type MutationPayload =
   | { status: TaskStatus }
@@ -13,6 +17,13 @@ export type MutationPayload =
       description?: string;
       projectId?: string | null;
       categoryId?: string | null;
+    }
+  | {
+      status: TaskStatus;
+      assigneeId: string;
+      assigneeName: string;
+      /** Required when status is todo — full todo queue for that assignee. */
+      orderedTodoIds?: string[];
     };
 
 export interface PendingMutation {
@@ -35,9 +46,24 @@ export interface SyncConflict {
 }
 
 export type TaskActionResult =
-  | { ok: true; task: Task }
+  | { ok: true; task: Task; /** Extra rows to LWW-merge (e.g. todo reorder peers). */ affected?: Task[] }
   | { ok: false; error: "conflict"; task: Task }
   | { ok: false; error: "forbidden" | "unauthorized" | "not_found" | "network" };
+
+export function isMoveTaskPayload(
+  payload: MutationPayload,
+): payload is {
+  status: TaskStatus;
+  assigneeId: string;
+  assigneeName: string;
+  orderedTodoIds?: string[];
+} {
+  return (
+    "status" in payload &&
+    "assigneeId" in payload &&
+    "assigneeName" in payload
+  );
+}
 
 export interface SyncActionOptions {
   clientMutationId?: string;

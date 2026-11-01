@@ -556,10 +556,10 @@ Both roles. Requires Phase 1 API + DB. PWA install → P3-14. Out of scope here:
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P3-OFF-01 | Session task state | Web edits update UI immediately in memory; full page load fetches server; unsent changes lost on refresh |
-| P3-OFF-02 | Mutation queue | In-memory pending writes `{ clientMutationId, type, taskId, payload, baseUpdatedAt }`; MVP types: `update_status`, `reassign` (Operator); permissions per §8 |
+| P3-OFF-01 | Session task state | Web edits update UI immediately in memory; RSC `syncFromServer` applies only when mutation queue **and** in-flight count are empty; full page load fetches server; unsent changes lost on refresh |
+| P3-OFF-02 | Mutation queue | In-memory pending writes `{ clientMutationId, type, taskId, payload, baseUpdatedAt }`; types: `update_status`, `reassign`, `update_fields`, `move_task` (atomic status+assignee / todo place); success merges via LWW `updatedAt` (`applyServerTasks`); permissions per §8 |
 | P3-OFF-03 | Sync attempt | On each mutation, call API first; enqueue only on failure (network, timeout, 5xx) |
-| P3-OFF-04 | No revert on failure | Failed sync keeps session UI + queue until success or conflict resolution; refresh loads server |
+| P3-OFF-04 | No revert on failure | Failed **queued** sync (status / reassign / fields / move) keeps session UI + queue until success or conflict resolution; refresh loads server. Carve-out: inline **delete** may restore the pre-delete list on hard failure |
 | P3-OFF-05 | Sync bar | Top bar when queue non-empty after retry threshold; `en` / `es` / `pt`; states: syncing, failed, conflict; hidden when synced |
 | P3-OFF-06 | Sync now | Replays queue against §9 routes; partial failure lists failed items; full success clears banner |
 | P3-OFF-07 | Auto-retry | Optional: retry queue on browser `online` event |
@@ -721,7 +721,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | `app/actions/*` (mode-agnostic) | Done |
 | `services/mock/*` | Done |
 | Prisma + `services/api/*` + `/api/v1/health` | Done |
-| Task queue (`sort_order`) + To do DnD + status drops | Done — P1-TASK-11 · `check:queue` |
+| Task queue (`sort_order`) + To do DnD + status drops | Done — P1-TASK-11 · `check:queue` · board sync LWW · `check:sync-merge` |
 | Group invitations (consent for active emails) | Done — P1-GRP-08/13/14 |
 | Sign-up merge (`invited` email) | Done — P1-AUTH-13/14 · `check:signup-merge` |
 | Delete account (`/profile/delete`) | Done — P1-AUTH-15 · `check:delete-account` |

@@ -24,6 +24,7 @@ src/
 │   ├── authz.ts          # P2-SEC-01 — requireOperator / requireSelfUserId
 │   ├── security-headers.ts # P2-SEC-05 — HSTS / CSP / frame deny / …
 │   ├── client-board.ts   # Client board payload + create input
+│   ├── sync/             # execute-mutation · merge-tasks (LWW + server-snapshot gate)
 │   ├── link-token.ts     # ClientApiKey issue/resolve + bearer session
 │   ├── connect-next.ts   # Safe return path for /connect
 │   └── mail/             # P3-17 — sendMail · tokens · templates
@@ -33,7 +34,7 @@ src/
 │   ├── groups.ts         # Group panel
 │   ├── invitations.ts    # Accept / decline pending group invites
 │   ├── teammates.ts      # Teammate CRUD + promote
-│   ├── tasks.ts          # Tasks + alert prefs + placeInTodoQueue
+│   ├── tasks.ts          # Tasks + alert prefs + moveTaskAction (atomic board move)
 │   ├── export.ts         # CSV export (server action)
 │   ├── settings.ts       # Locale + group rename
 │   ├── projects.ts       # Group projects + categories
@@ -121,7 +122,7 @@ Demo seed (**local only** — never on public VPS): `src/services/mock/data.ts` 
 ## Task queue & boards
 
 - Order helpers: `src/lib/task-queue.ts` · check: `npm run check:queue`
-- Persist queue: `placeInTodoQueue` (server action / sync layer)
+- Persist queue / board move: sync `move_task` → `moveTaskAction` (calls service `placeInTodoQueue` or reassign+status)
 - UI: `TodoReorderList` + `resolveTodoDropIndex` — drop inside `[data-todo-scroll]` = insert by Y; outside = append
 - Team board column order: self first, then others by To do count when Tasks opens; order held in client state; quick-add skips `/tasks` revalidate
 
@@ -158,11 +159,11 @@ Demo seed (**local only** — never on public VPS): `src/services/mock/data.ts` 
 | Audit store | `lib/audit.ts` · `audit_logs` | Append-only write + `queryAuditLogs` (cross-group for platform admin). Incl. login |
 | Group activity | `domain/activity.ts` · `lib/activity.ts` · `/events/activity` | Filtered human-language history for operators (no login) |
 | Platform admin | `/platform/login` · env `PLATFORM_ADMIN_*` · cookie `sirrelay_platform_session` | Separate from product login; Overview · Audit · Users · Groups · Health |
-| Checks | `check:sec` · `check:csrf` · `check:rate` · `check:email-tokens` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `check:platform-session` · `audit:prod` | |
+| Checks | `check:sec` · `check:csrf` · `check:rate` · `check:email-tokens` · `check:telegram-sanitize` · `check:safe-log` · `check:authz` · `check:audit` · `check:platform-session` · `check:sync-merge` · `audit:prod` |
 
 ## Session sync
 
-`SyncProvider` wraps the signed-in app (mock and API). Optimistic UI + mutation queue; sync bar on failure. Full offline conflict UX remains Phase 3 (P3-07). Refresh discards unsent changes.
+`SyncProvider` wraps the signed-in app (mock and API). Optimistic UI + mutation queue (`update_status` · `reassign` · `update_fields` · `move_task`); board drops use one atomic `move_task` (no intermediate wipe). In-flight / queued writes block blind `syncFromServer` replace. Temporary failure keeps local UI (P3-OFF-04). Full offline local-DB remains Phase 3 (P3-07). Refresh discards unsent changes.
 
 ## Run
 

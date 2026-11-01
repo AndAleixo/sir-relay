@@ -34,7 +34,6 @@ interface TasksPageClientProps {
     name: string;
     email?: string;
     displayName?: string | null;
-    telegramStatus?: "linked" | "pending";
   };
   tasks: Task[];
   /** Other members ordered at Tasks open (Team board; keep via useState). */
@@ -51,8 +50,6 @@ interface TasksPageClientProps {
     updated: string;
     emptyBoard: string;
     emptyMyWork: string;
-    linked: string;
-    pending: string;
     invited: string;
     inactive: string;
     showMore: string;
@@ -198,8 +195,6 @@ export function TasksPageClient({
     todo: labels.status.todo,
     doing: labels.status.doing,
     done: labels.status.done,
-    linked: labels.linked,
-    pending: labels.pending,
     invited: labels.invited,
     inactive: labels.inactive,
     showMore: labels.showMore,

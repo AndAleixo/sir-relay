@@ -36,28 +36,20 @@ export function MemberStatusIcons({
   );
 }
 
-/** Name left · status icons right. */
+/** Name left · inactive mark right. Telegram link status stays on Teammates. */
 export function MemberNameRow({
   nameNode,
-  telegramStatus,
   inactiveLabel,
-  labels,
   className,
 }: {
   nameNode: ReactNode;
-  telegramStatus?: TelegramLinkStatus | null;
   inactiveLabel?: string | null;
-  labels: MemberStatusIconsProps["labels"];
   className?: string;
 }) {
   return (
     <div className={cn("flex min-w-0 items-center justify-between gap-2", className)}>
       <div className="min-w-0 flex-1 truncate">{nameNode}</div>
-      <MemberStatusIcons
-        telegramStatus={telegramStatus}
-        inactiveLabel={inactiveLabel}
-        labels={labels}
-      />
+      {inactiveLabel ? <AccountInactiveIcon label={inactiveLabel} /> : null}
     </div>
   );
 }

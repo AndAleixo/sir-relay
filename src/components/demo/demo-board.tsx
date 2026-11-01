@@ -47,7 +47,6 @@ export function DemoBoard() {
       ...demoMemberAsUser(member, workspace.selfId, locale),
       role: "teammate" as const,
       accountStatus: "active" as const,
-      telegramStatus: "pending" as const,
     }));
 
   const openProjects = workspace.projects.filter(
@@ -66,8 +65,6 @@ export function DemoBoard() {
     addTask: t("tasks.addTask"),
     titlePlaceholder: t("tasks.titlePlaceholder"),
     showMore: t("common.showMore"),
-    linked: t("teammate.linked"),
-    pending: t("teammate.pending"),
     invited: t("teammate.invited"),
     inactive: t("teammate.inactive"),
     emptyBoard: t("tasks.emptyBoard"),

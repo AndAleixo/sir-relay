@@ -240,7 +240,7 @@ First column: **signed-in member**. Others by **To do count** when Tasks opens (
 
 ```
 ┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
-│  Sam  ● linked  │  Ana  ● linked  │ Bruno ○ pending │  Carla ● linked │
+│  Sam            │  Ana            │ Bruno           │  Carla          │
 ├─────────────────┼─────────────────┼─────────────────┼─────────────────┤
 │ TO DO …         │ TO DO …         │ TO DO …         │ TO DO …         │
 │ IN PROGRESS …   │ IN PROGRESS …   │ IN PROGRESS …   │ IN PROGRESS …   │
@@ -252,7 +252,7 @@ First column: **signed-in member**. Others by **To do count** when Tasks opens (
 
 #### Column header
 
-Member label left · inactive + Telegram icons right. No role chip; no active-task count.
+Member label left · inactive icon right. Telegram link status is on Teammates only. No role chip; no active-task count.
 
 #### Sections (top → bottom)
 

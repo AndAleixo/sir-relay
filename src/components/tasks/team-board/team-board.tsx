@@ -50,7 +50,6 @@ interface BoardSelfMember {
   name: string;
   email?: string;
   displayName?: string | null;
-  telegramStatus?: "linked" | "pending";
 }
 
 interface TeamBoardProps {
@@ -74,8 +73,6 @@ interface TeamBoardProps {
     todo: string;
     doing: string;
     done: string;
-    linked: string;
-    pending: string;
     invited: string;
     inactive: string;
     showMore: string;
@@ -527,7 +524,6 @@ function MemberColumnHeader({
     email: string;
     displayName?: string | null;
     active?: boolean;
-    telegramStatus?: "linked" | "pending";
     accountStatus?: "active" | "invited" | null;
   };
   locale: string;
@@ -554,9 +550,7 @@ function MemberColumnHeader({
           <span className={teamBoardStyles.memberName}>{name}</span>
         )
       }
-      telegramStatus={member.telegramStatus}
       inactiveLabel={inactiveLabel}
-      labels={{ linked: labels.linked, pending: labels.pending }}
     />
   );
 }
@@ -751,7 +745,6 @@ export function TeamBoard({
                 name: self.name,
                 email: self.email ?? "",
                 displayName: self.displayName,
-                telegramStatus: self.telegramStatus,
               }}
               locale={locale}
               labels={labels}

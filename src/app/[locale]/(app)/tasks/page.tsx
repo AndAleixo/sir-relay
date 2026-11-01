@@ -73,8 +73,6 @@ export default async function TasksPage({
           name: session.user.name,
           email: session.user.email,
           displayName: selfMember?.displayName ?? null,
-          telegramStatus:
-            selfMember?.telegramStatus ?? session.user.telegramStatus,
         }}
         tasks={taskList}
         members={boardMembers}
@@ -95,8 +93,6 @@ export default async function TasksPage({
           startDoing: t("tasks.startDoing"),
           markDone: t("tasks.markDone"),
           completedMark: t("tasks.completedMark"),
-          linked: t("teammate.linked"),
-          pending: t("teammate.pending"),
           invited: t("teammate.invited"),
           inactive: t("teammate.inactive"),
           showMore: t("common.showMore"),

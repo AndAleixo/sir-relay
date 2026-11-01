@@ -35,3 +35,17 @@
     animation: none;
   }
 }
+
+/* A text selection on iOS steals the scroll gesture. Fields stay selectable. */
+.tasks-no-select,
+.tasks-no-select * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.tasks-no-select :is(input, textarea, [contenteditable="true"]) {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}

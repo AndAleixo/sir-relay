@@ -165,7 +165,7 @@ export default async function TaskDetailPage({
         </Banner>
       ) : null}
 
-      <Card className="max-w-xl">
+      <Card className="tasks-no-select max-w-xl">
         <CardBody className="space-y-4">
           {canEdit ? (
             <>

@@ -11,7 +11,7 @@ export const taskCardStyles = {
   // min-w-0: long description/title must not widen the column (esp. mobile stack).
   root: "relative block min-w-0 max-w-full overflow-visible rounded-card border border-[var(--border)] bg-surface-card shadow-sm transition-colors",
   /** Row layout: default cursor + no text select; move via dragHandle; board pan outside cards. */
-  layout: "flex cursor-default gap-1 p-1 select-none",
+  layout: "tasks-no-select flex cursor-default gap-1 p-1 select-none",
   dragging: "opacity-40 ring-2 ring-brand-accent/40",
   dragHandle:
     "shrink-0 cursor-grab touch-none rounded px-0.5 text-[10px] leading-none text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] active:cursor-grabbing",

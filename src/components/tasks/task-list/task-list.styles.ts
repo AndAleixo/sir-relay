@@ -1,5 +1,5 @@
 export const taskListStyles = {
-  wrapper: "rounded-card border border-[var(--border)] bg-surface-card",
+  wrapper: "tasks-no-select rounded-card border border-[var(--border)] bg-surface-card",
   cols: "md:grid md:grid-cols-[minmax(8rem,2fr)_repeat(4,minmax(4.5rem,1fr))_minmax(9rem,10.5rem)] md:items-start md:gap-3",
   headRow:
     "hidden border-b border-[var(--border)] bg-[var(--surface-bg)] px-3 py-2 text-xs font-medium text-[var(--text-muted)] md:grid",

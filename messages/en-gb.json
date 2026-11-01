@@ -563,11 +563,11 @@
     }
   },
   "sync": {
-    "pending": "Not synced with server — {count, plural, one {# change waiting} other {# changes waiting}}.",
+    "pending": "Not synced with server — {count, plural, one {# change waiting} other {# changes waiting}}. Retrying automatically.",
     "syncing": "Sending changes…",
-    "failed": "Sync failed — {count, plural, one {# change} other {# changes}} not saved to the server.",
+    "failed": "Still not saved — {count, plural, one {# change} other {# changes}}. Retrying automatically.",
     "conflict": "A change conflicts with the server version.",
-    "syncNow": "Sync now",
+    "syncNow": "Try now",
     "keepLocal": "Keep my version",
     "useServer": "Use server version"
   },

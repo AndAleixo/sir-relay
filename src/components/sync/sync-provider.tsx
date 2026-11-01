@@ -491,16 +491,29 @@ export function SyncProvider({ children }: SyncProviderProps) {
   );
 
   useEffect(() => {
+    function flushQueueIfNeeded() {
+      if (queueRef.current.length === 0) return;
+      failureCountRef.current = 0;
+      setFailureCount(0);
+      syncNowRef.current();
+    }
+
     function handleOnline() {
-      if (queueRef.current.length > 0) {
-        failureCountRef.current = 0;
-        setFailureCount(0);
-        syncNowRef.current();
+      flushQueueIfNeeded();
+    }
+
+    function handleVisibility() {
+      if (document.visibilityState === "visible") {
+        flushQueueIfNeeded();
       }
     }
 
     window.addEventListener("online", handleOnline);
-    return () => window.removeEventListener("online", handleOnline);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   useEffect(() => {

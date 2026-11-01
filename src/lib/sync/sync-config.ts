@@ -1,4 +1,5 @@
-const FAILURES_BEFORE_BAR = 2;
+/** Show the sync bar after this many consecutive failures (1 = first fail). */
+const FAILURES_BEFORE_BAR = 1;
 
 function parseMs(value: string | undefined, fallback: number): number {
   const parsed = Number(value);

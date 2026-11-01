@@ -563,11 +563,11 @@
     }
   },
   "sync": {
-    "pending": "Não sincronizado com o servidor — {count, plural, one {# alteração pendente} other {# alterações pendentes}}.",
+    "pending": "Não sincronizado com o servidor — {count, plural, one {# alteração pendente} other {# alterações pendentes}}. A tentar de novo automaticamente.",
     "syncing": "Enviando alterações…",
-    "failed": "Falha na sincronização — {count, plural, one {# alteração} other {# alterações}} não salva(s) no servidor.",
+    "failed": "Ainda não gravado — {count, plural, one {# alteração} other {# alterações}}. A tentar de novo automaticamente.",
     "conflict": "Uma alteração conflita com a versão do servidor.",
-    "syncNow": "Sincronizar agora",
+    "syncNow": "Tentar agora",
     "keepLocal": "Manter minha versão",
     "useServer": "Usar versão do servidor"
   },

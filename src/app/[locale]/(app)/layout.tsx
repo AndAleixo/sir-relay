@@ -1,7 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AppLayoutClient } from "@/components/layout/app-layout-client";
+import { noIndexMetadata } from "@/lib/seo";
 import { requireSession } from "@/lib/require-session";
 import { getServices } from "@/services";
+
+export const metadata: Metadata = noIndexMetadata;
 
 export default async function AppLayout({
   children,

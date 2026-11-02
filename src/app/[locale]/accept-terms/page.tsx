@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { acceptLegalForm } from "@/app/actions/auth";
@@ -8,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { resolveEntryPath } from "@/lib/entry-route";
 import { LEGAL_DOCUMENT } from "@/lib/legal";
+import { noIndexMetadata } from "@/lib/seo";
 import { getServices } from "@/services";
+
+export const metadata: Metadata = noIndexMetadata;
 
 export default async function AcceptTermsPage({
   params,

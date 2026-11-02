@@ -1,6 +1,6 @@
-# SirRelay — Requirements
+# SRelay — Requirements
 
-**Product:** SirRelay · **Brand:** Sir  
+**Product:** SRelay · **Brand:** Sir  
 **Audience:** Developer / AI implementer — 3 phases, implement one at a time
 
 **Doc contract:** Source of truth for **what must work** — product rules, acceptance IDs, permissions, schema, API. **Layout / interaction / screen chrome** → [UIUX.md](./UIUX.md). **Visual tokens** → [BRAND.md](./BRAND.md). Do not restate wireframes or component inventories here.
@@ -11,7 +11,7 @@ Related: [ARCHITECTURE.md](./ARCHITECTURE.md) · [UIUX.md](./UIUX.md) · [BRAND.
 
 ## 1. Product summary
 
-**SirRelay** is a **hosted web task relay** for small teams (typically **2–5 people per group**), built by **Sir**. Public domain (DigitalOcean + HTTPS); data in **PostgreSQL**.
+**SRelay** is a **hosted web task tool** for organizing work alone, in a group, or with any size team — built by **Sir**. Public domain (DigitalOcean + HTTPS); data in **PostgreSQL**.
 
 | Piece | Description |
 |-------|-------------|
@@ -37,7 +37,7 @@ Related: [ARCHITECTURE.md](./ARCHITECTURE.md) · [UIUX.md](./UIUX.md) · [BRAND.
 ```mermaid
 sequenceDiagram
   participant OP as Operator
-  participant APP as SirRelay
+  participant APP as SRelay
   participant TG as Telegram
   participant TM as Teammate
 
@@ -87,7 +87,7 @@ Implement **one phase at a time**. Do not skip ahead unless explicitly requested
 
 | Topic | Decision |
 |-------|----------|
-| Brand / app / repo | **Sir** · **SirRelay** · wordmark **SRelay** / mark **SR** · `sir-relay` |
+| Brand / app / repo | **Sir** (company) · **SRelay** (product) · mark **SR** · repo `sir-relay` · domain `sirrelay.com` |
 | Telegram bot name | Display **SRelay** · `@SirRelayBot` |
 | Web app | Single Next.js app; permissions scoped by **active group** + **membership role** |
 | Roles | **Operator** — full edit in that group · **Teammate** — edit own tasks; may **view** all group tasks (Team scope) |

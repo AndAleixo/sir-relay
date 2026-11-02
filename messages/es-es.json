@@ -482,7 +482,7 @@
     "photoTooLarge": "No se pudo comprimir esta imagen por debajo de 1 MB. Prueba con una foto más pequeña.",
     "accountInfo": "Cuenta",
     "accountName": "Nombre de la cuenta",
-    "accountNameHint": "Tu nombre en SirRelay. Solo tú puedes cambiarlo.",
+    "accountNameHint": "Tu nombre en SRelay. Solo tú puedes cambiarlo.",
     "nameSaved": "Nombre actualizado.",
     "nameTooShort": "El nombre debe tener al menos 2 caracteres.",
     "languageHint": "Se aplica en todos tus grupos.",
@@ -572,11 +572,11 @@
   "landing": {
     "headerNav": "Navegación del sitio",
     "footerNav": "Enlaces del pie",
-    "eyebrow": "Tu trabajo, o un grupo",
+    "eyebrow": "Solo, en grupo o en equipo",
     "heroTitle": "Organiza tu trabajo. Mira lo que falta.",
-    "heroSubtitle": "Asigna tareas y sigue el progreso — solo, o con gente que invites.",
+    "heroSubtitle": "Asigna tareas y sigue el progreso — solo, en un grupo o con un equipo de cualquier tamaño.",
     "contactLead": "¿Dudas, ideas de implementación o más información? Usa",
-    "demoAria": "Vista previa del tablero SirRelay",
+    "demoAria": "Vista previa del tablero SRelay",
     "demoUrl": "app.sirrelay.com/{locale}/tasks",
     "demoTaskA": "Reponer escaparate",
     "demoTaskB": "Confirmar inventario",
@@ -600,11 +600,11 @@
         "body": "No rankeamos personas ni medimos velocidad. Tareas y fechas bastan."
       }
     },
-    "footerCopy": "© {year} Sir · SirRelay",
+    "footerCopy": "© {year} Sir · SRelay",
     "faqTitle": "Preguntas frecuentes",
     "faq": {
       "what": {
-        "q": "¿Qué es SirRelay?",
+        "q": "¿Qué es SRelay?",
         "a": "Un tablero de tareas simple — asigna trabajo, sigue el progreso, lejos de métricas de productividad."
       },
       "groups": {
@@ -617,19 +617,19 @@
       },
       "data": {
         "q": "¿Dónde se guardan mis datos?",
-        "a": "En servidores SirRelay (PostgreSQL). Las páginas autenticadas no se cachean; la sesión usa una cookie esencial."
+        "a": "En servidores SRelay (PostgreSQL). Las páginas autenticadas no se cachean; la sesión usa una cookie esencial."
       }
     },
     "editor": {
       "title": "Tu columna, en el editor.",
-      "subtitle": "Las mismas tareas en VS Code, Cursor o Antigravity — y la misma API key para el MCP de SirRelay. La barra lateral muestra solo el trabajo asignado a ti.",
+      "subtitle": "Las mismas tareas en VS Code, Cursor o Antigravity — y la misma API key para el MCP de SRelay. La barra lateral muestra solo el trabajo asignado a ti.",
       "pointYours": "Las tareas de los demás se quedan en la web.",
       "column": "Mi trabajo",
       "previewLabel": "SRelay en el editor"
     }
   },
   "platform": {
-    "brand": "SirRelay Admin",
+    "brand": "SRelay Admin",
     "backToApp": "Volver a la app",
     "logout": "Cerrar sesión",
     "navOverview": "Resumen",
@@ -674,7 +674,7 @@
     },
     "users": {
       "title": "Usuarios",
-      "subtitle": "Cuentas en este despliegue de SirRelay.",
+      "subtitle": "Cuentas en este despliegue de SRelay.",
       "email": "Email",
       "name": "Nombre",
       "status": "Estado",

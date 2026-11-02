@@ -1,4 +1,4 @@
-# SirRelay — UI/UX
+# SRelay — UI/UX
 
 **Purpose:** Layout, interaction, and visual behavior for the public landing (including the editor section), signed-in web app, `/connect` (API keys + IDE deep-link), Profile teaser to connect, and Telegram copy.  
 
@@ -28,7 +28,7 @@ Never use `in_progress` in code. UI copy never says “Doing” — always **In 
 | **To do + In progress first** | Active work is always visible; Done is secondary on the Team board |
 | **Calm UI** | Gray/white surfaces; yellow accent for CTAs and In progress column |
 | **No metric pressure** | Tasks and due dates only — no velocity / leaderboards |
-| **Small team scale** | 2–5 people; readable cards, generous spacing |
+| **Readable at any group size** | Clear cards and spacing; group size is not a product limit |
 | **Account vs app config** | **Profile** = personal account · **Settings** = active group |
 | **Web first** | Responsive web primary; landing and app share brand tokens |
 
@@ -72,7 +72,7 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 ├──────────────────────────────────────────────────────────────┤
 │  3 feature cards — board or list · invite · no measuring people │
 ├──────────────────────────────────────────────────────────────┤
-│  © Sir · SirRelay    FAQ · Privacy · Terms · Log in · Sign up │  ← footer
+│  © Sir · SRelay      FAQ · Privacy · Terms · Log in · Sign up │  ← footer
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -385,7 +385,7 @@ Primary nav tab (between Teammates and Events). Toolbar: hint + create/request (
 
 ## 8. Profile & Settings
 
-**Profile** = account across SirRelay. **Settings** = **active group**. Telegram link on Profile only (relay for assignees; operators also get alerts).
+**Profile** = account across SRelay. **Settings** = **active group**. Telegram link on Profile only (relay for assignees; operators also get alerts).
 
 **Help copy:** title or label → muted `text-xs` hint → control. Do not place field hints below the control (same pattern as CardHeader section hints).
 
@@ -456,7 +456,7 @@ Wrong-thread reply → short hint to use Reply on the task notification.
 ### Welcome (`/start` linked)
 
 ```
-Welcome to SirRelay, {name}!
+Welcome to SRelay, {name}!
 You'll receive tasks here one at a time.
 Reply to each message to update your progress.
 ```

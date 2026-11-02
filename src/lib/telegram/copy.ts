@@ -16,47 +16,47 @@ function truncateDescription(description: string): string {
 export function welcomeLinked(name: string, locale: DbLocale, operator: boolean): string {
   if (operator) {
     return pick(locale, {
-      en: `Welcome to SirRelay, ${name}!\nYour Telegram is linked — you'll receive assigned tasks here one at a time, plus operator alerts.\nWhen a task arrives, reply to THAT message (not a new chat line) with done or in progress.`,
-      es: `Bienvenido a SirRelay, ${name}.\nTelegram vinculado — recibirás tareas asignadas de una en una, más alertas de operador.\nCuando llegue una tarea, responde a ESE mensaje (no una línea nueva) con listo o en progreso.`,
-      pt: `Bem-vindo ao SirRelay, ${name}!\nTelegram vinculado — você receberá tarefas atribuídas uma de cada vez, e também alertas de operador.\nQuando chegar uma tarefa, responda a ESSA mensagem (não uma linha nova) com feito ou em progresso.`,
+      en: `Welcome to SRelay, ${name}!\nYour Telegram is linked — you'll receive assigned tasks here one at a time, plus operator alerts.\nWhen a task arrives, reply to THAT message (not a new chat line) with done or in progress.`,
+      es: `Bienvenido a SRelay, ${name}.\nTelegram vinculado — recibirás tareas asignadas de una en una, más alertas de operador.\nCuando llegue una tarea, responde a ESE mensaje (no una línea nueva) con listo o en progreso.`,
+      pt: `Bem-vindo ao SRelay, ${name}!\nTelegram vinculado — você receberá tarefas atribuídas uma de cada vez, e também alertas de operador.\nQuando chegar uma tarefa, responda a ESSA mensagem (não uma linha nova) com feito ou em progresso.`,
     });
   }
   return pick(locale, {
-    en: `Welcome to SirRelay, ${name}!\nYou'll receive tasks here one at a time.\nWhen a task arrives, reply to THAT message (not a new chat line) with done or in progress.`,
-    es: `Bienvenido a SirRelay, ${name}.\nRecibirás tareas aquí de una en una.\nCuando llegue una tarea, responde a ESE mensaje (no una línea nueva) con listo o en progreso.`,
-    pt: `Bem-vindo ao SirRelay, ${name}!\nVocê receberá tarefas aqui uma de cada vez.\nQuando chegar uma tarefa, responda a ESSA mensagem (não uma linha nova) com feito ou em progresso.`,
+    en: `Welcome to SRelay, ${name}!\nYou'll receive tasks here one at a time.\nWhen a task arrives, reply to THAT message (not a new chat line) with done or in progress.`,
+    es: `Bienvenido a SRelay, ${name}.\nRecibirás tareas aquí de una en una.\nCuando llegue una tarea, responde a ESE mensaje (no una línea nueva) con listo o en progreso.`,
+    pt: `Bem-vindo ao SRelay, ${name}!\nVocê receberá tarefas aqui uma de cada vez.\nQuando chegar uma tarefa, responda a ESSA mensagem (não uma linha nova) com feito ou em progresso.`,
   });
 }
 
 export function alreadyLinked(name: string, locale: DbLocale): string {
   return pick(locale, {
-    en: `Hi ${name} — this SirRelay account is already linked to Telegram.`,
-    es: `Hola ${name}: esta cuenta SirRelay ya está vinculada a Telegram.`,
-    pt: `Olá ${name} — esta conta SirRelay já está vinculada ao Telegram.`,
+    en: `Hi ${name} — this SRelay account is already linked to Telegram.`,
+    es: `Hola ${name}: esta cuenta SRelay ya está vinculada a Telegram.`,
+    pt: `Olá ${name} — esta conta SRelay já está vinculada ao Telegram.`,
   });
 }
 
 export function linkInvalid(locale: DbLocale): string {
   return pick(locale, {
-    en: "This link code is invalid, expired, or already used. Open Profile in SirRelay and tap New link code.",
-    es: "Este código no es válido, expiró o ya se usó. Abre Cuenta en SirRelay y pulsa Nuevo código.",
-    pt: "Este código é inválido, expirou ou já foi usado. Abra Conta no SirRelay e toque Novo código.",
+    en: "This link code is invalid, expired, or already used. Open Profile in SRelay and tap New link code.",
+    es: "Este código no es válido, expiró o ya se usó. Abre Cuenta en SRelay y pulsa Nuevo código.",
+    pt: "Este código é inválido, expirou ou já foi usado. Abra Conta no SRelay e toque Novo código.",
   });
 }
 
 export function chatTaken(locale: DbLocale): string {
   return pick(locale, {
-    en: "This Telegram chat is already linked to another SirRelay account.",
-    es: "Este chat de Telegram ya está vinculado a otra cuenta SirRelay.",
-    pt: "Este chat Telegram já está vinculado a outra conta SirRelay.",
+    en: "This Telegram chat is already linked to another SRelay account.",
+    es: "Este chat de Telegram ya está vinculado a otra cuenta SRelay.",
+    pt: "Este chat Telegram já está vinculado a outra conta SRelay.",
   });
 }
 
 export function startWithoutCode(locale: DbLocale): string {
   return pick(locale, {
-    en: "Open the Telegram link from your SirRelay Profile to connect this chat.",
-    es: "Abre el enlace de Telegram desde tu Cuenta en SirRelay para conectar este chat.",
-    pt: "Abra o link do Telegram pela sua Conta no SirRelay para vincular este chat.",
+    en: "Open the Telegram link from your SRelay Profile to connect this chat.",
+    es: "Abre el enlace de Telegram desde tu Cuenta en SRelay para conectar este chat.",
+    pt: "Abra o link do Telegram pela sua Conta no SRelay para vincular este chat.",
   });
 }
 

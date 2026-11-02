@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
 import { resolveEntryPath } from "@/lib/entry-route";
 import { LandingEditor } from "@/components/landing/landing-editor";
@@ -10,6 +12,22 @@ import { LandingHeader } from "@/components/landing/landing-header";
 import { LandingHero } from "@/components/landing/landing-hero";
 import { landingStyles } from "@/components/landing/landing.styles";
 import { safeConnectNext } from "@/lib/connect-next";
+import { publicPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "landing" });
+  return publicPageMetadata({
+    locale,
+    title: `SRelay — ${t("heroTitle")}`,
+    description: t("heroSubtitle"),
+    absoluteTitle: true,
+  });
+}
 
 export default async function LocaleHomePage({
   params,

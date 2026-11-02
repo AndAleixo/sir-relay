@@ -1,12 +1,12 @@
-# SirRelay
+# SRelay
 
-Hosted **web** task tool for small groups (by **Sir**), with optional **Telegram** relay, an IDE extension (VS Code, Cursor, Antigravity), and **MCP** (`@sirrelay/mcp`). One active Telegram task per assignee; reply `done` → next in queue. No KPI dashboards.
+Hosted **web** task tool by **Sir** — organize work alone, in a group, or with any size team. Optional **Telegram** relay, IDE extension (VS Code, Cursor, Antigravity), and **MCP** (`@sirrelay/mcp`). One active Telegram task per assignee; reply `done` → next in queue. No KPI dashboards.
 
 Editor / MCP: **`/connect`** manages named API keys (optional group scope); Profile links there.
 
 | | |
 |---|---|
-| Brand / app / repo | **Sir** · **SirRelay** · wordmark **SRelay** / mark **SR** · `sir-relay` |
+| Brand / app / repo | **Sir** · **SRelay** · mark **SR** · `sir-relay` · `sirrelay.com` |
 | Locales | `en-gb` · `es-es` · `pt-br` |
 | Visual identity | [docs/BRAND.md](./docs/BRAND.md) |
 | Telegram bot | SRelay (e.g. `@SirRelayBot`) |
@@ -54,9 +54,9 @@ npm run audit:prod   # npm audit --omit=dev (P2-SEC-10)
 
 ## License
 
-SirRelay is [FSL-1.1-MIT](./LICENSE). Copyright 2026 Andre Aleixo.
+SRelay is [FSL-1.1-MIT](./LICENSE). Copyright 2026 Andre Aleixo.
 
-You may use, modify, and share it for any purpose except a Competing Use: offering SirRelay, or something with the same function, as a commercial product or service to others. Internal use is allowed. Two years after a version is published, that version is available under the MIT license. See [NOTICE](./NOTICE) for third-party material.
+You may use, modify, and share it for any purpose except a Competing Use: offering SRelay, or something with the same function, as a commercial product or service to others. Internal use is allowed. Two years after a version is published, that version is available under the MIT license. See [NOTICE](./NOTICE) for third-party material.
 
 Contributions are accepted under the same terms.
 

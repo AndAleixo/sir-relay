@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { DemoGateForm } from "@/components/demo/demo-gate-form";
@@ -6,6 +7,22 @@ import { AuthPageHeader } from "@/components/auth/auth-page-header";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Card, CardBody } from "@/components/ui/card";
+import { publicPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  return publicPageMetadata({
+    locale,
+    pathAfterLocale: "/demo",
+    title: t("demo.gateTitle"),
+    description: t("demo.gateSubtitle"),
+  });
+}
 
 export default async function DemoGatePage({
   params,

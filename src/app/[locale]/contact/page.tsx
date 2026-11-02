@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { contactForm } from "@/app/actions/contact";
@@ -7,6 +8,22 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label, Textarea } from "@/components/ui/input";
+import { publicPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  return publicPageMetadata({
+    locale,
+    pathAfterLocale: "/contact",
+    title: t("contact.title"),
+    description: t("contact.subtitle"),
+  });
+}
 
 export default async function ContactPage({
   params,

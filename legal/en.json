@@ -1,18 +1,18 @@
 {
-  "version": "2026-10-23",
+  "version": "2026-11-02",
   "termsTitle": "Terms of Service",
   "privacyTitle": "Privacy Policy",
-  "updated": "Last updated: 23 October 2026",
-  "termsIntro": "These Terms govern access to and use of SirRelay, a hosted task coordination service (web application and optional integrations or clients). By creating an account or using the service, you agree to these Terms.",
-  "privacyIntro": "This Privacy Policy explains how SirRelay collects and uses personal data when you use the hosted service, including optional integrations and clients you connect while signed in.",
+  "updated": "Last updated: 2 November 2026",
+  "termsIntro": "These Terms govern access to and use of SRelay, a hosted task coordination service (web application and optional integrations or clients). By creating an account or using the service, you agree to these Terms.",
+  "privacyIntro": "This Privacy Policy explains how SRelay collects and uses personal data when you use the hosted service, including optional integrations and clients you connect while signed in.",
   "terms": [
     {
       "title": "1. Acceptance",
-      "body": "If you do not agree to these Terms, do not use SirRelay. If you use the service on behalf of an organisation, you confirm that you have authority to bind that organisation."
+      "body": "If you do not agree to these Terms, do not use SRelay. If you use the service on behalf of an organisation, you confirm that you have authority to bind that organisation."
     },
     {
       "title": "2. The service",
-      "body": "SirRelay helps people and groups coordinate tasks through a web application and optional add-ons (for example messaging delivery or editor or AI clients). How you authenticate those add-ons may include secrets or credentials you create while signed in. Features and available integrations may change as the product evolves. SirRelay is not a general messaging platform, CRM, or guaranteed enterprise SLA."
+      "body": "SRelay helps people and groups coordinate tasks through a web application and optional add-ons (for example messaging delivery or editor or AI clients). How you authenticate those add-ons may include secrets or credentials you create while signed in. Features and available integrations may change as the product evolves. SRelay is not a general messaging platform, CRM, or guaranteed enterprise SLA."
     },
     {
       "title": "3. Accounts",
@@ -32,7 +32,7 @@
     },
     {
       "title": "7. Liability",
-      "body": "SirRelay is provided “as is” and “as available”. To the fullest extent permitted by law, we disclaim warranties and are not liable for indirect or consequential damages arising from use of the service. Nothing limits liability that cannot be limited under applicable law."
+      "body": "SRelay is provided “as is” and “as available”. To the fullest extent permitted by law, we disclaim warranties and are not liable for indirect or consequential damages arising from use of the service. Nothing limits liability that cannot be limited under applicable law."
     },
     {
       "title": "8. Termination",
@@ -46,7 +46,7 @@
   "privacy": [
     {
       "title": "1. Who is responsible",
-      "body": "SirRelay is operated as a hosted service. The operator of your deployment is the controller of personal data processed for that instance."
+      "body": "SRelay is operated as a hosted service. The operator of your deployment is the controller of personal data processed for that instance."
     },
     {
       "title": "2. Data we collect",

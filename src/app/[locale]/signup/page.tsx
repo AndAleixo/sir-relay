@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -11,7 +12,23 @@ import { Card, CardBody } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { resolveEntryPath } from "@/lib/entry-route";
 import { safeConnectNext, withConnectNext } from "@/lib/connect-next";
+import { publicPageMetadata } from "@/lib/seo";
 import { getServices } from "@/services";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  return publicPageMetadata({
+    locale,
+    pathAfterLocale: "/signup",
+    title: t("auth.signupTitle"),
+    description: t("auth.signupSubtitle"),
+  });
+}
 
 const errorKeys = {
   short: "passwordTooShort",

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { AuthPageHeader } from "@/components/auth/auth-page-header";
@@ -8,7 +9,10 @@ import { Card, CardBody } from "@/components/ui/card";
 import { loginPath } from "@/lib/entry-route";
 import { editorUriScheme } from "@/lib/connect-next";
 import { listClientApiKeys } from "@/lib/link-token";
+import { noIndexMetadata } from "@/lib/seo";
 import { getServices } from "@/services";
+
+export const metadata: Metadata = noIndexMetadata;
 
 export default async function ConnectPage({
   params,

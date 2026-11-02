@@ -482,7 +482,7 @@
     "photoTooLarge": "Could not compress this image under 1 MB. Try a smaller photo.",
     "accountInfo": "Account",
     "accountName": "Account name",
-    "accountNameHint": "Your name across SirRelay. Only you can change this.",
+    "accountNameHint": "Your name across SRelay. Only you can change this.",
     "nameSaved": "Name updated.",
     "nameTooShort": "Name must be at least 2 characters.",
     "languageHint": "Applies across all groups on your account.",
@@ -572,11 +572,11 @@
   "landing": {
     "headerNav": "Site navigation",
     "footerNav": "Footer links",
-    "eyebrow": "Your work, or a group",
+    "eyebrow": "Solo, a group, or a team",
     "heroTitle": "Organize your work. See what's left.",
-    "heroSubtitle": "Assign tasks and follow progress — on your own, or with people you invite.",
+    "heroSubtitle": "Assign tasks and follow progress — alone, with a group, or with any size team.",
     "contactLead": "Questions, implementation ideas, or more information? Use",
-    "demoAria": "SirRelay board preview",
+    "demoAria": "SRelay board preview",
     "demoUrl": "app.sirrelay.com/{locale}/tasks",
     "demoTaskA": "Restock front display",
     "demoTaskB": "Confirm inventory",
@@ -600,11 +600,11 @@
         "body": "We don’t rank people or track velocity. Tasks and due dates are enough."
       }
     },
-    "footerCopy": "© {year} Sir · SirRelay",
+    "footerCopy": "© {year} Sir · SRelay",
     "faqTitle": "FAQ",
     "faq": {
       "what": {
-        "q": "What is SirRelay?",
+        "q": "What is SRelay?",
         "a": "A simple task board — assign work, follow progress, stay clear of productivity metrics."
       },
       "groups": {
@@ -617,19 +617,19 @@
       },
       "data": {
         "q": "Where is my data stored?",
-        "a": "On SirRelay servers (PostgreSQL). Signed-in pages are never cached by the browser; the session uses one essential cookie."
+        "a": "On SRelay servers (PostgreSQL). Signed-in pages are never cached by the browser; the session uses one essential cookie."
       }
     },
     "editor": {
       "title": "Your column, in the editor.",
-      "subtitle": "The same tasks in VS Code, Cursor, or Antigravity — and the same API key for the SirRelay MCP. The sidebar shows only the work assigned to you.",
+      "subtitle": "The same tasks in VS Code, Cursor, or Antigravity — and the same API key for the SRelay MCP. The sidebar shows only the work assigned to you.",
       "pointYours": "Other people's tasks stay on the web.",
       "column": "My work",
       "previewLabel": "SRelay in the editor"
     }
   },
   "platform": {
-    "brand": "SirRelay Admin",
+    "brand": "SRelay Admin",
     "backToApp": "Back to app",
     "logout": "Log out",
     "navOverview": "Overview",
@@ -674,7 +674,7 @@
     },
     "users": {
       "title": "Users",
-      "subtitle": "Accounts on this SirRelay deployment.",
+      "subtitle": "Accounts on this SRelay deployment.",
       "email": "Email",
       "name": "Name",
       "status": "Status",

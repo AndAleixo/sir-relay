@@ -19,7 +19,7 @@ Situation: people coordinating work alone or with others (often ops / floor / aw
 
 ## Product Purpose
 
-**SirRelay** is a hosted web task tool: one account, work inside a **group**, with role (`operator` / `teammate`) per group. You can use a group solo for your own tasks, or invite others and share the same task truth. Optional chat delivery exists in the product (today Telegram) but is not the landing story.
+**SRelay** (by **Sir**) is a hosted web task tool: one account, work inside a **group**, with role (`operator` / `teammate`) per group. You can use a group solo for your own tasks, or invite others and share the same task truth — any group size. Optional chat delivery exists in the product (today Telegram) but is not the landing story.
 
 Success: you can keep your own work clear, or invite and follow group work — tasks and due dates only, without dashboards or metric pressure.
 
@@ -27,7 +27,7 @@ Success: you can keep your own work clear, or invite and follow group work — t
 
 **Primary differentiator (honest):** subtraction + clarity for real work.
 
-SirRelay is for **who wants to manage work** — their own tasks, or a group’s. The product shows **tasks and due dates** and refuses productivity theater — no leaderboards, velocity charts, or “who is behind” scores. That refusal is product truth, not a slogan.
+SRelay is for **who wants to manage work** — their own tasks, a group, or a team of any size. The product shows **tasks and due dates** and refuses productivity theater — no leaderboards, velocity charts, or “who is behind” scores. That refusal is product truth, not a slogan.
 
 **Texture:** work that often happens away from a desk (ops, floor, stock, suppliers) — use as scene, not as a hard vertical lock.
 
@@ -57,7 +57,7 @@ SirRelay is for **who wants to manage work** — their own tasks, or a group’s
 
 ## Brand Commitments
 
-- **Brand:** Sir · **Product:** SirRelay · **Wordmark:** SRelay · **Mark:** SR.
+- **Brand:** Sir · **Product:** SRelay · **Mark:** SR · domain/tech `sirrelay.com`.
 - Voice: calm, direct — avoid KPI / “10× productivity” language.
 - Anti-metric positioning is product truth (FAQ and product principles), not a visual recipe.
 - Landing stays channel-agnostic; prefer not to lead with “chat.” In-app copy may name Telegram.
@@ -66,7 +66,7 @@ SirRelay is for **who wants to manage work** — their own tasks, or a group’s
 ## Evidence on Hand
 
 - Product demo on landing: board preview / `/brand/demo.webm` with CSS fallback (ops-flavored sample tasks).
-- FAQ copy covering what SirRelay is, groups, anti-KPI stance, data storage.
+- FAQ copy covering what SRelay is, groups, anti-KPI stance, data storage.
 - Specs: `docs/REQUIREMENTS.md`, `docs/UIUX.md`, `docs/BRAND.md`, `docs/ARCHITECTURE.md`.
 - Do **not** fabricate testimonials, customer logos, benchmarks, pricing claims, or press quotes.
 

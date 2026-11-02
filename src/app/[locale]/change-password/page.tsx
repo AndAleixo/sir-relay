@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
@@ -9,7 +10,10 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { loginPath } from "@/lib/entry-route";
+import { noIndexMetadata } from "@/lib/seo";
 import { getServices } from "@/services";
+
+export const metadata: Metadata = noIndexMetadata;
 
 const errorKeys = {
   short: "passwordTooShort",

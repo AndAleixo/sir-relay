@@ -1,6 +1,24 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { LegalDoc } from "@/components/legal/legal-doc";
 import { LEGAL_DOCUMENT, resolveContactEmail } from "@/lib/legal";
+import { publicPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale });
+  const doc = LEGAL_DOCUMENT;
+  return publicPageMetadata({
+    locale,
+    pathAfterLocale: "/privacy",
+    title: t("legal.privacy"),
+    description: doc.privacyIntro.slice(0, 160),
+  });
+}
 
 export default async function PrivacyPage({
   params,

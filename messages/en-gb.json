@@ -622,10 +622,26 @@
     },
     "editor": {
       "title": "Your column, in the editor.",
-      "subtitle": "The same tasks in VS Code, Cursor, or Antigravity — and the same API key for the SRelay MCP. The sidebar shows only the work assigned to you.",
-      "pointYours": "Other people's tasks stay on the web.",
+      "subtitle": "Install the SRelay extension in VS Code, Cursor, Antigravity, and other editors that share the same marketplace — or connect MCP and let your AI agent create, update, and sort today’s tasks. One API key from Connect; only your assigned work.",
+      "pointYours": "Ask your agent to capture work and keep the day in order — other people’s tasks stay on the web.",
       "column": "My work",
-      "previewLabel": "SRelay in the editor"
+      "groupLabel": "Group",
+      "demoGroup": "North store",
+      "demoProject": "OPS · Operations",
+      "allProjects": "All projects",
+      "addTask": "+ Add task",
+      "previewLabel": "SRelay IDE extension",
+      "extensionCaption": "IDE extension",
+      "extensionWindowTitle": "SRelay · sidebar",
+      "mcpCaption": "MCP in chat",
+      "mcpPreviewLabel": "SRelay MCP in chat",
+      "mcpWindowTitle": "SRelay · MCP",
+      "mcpUserCreate": "Add a task: prep tomorrow’s opening checklist, due tomorrow, medium.",
+      "mcpNewTitle": "Prep opening checklist",
+      "mcpNewDue": "tomorrow",
+      "mcpAssistantCreated": "Added «Prep opening checklist» to your board.",
+      "mcpUserAsk": "What’s on my board now?",
+      "codeTab": "board.ts"
     }
   },
   "platform": {

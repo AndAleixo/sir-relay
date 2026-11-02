@@ -622,10 +622,26 @@
     },
     "editor": {
       "title": "Tu columna, en el editor.",
-      "subtitle": "Las mismas tareas en VS Code, Cursor o Antigravity — y la misma API key para el MCP de SRelay. La barra lateral muestra solo el trabajo asignado a ti.",
-      "pointYours": "Las tareas de los demás se quedan en la web.",
+      "subtitle": "Instala la extensión SRelay en VS Code, Cursor, Antigravity y otros editores que usan el mismo marketplace — o conecta MCP y deja que tu agente de IA cree, actualice y ordene las tareas del día. Una API key en Connect; solo el trabajo asignado a ti.",
+      "pointYours": "Pide a tu agente que capture trabajo y mantenga el día en orden — las tareas de los demás se quedan en la web.",
       "column": "Mi trabajo",
-      "previewLabel": "SRelay en el editor"
+      "groupLabel": "Grupo",
+      "demoGroup": "Tienda Norte",
+      "demoProject": "OPS · Operaciones",
+      "allProjects": "Todos los proyectos",
+      "addTask": "+ Nueva tarea",
+      "previewLabel": "Extensión SRelay en el IDE",
+      "extensionCaption": "Extensión en el IDE",
+      "extensionWindowTitle": "SRelay · barra lateral",
+      "mcpCaption": "MCP en el chat",
+      "mcpPreviewLabel": "SRelay MCP en el chat",
+      "mcpWindowTitle": "SRelay · MCP",
+      "mcpUserCreate": "Añade una tarea: preparar el checklist de apertura de mañana, plazo mañana, media.",
+      "mcpNewTitle": "Preparar checklist de apertura",
+      "mcpNewDue": "mañana",
+      "mcpAssistantCreated": "Añadí «Preparar checklist de apertura» a tu tablero.",
+      "mcpUserAsk": "¿Qué tengo en mi tablero ahora?",
+      "codeTab": "board.ts"
     }
   },
   "platform": {

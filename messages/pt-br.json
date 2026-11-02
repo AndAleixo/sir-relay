@@ -622,10 +622,26 @@
     },
     "editor": {
       "title": "Sua coluna, no editor.",
-      "subtitle": "As mesmas tarefas no VS Code, no Cursor ou no Antigravity — e a mesma API key para o MCP do SRelay. A barra lateral mostra só o trabalho atribuído a você.",
-      "pointYours": "As tarefas das outras pessoas ficam na web.",
+      "subtitle": "Instale a extensão SRelay no VS Code, Cursor, Antigravity e outros editores que usam o mesmo marketplace — ou ligue o MCP e deixe seu agente de AI criar, atualizar e organizar as tarefas do dia. Uma API key em Connect; só o trabalho atribuído a você.",
+      "pointYours": "Peça ao seu agente para capturar trabalho e manter o dia em ordem — as tarefas das outras pessoas ficam na web.",
       "column": "Meu trabalho",
-      "previewLabel": "SRelay no editor"
+      "groupLabel": "Grupo",
+      "demoGroup": "Loja Norte",
+      "demoProject": "OPS · Operações",
+      "allProjects": "Todos os projetos",
+      "addTask": "+ Nova tarefa",
+      "previewLabel": "Extensão SRelay no IDE",
+      "extensionCaption": "Extensão no IDE",
+      "extensionWindowTitle": "SRelay · barra lateral",
+      "mcpCaption": "MCP no chat",
+      "mcpPreviewLabel": "SRelay MCP no chat",
+      "mcpWindowTitle": "SRelay · MCP",
+      "mcpUserCreate": "Adiciona uma tarefa: preparar o checklist de abertura de amanhã, prazo amanhã, média.",
+      "mcpNewTitle": "Preparar checklist de abertura",
+      "mcpNewDue": "amanhã",
+      "mcpAssistantCreated": "Adicionei «Preparar checklist de abertura» ao seu quadro.",
+      "mcpUserAsk": "O que tenho no meu quadro agora?",
+      "codeTab": "board.ts"
     }
   },
   "platform": {

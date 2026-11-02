@@ -27,11 +27,16 @@ export const landingStyles = {
     "font-medium text-[var(--text-primary)] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   editor: "border-t border-[var(--border)] bg-surface-bg",
   editorInner:
-    "mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-16 md:px-6 md:py-20 lg:grid-cols-2 lg:gap-16",
-  editorCopy: "max-w-prose",
+    "mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 md:px-6 md:py-20",
+  editorCopy: "mx-auto max-w-2xl text-center",
   editorTitle: "text-2xl font-semibold text-balance md:text-3xl",
   editorLead: "mt-4 text-lg text-[var(--text-muted)]",
   editorPoint: "mt-3 text-sm leading-relaxed text-[var(--text-muted)]",
+  editorPreviews: "grid items-stretch gap-8 lg:grid-cols-2 lg:gap-6",
+  editorFigure: "flex min-w-0 flex-col",
+  editorPreviewGrow: "flex min-h-0 flex-1 flex-col [&>*]:h-full",
+  editorCaption:
+    "mb-3 shrink-0 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]",
   features: "border-t border-[var(--border)] bg-surface-card",
   featuresInner: "mx-auto w-full max-w-6xl px-4 py-16 md:px-6 md:py-20",
   featuresTitle: "text-center text-2xl font-semibold md:text-3xl",
@@ -55,17 +60,86 @@ export const landingStyles = {
   footerLink:
     "inline-flex min-h-11 items-center hover:text-[var(--text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   footerCopy: "text-sm text-[var(--text-muted)]",
-  editorFrame:
-    "overflow-hidden rounded-card border border-[#3c3c3c] bg-[#1e1e1e] text-[#cccccc] shadow-md shadow-black/25 selection:bg-[#eab308] selection:text-[#0a0a0a]",
-  editorBar: "flex items-center gap-2 border-b border-[#3c3c3c] px-4 py-3",
-  editorDot: "h-2.5 w-2.5 rounded-full bg-[#3c3c3c]",
-  editorLabel: "ml-2 text-xs font-medium",
-  editorBody: "space-y-4 p-4",
-  editorSection:
-    "text-[11px] font-semibold uppercase tracking-[0.04em] text-[#9d9d9d]",
-  editorCard: "mt-2 rounded-md border border-[#3c3c3c] bg-[#252526] px-3 py-2 text-sm",
-  editorAcronym: "font-semibold text-[#eab308]",
-  editorDue: "mt-1 text-[11px] font-semibold text-[#f48771]",
+  /** Mini IDE chrome for the landing editor section (decorative). */
+  ideShell:
+    "flex h-full min-h-[22rem] flex-col overflow-hidden rounded-card border border-[#2b2b2b] bg-[#1e1e1e] text-[#cccccc] shadow-[0_18px_40px_-18px_rgba(0,0,0,0.55)] selection:bg-[#eab308] selection:text-[#0a0a0a]",
+  ideTitlebar:
+    "flex shrink-0 items-center gap-3 border-b border-[#2b2b2b] bg-[#323233] px-3 py-2",
+  ideTraffic: "flex items-center gap-1.5",
+  ideDot: "h-2.5 w-2.5 rounded-full",
+  ideDotClose: "bg-[#ff5f57]",
+  ideDotMin: "bg-[#febc2e]",
+  ideDotMax: "bg-[#28c840]",
+  ideTitlebarLabel:
+    "min-w-0 flex-1 truncate text-center text-[11px] font-medium tracking-wide text-[#bbbbbb]",
+  ideWorkspace:
+    "grid min-h-0 flex-1 grid-cols-[28px_minmax(0,1fr)] sm:grid-cols-[36px_minmax(11rem,1.05fr)_minmax(0,1fr)]",
+  ideWorkspaceCompact:
+    "grid min-h-0 flex-1 grid-cols-[28px_minmax(0,1fr)] sm:grid-cols-[36px_minmax(0,1fr)]",
+  ideActivity:
+    "flex flex-col items-center gap-3 border-r border-[#2b2b2b] bg-[#333333] py-3",
+  ideActivityIcon: "h-3.5 w-3.5 rounded-[3px] bg-[#858585]/55",
+  ideActivityIconActive:
+    "relative bg-[#cccccc] before:absolute before:-left-[9px] before:top-1/2 before:h-3.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-brand-accent sm:before:-left-[11px]",
+  ideSidebar: "flex min-h-0 min-w-0 flex-1 flex-col bg-[#252526]",
+  ideSidebarWithEditor:
+    "flex min-h-0 min-w-0 flex-col border-r border-[#2b2b2b] bg-[#252526]",
+  ideSidebarHead: "shrink-0 border-b border-[#2b2b2b] px-3 py-2.5",
+  ideSidebarTitle:
+    "text-[10px] font-semibold uppercase tracking-[0.08em] text-[#bbbbbb]",
+  ideSidebarHint: "mt-0.5 text-[11px] text-[#858585]",
+  ideSidebarBody: "flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-2.5 sm:p-3",
+  ideBoardTop: "flex shrink-0 flex-col gap-2",
+  ideGroupPick: "grid gap-1",
+  ideFieldLabel:
+    "text-[10px] font-semibold uppercase tracking-[0.04em] text-[#9d9d9d]",
+  ideSelect:
+    "block w-full truncate rounded border border-[#3c3c3c] bg-[#3c3c3c]/40 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#cccccc]",
+  ideSelectGrow:
+    "block min-w-0 flex-1 truncate rounded border border-[#3c3c3c] bg-[#3c3c3c]/40 px-2 py-1 text-[11px] text-[#cccccc]",
+  ideToolbar: "flex items-center gap-2",
+  ideAdd: "shrink-0 text-[11px] font-medium text-[#eab308]",
+  ideSection: "min-w-0",
+  ideSectionTitle:
+    "mb-1.5 text-[10px] font-semibold uppercase tracking-[0.04em] text-[#9d9d9d]",
+  ideCard:
+    "mb-1.5 flex gap-1.5 rounded-md border border-[#3c3c3c] bg-[#1e1e1e] p-1.5 last:mb-0",
+  ideCardActive: "border-brand-accent/35 bg-[#2a2a1a]",
+  ideHandle: "w-1.5 shrink-0 self-stretch rounded-[2px]",
+  ideHandleEasy: "bg-[#d1fae5]",
+  ideHandleMedium: "bg-[#fef3c7]",
+  ideHandleHard: "bg-[#fee2e2]",
+  ideCardBody: "min-w-0 flex-1",
+  ideCardTitle: "text-[11px] leading-snug text-[#cccccc] sm:text-xs",
+  ideAcronym: "font-semibold text-[#eab308]",
+  ideAcronymSep: "mx-0.5 font-semibold text-[#eab308]",
+  ideDue: "mt-0.5 text-[10px] font-semibold text-[#f48771]",
+  ideEditor: "hidden min-w-0 bg-[#1e1e1e] sm:block",
+  ideTabRow: "border-b border-[#2b2b2b] bg-[#2d2d2d] px-2 pt-1.5",
+  ideTab:
+    "inline-flex rounded-t-md border border-b-0 border-[#2b2b2b] bg-[#1e1e1e] px-2.5 py-1 text-[10px] text-[#cccccc]",
+  ideCode: "overflow-hidden p-3 font-mono text-[10px] leading-5 text-[#9cdcfe] sm:text-[11px]",
+  ideCodeLine: "flex gap-3 whitespace-pre",
+  ideCodeLineDim: "text-[#6a9955]",
+  ideCodeGutter: "w-4 shrink-0 select-none text-right text-[#858585]",
+  ideCodeKw: "text-[#569cd6]",
+  mcpShell:
+    "flex h-full min-h-[22rem] flex-col overflow-hidden rounded-card border border-[#2b2b2b] bg-[#1e1e1e] text-[#cccccc] shadow-[0_18px_40px_-18px_rgba(0,0,0,0.55)] selection:bg-[#eab308] selection:text-[#0a0a0a]",
+  mcpBody: "flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3 sm:p-4",
+  mcpUser:
+    "self-end max-w-[92%] rounded-md bg-[#2f2f2f] px-3 py-2 text-[12px] leading-snug text-[#e4e4e4]",
+  mcpAssistant:
+    "max-w-[95%] rounded-md border border-[#3c3c3c] bg-[#252526] px-3 py-2 text-[12px] leading-snug text-[#d4d4d4]",
+  mcpTool:
+    "rounded-md border border-[#3c3c3c] bg-[#181818] px-3 py-2",
+  mcpToolName:
+    "flex flex-wrap items-center gap-2 font-mono text-[11px] font-medium text-[#eab308]",
+  mcpToolBadge:
+    "rounded-[3px] bg-brand-accent/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[#eab308]",
+  mcpToolResult: "mt-2 space-y-1 text-[11px] leading-snug text-[#cccccc]",
+  mcpToolArgs: "mt-1.5 font-mono text-[10px] text-[#9d9d9d]",
+  mcpArgValue: "text-[#9cdcfe]",
+  mcpStatus: "text-[#858585]",
 } as const;
 
 export const demoStyles = {

@@ -72,6 +72,10 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 ├──────────────────────────────────────────────────────────────┤
 │  3 feature cards — board or list · invite · no measuring people │
 ├──────────────────────────────────────────────────────────────┤
+│  Editor section — copy + mini IDE chrome (sidebar = My work) │
+├──────────────────────────────────────────────────────────────┤
+│  Contact note · FAQ                                           │
+├──────────────────────────────────────────────────────────────┤
 │  © Sir · SRelay      FAQ · Privacy · Terms · Log in · Sign up │  ← footer
 └──────────────────────────────────────────────────────────────┘
 ```
@@ -82,6 +86,7 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 | Hero | Eyebrow, headline, subtitle. One CTA: **Try demo** → `/demo` |
 | Demo | `/brand/demo.webm` (autoplay, muted, loop); CSS board fallback |
 | Features | Three cards — board or list · invite when you need to · no measuring people |
+| Editor | Centered copy + two decorative previews: **IDE extension** (sidebar) and **MCP chat** (`list_tasks` / `set_task_status`) — same demo tasks |
 | FAQ | `#faq` — groups, anti-KPI, Telegram, data/cache |
 | Footer | Shared `SiteFooter` on auth/legal pages |
 | App store badges | None in Phase 1 |

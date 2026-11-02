@@ -10,8 +10,9 @@ import { tagFromOpenProjects } from "@/lib/project";
 import { memberPageHref } from "@/lib/member-page-href";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
-  buildTodoQueueOrder,
+  buildTodoQueueOrderAmongVisible,
   groupTasksByStatusOrdered,
+  sortByQueueOrder,
   TODO_QUEUE_APPEND,
 } from "@/lib/task-queue";
 import {
@@ -569,8 +570,14 @@ export function TeamBoard({
   linkMembers = true,
   labels,
 }: TeamBoardProps) {
-  const { applyTaskUpdate, createTaskQuick, placeInTodoQueue, cloneTask, deleteTask } =
-    useSync();
+  const {
+    tasks: sessionTasks,
+    applyTaskUpdate,
+    createTaskQuick,
+    placeInTodoQueue,
+    cloneTask,
+    deleteTask,
+  } = useSync();
   const { scrollRef, scrollHandlers } = useHorizontalDragScroll();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<string | null>(null);
@@ -613,10 +620,21 @@ export function TeamBoard({
   ) {
     handleDragEnd();
     if (!columnEditable(assigneeId)) return;
+    const visibleTodoIds = sortByQueueOrder(
+      tasks.filter(
+        (t) => t.assigneeId === assigneeId && t.status === "todo",
+      ),
+    ).map((t) => t.id);
     await placeInTodoQueue(
       taskId,
       assigneeId,
-      buildTodoQueueOrder(tasks, assigneeId, taskId, toIndex),
+      buildTodoQueueOrderAmongVisible(
+        sessionTasks,
+        assigneeId,
+        taskId,
+        toIndex,
+        visibleTodoIds,
+      ),
     );
   }
 

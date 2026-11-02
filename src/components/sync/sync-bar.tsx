@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useSyncOptional } from "./sync-provider";
 import { syncBarStyles } from "./sync-bar.styles";
 
+/** One bar: only after silent sync failed (queue) or a version conflict. */
 export function SyncBar() {
   const t = useTranslations("sync");
   const sync = useSyncOptional();
@@ -14,31 +15,19 @@ export function SyncBar() {
     return null;
   }
 
-  const { syncState, pendingCount, syncNow, conflicts, resolveConflict } = sync;
-  const isSyncing = syncState === "syncing";
-  const isConflict = syncState === "conflict" && conflicts.length > 0;
-
-  let message = t("pending", { count: pendingCount });
-
-  if (isSyncing) {
-    message = t("syncing");
-  } else if (syncState === "failed") {
-    message = t("failed", { count: pendingCount });
-  } else if (isConflict) {
-    message = t("conflict");
-  }
+  const { pendingCount, busy, syncNow, conflicts, resolveConflict } = sync;
+  const isConflict = conflicts.length > 0;
 
   return (
     <div
       role="status"
-      className={cn(
-        syncBarStyles.root,
-        isConflict || syncState === "failed"
-          ? syncBarStyles.severity
-          : syncBarStyles.warning,
-      )}
+      className={cn(syncBarStyles.root, syncBarStyles.severity)}
     >
-      <p className={syncBarStyles.message}>{message}</p>
+      <p className={syncBarStyles.message}>
+        {isConflict
+          ? t("conflict")
+          : t("failed", { count: pendingCount })}
+      </p>
       <div className={syncBarStyles.actions}>
         {isConflict ? (
           <>
@@ -64,7 +53,7 @@ export function SyncBar() {
             type="button"
             variant="secondary"
             className={syncBarStyles.button}
-            disabled={isSyncing}
+            disabled={busy}
             onClick={() => syncNow()}
           >
             {t("syncNow")}

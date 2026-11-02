@@ -1,5 +1,6 @@
 export const syncBarStyles = {
   root: "flex items-center justify-between gap-4 border-b px-4 py-2 text-sm",
+  /** Soft strip (demo notice). Sync failure uses `severity`. */
   warning:
     "border-brand-accent/30 bg-brand-accent-soft text-[var(--text-primary)]",
   severity:

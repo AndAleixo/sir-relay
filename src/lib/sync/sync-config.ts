@@ -1,25 +1,10 @@
-/** Show the sync bar after this many consecutive failures (1 = first fail). */
-const FAILURES_BEFORE_BAR = 1;
-
 function parseMs(value: string | undefined, fallback: number): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-export const syncRetryConfig = {
-  failuresBeforeBar: FAILURES_BEFORE_BAR,
-  initialRetryMs: parseMs(
-    process.env.NEXT_PUBLIC_SYNC_RETRY_INITIAL_MS,
-    3000,
-  ),
-  intervalRetryMs: parseMs(
-    process.env.NEXT_PUBLIC_SYNC_RETRY_INTERVAL_MS,
-    10000,
-  ),
-};
-
-export function syncRetryDelayMs(failureCount: number): number {
-  return failureCount >= syncRetryConfig.failuresBeforeBar
-    ? syncRetryConfig.intervalRetryMs
-    : syncRetryConfig.initialRetryMs;
-}
+/** Delay before replaying the mutation queue after a silent failure. */
+export const syncRetryMs = parseMs(
+  process.env.NEXT_PUBLIC_SYNC_RETRY_INTERVAL_MS,
+  10_000,
+);

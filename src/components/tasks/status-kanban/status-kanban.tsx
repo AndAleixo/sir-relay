@@ -12,8 +12,9 @@ import {
   getTaskIdFromDragEvent,
 } from "@/lib/task-drag";
 import {
-  buildTodoQueueOrder,
+  buildTodoQueueOrderAmongVisible,
   groupTasksByStatusOrdered,
+  sortByQueueOrder,
   TODO_QUEUE_APPEND,
 } from "@/lib/task-queue";
 import type { MutationInput } from "@/domain/sync";
@@ -65,8 +66,14 @@ export function StatusKanban({
   getTaskHref,
   labels,
 }: StatusKanbanProps) {
-  const { applyTaskUpdate, createTaskQuick, placeInTodoQueue, cloneTask, deleteTask } =
-    useSync();
+  const {
+    tasks: sessionTasks,
+    applyTaskUpdate,
+    createTaskQuick,
+    placeInTodoQueue,
+    cloneTask,
+    deleteTask,
+  } = useSync();
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [activeDropTarget, setActiveDropTarget] = useState<TaskStatus | null>(
     null,
@@ -91,12 +98,25 @@ export function StatusKanban({
   async function placeInTodo(taskId: string, toIndex: number) {
     handleDragEnd();
     const assigneeId =
-      tasks.find((t) => t.id === taskId)?.assigneeId ?? self.id;
+      tasks.find((t) => t.id === taskId)?.assigneeId ??
+      sessionTasks.find((t) => t.id === taskId)?.assigneeId ??
+      self.id;
+    const visibleTodoIds = sortByQueueOrder(
+      tasks.filter(
+        (t) => t.assigneeId === assigneeId && t.status === "todo",
+      ),
+    ).map((t) => t.id);
 
     await placeInTodoQueue(
       taskId,
       assigneeId,
-      buildTodoQueueOrder(tasks, assigneeId, taskId, toIndex),
+      buildTodoQueueOrderAmongVisible(
+        sessionTasks,
+        assigneeId,
+        taskId,
+        toIndex,
+        visibleTodoIds,
+      ),
     );
   }
 

@@ -563,9 +563,7 @@
     }
   },
   "sync": {
-    "pending": "Sin sincronizar con el servidor — {count, plural, one {# cambio pendiente} other {# cambios pendientes}}. Reintentando automáticamente.",
-    "syncing": "Enviando cambios…",
-    "failed": "Aún no guardado — {count, plural, one {# cambio} other {# cambios}}. Reintentando automáticamente.",
+    "failed": "Aún no guardado — {count, plural, one {# cambio} other {# cambios}}. Próximo intento en breve.",
     "conflict": "Un cambio entra en conflicto con la versión del servidor.",
     "syncNow": "Intentar ahora",
     "keepLocal": "Mantener mi versión",

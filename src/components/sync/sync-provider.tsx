@@ -15,9 +15,9 @@ import type {
   MutationInput,
   PendingMutation,
   SyncConflict,
-  SyncState,
   TaskActionResult,
 } from "@/domain/sync";
+import { isRetryableSyncError } from "@/domain/sync";
 import { executePendingMutation } from "@/lib/sync/execute-mutation";
 import {
   applyServerTasks,
@@ -28,19 +28,17 @@ import {
   deleteTaskInlineAction,
   quickCreateTaskAction,
 } from "@/app/actions/tasks";
-import {
-  syncRetryConfig,
-  syncRetryDelayMs,
-} from "@/lib/sync/sync-config";
-
-const { failuresBeforeBar: FAILURES_BEFORE_BAR } = syncRetryConfig;
+import { syncRetryMs } from "@/lib/sync/sync-config";
 
 /** Shared by the app sync provider and the demo provider. */
 export interface SyncContextValue {
   tasks: Task[];
-  syncState: SyncState;
+  /** Queued writes after a silent failure (also drives the bar). */
   pendingCount: number;
+  /** True only when the queue has items (silent sync already failed). */
   showBar: boolean;
+  /** Replay / conflict resolve in flight — disables Try now. */
+  busy: boolean;
   conflicts: SyncConflict[];
   syncFromServer: (serverTasks: Task[]) => void;
   applyTaskUpdate: (
@@ -82,7 +80,10 @@ function createMutation(
   };
 }
 
-function mergeActionResult(tasks: Task[], result: Extract<TaskActionResult, { ok: true }>): Task[] {
+function mergeActionResult(
+  tasks: Task[],
+  result: Extract<TaskActionResult, { ok: true }>,
+): Task[] {
   return applyServerTasks(tasks, result.affected ?? [result.task]);
 }
 
@@ -93,20 +94,20 @@ interface SyncProviderProps {
 export function SyncProvider({ children }: SyncProviderProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [queue, setQueue] = useState<PendingMutation[]>([]);
-  const [syncState, setSyncState] = useState<SyncState>("synced");
   const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
-  const [failureCount, setFailureCount] = useState(0);
+  const [busy, setBusy] = useState(false);
 
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const syncInFlightRef = useRef(false);
   const mutationInFlightRef = useRef(0);
-  const failureCountRef = useRef(0);
   const tasksRef = useRef(tasks);
   const queueRef = useRef(queue);
   tasksRef.current = tasks;
   queueRef.current = queue;
 
   const pendingCount = queue.length;
+  // Queue only fills after a silent attempt failed (or a conflict).
+  const showBar = pendingCount > 0;
 
   const clearRetryTimer = useCallback(() => {
     if (retryTimerRef.current) {
@@ -115,34 +116,10 @@ export function SyncProvider({ children }: SyncProviderProps) {
     }
   }, []);
 
-  const showBar =
-    pendingCount > 0 &&
-    (syncState === "conflict" ||
-      syncState === "failed" ||
-      failureCount >= FAILURES_BEFORE_BAR);
-
-  const registerSyncSuccess = useCallback(() => {
-    failureCountRef.current = 0;
-    setFailureCount(0);
-    clearRetryTimer();
-  }, [clearRetryTimer]);
-
-  const registerSyncFailure = useCallback(() => {
-    failureCountRef.current += 1;
-    const next = failureCountRef.current;
-    if (next >= FAILURES_BEFORE_BAR) {
-      setSyncState("failed");
-    } else {
-      setSyncState("syncing");
-    }
-    setFailureCount(next);
-    return next;
-  }, []);
-
   const scheduleRetry = useCallback(
-    (run: () => void, failures: number) => {
+    (run: () => void) => {
       clearRetryTimer();
-      retryTimerRef.current = setTimeout(run, syncRetryDelayMs(failures));
+      retryTimerRef.current = setTimeout(run, syncRetryMs);
     },
     [clearRetryTimer],
   );
@@ -173,7 +150,9 @@ export function SyncProvider({ children }: SyncProviderProps) {
   }, []);
 
   const dequeue = useCallback((clientMutationId: string) => {
-    setQueue((prev) => prev.filter((m) => m.clientMutationId !== clientMutationId));
+    setQueue((prev) =>
+      prev.filter((m) => m.clientMutationId !== clientMutationId),
+    );
   }, []);
 
   const syncNow = useCallback(async () => {
@@ -181,19 +160,23 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
     const currentQueue = queueRef.current;
     if (currentQueue.length === 0) {
-      registerSyncSuccess();
-      setSyncState("synced");
+      clearRetryTimer();
+      setConflicts([]);
       return;
     }
 
     syncInFlightRef.current = true;
-    setSyncState("syncing");
+    setBusy(true);
 
     let working = tasksRef.current;
     let hadFailure = false;
 
     for (const mutation of currentQueue) {
-      if (!queueRef.current.some((m) => m.clientMutationId === mutation.clientMutationId)) {
+      if (
+        !queueRef.current.some(
+          (m) => m.clientMutationId === mutation.clientMutationId,
+        )
+      ) {
         continue;
       }
 
@@ -202,7 +185,10 @@ export function SyncProvider({ children }: SyncProviderProps) {
       try {
         result = await executePendingMutation(mutation);
       } finally {
-        mutationInFlightRef.current = Math.max(0, mutationInFlightRef.current - 1);
+        mutationInFlightRef.current = Math.max(
+          0,
+          mutationInFlightRef.current - 1,
+        );
       }
 
       if (result.ok) {
@@ -214,9 +200,14 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
       if (result.error === "conflict") {
         setConflicts([{ mutation, serverTask: result.task }]);
-        setSyncState("conflict");
         syncInFlightRef.current = false;
+        setBusy(false);
         return;
+      }
+
+      if (!isRetryableSyncError(result.error)) {
+        dequeue(mutation.clientMutationId);
+        continue;
       }
 
       hadFailure = true;
@@ -224,61 +215,72 @@ export function SyncProvider({ children }: SyncProviderProps) {
     }
 
     syncInFlightRef.current = false;
+    setBusy(false);
 
     if (queueRef.current.length === 0) {
-      registerSyncSuccess();
-      setSyncState("synced");
+      clearRetryTimer();
+      setConflicts([]);
       return;
     }
 
     if (hadFailure) {
-      const failures = registerSyncFailure();
       scheduleRetry(() => {
         syncNow();
-      }, failures);
+      });
     }
-  }, [dequeue, registerSyncSuccess, registerSyncFailure, scheduleRetry]);
+  }, [clearRetryTimer, dequeue, scheduleRetry]);
 
   const syncNowRef = useRef(syncNow);
   syncNowRef.current = syncNow;
 
   const runMutation = useCallback(
-    async (mutation: PendingMutation, currentTasks: Task[]) => {
+    async (
+      mutation: PendingMutation,
+      currentTasks: Task[],
+      /** Pre-optimistic snapshot — restored on hard (non-retryable) failure. */
+      revertTo?: Task[],
+    ) => {
       mutationInFlightRef.current += 1;
       let result: TaskActionResult;
       try {
         result = await executePendingMutation(mutation);
       } finally {
-        mutationInFlightRef.current = Math.max(0, mutationInFlightRef.current - 1);
+        mutationInFlightRef.current = Math.max(
+          0,
+          mutationInFlightRef.current - 1,
+        );
       }
 
       if (result.ok) {
         const merged = mergeActionResult(currentTasks, result);
         setTasks(merged);
         dequeue(mutation.clientMutationId);
-        registerSyncSuccess();
         if (queueRef.current.length === 0) {
-          setSyncState("synced");
+          clearRetryTimer();
+          setConflicts([]);
         }
         return { ok: true as const, tasks: merged };
       }
 
       if (result.error === "conflict") {
         setConflicts([{ mutation, serverTask: result.task }]);
-        setSyncState("conflict");
         enqueue(mutation);
         return { ok: false as const, error: "conflict" as const };
       }
 
-      // Temporary / network — keep optimistic UI (P3-OFF-04), enqueue + retry.
+      if (!isRetryableSyncError(result.error)) {
+        if (revertTo) setTasks(revertTo);
+        return { ok: false as const, error: result.error };
+      }
+
+      // Silent attempt failed — keep optimistic UI, show bar, retry later.
       enqueue(mutation);
-      const failures = registerSyncFailure();
       scheduleRetry(() => {
         syncNowRef.current();
-      }, failures);
+      });
       return { ok: false as const, error: result.error };
     },
-    [dequeue, enqueue, registerSyncSuccess, registerSyncFailure, scheduleRetry],
+    [clearRetryTimer, dequeue, enqueue, scheduleRetry],
   );
 
   const applyTaskUpdate = useCallback(
@@ -308,9 +310,10 @@ export function SyncProvider({ children }: SyncProviderProps) {
       setTasks(working);
 
       for (const input of mutationInputs) {
-        const baseUpdatedAt = serverBases.get(input.taskId) ?? original.updatedAt;
+        const baseUpdatedAt =
+          serverBases.get(input.taskId) ?? original.updatedAt;
         const mutation = createMutation(input, baseUpdatedAt);
-        const outcome = await runMutation(mutation, working);
+        const outcome = await runMutation(mutation, working, source);
 
         if (outcome.ok) {
           working = outcome.tasks;
@@ -369,7 +372,10 @@ export function SyncProvider({ children }: SyncProviderProps) {
           projectId: input.projectId ?? null,
         });
       } finally {
-        mutationInFlightRef.current = Math.max(0, mutationInFlightRef.current - 1);
+        mutationInFlightRef.current = Math.max(
+          0,
+          mutationInFlightRef.current - 1,
+        );
       }
 
       if (result.ok) {
@@ -455,7 +461,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
         original.updatedAt,
       );
 
-      const outcome = await runMutation(mutation, working);
+      const outcome = await runMutation(mutation, working, source);
       return outcome.ok;
     },
     [runMutation],
@@ -477,24 +483,20 @@ export function SyncProvider({ children }: SyncProviderProps) {
         );
         dequeue(conflict.mutation.clientMutationId);
         setConflicts([]);
-        failureCountRef.current = 0;
-        setFailureCount(0);
         await runMutation(refreshed, tasksRef.current);
       } else {
         setTasks((prev) => applyServerTasks(prev, [conflict.serverTask]));
         dequeue(conflict.mutation.clientMutationId);
         setConflicts([]);
-        registerSyncSuccess();
+        clearRetryTimer();
       }
     },
-    [conflicts, dequeue, runMutation, registerSyncSuccess],
+    [clearRetryTimer, conflicts, dequeue, runMutation],
   );
 
   useEffect(() => {
     function flushQueueIfNeeded() {
       if (queueRef.current.length === 0) return;
-      failureCountRef.current = 0;
-      setFailureCount(0);
       syncNowRef.current();
     }
 
@@ -532,9 +534,9 @@ export function SyncProvider({ children }: SyncProviderProps) {
   const value = useMemo(
     () => ({
       tasks,
-      syncState,
       pendingCount,
       showBar,
+      busy,
       conflicts,
       syncFromServer,
       applyTaskUpdate,
@@ -547,9 +549,9 @@ export function SyncProvider({ children }: SyncProviderProps) {
     }),
     [
       tasks,
-      syncState,
       pendingCount,
       showBar,
+      busy,
       conflicts,
       syncFromServer,
       applyTaskUpdate,

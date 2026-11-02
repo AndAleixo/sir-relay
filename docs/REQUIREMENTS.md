@@ -560,7 +560,7 @@ Both roles. Requires Phase 1 API + DB. PWA install → P3-14. Out of scope here:
 | P3-OFF-02 | Mutation queue | In-memory pending writes `{ clientMutationId, type, taskId, payload, baseUpdatedAt }`; types: `update_status`, `reassign`, `update_fields`, `move_task` (atomic status+assignee / todo place); success merges via LWW `updatedAt` (`applyServerTasks`); permissions per §8 |
 | P3-OFF-03 | Sync attempt | On each mutation, call API first; enqueue only on failure (network, timeout, 5xx) |
 | P3-OFF-04 | No revert on failure | Failed **queued** sync (status / reassign / fields / move) keeps session UI + queue until success or conflict resolution; refresh loads server. Carve-out: inline **delete** may restore the pre-delete list on hard failure |
-| P3-OFF-05 | Sync bar | Top bar when queue non-empty after retry threshold; `en` / `es` / `pt`; states: syncing, failed, conflict; hidden when synced |
+| P3-OFF-05 | Sync bar | Single top bar only after silent sync failed (queue non-empty) or conflict; `en` / `es` / `pt`; hidden while synced |
 | P3-OFF-06 | Sync now | Replays queue against §9 routes; partial failure lists failed items; full success clears banner |
 | P3-OFF-07 | Auto-retry | Optional: retry queue on browser `online` event |
 | P3-OFF-08 | Idempotent writes | `PATCH /tasks/:id` accepts optional `clientMutationId`; duplicate replay → 200, no double write |

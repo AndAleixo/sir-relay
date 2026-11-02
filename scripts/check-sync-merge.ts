@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import type { Task } from "../src/domain/types";
+import { isRetryableSyncError } from "../src/domain/sync";
 import {
   applyServerTasks,
   shouldAcceptServerSnapshot,
@@ -59,6 +60,12 @@ function main() {
     shouldAcceptServerSnapshot({ queueLength: 0, inFlightCount: 2 }),
     false,
   );
+
+  assert.equal(isRetryableSyncError("network"), true);
+  assert.equal(isRetryableSyncError("forbidden"), false);
+  assert.equal(isRetryableSyncError("unauthorized"), false);
+  assert.equal(isRetryableSyncError("not_found"), false);
+  assert.equal(isRetryableSyncError("conflict"), false);
 
   console.log("check-sync-merge: ok");
 }

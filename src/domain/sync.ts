@@ -1,7 +1,5 @@
 import type { Task, TaskStatus } from "@/domain/types";
 
-export type SyncState = "synced" | "syncing" | "failed" | "conflict";
-
 export type MutationType =
   | "update_status"
   | "reassign"
@@ -49,6 +47,13 @@ export type TaskActionResult =
   | { ok: true; task: Task; /** Extra rows to LWW-merge (e.g. todo reorder peers). */ affected?: Task[] }
   | { ok: false; error: "conflict"; task: Task }
   | { ok: false; error: "forbidden" | "unauthorized" | "not_found" | "network" };
+
+/** P3-OFF-03: only transient failures stay in the retry queue. */
+export function isRetryableSyncError(
+  error: Extract<TaskActionResult, { ok: false }>["error"],
+): boolean {
+  return error === "network";
+}
 
 export function isMoveTaskPayload(
   payload: MutationPayload,

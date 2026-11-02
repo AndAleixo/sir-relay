@@ -219,9 +219,9 @@ export function DemoProvider({
   const syncValue = useMemo<SyncContextValue>(
     () => ({
       tasks,
-      syncState: "synced",
       pendingCount: 0,
       showBar: false,
+      busy: false,
       conflicts: [],
       syncFromServer: noop,
       applyTaskUpdate,

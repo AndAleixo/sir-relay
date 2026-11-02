@@ -5,6 +5,7 @@
 import assert from "node:assert/strict";
 import {
   buildTodoQueueOrder,
+  buildTodoQueueOrderAmongVisible,
   insertIdAfter,
   placeIdAtIndex,
   pickQueueHead,
@@ -86,5 +87,17 @@ const withDoing = [
   },
 ];
 assert.equal(pickQueueHead(withDoing)?.id, "d");
+
+// Project filter: visible [a, c], hidden b — drop at index 1 (after a).
+const filteredVisible = ["a", "c"];
+assert.deepEqual(
+  buildTodoQueueOrderAmongVisible(tasks, "u1", "x", 1, filteredVisible),
+  ["a", "x", "b", "c"],
+);
+// Unfiltered visible matches buildTodoQueueOrder.
+assert.deepEqual(
+  buildTodoQueueOrderAmongVisible(tasks, "u1", "c", 0, ["a", "b", "c"]),
+  buildTodoQueueOrder(tasks, "u1", "c", 0),
+);
 
 console.log("check-task-queue-order: ok");

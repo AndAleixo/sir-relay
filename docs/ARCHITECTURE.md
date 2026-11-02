@@ -163,7 +163,7 @@ Demo seed (**local only** — never on public VPS): `src/services/mock/data.ts` 
 
 ## Session sync
 
-`SyncProvider` wraps the signed-in app (mock and API). Optimistic UI + silent first write; mutation queue only after network failure (`update_status` · `reassign` · `update_fields` · `move_task`). One top bar when the queue is non-empty (or conflict). Board drops use one atomic `move_task`. In-flight / queued writes block blind `syncFromServer` replace. Temporary failure keeps local UI (P3-OFF-04). Full offline local-DB remains Phase 3 (P3-07). Refresh discards unsent changes.
+`SyncProvider` wraps the signed-in app (mock and API). Optimistic UI + silent first write; mutation queue only after network failure (`update_status` · `reassign` · `update_fields` · `move_task`). Quiet retries (default 2s) before the top bar (default after 3 consecutive failures, or on conflict). Board drops use one atomic `move_task`. In-flight / queued writes block blind `syncFromServer` replace. Temporary failure keeps local UI (P3-OFF-04). Full offline local-DB remains Phase 3 (P3-07). Refresh discards unsent changes.
 
 ## Run
 

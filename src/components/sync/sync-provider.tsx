@@ -28,14 +28,17 @@ import {
   deleteTaskInlineAction,
   quickCreateTaskAction,
 } from "@/app/actions/tasks";
-import { syncRetryMs } from "@/lib/sync/sync-config";
+import {
+  shouldShowSyncBar,
+  syncRetryDelayMs,
+} from "@/lib/sync/sync-config";
 
 /** Shared by the app sync provider and the demo provider. */
 export interface SyncContextValue {
   tasks: Task[];
-  /** Queued writes after a silent failure (also drives the bar). */
+  /** Queued writes after a silent failure. */
   pendingCount: number;
-  /** True only when the queue has items (silent sync already failed). */
+  /** After quiet retries fail (or on conflict) — not on the first blip. */
   showBar: boolean;
   /** Replay / conflict resolve in flight — disables Try now. */
   busy: boolean;
@@ -96,18 +99,23 @@ export function SyncProvider({ children }: SyncProviderProps) {
   const [queue, setQueue] = useState<PendingMutation[]>([]);
   const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
   const [busy, setBusy] = useState(false);
+  const [failureCount, setFailureCount] = useState(0);
 
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const syncInFlightRef = useRef(false);
   const mutationInFlightRef = useRef(0);
+  const failureCountRef = useRef(0);
   const tasksRef = useRef(tasks);
   const queueRef = useRef(queue);
   tasksRef.current = tasks;
   queueRef.current = queue;
 
   const pendingCount = queue.length;
-  // Queue only fills after a silent attempt failed (or a conflict).
-  const showBar = pendingCount > 0;
+  const showBar = shouldShowSyncBar({
+    pendingCount,
+    failureCount,
+    conflictCount: conflicts.length,
+  });
 
   const clearRetryTimer = useCallback(() => {
     if (retryTimerRef.current) {
@@ -116,10 +124,23 @@ export function SyncProvider({ children }: SyncProviderProps) {
     }
   }, []);
 
+  const clearFailures = useCallback(() => {
+    failureCountRef.current = 0;
+    setFailureCount(0);
+    clearRetryTimer();
+  }, [clearRetryTimer]);
+
+  const registerFailure = useCallback(() => {
+    failureCountRef.current += 1;
+    const next = failureCountRef.current;
+    setFailureCount(next);
+    return next;
+  }, []);
+
   const scheduleRetry = useCallback(
-    (run: () => void) => {
+    (run: () => void, failures: number) => {
       clearRetryTimer();
-      retryTimerRef.current = setTimeout(run, syncRetryMs);
+      retryTimerRef.current = setTimeout(run, syncRetryDelayMs(failures));
     },
     [clearRetryTimer],
   );
@@ -160,7 +181,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
 
     const currentQueue = queueRef.current;
     if (currentQueue.length === 0) {
-      clearRetryTimer();
+      clearFailures();
       setConflicts([]);
       return;
     }
@@ -218,17 +239,18 @@ export function SyncProvider({ children }: SyncProviderProps) {
     setBusy(false);
 
     if (queueRef.current.length === 0) {
-      clearRetryTimer();
+      clearFailures();
       setConflicts([]);
       return;
     }
 
     if (hadFailure) {
+      const failures = registerFailure();
       scheduleRetry(() => {
         syncNow();
-      });
+      }, failures);
     }
-  }, [clearRetryTimer, dequeue, scheduleRetry]);
+  }, [clearFailures, dequeue, registerFailure, scheduleRetry]);
 
   const syncNowRef = useRef(syncNow);
   syncNowRef.current = syncNow;
@@ -256,7 +278,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
         setTasks(merged);
         dequeue(mutation.clientMutationId);
         if (queueRef.current.length === 0) {
-          clearRetryTimer();
+          clearFailures();
           setConflicts([]);
         }
         return { ok: true as const, tasks: merged };
@@ -273,14 +295,15 @@ export function SyncProvider({ children }: SyncProviderProps) {
         return { ok: false as const, error: result.error };
       }
 
-      // Silent attempt failed — keep optimistic UI, show bar, retry later.
+      // Keep optimistic UI; quiet retries first, bar only after the threshold.
       enqueue(mutation);
+      const failures = registerFailure();
       scheduleRetry(() => {
         syncNowRef.current();
-      });
+      }, failures);
       return { ok: false as const, error: result.error };
     },
-    [clearRetryTimer, dequeue, enqueue, scheduleRetry],
+    [clearFailures, dequeue, enqueue, registerFailure, scheduleRetry],
   );
 
   const applyTaskUpdate = useCallback(
@@ -488,10 +511,10 @@ export function SyncProvider({ children }: SyncProviderProps) {
         setTasks((prev) => applyServerTasks(prev, [conflict.serverTask]));
         dequeue(conflict.mutation.clientMutationId);
         setConflicts([]);
-        clearRetryTimer();
+        clearFailures();
       }
     },
-    [clearRetryTimer, conflicts, dequeue, runMutation],
+    [clearFailures, conflicts, dequeue, runMutation],
   );
 
   useEffect(() => {

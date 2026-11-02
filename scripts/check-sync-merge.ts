@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import type { Task } from "../src/domain/types";
 import { isRetryableSyncError } from "../src/domain/sync";
 import {
+  shouldShowSyncBar,
+  syncRetryConfig,
+  syncRetryDelayMs,
+} from "../src/lib/sync/sync-config";
+import {
   applyServerTasks,
   shouldAcceptServerSnapshot,
 } from "../src/lib/sync/merge-tasks";
@@ -66,6 +71,30 @@ function main() {
   assert.equal(isRetryableSyncError("unauthorized"), false);
   assert.equal(isRetryableSyncError("not_found"), false);
   assert.equal(isRetryableSyncError("conflict"), false);
+
+  assert.equal(syncRetryConfig.failuresBeforeBar, 3);
+  assert.equal(
+    shouldShowSyncBar({ pendingCount: 1, failureCount: 1, conflictCount: 0 }),
+    false,
+  );
+  assert.equal(
+    shouldShowSyncBar({ pendingCount: 1, failureCount: 2, conflictCount: 0 }),
+    false,
+  );
+  assert.equal(
+    shouldShowSyncBar({ pendingCount: 1, failureCount: 3, conflictCount: 0 }),
+    true,
+  );
+  assert.equal(
+    shouldShowSyncBar({ pendingCount: 0, failureCount: 3, conflictCount: 0 }),
+    false,
+  );
+  assert.equal(
+    shouldShowSyncBar({ pendingCount: 0, failureCount: 0, conflictCount: 1 }),
+    true,
+  );
+  assert.equal(syncRetryDelayMs(1), syncRetryConfig.silentRetryMs);
+  assert.equal(syncRetryDelayMs(3), syncRetryConfig.retryMs);
 
   console.log("check-sync-merge: ok");
 }

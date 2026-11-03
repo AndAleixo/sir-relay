@@ -112,7 +112,7 @@ Centred card layout (`authShellStyles`), `SiteFooter`, optional **`AuthPageHeade
 | Join group | `/join/[token]` | Yes | Set password / accept invite |
 | Privacy / Terms | `/privacy`, `/terms` | Yes | Canonical English pack `legal/en.json` · `CONTACT_EMAIL` |
 | No active group | `/groups` | App shell | Placeholder; **group panel opens** |
-| API keys | `/connect` | Yes | Named keys (groups, create/copy once/delete + open IDE). Profile links here. |
+| API keys | `/connect` | Yes | Named keys (create/list/delete). On reveal: centered **IDE** \| **MCP**; field labeled API key / MCP config; one Copy (bottom-right of the field). Collapsed MCP setup. Profile links here. |
 
 **Group panel** (header): switch · create · join. Leave/delete → **Settings**. Rules: [REQUIREMENTS §5.1.1–5.1.2](./REQUIREMENTS.md#511-groups).
 

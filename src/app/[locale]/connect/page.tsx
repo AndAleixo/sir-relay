@@ -10,6 +10,7 @@ import { loginPath } from "@/lib/entry-route";
 import { editorUriScheme } from "@/lib/connect-next";
 import { listClientApiKeys } from "@/lib/link-token";
 import { noIndexMetadata } from "@/lib/seo";
+import { siteOrigin } from "@/lib/site";
 import { getServices } from "@/services";
 
 export const metadata: Metadata = noIndexMetadata;
@@ -43,7 +44,7 @@ export default async function ConnectPage({
 
   return (
     <div className={`${authShellStyles.shell} flex min-h-screen flex-col`}>
-      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center py-12">
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center py-12">
         <AuthPageHeader locale={locale} />
         <Card>
           <CardBody className="space-y-5">
@@ -57,6 +58,7 @@ export default async function ConnectPage({
             </div>
             <ConnectClient
               scheme={scheme}
+              appUrl={siteOrigin()}
               initialKeys={apiKeys}
               groups={apiKeyGroups}
             />

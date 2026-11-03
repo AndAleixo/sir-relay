@@ -6,24 +6,23 @@ import {
   createClientApiKeyAction,
   deleteClientApiKeyAction,
 } from "@/app/actions/connect";
-import { CopyLinkButton } from "@/components/teammates/copy-link-button";
+import { ConnectKeyReveal } from "@/components/connect/connect-key-reveal";
+import { ConnectMcpHelp } from "@/components/connect/connect-mcp-help";
 import { Banner } from "@/components/ui/banner";
-import { Button, ButtonLink } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import type { ClientApiKeyPublic } from "@/lib/link-token";
 
 export type ApiKeyGroupOption = { id: string; name: string };
 
-function editorDeepLink(scheme: string, token: string): string {
-  return `${scheme}://sirrelay.sirrelay/connect?token=${encodeURIComponent(token)}`;
-}
-
 export function ConnectClient({
   scheme,
+  appUrl,
   initialKeys,
   groups,
 }: {
   scheme: string;
+  appUrl: string;
   initialKeys: ClientApiKeyPublic[];
   groups: ApiKeyGroupOption[];
 }) {
@@ -40,6 +39,7 @@ export function ConnectClient({
   const [creating, setCreating] = useState(initialKeys.length === 0);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const groupNameById = useMemo(() => {
     const map = new Map(groups.map((g) => [g.id, g.name]));
@@ -117,31 +117,27 @@ export function ConnectClient({
     if (revealed?.id === keyId) setRevealed(null);
   }
 
+  function openHelp() {
+    setHelpOpen(true);
+    window.requestAnimationFrame(() => {
+      document.getElementById("mcp-setup-help")?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    });
+  }
+
   return (
     <div className="space-y-5 text-left">
       {error ? <Banner variant="severity">{error}</Banner> : null}
 
       {revealed ? (
-        <div className="space-y-3 rounded-card border border-[var(--border)] bg-[var(--brand-accent-soft)]/40 p-4">
-          <p className="text-sm text-[var(--text-primary)]">{t("linkKeyShownOnce")}</p>
-          <ButtonLink
-            href={editorDeepLink(scheme, revealed.token)}
-            className="w-full sm:w-auto"
-          >
-            {t("linkKeyOpenIde")}
-          </ButtonLink>
-          <div className="flex flex-wrap items-start gap-2">
-            <code className="min-w-0 flex-1 break-all rounded-button bg-[var(--surface-card)] p-2 font-mono text-xs text-[var(--text-primary)]">
-              {revealed.token}
-            </code>
-            <CopyLinkButton
-              showLabel
-              text={revealed.token}
-              label={t("linkKeyCopy")}
-              copiedLabel={t("linkKeyCopied")}
-            />
-          </div>
-        </div>
+        <ConnectKeyReveal
+          scheme={scheme}
+          appUrl={appUrl}
+          token={revealed.token}
+          onOpenHelp={openHelp}
+        />
       ) : null}
 
       {keys.length > 0 ? (
@@ -261,6 +257,8 @@ export function ConnectClient({
           {t("linkKeyCreate")}
         </Button>
       )}
+
+      <ConnectMcpHelp open={helpOpen} onToggle={setHelpOpen} />
     </div>
   );
 }

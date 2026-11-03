@@ -523,7 +523,7 @@
     "linkKeyMcpHelpTitle": "Configurar MCP",
     "linkKeyMcpStepNode": "Instala Node.js 20+ desde",
     "linkKeyMcpStepKey": "Crea una key → MCP → copia la config.",
-    "linkKeyMcpStepJson": "Pégalo en Cursor Settings → MCP (o `.cursor/mcp.json`).",
+    "linkKeyMcpStepJson": "Pégalo en la configuración MCP de tu cliente de IA.",
     "linkKeyMcpStepRestart": "Recarga el cliente de IA y pídele listar tus tareas.",
     "linkKeyMcpNeedSteps": "Setup",
     "openTelegramLink": "Abrir en Telegram",

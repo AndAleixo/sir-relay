@@ -391,9 +391,9 @@
     "composeAcceptAll": "Create all",
     "composeRejectAll": "Discard all",
     "composeAiReviewTitle": "Review suggestions",
-    "composeAiPlaceholder": "Describe the tasks to create…",
-    "composeAiSubmit": "Suggest tasks",
-    "composeAiSuggesting": "Suggesting…",
+    "composeAiPlaceholder": "Ask AI to draft tasks…",
+    "composeAiSubmit": "Send to AI",
+    "composeAiSuggesting": "Sending…",
     "composeCloseConfirm": "Discard AI suggestions and close?",
     "composeErrorSuggest": "Could not suggest tasks. Try again or create one manually.",
     "composeErrorApprove": "Could not create the task. Check the title and try again."

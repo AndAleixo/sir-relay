@@ -1,5 +1,5 @@
 export const shellStyles = {
-  root: "flex min-h-screen flex-col bg-surface-bg md:flex-row",
+  root: "flex min-h-screen flex-col bg-surface-bg md:flex-row [--app-chrome-height:3.5rem] max-md:[--app-chrome-height:6.75rem]",
   sidebarShell:
     "relative hidden shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] md:block",
   sidebarExpanded: "w-56",
@@ -62,8 +62,9 @@ export const shellStyles = {
   mobileNavLinkActive:
     "bg-brand-accent-soft text-brand-accent hover:bg-brand-accent-soft hover:text-brand-accent",
   mobileNavLabel: "max-w-full truncate text-[10px] font-medium leading-tight",
+  /** Height must match `--app-chrome-height` on md+ so overlays sit flush under this edge. */
   header:
-    "hidden h-14 items-center justify-between gap-4 overflow-visible border-b border-[var(--border)] bg-surface-card px-6 md:flex",
+    "hidden h-[var(--app-chrome-height)] items-center justify-between gap-4 overflow-visible border-b border-[var(--border)] bg-surface-card px-6 md:flex",
   headerGroup: "relative min-w-0 flex-1 overflow-visible",
   headerActions: "flex shrink-0 items-center gap-2",
   headerControl:

@@ -391,9 +391,9 @@
     "composeAcceptAll": "Criar todas",
     "composeRejectAll": "Descartar todas",
     "composeAiReviewTitle": "Rever sugestões",
-    "composeAiPlaceholder": "Descreva as tarefas a criar…",
-    "composeAiSubmit": "Sugerir tarefas",
-    "composeAiSuggesting": "A sugerir…",
+    "composeAiPlaceholder": "Peça à AI para rascunhar tarefas…",
+    "composeAiSubmit": "Enviar à AI",
+    "composeAiSuggesting": "A enviar…",
     "composeCloseConfirm": "Descartar sugestões da AI e fechar?",
     "composeErrorSuggest": "Não foi possível sugerir tarefas. Tente de novo ou crie uma manualmente.",
     "composeErrorApprove": "Não foi possível criar a tarefa. Verifique o título e tente de novo."

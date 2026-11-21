@@ -1,8 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type KeyboardEvent,
+} from "react";
 import type { ManagedProject, Task } from "@/domain/types";
+import { cn } from "@/lib/cn";
 import type { PendingCreateDraft } from "@/lib/ingest";
+import { useFadeOpen } from "@/hooks/use-fade-open";
 import {
   approvePendingCreatesAction,
   suggestTasksFromTextAction,
@@ -14,7 +23,7 @@ import {
 } from "@/components/tasks/task-form";
 import { Banner } from "@/components/ui/banner";
 import { Button, buttonCompact } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/input";
+import { composeDrawerStyles as styles } from "./compose-drawer.styles";
 import { SuggestReviewCard } from "./suggest-review-card";
 
 export type ComposeDrawerLabels = TaskFormLabels & {
@@ -91,6 +100,8 @@ export function TaskComposeDrawer({
   const [busy, setBusy] = useState<"suggest" | "approve" | null>(null);
   const [pending, startTransition] = useTransition();
   const locked = pending || busy !== null;
+  const { rendered, visible, onTransitionEnd } = useFadeOpen(open);
+  const chatRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -100,6 +111,13 @@ export function TaskComposeDrawer({
     setError(null);
     setBusy(null);
   }, [open, selfId, defaultProjectId]);
+
+  useEffect(() => {
+    const el = chatRef.current;
+    if (!el) return;
+    el.style.height = "0px";
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, [aiText, open, aiEnabled]);
 
   const projectOptions = useMemo(
     () =>
@@ -183,6 +201,12 @@ export function TaskComposeDrawer({
     });
   }
 
+  function onChatKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== "Enter" || event.shiftKey) return;
+    event.preventDefault();
+    runSuggest();
+  }
+
   function createDrafts(drafts: PendingCreateDraft[], clearAi: boolean) {
     if (locked) return;
     if (drafts.some((draft) => !draft.title.trim())) {
@@ -254,8 +278,6 @@ export function TaskComposeDrawer({
     setAiItems([]);
   }
 
-  if (!open) return null;
-
   const fieldLabels: TaskFormLabels = {
     title: labels.title,
     titlePlaceholder: labels.titlePlaceholder,
@@ -277,11 +299,17 @@ export function TaskComposeDrawer({
     categoryNone: labels.categoryNone,
   };
 
+  if (!rendered) return null;
+
   return (
-    <div className="fixed inset-0 z-[200] flex justify-end" role="presentation">
+    <div className={styles.root} role="presentation">
       <button
         type="button"
-        className="absolute inset-0 bg-black/40"
+        className={cn(
+          styles.backdrop,
+          visible ? styles.backdropMotionOpen : styles.backdropMotionClose,
+          visible ? styles.backdropOpen : styles.backdropClosed,
+        )}
         aria-label={labels.close}
         onClick={requestClose}
       />
@@ -289,38 +317,79 @@ export function TaskComposeDrawer({
         role="dialog"
         aria-modal="true"
         aria-label={labels.drawerTitle}
-        className="relative flex h-full w-full max-w-lg flex-col border-l border-[var(--border)] bg-surface-card shadow-xl"
+        className={cn(
+          styles.panel,
+          visible ? styles.panelMotionOpen : styles.panelMotionClose,
+          visible ? styles.panelOpen : styles.panelClosed,
+        )}
+        onTransitionEnd={onTransitionEnd}
       >
-        <header className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-3">
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">
-            {labels.drawerTitle}
-          </h2>
-          <Button
-            variant="secondary"
-            className={buttonCompact}
+        <header className={styles.header}>
+          <h2 className={styles.title}>{labels.drawerTitle}</h2>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            aria-label={labels.close}
             onClick={requestClose}
           >
-            {labels.close}
-          </Button>
+            <svg
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden
+              className="h-4 w-4"
+            >
+              <path
+                d="M5 5l10 10M15 5L5 15"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
         </header>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+        <div className={styles.body}>
           {aiEnabled ? (
-            <div className="space-y-2">
-              <Textarea
+            <div className={styles.chat}>
+              <textarea
+                ref={chatRef}
+                className={styles.chatInput}
                 value={aiText}
                 onChange={(event) => setAiText(event.target.value)}
+                onKeyDown={onChatKeyDown}
                 placeholder={labels.aiPlaceholder}
-                rows={3}
+                rows={1}
                 disabled={locked}
+                aria-label={labels.aiPlaceholder}
               />
-              <Button
-                className={buttonCompact}
+              <button
+                type="button"
+                className={styles.chatSend}
                 disabled={locked || !aiText.trim()}
+                aria-label={
+                  busy === "suggest" ? labels.aiSuggesting : labels.aiSubmit
+                }
                 onClick={runSuggest}
               >
-                {busy === "suggest" ? labels.aiSuggesting : labels.aiSubmit}
-              </Button>
+                {busy === "suggest" ? (
+                  <span className="h-3.5 w-3.5 animate-pulse rounded-full bg-current/80" />
+                ) : (
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    aria-hidden
+                    className="h-4 w-4"
+                  >
+                    <path
+                      d="M10 16V4m0 0l-4.5 4.5M10 4l4.5 4.5"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </button>
             </div>
           ) : null}
 
@@ -415,7 +484,7 @@ export function TaskComposeDrawer({
           ) : null}
         </div>
 
-        <footer className="flex flex-wrap gap-2 border-t border-[var(--border)] px-4 py-3">
+        <footer className={styles.footer}>
           {aiItems.length === 0 ? (
             <Button
               className={buttonCompact}

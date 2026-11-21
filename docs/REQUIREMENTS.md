@@ -397,7 +397,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `join/[token]`, `change-password` | — | — | Auth flows |
 | `profile`, `profile/delete` | Yes | Yes | Global account · hard-delete confirm (P1-AUTH-15) |
 | `tasks` | My work / Team | My work / Team (edit own) | Board \| List |
-| `tasks/new` | Yes | Yes (self only) | |
+| `tasks` compose drawer (`?compose=1`; `/tasks/new` redirects) | Yes | Yes (self only) | |
 | `tasks/[id]` | Yes | Own editable · others read-only | |
 | `teammates` | Yes | Read | List |
 | `teammates/new` | Yes | — | Invite |

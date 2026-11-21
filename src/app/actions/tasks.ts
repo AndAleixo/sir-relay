@@ -6,7 +6,13 @@ import type { Task, TaskStatus } from "@/domain/types";
 import type { SyncActionOptions, TaskActionResult } from "@/domain/sync";
 import { assertCanCreateTask } from "@/lib/authz";
 import { loginPath } from "@/lib/entry-route";
-import { requireAppSession, requireOperatorSession } from "@/lib/require-session";
+import {
+  openaiConfigured,
+  suggestTasksFromText,
+  type IngestContext,
+  type PendingCreateDraft,
+} from "@/lib/ingest";
+import { requireOperatorSession } from "@/lib/require-session";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { isGroupTimezone } from "@/lib/group-timezones";
 import {
@@ -14,7 +20,6 @@ import {
   coerceTasksScope,
   coerceTasksView,
   taskDetailHref,
-  taskNewHref,
   tasksListHrefFromReturn,
 } from "@/lib/tasks-url";
 import { parseTaskDifficulty } from "@/lib/task-difficulty";
@@ -45,65 +50,6 @@ function returnHrefOpts(formData: FormData) {
     view: coerceTasksView(view),
     project: coerceTasksProject(project) ?? null,
   };
-}
-
-export async function createTaskForm(locale: string, formData: FormData) {
-  const title = String(formData.get("title") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const dueRaw = String(formData.get("dueDate") ?? "").trim();
-  const difficulty = parseTaskDifficulty(formData.get("difficulty"));
-  const projectId = String(formData.get("projectId") ?? "").trim() || null;
-  const returnOpts = returnHrefOpts(formData);
-
-  const session = await requireAppSession(locale);
-  const assigneeId =
-    session.user.role === "teammate"
-      ? session.user.id
-      : String(formData.get("assigneeId") ?? "").trim();
-
-  if (!title || !assigneeId) {
-    redirect(
-      taskNewHref(locale, {
-        ...returnOpts,
-        error: !title ? "title" : "assignee",
-      }),
-    );
-  }
-
-  const { tasks } = getServices();
-
-  try {
-    await tasks.createTask(
-      {
-        title,
-        assigneeId,
-        description,
-        dueDate: dueRaw || null,
-        difficulty,
-        projectId,
-      },
-      { session },
-    );
-  } catch {
-    redirect(
-      taskNewHref(locale, {
-        ...returnOpts,
-        error: "failed",
-      }),
-    );
-  }
-
-  revalidatePath(`/${locale}/tasks`);
-  redirect(
-    tasksListHrefFromReturn(
-      locale,
-      session.user.role,
-      returnOpts.scope,
-      returnOpts.view,
-      { saved: true },
-      returnOpts.project ?? undefined,
-    ),
-  );
 }
 
 export async function updateOperatorAlertPrefs(formData: FormData) {
@@ -227,6 +173,135 @@ export async function updateTaskStatusAction(
 
   maybeRevalidate();
   return { ok: true, task: updated };
+}
+
+async function buildIngestContext(locale: string): Promise<
+  | { ok: true; locale: string; ctx: IngestContext }
+  | { ok: false; error: "forbidden" }
+> {
+  const { auth, teammates, projects } = getServices();
+  const session = await auth.getSession();
+  if (!session?.activeGroupId) return { ok: false, error: "forbidden" };
+
+  const orgUsers = await teammates.listOrganizationUsers({ session });
+  const openProjects = await projects.listOpen({ session });
+  const me = orgUsers.find((user) => user.id === session.user.id);
+
+  const members =
+    session.user.role === "operator"
+      ? [
+          {
+            id: session.user.id,
+            label: groupMemberLabel({
+              ...session.user,
+              displayName: me?.displayName,
+            }),
+          },
+          ...orgUsers
+            .filter((user) => user.id !== session.user.id)
+            .map((user) => ({
+              id: user.id,
+              label: groupMemberLabel(user),
+            })),
+        ]
+      : [
+          {
+            id: session.user.id,
+            label: groupMemberLabel({
+              ...session.user,
+              displayName: me?.displayName,
+            }),
+          },
+        ];
+
+  return {
+    ok: true,
+    locale,
+    ctx: {
+      role: session.user.role,
+      defaultAssigneeId: session.user.id,
+      members,
+      projects: openProjects.map((project) => ({
+        id: project.id,
+        name: project.name,
+        acronym: project.acronym,
+        categories: project.categories.map((category) => ({
+          id: category.id,
+          name: category.name,
+        })),
+      })),
+    },
+  };
+}
+
+export async function suggestTasksFromTextAction(
+  locale: string,
+  text: string,
+): Promise<
+  | { ok: true; drafts: PendingCreateDraft[] }
+  | {
+      ok: false;
+      error: "forbidden" | "disabled" | "empty" | "upstream" | "invalid";
+    }
+> {
+  if (!openaiConfigured()) return { ok: false, error: "disabled" };
+  const built = await buildIngestContext(locale);
+  if (!built.ok) return built;
+  return suggestTasksFromText(text, built.locale, built.ctx);
+}
+
+export async function approvePendingCreatesAction(
+  locale: string,
+  drafts: PendingCreateDraft[],
+): Promise<
+  | { ok: true; tasks: Task[]; created: number }
+  | { ok: false; error: "forbidden" | "invalid" | "failed"; created?: number }
+> {
+  if (!Array.isArray(drafts) || drafts.length === 0) {
+    return { ok: false, error: "invalid" };
+  }
+
+  const { auth, tasks } = getServices();
+  const session = await auth.getSession();
+  if (!session?.activeGroupId) return { ok: false, error: "forbidden" };
+
+  const created: Task[] = [];
+
+  for (const draft of drafts) {
+    const title = draft.title?.trim() ?? "";
+    const assigneeId =
+      session.user.role === "teammate"
+        ? session.user.id
+        : (draft.assigneeId?.trim() ?? "");
+    if (!title || !assigneeId) {
+      return { ok: false, error: "invalid", created: created.length };
+    }
+    try {
+      assertCanCreateTask(session, assigneeId);
+    } catch {
+      return { ok: false, error: "forbidden", created: created.length };
+    }
+    try {
+      const task = await tasks.createTask(
+        {
+          title: title.slice(0, 200),
+          description: draft.description?.trim() ?? "",
+          assigneeId,
+          dueDate: draft.dueDate?.trim() || null,
+          difficulty: parseTaskDifficulty(draft.difficulty ?? ""),
+          projectId: draft.projectId?.trim() || null,
+          categoryId: draft.categoryId?.trim() || null,
+        },
+        { session },
+      );
+      created.push(task);
+    } catch {
+      return { ok: false, error: "failed", created: created.length };
+    }
+  }
+
+  maybeRevalidate();
+  return { ok: true, tasks: created, created: created.length };
 }
 
 export async function quickCreateTaskAction(

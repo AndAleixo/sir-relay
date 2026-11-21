@@ -384,7 +384,19 @@
     "projectScrollRight": "Later projects",
     "addProject": "Add a project",
     "category": "Category",
-    "categoryNone": "None"
+    "categoryNone": "None",
+    "composeTitle": "New task",
+    "composeAccept": "Create",
+    "composeReject": "Discard",
+    "composeAcceptAll": "Create all",
+    "composeRejectAll": "Discard all",
+    "composeAiReviewTitle": "Review suggestions",
+    "composeAiPlaceholder": "Describe the tasks to create…",
+    "composeAiSubmit": "Suggest tasks",
+    "composeAiSuggesting": "Suggesting…",
+    "composeCloseConfirm": "Discard AI suggestions and close?",
+    "composeErrorSuggest": "Could not suggest tasks. Try again or create one manually.",
+    "composeErrorApprove": "Could not create the task. Check the title and try again."
   },
   "projects": {
     "hint": "Short labels for tasks in this group. The acronym shows on the board and in Telegram. Anyone can add categories.",

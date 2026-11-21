@@ -16,6 +16,8 @@ export type TasksHrefOpts = {
   view: TasksView;
   /** Open project id, or omit/null = All. */
   project?: string | null;
+  /** Open the compose drawer on `/tasks`. */
+  compose?: boolean;
 };
 
 function setProjectParam(
@@ -61,6 +63,10 @@ export function coerceTasksProject(raw: string | undefined): string | undefined 
   return id || undefined;
 }
 
+export function parseTasksCompose(raw: string | undefined): boolean {
+  return raw === "1";
+}
+
 export function tasksListHref(
   locale: string,
   opts: TasksHrefOpts & TasksListFlash,
@@ -69,6 +75,7 @@ export function tasksListHref(
   params.set("scope", opts.scope);
   params.set("view", opts.view);
   setProjectParam(params, opts.project);
+  if (opts.compose) params.set("compose", "1");
   if (opts.saved) params.set("saved", "1");
   if (opts.deleted) params.set("deleted", "1");
   if (opts.error) params.set("error", opts.error);
@@ -92,16 +99,18 @@ export function taskDetailHref(
   return `/${locale}/tasks/${taskId}?${params.toString()}`;
 }
 
+/** Create entry: board/list with compose drawer (legacy `/tasks/new` bookmarks). */
 export function taskNewHref(
   locale: string,
   opts: TasksHrefOpts & { error?: string },
 ): string {
-  const params = new URLSearchParams();
-  params.set("scope", opts.scope);
-  params.set("view", opts.view);
-  setProjectParam(params, opts.project);
-  if (opts.error) params.set("error", opts.error);
-  return `/${locale}/tasks/new?${params.toString()}`;
+  return tasksListHref(locale, {
+    scope: opts.scope,
+    view: opts.view,
+    project: opts.project,
+    compose: true,
+    error: opts.error,
+  });
 }
 
 /** Read return scope/view/project from form fields (or args); fall back by role. */

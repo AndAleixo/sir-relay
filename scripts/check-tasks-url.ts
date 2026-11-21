@@ -35,7 +35,7 @@ assert.equal(
 );
 assert.equal(
   taskNewHref("es-es", { scope: "mine", view: "list", error: "title" }),
-  "/es-es/tasks/new?scope=mine&view=list&error=title",
+  "/es-es/tasks?scope=mine&view=list&compose=1&error=title",
 );
 assert.equal(
   tasksListHref("en-gb", {

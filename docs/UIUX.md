@@ -191,7 +191,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 
 ## 3. Task boards — scope + layout
 
-Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · **Project** · New task. Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on the **Projects** tab. Project filter sits in the toolbar and applies to **board and list**; list keeps assignee / status / sort filters. Inline edit title, project, and category on the list.
+Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · **Project** · New task (opens compose drawer; optional AI suggest when `OPENAI_API_KEY` is set). Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on the **Projects** tab. Project filter sits in the toolbar and applies to **board and list**; list keeps assignee / status / sort filters. Inline edit title, project, and category on the list.
 
 **URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`. Project filter (P3-16): `?project=<id>` or omit = All — [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16). Same `project` query scopes board and list.
 
@@ -317,7 +317,7 @@ Assignee only in list view (Team board column implies assignee).
 
 ## 5. Task detail
 
-Route: `/[locale]/tasks/[id]`. Same field order as **New task**; plus status and delete. Forms: [ARCHITECTURE.md](./ARCHITECTURE.md#task-forms).
+Route: `/[locale]/tasks/[id]`. Same field order as the compose drawer form; plus status and delete. Forms: [ARCHITECTURE.md](./ARCHITECTURE.md#task-forms).
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -485,7 +485,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | `GroupDangerSettings` | Leave / delete |
 | `LocaleSwitcher` / `LocalePicker` / `UserMenu` | Header utilities |
 | `UserAvatar` / `ProfileAvatarEditor` | Photo |
-| `TaskFormFields` / `CreateTaskForm` / `EditTaskForm` | Shared forms |
+| `TaskFormFields` / `EditTaskForm` / `TaskComposeDrawer` | Shared fields + board compose drawer |
 | `BoardTaskCard` / `TaskCardMenu` / `TaskProjectPicker` | Board cards + ⋯ / acronym segments |
 | `StatusKanban` / `TeamBoard` / `BoardQuickAddTask` | Boards |
 | `TaskList` / `ViewToggle` / `ScopeToggle` | List table (title / project / category edit) + toolbar |

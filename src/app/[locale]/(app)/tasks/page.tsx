@@ -4,10 +4,12 @@ import { orderMembersByTodoCount } from "@/lib/board-member-order";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { requireAppSession } from "@/lib/require-session";
 import {
+  parseTasksCompose,
   parseTasksProject,
   parseTasksScope,
   parseTasksView,
 } from "@/lib/tasks-url";
+import { openaiConfigured } from "@/lib/ingest";
 import { getServices } from "@/services";
 import { TasksPageClient } from "@/components/tasks/tasks-page-client";
 import { Banner } from "@/components/ui/banner";
@@ -22,10 +24,17 @@ export default async function TasksPage({
     view?: string;
     project?: string;
     error?: string;
+    compose?: string;
   }>;
 }) {
   const { locale } = await params;
-  const { scope: scopeRaw, view: viewRaw, project: projectRaw, error } = await searchParams;
+  const {
+    scope: scopeRaw,
+    view: viewRaw,
+    project: projectRaw,
+    error,
+    compose: composeRaw,
+  } = await searchParams;
   const t = await getTranslations();
   const session = await requireAppSession(locale);
   const { tasks, teammates, alerts, projects } = getServices();
@@ -60,6 +69,18 @@ export default async function TasksPage({
         <Banner variant="severity" className="mb-4">
           {t("tasks.errorNotFound")}
         </Banner>
+      ) : error === "title" ? (
+        <Banner variant="severity" className="mb-4">
+          {t("tasks.errorTitle")}
+        </Banner>
+      ) : error === "assignee" ? (
+        <Banner variant="severity" className="mb-4">
+          {t("tasks.errorAssignee")}
+        </Banner>
+      ) : error === "failed" ? (
+        <Banner variant="severity" className="mb-4">
+          {t("tasks.errorFailed")}
+        </Banner>
       ) : null}
       <TasksPageClient
         locale={locale}
@@ -67,6 +88,8 @@ export default async function TasksPage({
         initialScope={initialScope}
         initialView={initialView}
         initialProject={initialProject}
+        initialCompose={parseTasksCompose(composeRaw)}
+        aiEnabled={openaiConfigured()}
         openProjects={openProjects}
         self={{
           id: session.user.id,
@@ -126,6 +149,40 @@ export default async function TasksPage({
           addProject: t("tasks.addProject"),
           category: t("tasks.category"),
           categoryNone: t("tasks.categoryNone"),
+          compose: {
+            drawerTitle: t("tasks.composeTitle"),
+            close: t("common.close"),
+            save: t("common.save"),
+            accept: t("tasks.composeAccept"),
+            reject: t("tasks.composeReject"),
+            acceptAll: t("tasks.composeAcceptAll"),
+            rejectAll: t("tasks.composeRejectAll"),
+            aiReviewTitle: t("tasks.composeAiReviewTitle"),
+            aiPlaceholder: t("tasks.composeAiPlaceholder"),
+            aiSubmit: t("tasks.composeAiSubmit"),
+            aiSuggesting: t("tasks.composeAiSuggesting"),
+            closeConfirm: t("tasks.composeCloseConfirm"),
+            errorSuggest: t("tasks.composeErrorSuggest"),
+            errorApprove: t("tasks.composeErrorApprove"),
+            title: t("tasks.title"),
+            titlePlaceholder: t("tasks.titlePlaceholder"),
+            assignee: t("tasks.assignee"),
+            assigneeHint: t("tasks.assigneeHint"),
+            dueDate: t("tasks.dueDate"),
+            description: t("tasks.description"),
+            descriptionPlaceholder: t("tasks.descriptionPlaceholder"),
+            status: t("tasks.status"),
+            overdue: t("tasks.overdue"),
+            difficulty: t("tasks.difficulty"),
+            difficultyNone: t("tasks.difficultyNone"),
+            difficultyEasy: t("tasks.difficultyEasy"),
+            difficultyMedium: t("tasks.difficultyMedium"),
+            difficultyHard: t("tasks.difficultyHard"),
+            project: t("tasks.project"),
+            projectNone: t("tasks.projectNone"),
+            category: t("tasks.category"),
+            categoryNone: t("tasks.categoryNone"),
+          },
         }}
       />
     </>

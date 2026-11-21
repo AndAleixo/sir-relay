@@ -1,20 +1,14 @@
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
 import { getServices } from "@/services";
 import { requireAppSession } from "@/lib/require-session";
-import { groupMemberLabel } from "@/lib/group-member-label";
 import {
   parseTasksProject,
   parseTasksScope,
   parseTasksView,
-  tasksListHref,
+  taskNewHref,
 } from "@/lib/tasks-url";
-import { PageHeader } from "@/components/layout/app-shell";
-import { CreateTaskForm } from "@/components/tasks/task-form";
-import { Banner } from "@/components/ui/banner";
-import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 
+/** Legacy `/tasks/new` → board/list with compose drawer. */
 export default async function NewTaskPage({
   params,
   searchParams,
@@ -28,112 +22,21 @@ export default async function NewTaskPage({
   }>;
 }) {
   const { locale } = await params;
-  const { scope: scopeRaw, view: viewRaw, project: projectRaw, error } = await searchParams;
-  const t = await getTranslations();
+  const { scope: scopeRaw, view: viewRaw, project: projectRaw, error } =
+    await searchParams;
   const session = await requireAppSession(locale);
-  const isOperator = session.user.role === "operator";
-  const { teammates, projects } = getServices();
-
+  const { projects } = getServices();
   const openProjects = await projects.listOpen({ session });
-  const scope = parseTasksScope(scopeRaw, session.user.role);
-  const view = parseTasksView(viewRaw);
-  const project = parseTasksProject(
-    projectRaw,
-    openProjects.map((row) => row.id),
-  );
-  const listHref = tasksListHref(locale, { scope, view, project });
 
-  const assigneeOptions = isOperator
-    ? await (async () => {
-        const orgUsers = await teammates.listOrganizationUsers({ session });
-        const me = orgUsers.find((user) => user.id === session.user.id);
-        return [
-          {
-            id: session.user.id,
-            label: t("tasks.assignToMe", {
-              name: groupMemberLabel({
-                ...session.user,
-                displayName: me?.displayName,
-              }),
-            }),
-          },
-          ...orgUsers
-            .filter((user) => user.id !== session.user.id)
-            .map((user) => ({
-              id: user.id,
-              label: groupMemberLabel(user),
-            })),
-        ];
-      })()
-    : [
-        {
-          id: session.user.id,
-          label: t("tasks.assignToMe", {
-            name: groupMemberLabel(session.user),
-          }),
-        },
-      ];
-
-  const errorMessage =
-    error === "title"
-      ? t("tasks.errorTitle")
-      : error === "assignee"
-        ? t("tasks.errorAssignee")
-        : error === "failed"
-          ? t("tasks.errorFailed")
-          : null;
-
-  return (
-    <>
-      <PageHeader
-        title={t("common.newTask")}
-        action={
-          <Link href={listHref}>
-            <Button variant="secondary">{t("common.back")}</Button>
-          </Link>
-        }
-      />
-      {errorMessage ? (
-        <Banner variant="severity" className="mb-4 max-w-xl">
-          {errorMessage}
-        </Banner>
-      ) : null}
-      <Card className="max-w-xl">
-        <CardBody className="space-y-4">
-          <CreateTaskForm
-            locale={locale}
-            scope={scope}
-            view={view}
-            project={project}
-            isOperator={isOperator}
-            assigneeOptions={assigneeOptions}
-            projectOptions={openProjects.map((row) => ({
-              id: row.id,
-              label: `${row.acronym} · ${row.name}`,
-            }))}
-            labels={{
-              title: t("tasks.title"),
-              titlePlaceholder: t("tasks.titlePlaceholder"),
-              assignee: t("tasks.assignee"),
-              assigneeHint: t("tasks.assigneeHint"),
-              dueDate: t("tasks.dueDate"),
-              description: t("tasks.description"),
-              descriptionPlaceholder: t("tasks.descriptionPlaceholder"),
-              status: t("tasks.status"),
-              overdue: t("tasks.overdue"),
-              difficulty: t("tasks.difficulty"),
-              difficultyNone: t("tasks.difficultyNone"),
-              difficultyEasy: t("tasks.difficultyEasy"),
-              difficultyMedium: t("tasks.difficultyMedium"),
-              difficultyHard: t("tasks.difficultyHard"),
-              project: t("tasks.project"),
-              projectNone: t("tasks.projectNone"),
-              save: t("common.save"),
-              cancel: t("common.cancel"),
-            }}
-          />
-        </CardBody>
-      </Card>
-    </>
+  redirect(
+    taskNewHref(locale, {
+      scope: parseTasksScope(scopeRaw, session.user.role),
+      view: parseTasksView(viewRaw),
+      project: parseTasksProject(
+        projectRaw,
+        openProjects.map((row) => row.id),
+      ),
+      error,
+    }),
   );
 }

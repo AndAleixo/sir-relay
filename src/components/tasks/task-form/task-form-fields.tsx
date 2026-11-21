@@ -9,6 +9,20 @@ export type TaskFormAssigneeOption = {
   label: string;
 };
 
+export type TaskFormFieldValues = Partial<
+  Pick<
+    Task,
+    | "title"
+    | "description"
+    | "dueDate"
+    | "status"
+    | "assigneeId"
+    | "difficulty"
+    | "projectId"
+    | "categoryId"
+  >
+>;
+
 export type TaskFormLabels = {
   title: string;
   titlePlaceholder: string;
@@ -26,6 +40,8 @@ export type TaskFormLabels = {
   difficultyHard: string;
   project: string;
   projectNone: string;
+  category?: string;
+  categoryNone?: string;
 };
 
 type TaskFormFieldsProps = {
@@ -34,19 +50,15 @@ type TaskFormFieldsProps = {
   isOperator: boolean;
   assigneeOptions: TaskFormAssigneeOption[];
   projectOptions: { id: string; label: string }[];
+  /** When set, show category select (options filtered by caller). */
+  categoryOptions?: { id: string; label: string }[];
   statusLabels?: Record<TaskStatus, string>;
-  defaultValues?: Partial<
-    Pick<
-      Task,
-      | "title"
-      | "description"
-      | "dueDate"
-      | "status"
-      | "assigneeId"
-      | "difficulty"
-      | "projectId"
-    >
-  >;
+  defaultValues?: TaskFormFieldValues;
+  /** Controlled mode for pending compose cards. */
+  values?: TaskFormFieldValues;
+  onChange?: (patch: TaskFormFieldValues) => void;
+  /** Prefix for html ids when multiple forms on one page. */
+  idPrefix?: string;
   overdue?: boolean;
 };
 
@@ -56,33 +68,62 @@ export function TaskFormFields({
   isOperator,
   assigneeOptions,
   projectOptions,
+  categoryOptions,
   statusLabels,
   defaultValues,
+  values,
+  onChange,
+  idPrefix = "",
   overdue = false,
 }: TaskFormFieldsProps) {
+  const controlled = values !== undefined;
   const difficultyLabels = {
     easy: labels.difficultyEasy,
     medium: labels.difficultyMedium,
     hard: labels.difficultyHard,
   } as const;
 
+  function fid(name: string) {
+    return idPrefix ? `${idPrefix}-${name}` : name;
+  }
+
+  function fieldValue<K extends keyof TaskFormFieldValues>(
+    key: K,
+  ): TaskFormFieldValues[K] | undefined {
+    if (controlled) return values?.[key];
+    return defaultValues?.[key];
+  }
+
+  function setField<K extends keyof TaskFormFieldValues>(
+    key: K,
+    value: TaskFormFieldValues[K],
+  ) {
+    onChange?.({ [key]: value } as TaskFormFieldValues);
+  }
+
   return (
     <>
       <div>
-        <Label htmlFor="title">{labels.title}</Label>
+        <Label htmlFor={fid("title")}>{labels.title}</Label>
         <Input
-          id="title"
+          id={fid("title")}
           name="title"
           required
           maxLength={200}
-          defaultValue={defaultValues?.title}
+          value={controlled ? (values?.title ?? "") : undefined}
+          defaultValue={controlled ? undefined : defaultValues?.title}
+          onChange={
+            controlled
+              ? (event) => setField("title", event.target.value)
+              : undefined
+          }
           placeholder={labels.titlePlaceholder}
         />
       </div>
 
       {isOperator && (
         <div>
-          <Label htmlFor="assigneeId" className="mb-0">
+          <Label htmlFor={fid("assigneeId")} className="mb-0">
             {labels.assignee}
           </Label>
           <p className="mt-0.5 text-xs text-[var(--text-muted)]">
@@ -90,10 +131,24 @@ export function TaskFormFields({
           </p>
           <div className="mt-1.5">
             <Select
-              id="assigneeId"
+              id={fid("assigneeId")}
               name="assigneeId"
               required={mode === "create"}
-              defaultValue={defaultValues?.assigneeId ?? assigneeOptions[0]?.id}
+              value={
+                controlled
+                  ? (values?.assigneeId ?? assigneeOptions[0]?.id ?? "")
+                  : undefined
+              }
+              defaultValue={
+                controlled
+                  ? undefined
+                  : (defaultValues?.assigneeId ?? assigneeOptions[0]?.id)
+              }
+              onChange={
+                controlled
+                  ? (next) => setField("assigneeId", next)
+                  : undefined
+              }
               options={assigneeOptions.map((option) => ({
                 value: option.id,
                 label: option.label,
@@ -106,11 +161,15 @@ export function TaskFormFields({
 
       {mode === "edit" && statusLabels && (
         <div>
-          <Label htmlFor="status">{labels.status}</Label>
+          <Label htmlFor={fid("status")}>{labels.status}</Label>
           <Select
-            id="status"
+            id={fid("status")}
             name="status"
-            defaultValue={defaultValues?.status ?? "todo"}
+            value={controlled ? (values?.status ?? "todo") : undefined}
+            defaultValue={controlled ? undefined : (defaultValues?.status ?? "todo")}
+            onChange={
+              controlled ? (next) => setField("status", next as TaskStatus) : undefined
+            }
             options={(["todo", "doing", "done"] as const).map((status) => ({
               value: status,
               label: statusLabels[status],
@@ -121,11 +180,23 @@ export function TaskFormFields({
       )}
 
       <div>
-        <Label htmlFor="difficulty">{labels.difficulty}</Label>
+        <Label htmlFor={fid("difficulty")}>{labels.difficulty}</Label>
         <Select
-          id="difficulty"
+          id={fid("difficulty")}
           name="difficulty"
-          defaultValue={defaultValues?.difficulty ?? ""}
+          value={
+            controlled ? (values?.difficulty ?? "") : undefined
+          }
+          defaultValue={controlled ? undefined : (defaultValues?.difficulty ?? "")}
+          onChange={
+            controlled
+              ? (next) =>
+                  setField(
+                    "difficulty",
+                    next === "" ? null : (next as Task["difficulty"]),
+                  )
+              : undefined
+          }
           options={[
             { value: "", label: labels.difficultyNone },
             ...TASK_DIFFICULTIES.map((value) => ({
@@ -139,11 +210,22 @@ export function TaskFormFields({
 
       {projectOptions.length > 0 ? (
         <div>
-          <Label htmlFor="projectId">{labels.project}</Label>
+          <Label htmlFor={fid("projectId")}>{labels.project}</Label>
           <Select
-            id="projectId"
+            id={fid("projectId")}
             name="projectId"
-            defaultValue={defaultValues?.projectId ?? ""}
+            value={controlled ? (values?.projectId ?? "") : undefined}
+            defaultValue={controlled ? undefined : (defaultValues?.projectId ?? "")}
+            onChange={
+              controlled
+                ? (next) => {
+                    onChange?.({
+                      projectId: next || null,
+                      categoryId: null,
+                    });
+                  }
+                : undefined
+            }
             options={[
               { value: "", label: labels.projectNone },
               ...projectOptions.map((option) => ({
@@ -158,13 +240,47 @@ export function TaskFormFields({
         <input type="hidden" name="projectId" value="" />
       )}
 
+      {categoryOptions && labels.category && labels.categoryNone ? (
+        <div>
+          <Label htmlFor={fid("categoryId")}>{labels.category}</Label>
+          <Select
+            id={fid("categoryId")}
+            name="categoryId"
+            value={controlled ? (values?.categoryId ?? "") : undefined}
+            defaultValue={
+              controlled ? undefined : (defaultValues?.categoryId ?? "")
+            }
+            onChange={
+              controlled
+                ? (next) => setField("categoryId", next || null)
+                : undefined
+            }
+            disabled={!fieldValue("projectId")}
+            options={[
+              { value: "", label: labels.categoryNone },
+              ...categoryOptions.map((option) => ({
+                value: option.id,
+                label: option.label,
+              })),
+            ]}
+            aria-label={labels.category}
+          />
+        </div>
+      ) : null}
+
       <div>
-        <Label htmlFor="dueDate">{labels.dueDate}</Label>
+        <Label htmlFor={fid("dueDate")}>{labels.dueDate}</Label>
         <Input
-          id="dueDate"
+          id={fid("dueDate")}
           name="dueDate"
           type="date"
-          defaultValue={defaultValues?.dueDate ?? ""}
+          value={controlled ? (values?.dueDate ?? "") : undefined}
+          defaultValue={controlled ? undefined : (defaultValues?.dueDate ?? "")}
+          onChange={
+            controlled
+              ? (event) => setField("dueDate", event.target.value || null)
+              : undefined
+          }
         />
         {mode === "edit" && overdue && defaultValues?.dueDate && (
           <p className="mt-1.5 text-xs font-medium text-[var(--severity)]">
@@ -174,11 +290,17 @@ export function TaskFormFields({
       </div>
 
       <div>
-        <Label htmlFor="description">{labels.description}</Label>
+        <Label htmlFor={fid("description")}>{labels.description}</Label>
         <Textarea
-          id="description"
+          id={fid("description")}
           name="description"
-          defaultValue={defaultValues?.description}
+          value={controlled ? (values?.description ?? "") : undefined}
+          defaultValue={controlled ? undefined : defaultValues?.description}
+          onChange={
+            controlled
+              ? (event) => setField("description", event.target.value)
+              : undefined
+          }
           placeholder={labels.descriptionPlaceholder}
         />
       </div>

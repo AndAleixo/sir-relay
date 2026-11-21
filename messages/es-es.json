@@ -384,7 +384,19 @@
     "projectScrollRight": "Proyectos siguientes",
     "addProject": "Añadir un proyecto",
     "category": "Categoría",
-    "categoryNone": "Ninguna"
+    "categoryNone": "Ninguna",
+    "composeTitle": "Nueva tarea",
+    "composeAccept": "Crear",
+    "composeReject": "Descartar",
+    "composeAcceptAll": "Crear todas",
+    "composeRejectAll": "Descartar todas",
+    "composeAiReviewTitle": "Revisar sugerencias",
+    "composeAiPlaceholder": "Describe las tareas a crear…",
+    "composeAiSubmit": "Sugerir tareas",
+    "composeAiSuggesting": "Sugiriendo…",
+    "composeCloseConfirm": "¿Descartar sugerencias de la AI y cerrar?",
+    "composeErrorSuggest": "No se pudieron sugerir tareas. Inténtalo de nuevo o crea una a mano.",
+    "composeErrorApprove": "No se pudo crear la tarea. Revisa el título e inténtalo de nuevo."
   },
   "projects": {
     "hint": "Etiquetas cortas para las tareas de este grupo. El acrónimo aparece en el tablero y en Telegram. Cualquiera puede añadir categorías.",

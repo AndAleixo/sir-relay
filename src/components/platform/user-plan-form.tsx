@@ -2,15 +2,9 @@
 
 import { useState, useTransition } from "react";
 import type { UserPlan } from "@/domain/types";
-import {
-  extendPlatformUserPlanAction,
-  updatePlatformUserPlanAction,
-} from "@/app/actions/platform-users";
-import {
-  DEFAULT_PLUS_DAYS,
-  PLAN_EXTEND_PRESETS_DAYS,
-  USER_PLANS,
-} from "@/lib/ai-suggest-quota";
+import { updatePlatformUserPlanAction } from "@/app/actions/platform-users";
+import { CheckIcon } from "@/components/ui/icons";
+import { DEFAULT_PLUS_DAYS, USER_PLANS } from "@/lib/ai-suggest-quota";
 
 type UserPlanFormProps = {
   locale: string;
@@ -22,10 +16,6 @@ type UserPlanFormProps = {
     plus: string;
     save: string;
     expires: string;
-    extend: string;
-    days30: string;
-    days90: string;
-    days365: string;
   };
 };
 
@@ -41,12 +31,6 @@ function plusDefaultExpiry(): string {
   d.setUTCDate(d.getUTCDate() + DEFAULT_PLUS_DAYS);
   return d.toISOString().slice(0, 10);
 }
-
-const EXTEND_LABEL: Record<(typeof PLAN_EXTEND_PRESETS_DAYS)[number], keyof UserPlanFormProps["labels"]> = {
-  30: "days30",
-  90: "days90",
-  365: "days365",
-};
 
 export function UserPlanForm({
   locale,
@@ -64,82 +48,56 @@ export function UserPlanForm({
     value === "plus" ? labels.plus : labels.basic;
 
   return (
-    <div className="flex min-w-[14rem] flex-col gap-1.5">
-      <form
-        className="flex flex-col gap-1.5"
-        action={(formData) => {
-          startTransition(async () => {
-            await updatePlatformUserPlanAction(locale, formData);
-          });
+    <form
+      className="flex min-w-[14rem] flex-nowrap items-center gap-2"
+      action={(formData) => {
+        startTransition(async () => {
+          await updatePlatformUserPlanAction(locale, formData);
+        });
+      }}
+    >
+      <input type="hidden" name="userId" value={userId} />
+      <select
+        name="plan"
+        value={selected}
+        disabled={pending}
+        onChange={(event) => {
+          const next = event.target.value as UserPlan;
+          setSelected(next);
+          if (next === "plus" && !expires) setExpires(plusDefaultExpiry());
         }}
+        className="shrink-0 rounded-button border border-[var(--border)] bg-surface-card px-2 py-1.5 text-sm text-[var(--text-primary)]"
+        aria-label={planLabel(selected)}
       >
-        <input type="hidden" name="userId" value={userId} />
-        <div className="flex flex-wrap items-center gap-2">
-          <select
-            name="plan"
-            value={selected}
-            disabled={pending}
-            onChange={(event) => {
-              const next = event.target.value as UserPlan;
-              setSelected(next);
-              if (next === "plus" && !expires) setExpires(plusDefaultExpiry());
-            }}
-            className="rounded-button border border-[var(--border)] bg-surface-card px-2 py-1.5 text-sm text-[var(--text-primary)]"
-            aria-label={planLabel(selected)}
-          >
-            {USER_PLANS.map((value) => (
-              <option key={value} value={value}>
-                {planLabel(value)}
-              </option>
-            ))}
-          </select>
-          <button
-            type="submit"
-            disabled={pending}
-            className="text-xs font-medium text-brand-accent hover:text-brand-accent-hover disabled:opacity-50"
-          >
-            {labels.save}
-          </button>
-        </div>
-        {selected === "plus" ? (
-          <label className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
-            <span>{labels.expires}</span>
-            <input
-              type="date"
-              name="planExpiresAt"
-              value={expires}
-              required
-              disabled={pending}
-              onChange={(event) => setExpires(event.target.value)}
-              className="rounded-button border border-[var(--border)] bg-surface-card px-2 py-1 text-xs text-[var(--text-primary)]"
-            />
-          </label>
-        ) : null}
-      </form>
-
-      <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-[var(--text-muted)]">
-        <span>{labels.extend}</span>
-        {PLAN_EXTEND_PRESETS_DAYS.map((days) => (
-          <form
-            key={days}
-            action={(formData) => {
-              startTransition(async () => {
-                await extendPlatformUserPlanAction(locale, formData);
-              });
-            }}
-          >
-            <input type="hidden" name="userId" value={userId} />
-            <input type="hidden" name="days" value={days} />
-            <button
-              type="submit"
-              disabled={pending}
-              className="underline-offset-2 hover:underline disabled:opacity-50"
-            >
-              {labels[EXTEND_LABEL[days]]}
-            </button>
-          </form>
+        {USER_PLANS.map((value) => (
+          <option key={value} value={value}>
+            {planLabel(value)}
+          </option>
         ))}
-      </div>
-    </div>
+      </select>
+      {selected === "plus" ? (
+        <label className="flex shrink-0 items-center gap-1.5 text-xs text-[var(--text-muted)]">
+          <span className="whitespace-nowrap">{labels.expires}</span>
+          <input
+            type="date"
+            name="planExpiresAt"
+            value={expires}
+            required
+            disabled={pending}
+            onChange={(event) => setExpires(event.target.value)}
+            className="rounded-button border border-[var(--border)] bg-surface-card px-2 py-1 text-xs text-[var(--text-primary)]"
+          />
+        </label>
+      ) : null}
+      <button
+        type="submit"
+        disabled={pending}
+        aria-label={labels.save}
+        title={labels.save}
+        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-button text-brand-accent transition-colors hover:bg-[var(--surface-bg)] hover:text-brand-accent-hover disabled:opacity-50"
+      >
+        <CheckIcon className="h-3.5 w-3.5" />
+      </button>
+    </form>
   );
 }

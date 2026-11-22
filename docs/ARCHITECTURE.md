@@ -43,7 +43,7 @@ src/
 │   ├── export.ts         # CSV export (server action)
 │   ├── settings.ts       # Locale + group rename
 │   ├── projects.ts       # Group projects + categories
-│   ├── platform-users.ts # Platform set/extend user plan (no payment UI)
+│   ├── platform-users.ts # Platform set user plan + end (no payment UI)
 │   └── connect.ts        # Create / delete ClientApiKey
 ├── app/api/v1/client/    # Bearer board + task mutate (IDE extension + MCP)
 ├── app/manifest.ts       # P3-14 installable PWA (no SW / push yet)

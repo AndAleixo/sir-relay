@@ -310,7 +310,7 @@ Desktop (sm+)                          Mobile
 | Placement | **New task** top (mobile center · sm+ right under chrome) · **Ask AI** bottom (mobile center · sm+ right). Hug content up to ~85vh |
 | Motion | Family A; manual enters from above, AI from below (~200ms / ~300ms) |
 | Backdrop | Soft dim; click closes (confirm if AI cards dirty) |
-| AI | Bottom-right panel with growing chat (max **300** chars) + Cursor-style quota ring (remaining/limit). Suggest → accept/reject cards (max **5**). Plans: **basic** 5 / **plus** 30 calls per usage month; plus ends at `plan_expires_at` → basic. Platform sets/extends (no payment UI) |
+| AI | Bottom-right panel with growing chat (max **300** chars) + Cursor-style quota ring (remaining/limit). Suggest → accept/reject cards (max **5**). Plans: **basic** 5 / **plus** 30 calls per usage month; plus ends at `plan_expires_at` → basic. Platform: plan + end + Apply (no payment UI) |
 | Manual | Hug-height panel: title → meta Selects → auto-grow description. Category only when options exist; Due half-width without category |
 | Footer | Save (manual) · Close |
 

@@ -2,12 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { writeAudit } from "@/lib/audit";
+import { isUserPlan } from "@/lib/ai-suggest-quota";
 import {
-  isPlanExtendDays,
-  isUserPlan,
-} from "@/lib/ai-suggest-quota";
-import {
-  extendUserPlan,
   setUserPlan,
   type PlanMutationResult,
 } from "@/lib/ai-suggest-quota-store";
@@ -16,9 +12,7 @@ import { requirePlatformAdminSession } from "@/lib/require-session";
 function auditPlanChange(
   admin: string,
   userId: string,
-  op: "set" | "extend",
   result: PlanMutationResult,
-  extra: Record<string, unknown> = {},
 ): void {
   void writeAudit({
     action: "plan_change",
@@ -27,13 +21,12 @@ function auditPlanChange(
     metadata: {
       userId,
       admin,
-      op,
+      op: "set",
       fromPlan: result.before.plan,
       toPlan: result.after.plan,
       fromExpiresAt: result.before.planExpiresAt?.toISOString() ?? null,
       toExpiresAt: result.after.planExpiresAt?.toISOString() ?? null,
       usageReset: result.usageReset,
-      ...extra,
     },
   });
 }
@@ -58,23 +51,6 @@ export async function updatePlatformUserPlanAction(
   }
 
   const result = await setUserPlan(userId, { plan: planRaw, planExpiresAt });
-  if (result) auditPlanChange(session.username, userId, "set", result);
-  revalidatePath(`/${locale}/platform/users`);
-}
-
-/** Relative extend: +N days from max(now, current end). */
-export async function extendPlatformUserPlanAction(
-  locale: string,
-  formData: FormData,
-): Promise<void> {
-  const session = await requirePlatformAdminSession(locale);
-  const userId = String(formData.get("userId") ?? "").trim();
-  const days = Number(formData.get("days"));
-  if (!userId || !isPlanExtendDays(days)) return;
-
-  const result = await extendUserPlan(userId, days);
-  if (result) {
-    auditPlanChange(session.username, userId, "extend", result, { days });
-  }
+  if (result) auditPlanChange(session.username, userId, result);
   revalidatePath(`/${locale}/platform/users`);
 }

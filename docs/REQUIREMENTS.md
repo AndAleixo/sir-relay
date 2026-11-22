@@ -225,7 +225,7 @@ Operator-only management **within the active group** (except fantasy name, which
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-TASK-01 | Create | Primary UI: compose drawer on `/tasks` (`?compose=1`). **Operator:** title + assignee (any active group member, including self and other operators). **Teammate:** title + self only (assignee forced to signed-in user). Optional description, due_date, difficulty (`easy`/`medium`/`hard`), project, category. Manual layout: [UIUX §3.4](./UIUX.md#34-compose-drawer-new-task) |
+| P1-TASK-01 | Create | Primary UI: compose drawer on `/tasks` (`?compose=manual`; legacy `1` → manual). **Operator:** title + assignee (any active group member, including self and other operators). **Teammate:** title + self only (assignee forced to signed-in user). Optional description, due_date, difficulty (`easy`/`medium`/`hard`), project, category. Manual layout: [UIUX §3.4](./UIUX.md#34-compose-drawer-new-task) |
 | P1-TASK-02 | Notify on create | Send Telegram if assignee is **linked** **and** their queue is empty (§2) |
 | P1-TASK-03 | Re-notify | Operator only; resend Telegram; update `telegram_message_id` (replies bind to latest message) |
 | P1-TASK-04 | List / Kanban | Both roles: **My work** (own) · **Team** (group). Teammate Team = view others, edit own only |
@@ -403,7 +403,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `join/[token]`, `change-password` | — | — | Auth flows |
 | `profile`, `profile/delete` | Yes | Yes | Global account · hard-delete confirm (P1-AUTH-15) |
 | `tasks` | My work / Team | My work / Team (edit own) | Board \| List |
-| `tasks` compose drawer (`?compose=1`) | Yes | Yes (self only) | |
+| `tasks` compose drawer (`?compose=manual\|ai`) | Yes | Yes (self only) | |
 | `tasks/[id]` | Yes | Own editable · others read-only | |
 | `teammates` | Yes | Read | List |
 | `teammates/new` | Yes | — | Invite |

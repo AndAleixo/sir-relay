@@ -193,7 +193,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 
 Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · **Project** · New task (opens compose drawer §3.4; optional AI suggest when `OPENAI_API_KEY` + `OPENAI_MODEL` are set — [P1-TASK-15](./REQUIREMENTS.md#53-tasks--relay-queue)). Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-01/04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on the **Projects** tab. Project filter sits in the toolbar and applies to **board and list**; list keeps assignee / status / sort filters. Inline edit title, project, and category on the list.
 
-**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail, compose, and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`. Project filter (P3-16): `?project=<id>` or omit = All — [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16). Same `project` query scopes board and list.
+**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Compose: `?compose=manual|ai` (legacy `1` → manual). Preserve through detail, compose, and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`. Project filter (P3-16): `?project=<id>` or omit = All — [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16). Same `project` query scopes board and list.
 
 | Scope | Default | Board | List |
 |-------|---------|-------|------|
@@ -286,27 +286,27 @@ Fallback for narrow screens and scanning.
 
 ### 3.4 Compose drawer (New task)
 
-Opens from **New task** / `?compose=1`. Right-hand panel over the board/list; does not leave the page.
+Two CTAs over the board/list (does not leave the page): **New task** → `?compose=manual` (top-right under chrome); **Ask AI** → `?compose=ai` (bottom-right; only when key + model are set). Legacy `?compose=1` opens manual.
 
 ```
 ┌─ shell header ──────────────────────────────┐
-├─────────────────────────────┬───────────────┤  ← panel top = header bottom
-│  Board / list (dimmed)      │  Compose      │     (`--app-chrome-height`)
-│                             │  [AI chat]*   │
-│                             │  manual form  │
-│                             │  or AI cards  │
-│                             │  [Save][Close]│
-└─────────────────────────────┴───────────────┘
-* AI strip only when key + model are configured
+│  Board / list (dimmed)           ┌────────┐ │  ← manual: top-right under chrome
+│                                  │ Manual │ │     (`--app-chrome-height`)
+│                                  └────────┘ │
+│                                  ┌────────┐ │  ← AI: bottom-right
+│                                  │ AI*    │ │
+│                                  └────────┘ │
+└─────────────────────────────────────────────┘
+* Ask AI only when key + model are configured
 ```
 
 | Element | Spec |
 |---------|------|
-| Placement | Two entry CTAs: **New task** (`?compose=manual`) top-right under chrome · **Ask AI** (`?compose=ai`) bottom-right (AI only when configured). Hug content up to ~85vh |
+| Placement | **New task** (`?compose=manual`) top-right under chrome · **Ask AI** (`?compose=ai`) bottom-right. Hug content up to ~85vh |
 | Motion | Family A; manual enters from above, AI from below (~200ms / ~300ms) |
 | Backdrop | Soft dim; click closes (confirm if AI cards dirty) |
 | AI | Bottom-right panel with growing chat (max **300** chars) + Cursor-style quota ring (remaining/limit). Suggest → accept/reject cards (max **5**). Plans: **basic** 5 / **plus** 30 calls per usage month; plus ends at `plan_expires_at` → basic. Platform sets/extends (no payment UI) |
-| Manual | Hug-height sheet: title → meta Selects → auto-grow description. Category only when options exist; Due half-width without category |
+| Manual | Hug-height panel: title → meta Selects → auto-grow description. Category only when options exist; Due half-width without category |
 | Footer | Save (manual) · Close |
 
 Teammate: assignee always self (no assignee field). Operator: assignee required on create.
@@ -377,7 +377,7 @@ Route: `/[locale]/tasks/[id]`. Labeled `TaskFormFields` stack: title → assigne
 | Contact | `/contact` | Public | Public |
 | Try demo | `/demo`, `/demo/app` | Public | Same shell as the app; edits stay in the tab |
 | No active group | `/groups` | Panel opens | Panel opens |
-| Tasks / compose / detail | `/tasks` (`?compose=1`) · `/tasks/[id]` | Full | Own edit · Team view others |
+| Tasks / compose / detail | `/tasks` (`?compose=manual\|ai`) · `/tasks/[id]` | Full | Own edit · Team view others |
 | Teammates | `/teammates…` | Yes | Read list/detail; no add / export / invite / promote |
 | Projects | `/projects` | Yes | Yes (request project; categories: add / archive) |
 | Events / activity | `/events…` | Yes | Alerts read-only; no group activity |
@@ -427,7 +427,7 @@ Primary nav tab (between Teammates and Events). Toolbar: hint + create/request (
 | Section | Content |
 |---------|---------|
 | Photo | Click avatar to upload / change / remove; crop square; ≤1 MB on device |
-| Account | Own name; email read-only |
+| Account | Own name; email read-only; plan (`basic` / `plus`) + plus end date when set |
 | Language | Locale picker (persisted) |
 | Password | Change form |
 | API keys | Teaser → `/connect` (full create / copy once / delete lives on connect) |

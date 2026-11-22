@@ -43,6 +43,7 @@ src/
 │   ├── export.ts         # CSV export (server action)
 │   ├── settings.ts       # Locale + group rename
 │   ├── projects.ts       # Group projects + categories
+│   ├── platform-users.ts # Platform set/extend user plan (no payment UI)
 │   └── connect.ts        # Create / delete ClientApiKey
 ├── app/api/v1/client/    # Bearer board + task mutate (IDE extension + MCP)
 └── app/[locale]/
@@ -91,7 +92,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/groups` | Session | private | No active group — panel opens automatically |
 | `/[locale]/groups/auto` | Session | private | Auto-pick sole group (persist cookie) |
 | `/[locale]/change-password` | Session | private | Forced / optional password change |
-| `/[locale]/tasks` (`?compose=1`), `/tasks/[id]` | Session + group | private | Boards, list, compose drawer, CRUD |
+| `/[locale]/tasks` (`?compose=manual\|ai`), `/tasks/[id]` | Session + group | private | Boards, list, compose drawer, CRUD |
 | `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | List/detail both roles (writes operator); `/new` operator |
 | `/[locale]/projects` | Session + group | private | Project manager (both) · project writes operator · categories both |
 | `/[locale]/events`, `/events/activity`, `/settings` | Session + group | private | Alerts (both) · group activity + alert prefs (operator) |

@@ -4,7 +4,7 @@
  */
 export type TasksScope = "mine" | "team";
 export type TasksView = "board" | "list";
-/** Compose bottom sheet mode. */
+/** Compose panel mode (manual top-right / AI bottom-right). */
 export type TasksComposeMode = "manual" | "ai";
 
 export type TasksListFlash = {
@@ -18,7 +18,7 @@ export type TasksHrefOpts = {
   view: TasksView;
   /** Open project id, or omit/null = All. */
   project?: string | null;
-  /** Open compose bottom sheet (`manual` | `ai`). */
+  /** Open compose panel (`manual` | `ai`). */
   compose?: TasksComposeMode | false | null;
 };
 

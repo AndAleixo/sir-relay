@@ -239,7 +239,7 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). Same for teammate **and** operator assignees. |
 | P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves (or other operators); visible on web board in the **self column** (member label, not “Me”) and other member columns; **Telegram relay** when linked (same queue rules as teammates) |
 | P1-TASK-14 | Clone | Who can **create** a task for that assignee may clone an editable task. Copy title, description, due, difficulty, assignee, status, project, category; insert **immediately below** source in that status queue (`sort_order`). Does not copy Telegram message ids. UI: board **⋯** menu — [UIUX.md §4](./UIUX.md#4-task-card) |
-| P1-TASK-15 | AI suggest (optional) | When `OPENAI_API_KEY` **and** `OPENAI_MODEL` are set: bottom sheets via **New task** / **Ask AI** (`?compose=manual\|ai`; ≤300 chars; ≤5 drafts/response). User `plan` (`free` default / `plus`): 5 / 30 suggest calls per usage month from `plan_period_start`. Plus ends at `plan_expires_at` → free (platform sets expiry; presets 30/90/365d or custom). Platform `/platform/users` shows plan, end date, usage reset, AI used. Without both env vars, Ask AI hidden |
+| P1-TASK-15 | AI suggest (optional) | When `OPENAI_API_KEY` **and** `OPENAI_MODEL` are set: **New task** top-right / **Ask AI** bottom-right (`?compose=manual\|ai`; ≤300 chars; ≤5 drafts/response). User `plan` (`basic` default / `plus`): 5 / 30 suggest calls per usage month from `plan_period_start`. Plus ends at `plan_expires_at` → basic. **No in-app payment** — platform `/platform/users` sets absolute plan/end or **extends** +30/+90/+365 from `max(now, end)`; `plan_change` audit. Profile shows plan (+ end date). Write APIs `setUserPlan` / `extendUserPlan` are the future billing seam. Without both env vars, Ask AI hidden |
 
 ### 5.4 Telegram activity (no web comment UI)
 
@@ -338,8 +338,8 @@ users
   id, name, email, password_hash, locale,
   telegram_chat_id, active, must_change_password, account_status,
   email_verified_at (nullable), terms_version, terms_accepted_at,
-  plan (free|plus, default free), plan_expires_at (nullable; plus end → free),
-  plan_period_start, ai_suggest_used,
+  plan (basic|plus, default basic), plan_expires_at (nullable; plus end → basic),
+  plan_period_start, ai_suggest_used,  -- ops: setUserPlan (absolute) / extendUserPlan (+days from max(now,end))
   last_active_group_id, created_at, updated_at
 
 email_tokens
@@ -442,7 +442,7 @@ Server writes append-only `audit_logs` via `writeAudit` (security + ops). Operat
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P2-AUD-01 | Recorded actions | Login, **login_failed**, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data** · **Done** (`writeAudit` / `writeAuditFromSession`) |
+| P2-AUD-01 | Recorded actions | Login, **login_failed**, logout, password change, invite, Telegram link, task CRUD, notify, reply, status change, relay dispatch, **export_data**, **plan_change** (platform) · **Done** (`writeAudit` / `writeAuditFromSession`) |
 | P2-AUD-02 | Storage | `audit_logs`: id, action, actor_type, actor_id, metadata, created_at · **Done** |
 | P2-AUD-03 | Group UI | `/[locale]/events` = alerts (both roles, teammate read-only); `/events/activity` = group history (operator only; human language; no login/logout) · **Done** |
 | P2-AUD-04 | Platform admin | `/{locale}/platform/*` with **separate** env credentials (`PLATFORM_ADMIN_USERNAME` / `PLATFORM_ADMIN_PASSWORD`) + cookie `sirrelay_platform_session` · **Done** (no public audit API; not product login) |
@@ -728,7 +728,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | `services/mock/*` | Done |
 | Prisma + `services/api/*` + `/api/v1/health` | Done |
 | Task queue (`sort_order`) + To do DnD + status drops | Done — P1-TASK-11 · `check:queue` · board sync LWW · `check:sync-merge` |
-| Compose drawer + optional AI suggest | Done — P1-TASK-01/15 · `TaskComposeDrawer` · `lib/ingest` · gate key+model · user plan quota (`free`/`plus`) |
+| Compose drawer + optional AI suggest | Done — P1-TASK-01/15 · `TaskComposeDrawer` · `lib/ingest` · gate key+model · user plan quota (`basic`/`plus`) |
 | Group invitations (consent for active emails) | Done — P1-GRP-08/13/14 |
 | Sign-up merge (`invited` email) | Done — P1-AUTH-13/14 · `check:signup-merge` |
 | Delete account (`/profile/delete`) | Done — P1-AUTH-15 · `check:delete-account` |

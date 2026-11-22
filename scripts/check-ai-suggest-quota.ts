@@ -7,17 +7,19 @@ import {
   AI_SUGGEST_MONTHLY_LIMIT,
   AI_SUGGEST_TASKS_MAX,
   AI_SUGGEST_TEXT_MAX,
+  addUtcDays,
   addUtcMonth,
   effectivePlan,
+  extendPlanExpiry,
   monthlyLimitFor,
   rollPlanPeriod,
 } from "../src/lib/ai-suggest-quota";
 
 assert.equal(AI_SUGGEST_TEXT_MAX, 300);
 assert.equal(AI_SUGGEST_TASKS_MAX, 5);
-assert.equal(monthlyLimitFor("free"), 5);
+assert.equal(monthlyLimitFor("basic"), 5);
 assert.equal(monthlyLimitFor("plus"), 30);
-assert.equal(AI_SUGGEST_MONTHLY_LIMIT.free, 5);
+assert.equal(AI_SUGGEST_MONTHLY_LIMIT.basic, 5);
 
 const start = new Date(Date.UTC(2026, 0, 15, 12, 0, 0));
 const mid = new Date(Date.UTC(2026, 0, 20, 12, 0, 0));
@@ -43,7 +45,7 @@ assert.equal(
     new Date(Date.UTC(2020, 0, 1)),
     new Date(Date.UTC(2026, 0, 1)),
   ),
-  "free",
+  "basic",
 );
 assert.equal(
   effectivePlan(
@@ -53,5 +55,14 @@ assert.equal(
   ),
   "plus",
 );
+
+const now = new Date(Date.UTC(2026, 5, 1));
+const futureEnd = new Date(Date.UTC(2026, 5, 15));
+const fromFuture = extendPlanExpiry(futureEnd, 30, now);
+assert.equal(fromFuture.getTime(), addUtcDays(futureEnd, 30).getTime());
+const fromPast = extendPlanExpiry(new Date(Date.UTC(2026, 4, 1)), 30, now);
+assert.equal(fromPast.getTime(), addUtcDays(now, 30).getTime());
+const fromNull = extendPlanExpiry(null, 90, now);
+assert.equal(fromNull.getTime(), addUtcDays(now, 90).getTime());
 
 console.log("check-ai-suggest-quota: ok");

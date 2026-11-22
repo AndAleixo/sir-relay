@@ -302,10 +302,10 @@ Opens from **New task** / `?compose=1`. Right-hand panel over the board/list; do
 
 | Element | Spec |
 |---------|------|
-| Placement | Bottom sheet (`items-end`); `max-w-lg`; hug content up to ~85vh. Two entry CTAs: **New task** (`?compose=manual`) · **Ask AI** (`?compose=ai`, only when AI configured) |
-| Motion | Family A from bottom (`translate-y-4` + scale + opacity; ~200ms / ~300ms) |
+| Placement | Two entry CTAs: **New task** (`?compose=manual`) top-right under chrome · **Ask AI** (`?compose=ai`) bottom-right (AI only when configured). Hug content up to ~85vh |
+| Motion | Family A; manual enters from above, AI from below (~200ms / ~300ms) |
 | Backdrop | Soft dim; click closes (confirm if AI cards dirty) |
-| AI | Bottom sheet with growing chat (max **300** chars) + Cursor-style quota ring (remaining/limit). Suggest → accept/reject cards (max **5**). Plans: **free** 5 / **plus** 30 calls per usage month; plus ends at `plan_expires_at` → free (platform may grant >30d) |
+| AI | Bottom-right panel with growing chat (max **300** chars) + Cursor-style quota ring (remaining/limit). Suggest → accept/reject cards (max **5**). Plans: **basic** 5 / **plus** 30 calls per usage month; plus ends at `plan_expires_at` → basic. Platform sets/extends (no payment UI) |
 | Manual | Hug-height sheet: title → meta Selects → auto-grow description. Category only when options exist; Due half-width without category |
 | Footer | Save (manual) · Close |
 

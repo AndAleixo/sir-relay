@@ -29,7 +29,8 @@ export type AuditAction =
   | "telegram_link"
   | "telegram_reply"
   | "relay_dispatch"
-  | "export_data";
+  | "export_data"
+  | "plan_change";
 
 export interface AuditEntry {
   id: string;

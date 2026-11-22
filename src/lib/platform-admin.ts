@@ -35,7 +35,7 @@ export async function listPlatformUsers(): Promise<PlatformUserRow[]> {
       "@/services/mock/data"
     );
     return [...MOCK_OPERATORS, ...MOCK_TEAMMATES].map((user) => {
-      const plan: UserPlan = "free";
+      const plan: UserPlan = "basic";
       const periodStart = new Date();
       return {
         id: user.id,

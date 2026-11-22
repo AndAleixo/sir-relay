@@ -1,6 +1,6 @@
 /**
  * AI suggest quotas by user plan (DB-backed).
- * Usage month rolls from planPeriodStart; plus ends at planExpiresAt → free.
+ * Usage month rolls from planPeriodStart; plus ends at planExpiresAt → basic.
  */
 import type { UserPlan } from "@/domain/types";
 
@@ -11,14 +11,14 @@ export const AI_SUGGEST_TASKS_MAX = 5;
 export const DEFAULT_PLUS_DAYS = 30;
 
 export const AI_SUGGEST_MONTHLY_LIMIT: Record<UserPlan, number> = {
-  free: 5,
+  basic: 5,
   plus: 30,
 };
 
-export const USER_PLANS: readonly UserPlan[] = ["free", "plus"];
+export const USER_PLANS: readonly UserPlan[] = ["basic", "plus"];
 
 export function isUserPlan(value: string): value is UserPlan {
-  return value === "free" || value === "plus";
+  return value === "basic" || value === "plus";
 }
 
 /** Advance by one calendar month in UTC (usage-period step). */
@@ -35,6 +35,22 @@ export function addUtcMonth(from: Date, months = 1): Date {
 
 export function addUtcDays(from: Date, days: number): Date {
   return new Date(from.getTime() + days * 24 * 60 * 60 * 1000);
+}
+
+/**
+ * New plus end when extending by `days`.
+ * Anchor = max(now, currentExpires) so unused time is kept.
+ */
+export function extendPlanExpiry(
+  currentExpiresAt: Date | null | undefined,
+  days: number,
+  now: Date = new Date(),
+): Date {
+  const anchor =
+    currentExpiresAt && currentExpiresAt.getTime() > now.getTime()
+      ? currentExpiresAt
+      : now;
+  return addUtcDays(anchor, days);
 }
 
 /**
@@ -61,14 +77,21 @@ export function monthlyLimitFor(plan: UserPlan): number {
   return AI_SUGGEST_MONTHLY_LIMIT[plan];
 }
 
-/** Plus with a past expiry should become free. */
+/** Plus with a past expiry should become basic. */
 export function effectivePlan(
   plan: UserPlan,
   planExpiresAt: Date | null | undefined,
   now: Date = new Date(),
 ): UserPlan {
   if (plan === "plus" && planExpiresAt && now.getTime() >= planExpiresAt.getTime()) {
-    return "free";
+    return "basic";
   }
   return plan;
+}
+
+/** Allowed relative extend lengths for platform ops (and future billing renew). */
+export const PLAN_EXTEND_PRESETS_DAYS = [30, 90, 365] as const;
+
+export function isPlanExtendDays(value: number): boolean {
+  return (PLAN_EXTEND_PRESETS_DAYS as readonly number[]).includes(value);
 }

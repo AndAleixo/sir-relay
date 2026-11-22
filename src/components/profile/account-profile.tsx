@@ -17,11 +17,13 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { TelegramStatusIcon } from "@/components/ui/telegram-status-icon";
-import type { TelegramLinkStatus, User } from "@/domain/types";
+import type { TelegramLinkStatus, User, UserPlan } from "@/domain/types";
 
 export type AccountProfileProps = {
   locale: string;
   user: User;
+  plan: UserPlan;
+  planExpiresAt: string | null;
   telegramStatus: TelegramLinkStatus;
   telegramUrl: string;
   showTelegram: boolean;
@@ -32,6 +34,8 @@ export type AccountProfileProps = {
 export function AccountProfile({
   locale,
   user,
+  plan,
+  planExpiresAt,
   telegramStatus,
   telegramUrl,
   showTelegram,
@@ -39,6 +43,16 @@ export function AccountProfile({
   passwordErrorMessage,
 }: AccountProfileProps) {
   const t = useTranslations();
+  const planLabel =
+    plan === "plus" ? t("profile.planPlus") : t("profile.planBasic");
+  const expiresLabel =
+    plan === "plus" && planExpiresAt
+      ? new Intl.DateTimeFormat(locale, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }).format(new Date(planExpiresAt))
+      : null;
 
   return (
     <div className="grid max-w-3xl gap-3 md:max-w-4xl md:grid-cols-2 md:gap-4">
@@ -51,11 +65,24 @@ export function AccountProfile({
             userId={user.id}
             userName={user.name || user.email}
           />
-          <dl className="text-sm">
-            <dt className="text-[var(--text-muted)]">{t("auth.email")}</dt>
-            <dd className="min-w-0 break-all font-medium text-[var(--text-primary)]">
-              {user.email}
-            </dd>
+          <dl className="space-y-3 text-sm">
+            <div>
+              <dt className="text-[var(--text-muted)]">{t("auth.email")}</dt>
+              <dd className="min-w-0 break-all font-medium text-[var(--text-primary)]">
+                {user.email}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[var(--text-muted)]">{t("profile.plan")}</dt>
+              <dd className="font-medium text-[var(--text-primary)]">
+                {planLabel}
+                {expiresLabel ? (
+                  <span className="mt-0.5 block text-xs font-normal text-[var(--text-muted)]">
+                    {t("profile.planEnds", { date: expiresLabel })}
+                  </span>
+                ) : null}
+              </dd>
+            </div>
           </dl>
           <form
             action={profileUpdateNameForm.bind(null, locale)}

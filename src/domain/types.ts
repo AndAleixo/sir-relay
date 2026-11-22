@@ -52,7 +52,7 @@ export interface GroupInvitePreview {
 }
 
 /** Product plan — AI suggest monthly quota. */
-export type UserPlan = "free" | "plus";
+export type UserPlan = "basic" | "plus";
 
 export interface User {
   id: string;
@@ -70,7 +70,7 @@ export interface User {
   telegramStatus?: TelegramLinkStatus;
   /** Populated for group-scoped views from `group_memberships.display_name`. */
   displayName?: string | null;
-  /** free (default) or plus. */
+  /** basic (default) or plus. */
   plan?: UserPlan;
 }
 

@@ -338,7 +338,10 @@ export function TaskComposeDrawer({
   if (!rendered) return null;
 
   return (
-    <div className={styles.root} role="presentation">
+    <div
+      className={isAi ? styles.rootAi : styles.rootManual}
+      role="presentation"
+    >
       <button
         type="button"
         className={cn(
@@ -355,8 +358,13 @@ export function TaskComposeDrawer({
         aria-label={isAi ? labels.aiDrawerTitle : labels.drawerTitle}
         className={cn(
           styles.panel,
+          isAi ? styles.panelAi : styles.panelManual,
           visible ? styles.panelMotionOpen : styles.panelMotionClose,
-          visible ? styles.panelOpen : styles.panelClosed,
+          visible
+            ? styles.panelOpen
+            : isAi
+              ? styles.panelClosedAi
+              : styles.panelClosedManual,
         )}
         onTransitionEnd={onTransitionEnd}
       >

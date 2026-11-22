@@ -59,14 +59,14 @@ export default async function PlatformUsersPage({
                     plan={user.plan}
                     planExpiresAt={user.planExpiresAt}
                     labels={{
-                      free: t("users.planFree"),
+                      basic: t("users.planBasic"),
                       plus: t("users.planPlus"),
                       save: t("users.planSave"),
                       expires: t("users.expires"),
+                      extend: t("users.extend"),
                       days30: t("users.days30"),
                       days90: t("users.days90"),
                       days365: t("users.days365"),
-                      custom: t("users.custom"),
                     }}
                   />
                 </td>

@@ -63,7 +63,7 @@ enum EmailTokenType {
 
 /** Product plan — gates AI suggest monthly quota (P1-TASK-15). */
 enum UserPlan {
-  free
+  basic
   plus
 }
 
@@ -86,9 +86,9 @@ model User {
   /** Canonical English legal pack version from legal/en.json (null = never accepted). */
   termsVersion       String?       @map("terms_version")
   termsAcceptedAt    DateTime?     @map("terms_accepted_at")
-  /** free (default) or plus — AI suggest monthly allowance. */
-  plan               UserPlan      @default(free)
-  /** When plus ends → demote to free. Null on free. Platform may set longer than 30d. */
+  /** basic (default) or plus — AI suggest monthly allowance. */
+  plan               UserPlan      @default(basic)
+  /** When plus ends → demote to basic. Null on basic. Platform may set longer than 30d. */
   planExpiresAt      DateTime?     @map("plan_expires_at")
   /** Start of current usage month (create, plan change, or payment). */
   planPeriodStart    DateTime      @default(now()) @map("plan_period_start")

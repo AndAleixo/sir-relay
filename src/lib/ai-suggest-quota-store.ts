@@ -8,6 +8,7 @@ import {
   addUtcMonth,
   DEFAULT_PLUS_DAYS,
   effectivePlan,
+  extendPlanExpiry,
   monthlyLimitFor,
   rollPlanPeriod,
 } from "@/lib/ai-suggest-quota";
@@ -54,7 +55,7 @@ async function readRow(userId: string): Promise<QuotaRow | null> {
   if (isMock()) {
     return (
       mockQuota.get(userId) ?? {
-        plan: "free",
+        plan: "basic",
         planExpiresAt: null,
         planPeriodStart: new Date(),
         aiSuggestUsed: 0,
@@ -90,7 +91,7 @@ async function writeRow(
 ): Promise<void> {
   if (isMock()) {
     const prev = mockQuota.get(userId) ?? {
-      plan: "free" as UserPlan,
+      plan: "basic" as UserPlan,
       planExpiresAt: null as Date | null,
       planPeriodStart: new Date(),
       aiSuggestUsed: 0,
@@ -117,13 +118,13 @@ async function writeRow(
   });
 }
 
-/** Demote expired plus → free; persist if needed. */
+/** Demote expired plus → basic; persist if needed. */
 async function syncEffectivePlan(userId: string, row: QuotaRow): Promise<QuotaRow> {
   const now = new Date();
   const plan = effectivePlan(row.plan, row.planExpiresAt, now);
   if (plan === row.plan) return row;
   const next: QuotaRow = {
-    plan: "free",
+    plan: "basic",
     planExpiresAt: null,
     planPeriodStart: now,
     aiSuggestUsed: 0,
@@ -209,41 +210,108 @@ export async function refundAiSuggestQuota(userId: string): Promise<void> {
 
 export type SetUserPlanInput = {
   plan: UserPlan;
-  /** Absolute end for plus. Ignored for free. If plus and omitted → now+DEFAULT_PLUS_DAYS. */
+  /** Absolute end for plus. Ignored for basic. If plus and omitted → now+DEFAULT_PLUS_DAYS. */
   planExpiresAt?: Date | null;
 };
 
-/** Platform: set plan (+ optional expiry) and reset the usage month. */
+export type PlanMutationResult = {
+  before: { plan: UserPlan; planExpiresAt: Date | null };
+  after: AiSuggestQuotaSnapshot;
+  /** true when usage month was reset (plan tier changed or fresh plus grant). */
+  usageReset: boolean;
+};
+
+async function loadSyncedRow(userId: string): Promise<QuotaRow | null> {
+  const raw = await readRow(userId);
+  if (!raw) return null;
+  return syncEffectivePlan(userId, raw);
+}
+
+/**
+ * Absolute plan write (platform / future billing webhook).
+ * Resets usage month only when the effective tier changes.
+ */
 export async function setUserPlan(
   userId: string,
   input: SetUserPlanInput,
-): Promise<AiSuggestQuotaSnapshot | null> {
-  if (!isMock()) {
-    const exists = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true },
-    });
-    if (!exists) return null;
-  }
+): Promise<PlanMutationResult | null> {
+  const row = await loadSyncedRow(userId);
+  if (!row) return null;
   const now = new Date();
+  const before = {
+    plan: effectivePlan(row.plan, row.planExpiresAt, now),
+    planExpiresAt: row.planExpiresAt,
+  };
   const plan = input.plan;
   let planExpiresAt: Date | null = null;
   if (plan === "plus") {
     planExpiresAt =
       input.planExpiresAt ?? addUtcDays(now, DEFAULT_PLUS_DAYS);
   }
+  const usageReset = before.plan !== plan;
+  const planPeriodStart = usageReset ? now : row.planPeriodStart;
+  const aiSuggestUsed = usageReset ? 0 : row.aiSuggestUsed;
   await writeRow(userId, {
     plan,
     planExpiresAt,
-    planPeriodStart: now,
-    aiSuggestUsed: 0,
+    planPeriodStart,
+    aiSuggestUsed,
   });
-  return snapshot({
-    plan,
+  return {
+    before,
+    after: snapshot({
+      plan,
+      planExpiresAt,
+      planPeriodStart,
+      aiSuggestUsed,
+    }),
+    usageReset,
+  };
+}
+
+/**
+ * Extend plus from max(now, current end). Keeps unused time.
+ * If effective plan is basic, grants plus for `days` from now and resets usage.
+ * Intended for platform ops and future renewals — no payment UI.
+ */
+export async function extendUserPlan(
+  userId: string,
+  days: number,
+): Promise<PlanMutationResult | null> {
+  if (!Number.isFinite(days) || days <= 0) return null;
+  const row = await loadSyncedRow(userId);
+  if (!row) return null;
+  const now = new Date();
+  const beforePlan = effectivePlan(row.plan, row.planExpiresAt, now);
+  const before = {
+    plan: beforePlan,
+    planExpiresAt: beforePlan === "plus" ? row.planExpiresAt : null,
+  };
+  const wasBasic = beforePlan !== "plus";
+  const planExpiresAt = extendPlanExpiry(
+    wasBasic ? null : row.planExpiresAt,
+    days,
+    now,
+  );
+  const usageReset = wasBasic;
+  const planPeriodStart = usageReset ? now : row.planPeriodStart;
+  const aiSuggestUsed = usageReset ? 0 : row.aiSuggestUsed;
+  await writeRow(userId, {
+    plan: "plus",
     planExpiresAt,
-    planPeriodStart: now,
-    aiSuggestUsed: 0,
+    planPeriodStart,
+    aiSuggestUsed,
   });
+  return {
+    before,
+    after: snapshot({
+      plan: "plus",
+      planExpiresAt,
+      planPeriodStart,
+      aiSuggestUsed,
+    }),
+    usageReset,
+  };
 }
 
 /** Seed mock quota (tests / mock mode). */
@@ -252,7 +320,7 @@ export function seedMockAiSuggestQuota(
   row: Partial<QuotaRow> & { plan?: UserPlan } = {},
 ): void {
   mockQuota.set(userId, {
-    plan: row.plan ?? "free",
+    plan: row.plan ?? "basic",
     planExpiresAt: row.planExpiresAt ?? null,
     planPeriodStart: row.planPeriodStart ?? new Date(),
     aiSuggestUsed: row.aiSuggestUsed ?? 0,

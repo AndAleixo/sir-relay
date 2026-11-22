@@ -1,8 +1,13 @@
 import { popoverStyles } from "@/components/ui/popover";
 
-/** Bottom sheet compose — hug content; Family A open/close from bottom. */
+/**
+ * Compose panels: manual = top-right under chrome; AI = bottom-right.
+ * Family A open/close motion.
+ */
 export const composeDrawerStyles = {
-  root: "fixed inset-0 z-[45] flex items-end justify-center sm:px-4",
+  rootManual:
+    "fixed inset-0 z-[45] flex items-start justify-end pt-[var(--app-chrome-height,3.5rem)] sm:p-4 sm:pt-[calc(var(--app-chrome-height,3.5rem)+0.5rem)]",
+  rootAi: "fixed inset-0 z-[45] flex items-end justify-end sm:p-4",
   backdrop: "absolute inset-0 bg-[var(--text-primary)]/15 transition-opacity",
   backdropMotionOpen: popoverStyles.panelMotionOpen,
   backdropMotionClose: popoverStyles.panelMotionClose,
@@ -10,14 +15,19 @@ export const composeDrawerStyles = {
   backdropClosed: "pointer-events-none opacity-0",
   panel: [
     "relative z-[1] flex w-full max-w-lg max-h-[min(85vh,40rem)] flex-col overflow-hidden",
-    "rounded-t-2xl border border-b-0 border-[var(--border)] bg-surface-card",
-    "shadow-[0_-16px_48px_-16px_rgba(0,0,0,0.2)]",
+    "border border-[var(--border)] bg-surface-card",
     "transition-[opacity,transform]",
   ].join(" "),
+  panelManual:
+    "rounded-2xl shadow-[-16px_16px_48px_-16px_rgba(0,0,0,0.18)] sm:max-w-md",
+  panelAi:
+    "rounded-2xl shadow-[-16px_-16px_48px_-16px_rgba(0,0,0,0.18)] sm:max-w-md",
   panelMotionOpen: popoverStyles.panelMotionOpen,
   panelMotionClose: popoverStyles.panelMotionClose,
   panelOpen: "translate-y-0 scale-100 opacity-100",
-  panelClosed: "pointer-events-none translate-y-4 scale-[0.98] opacity-0",
+  panelClosedManual:
+    "pointer-events-none -translate-y-2 scale-[0.98] opacity-0",
+  panelClosedAi: "pointer-events-none translate-y-4 scale-[0.98] opacity-0",
   header:
     "flex shrink-0 items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-3",
   title: "text-base font-semibold tracking-tight text-[var(--text-primary)]",

@@ -10,7 +10,9 @@ import {
 } from "react";
 import type { ManagedProject, Task } from "@/domain/types";
 import { cn } from "@/lib/cn";
+import { AI_SUGGEST_TEXT_MAX } from "@/lib/ai-suggest-quota";
 import type { PendingCreateDraft } from "@/lib/ingest";
+import type { TasksComposeMode } from "@/lib/tasks-url";
 import { useFadeOpen } from "@/hooks/use-fade-open";
 import {
   approvePendingCreatesAction,
@@ -22,6 +24,7 @@ import type {
 } from "@/components/tasks/task-form";
 import { Banner } from "@/components/ui/banner";
 import { Button, buttonCompact } from "@/components/ui/button";
+import { AiQuotaRing } from "./ai-quota-ring";
 import { composeDrawerStyles as styles } from "./compose-drawer.styles";
 import { fitTextareaHeight } from "./fit-textarea";
 import { ManualComposeFields } from "./manual-compose-fields";
@@ -29,6 +32,7 @@ import { SuggestReviewCard } from "./suggest-review-card";
 
 export type ComposeDrawerLabels = TaskFormLabels & {
   drawerTitle: string;
+  aiDrawerTitle: string;
   close: string;
   save: string;
   accept: string;
@@ -39,19 +43,25 @@ export type ComposeDrawerLabels = TaskFormLabels & {
   aiPlaceholder: string;
   aiSubmit: string;
   aiSuggesting: string;
+  aiQuota: string;
   closeConfirm: string;
   errorSuggest: string;
   errorApprove: string;
+  errorQuota: string;
+  errorTooLong: string;
 };
 
 type PendingItem = PendingCreateDraft & { localId: string };
 
 type TaskComposeDrawerProps = {
   open: boolean;
+  mode: TasksComposeMode;
   onClose: () => void;
   locale: string;
   isOperator: boolean;
   aiEnabled: boolean;
+  aiRemaining: number;
+  aiLimit: number;
   selfId: string;
   defaultProjectId: string | null;
   assigneeOptions: TaskFormAssigneeOption[];
@@ -81,10 +91,13 @@ function emptyDraft(
 
 export function TaskComposeDrawer({
   open,
+  mode,
   onClose,
   locale,
   isOperator,
   aiEnabled,
+  aiRemaining,
+  aiLimit,
   selfId,
   defaultProjectId,
   assigneeOptions,
@@ -92,17 +105,21 @@ export function TaskComposeDrawer({
   labels,
   onCreated,
 }: TaskComposeDrawerProps) {
+  const isAi = mode === "ai";
   const [manual, setManual] = useState<PendingCreateDraft>(() =>
     emptyDraft(selfId, defaultProjectId),
   );
   const [aiItems, setAiItems] = useState<PendingItem[]>([]);
   const [aiText, setAiText] = useState("");
+  const [remaining, setRemaining] = useState(aiRemaining);
+  const [limit, setLimit] = useState(aiLimit);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"suggest" | "approve" | null>(null);
   const [pending, startTransition] = useTransition();
   const locked = pending || busy !== null;
   const { rendered, visible, onTransitionEnd } = useFadeOpen(open);
   const chatRef = useRef<HTMLTextAreaElement>(null);
+  const aiBlocked = remaining <= 0;
 
   useEffect(() => {
     if (!open) return;
@@ -111,11 +128,14 @@ export function TaskComposeDrawer({
     setAiText("");
     setError(null);
     setBusy(null);
-  }, [open, selfId, defaultProjectId]);
+    setRemaining(aiRemaining);
+    setLimit(aiLimit);
+  }, [open, mode, selfId, defaultProjectId, aiRemaining, aiLimit]);
 
   useEffect(() => {
+    if (!isAi) return;
     fitTextareaHeight(chatRef.current, 160);
-  }, [aiText, open, aiEnabled]);
+  }, [aiText, open, isAi]);
 
   const projectOptions = useMemo(
     () =>
@@ -176,16 +196,30 @@ export function TaskComposeDrawer({
 
   function runSuggest() {
     const text = aiText.trim();
-    if (!text || locked) return;
+    if (!text || locked || aiBlocked) return;
+    if (text.length > AI_SUGGEST_TEXT_MAX) {
+      setError(labels.errorTooLong);
+      return;
+    }
     setError(null);
     setBusy("suggest");
     startTransition(async () => {
       try {
         const result = await suggestTasksFromTextAction(locale, text);
         if (!result.ok) {
-          setError(labels.errorSuggest);
+          if (typeof result.remaining === "number") {
+            setRemaining(result.remaining);
+          }
+          if (typeof result.limit === "number") {
+            setLimit(result.limit);
+          }
+          if (result.error === "quota") setError(labels.errorQuota);
+          else if (result.error === "too_long") setError(labels.errorTooLong);
+          else setError(labels.errorSuggest);
           return;
         }
+        setRemaining(result.remaining);
+        setLimit(result.limit);
         setAiItems(
           result.drafts.map((draft) => ({
             ...draft,
@@ -297,6 +331,10 @@ export function TaskComposeDrawer({
     categoryNone: labels.categoryNone,
   };
 
+  const quotaLabel = labels.aiQuota
+    .replace("{remaining}", String(remaining))
+    .replace("{limit}", String(limit));
+
   if (!rendered) return null;
 
   return (
@@ -314,7 +352,7 @@ export function TaskComposeDrawer({
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label={labels.drawerTitle}
+        aria-label={isAi ? labels.aiDrawerTitle : labels.drawerTitle}
         className={cn(
           styles.panel,
           visible ? styles.panelMotionOpen : styles.panelMotionClose,
@@ -323,77 +361,98 @@ export function TaskComposeDrawer({
         onTransitionEnd={onTransitionEnd}
       >
         <header className={styles.header}>
-          <h2 className={styles.title}>{labels.drawerTitle}</h2>
-          <button
-            type="button"
-            className={styles.closeBtn}
-            aria-label={labels.close}
-            onClick={requestClose}
-          >
-            <svg
-              viewBox="0 0 20 20"
-              fill="none"
-              aria-hidden
-              className="h-4 w-4"
-            >
-              <path
-                d="M5 5l10 10M15 5L5 15"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
+          <h2 className={styles.title}>
+            {isAi ? labels.aiDrawerTitle : labels.drawerTitle}
+          </h2>
+          <div className="flex items-center gap-2">
+            {isAi && aiEnabled ? (
+              <AiQuotaRing
+                remaining={remaining}
+                limit={limit}
+                label={quotaLabel}
               />
-            </svg>
-          </button>
+            ) : null}
+            <button
+              type="button"
+              className={styles.closeBtn}
+              aria-label={labels.close}
+              onClick={requestClose}
+            >
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden
+                className="h-4 w-4"
+              >
+                <path
+                  d="M5 5l10 10M15 5L5 15"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          </div>
         </header>
 
-        <div className={styles.body}>
-          {aiEnabled ? (
-            <div className={styles.chat}>
-              <textarea
-                ref={chatRef}
-                className={styles.chatInput}
-                value={aiText}
-                onChange={(event) => setAiText(event.target.value)}
-                onKeyDown={onChatKeyDown}
-                placeholder={labels.aiPlaceholder}
-                rows={1}
-                disabled={locked}
-                aria-label={labels.aiPlaceholder}
-              />
-              <button
-                type="button"
-                className={styles.chatSend}
-                disabled={locked || !aiText.trim()}
-                aria-label={
-                  busy === "suggest" ? labels.aiSuggesting : labels.aiSubmit
-                }
-                onClick={runSuggest}
-              >
-                {busy === "suggest" ? (
-                  <span className="h-3.5 w-3.5 animate-pulse rounded-full bg-current/80" />
-                ) : (
-                  <svg
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    aria-hidden
-                    className="h-4 w-4"
-                  >
-                    <path
-                      d="M10 16V4m0 0l-4.5 4.5M10 4l4.5 4.5"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </button>
+        <div className={isAi && aiItems.length > 0 ? styles.body : styles.bodyHug}>
+          {isAi && aiEnabled ? (
+            <div className="space-y-2">
+              <div className={styles.chat}>
+                <textarea
+                  ref={chatRef}
+                  className={styles.chatInput}
+                  value={aiText}
+                  onChange={(event) =>
+                    setAiText(event.target.value.slice(0, AI_SUGGEST_TEXT_MAX))
+                  }
+                  onKeyDown={onChatKeyDown}
+                  placeholder={labels.aiPlaceholder}
+                  rows={1}
+                  maxLength={AI_SUGGEST_TEXT_MAX}
+                  disabled={locked || aiBlocked}
+                  aria-label={labels.aiPlaceholder}
+                />
+                <button
+                  type="button"
+                  className={styles.chatSend}
+                  disabled={locked || aiBlocked || !aiText.trim()}
+                  aria-label={
+                    busy === "suggest" ? labels.aiSuggesting : labels.aiSubmit
+                  }
+                  onClick={runSuggest}
+                >
+                  {busy === "suggest" ? (
+                    <span className="h-3.5 w-3.5 animate-pulse rounded-full bg-current/80" />
+                  ) : (
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      aria-hidden
+                      className="h-4 w-4"
+                    >
+                      <path
+                        d="M10 16V4m0 0l-4.5 4.5M10 4l4.5 4.5"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              <div className={styles.aiChrome}>
+                <span className={styles.aiChars}>
+                  {aiText.length}/{AI_SUGGEST_TEXT_MAX}
+                </span>
+              </div>
             </div>
           ) : null}
 
           {error ? <Banner variant="severity">{error}</Banner> : null}
 
-          {aiEnabled && aiItems.length > 0 ? (
+          {isAi && aiItems.length > 0 ? (
             <section className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
@@ -455,7 +514,7 @@ export function TaskComposeDrawer({
             </section>
           ) : null}
 
-          {aiItems.length === 0 ? (
+          {!isAi ? (
             <ManualComposeFields
               labels={fieldLabels}
               isOperator={isOperator}
@@ -480,7 +539,7 @@ export function TaskComposeDrawer({
         </div>
 
         <footer className={styles.footer}>
-          {aiItems.length === 0 ? (
+          {!isAi ? (
             <Button
               className={buttonCompact}
               disabled={locked || !manual.title.trim()}

@@ -28,6 +28,8 @@ src/
 │   ├── link-token.ts     # ClientApiKey issue/resolve + bearer session
 │   ├── connect-next.ts   # Safe return path for /connect
 │   ├── ingest/           # P1-TASK-15 — text→task suggest + hint resolve
+│   ├── ai-suggest-quota.ts       # free/plus limits + period math
+│   ├── ai-suggest-quota-store.ts # DB/mock consume + platform plan set
 │   └── mail/             # P3-17 — sendMail · tokens · templates
 ├── components/tasks/
 │   └── task-compose-drawer/  # New task drawer (manual + AI review)

@@ -1,6 +1,18 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { UserPlanForm } from "@/components/platform/user-plan-form";
 import { listPlatformUsers } from "@/lib/platform-admin";
+
+function formatDay(iso: string | null, locale: string): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(d);
+}
 
 export default async function PlatformUsersPage({
   params,
@@ -25,6 +37,10 @@ export default async function PlatformUsersPage({
               <th className="px-3 py-2 font-medium">{t("users.email")}</th>
               <th className="px-3 py-2 font-medium">{t("users.name")}</th>
               <th className="px-3 py-2 font-medium">{t("users.status")}</th>
+              <th className="px-3 py-2 font-medium">{t("users.plan")}</th>
+              <th className="px-3 py-2 font-medium">{t("users.planEnds")}</th>
+              <th className="px-3 py-2 font-medium">{t("users.usageResets")}</th>
+              <th className="px-3 py-2 font-medium">{t("users.aiUsed")}</th>
               <th className="px-3 py-2 font-medium">{t("users.audit")}</th>
             </tr>
           </thead>
@@ -35,6 +51,33 @@ export default async function PlatformUsersPage({
                 <td className="px-3 py-2">{user.name || "—"}</td>
                 <td className="px-3 py-2 text-[var(--text-muted)]">
                   {user.active ? t("users.active") : t("users.inactive")}
+                </td>
+                <td className="px-3 py-2 align-top">
+                  <UserPlanForm
+                    locale={locale}
+                    userId={user.id}
+                    plan={user.plan}
+                    planExpiresAt={user.planExpiresAt}
+                    labels={{
+                      free: t("users.planFree"),
+                      plus: t("users.planPlus"),
+                      save: t("users.planSave"),
+                      expires: t("users.expires"),
+                      days30: t("users.days30"),
+                      days90: t("users.days90"),
+                      days365: t("users.days365"),
+                      custom: t("users.custom"),
+                    }}
+                  />
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap text-[var(--text-muted)]">
+                  {formatDay(user.planExpiresAt, locale)}
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap text-[var(--text-muted)]">
+                  {formatDay(user.usagePeriodEnd, locale)}
+                </td>
+                <td className="px-3 py-2 tabular-nums text-[var(--text-muted)]">
+                  {user.aiSuggestUsed}/{user.aiSuggestLimit}
                 </td>
                 <td className="px-3 py-2">
                   <Link

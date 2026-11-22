@@ -36,10 +36,14 @@ assert.equal(
   tasksListHref("es-es", {
     scope: "mine",
     view: "list",
-    compose: true,
+    compose: "manual",
     error: "title",
   }),
-  "/es-es/tasks?scope=mine&view=list&compose=1&error=title",
+  "/es-es/tasks?scope=mine&view=list&compose=manual&error=title",
+);
+assert.equal(
+  tasksListHref("en-gb", { scope: "team", view: "board", compose: "ai" }),
+  "/en-gb/tasks?scope=team&view=board&compose=ai",
 );
 assert.equal(
   tasksListHref("en-gb", {

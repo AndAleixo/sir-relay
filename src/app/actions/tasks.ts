@@ -6,6 +6,11 @@ import type { Task, TaskStatus } from "@/domain/types";
 import type { SyncActionOptions, TaskActionResult } from "@/domain/sync";
 import { assertCanCreateTask } from "@/lib/authz";
 import { loginPath } from "@/lib/entry-route";
+import { AI_SUGGEST_TASKS_MAX } from "@/lib/ai-suggest-quota";
+import {
+  consumeAiSuggestQuota,
+  refundAiSuggestQuota,
+} from "@/lib/ai-suggest-quota-store";
 import {
   openaiConfigured,
   suggestTasksFromText,
@@ -176,7 +181,7 @@ export async function updateTaskStatusAction(
 }
 
 async function buildIngestContext(locale: string): Promise<
-  | { ok: true; locale: string; ctx: IngestContext }
+  | { ok: true; locale: string; ctx: IngestContext; userId: string }
   | { ok: false; error: "forbidden" }
 > {
   const { auth, teammates, projects } = getServices();
@@ -217,6 +222,7 @@ async function buildIngestContext(locale: string): Promise<
   return {
     ok: true,
     locale,
+    userId: session.user.id,
     ctx: {
       role: session.user.role,
       defaultAssigneeId: session.user.id,
@@ -238,16 +244,46 @@ export async function suggestTasksFromTextAction(
   locale: string,
   text: string,
 ): Promise<
-  | { ok: true; drafts: PendingCreateDraft[] }
+  | { ok: true; drafts: PendingCreateDraft[]; remaining: number; limit: number }
   | {
       ok: false;
-      error: "forbidden" | "disabled" | "empty" | "upstream" | "invalid";
+      error:
+        | "forbidden"
+        | "disabled"
+        | "empty"
+        | "upstream"
+        | "invalid"
+        | "too_long"
+        | "quota";
+      remaining?: number;
+      limit?: number;
     }
 > {
   if (!openaiConfigured()) return { ok: false, error: "disabled" };
   const built = await buildIngestContext(locale);
   if (!built.ok) return built;
-  return suggestTasksFromText(text, built.locale, built.ctx);
+
+  const consumed = await consumeAiSuggestQuota(built.userId);
+  if (!consumed.ok) {
+    return {
+      ok: false,
+      error: consumed.error === "quota" ? "quota" : "forbidden",
+      remaining: consumed.quota?.remaining,
+      limit: consumed.quota?.limit,
+    };
+  }
+
+  const result = await suggestTasksFromText(text, built.locale, built.ctx);
+  if (!result.ok) {
+    await refundAiSuggestQuota(built.userId);
+    return result;
+  }
+  return {
+    ok: true,
+    drafts: result.drafts,
+    remaining: consumed.quota.remaining,
+    limit: consumed.quota.limit,
+  };
 }
 
 export async function approvePendingCreatesAction(
@@ -261,13 +297,15 @@ export async function approvePendingCreatesAction(
     return { ok: false, error: "invalid" };
   }
 
+  const capped = drafts.slice(0, AI_SUGGEST_TASKS_MAX);
+
   const { auth, tasks } = getServices();
   const session = await auth.getSession();
   if (!session?.activeGroupId) return { ok: false, error: "forbidden" };
 
   const created: Task[] = [];
 
-  for (const draft of drafts) {
+  for (const draft of capped) {
     const title = draft.title?.trim() ?? "";
     const assigneeId =
       session.user.role === "teammate"

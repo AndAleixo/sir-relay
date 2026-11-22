@@ -28,5 +28,5 @@ export const viewToggleStyles = {
   projectTrigger:
     "h-8 min-h-8 w-full gap-1 px-2 text-xs sm:h-9 sm:min-h-9 sm:gap-2 sm:px-3 sm:text-sm",
   projectAdd: "shrink-0 self-center whitespace-nowrap text-xs text-[var(--text-muted)]",
-  newTaskWrap: "shrink-0 self-end sm:self-auto",
+  newTaskWrap: "flex shrink-0 flex-wrap items-center justify-end gap-1.5 self-end sm:self-auto",
 } as const;

@@ -1,4 +1,8 @@
 import {
+  AI_SUGGEST_TASKS_MAX,
+  AI_SUGGEST_TEXT_MAX,
+} from "@/lib/ai-suggest-quota";
+import {
   openaiApiKey,
   openaiBaseUrl,
   openaiConfigured,
@@ -36,6 +40,7 @@ function buildSystemPrompt(locale: string, ctx: IngestContext): string {
     `Allowed projects and categories (hints must match names/acronyms below, or omit): ${projects || "(none)"}.`,
     `Do not invent members, projects, or categories that are not listed.`,
     `dueDate must be YYYY-MM-DD when present. difficulty one of: ${TASK_DIFFICULTIES.join(", ")}.`,
+    `Return at most ${AI_SUGGEST_TASKS_MAX} tasks.`,
     `Schema: {"tasks":[{"title":"string","description":"string?","assigneeHint":"string?","dueDate":"string?","difficulty":"easy|medium|hard?","projectHint":"string?","categoryHint":"string?"}]}`,
   ].join("\n");
 }
@@ -68,7 +73,10 @@ function parseHints(payload: unknown): IngestTaskHint[] {
 
 export type SuggestFromTextResult =
   | { ok: true; drafts: PendingCreateDraft[] }
-  | { ok: false; error: "disabled" | "empty" | "upstream" | "invalid" };
+  | {
+      ok: false;
+      error: "disabled" | "empty" | "upstream" | "invalid" | "too_long";
+    };
 
 export async function suggestTasksFromText(
   text: string,
@@ -77,6 +85,9 @@ export async function suggestTasksFromText(
 ): Promise<SuggestFromTextResult> {
   const trimmed = text.trim();
   if (!trimmed) return { ok: false, error: "empty" };
+  if (trimmed.length > AI_SUGGEST_TEXT_MAX) {
+    return { ok: false, error: "too_long" };
+  }
   if (!openaiConfigured()) return { ok: false, error: "disabled" };
 
   const key = openaiApiKey();
@@ -97,7 +108,7 @@ export async function suggestTasksFromText(
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: buildSystemPrompt(locale, ctx) },
-          { role: "user", content: trimmed.slice(0, 4000) },
+          { role: "user", content: trimmed },
         ],
       }),
     });
@@ -130,7 +141,10 @@ export async function suggestTasksFromText(
     return { ok: false, error: "invalid" };
   }
 
-  const drafts = resolveIngestHints(parseHints(parsed), ctx);
+  const drafts = resolveIngestHints(parseHints(parsed), ctx).slice(
+    0,
+    AI_SUGGEST_TASKS_MAX,
+  );
   if (drafts.length === 0) return { ok: false, error: "invalid" };
   return { ok: true, drafts };
 }

@@ -5,7 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import type { ManagedProject, Task } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
 import { groupMemberLabel } from "@/lib/group-member-label";
-import type { TasksScope, TasksView } from "@/lib/tasks-url";
+import type {
+  TasksComposeMode,
+  TasksScope,
+  TasksView,
+} from "@/lib/tasks-url";
 import { tasksListHref } from "@/lib/tasks-url";
 import { useSync } from "@/components/sync";
 import { Button, buttonCompact } from "@/components/ui/button";
@@ -30,8 +34,10 @@ interface TasksPageClientProps {
   initialScope: TasksScope;
   initialView: TasksView;
   initialProject: string | null;
-  initialCompose?: boolean;
+  initialCompose?: TasksComposeMode | null;
   aiEnabled?: boolean;
+  aiRemaining?: number;
+  aiLimit?: number;
   openProjects: ManagedProject[];
   /** Signed-in user for Team board self column + My work Kanban. */
   self: {
@@ -51,6 +57,7 @@ interface TasksPageClientProps {
     scopeAria: string;
     viewAria: string;
     newTask: string;
+    newTaskAi: string;
     assignee: string;
     projectNone: string;
     updated: string;
@@ -83,8 +90,10 @@ export function TasksPageClient({
   initialScope,
   initialView,
   initialProject,
-  initialCompose = false,
+  initialCompose = null,
   aiEnabled = false,
+  aiRemaining = 0,
+  aiLimit = 5,
   openProjects,
   self,
   tasks: serverTasks,
@@ -96,7 +105,9 @@ export function TasksPageClient({
   const [view, setViewState] = useState<TasksView>(initialView);
   const [scope, setScopeState] = useState<TasksScope>(initialScope);
   const [project, setProjectState] = useState<string | null>(initialProject);
-  const [composeOpen, setComposeOpen] = useState(initialCompose);
+  const [composeMode, setComposeMode] = useState<TasksComposeMode | null>(
+    initialCompose,
+  );
   /** Order fixed when Tasks opens — not updated when server revalidates. */
   const [boardMembers] = useState(members);
   const isOperator = role === "operator";
@@ -114,7 +125,7 @@ export function TasksPageClient({
   }, [initialProject]);
 
   useEffect(() => {
-    setComposeOpen(initialCompose);
+    setComposeMode(initialCompose);
   }, [initialCompose]);
 
   useEffect(() => {
@@ -125,13 +136,18 @@ export function TasksPageClient({
     scope?: TasksScope;
     view?: TasksView;
     project?: string | null;
-    compose?: boolean;
+    compose?: TasksComposeMode | false | null;
   }) {
     return {
       scope: next?.scope ?? scope,
       view: next?.view ?? view,
       project: next?.project !== undefined ? next.project : project,
-      compose: next?.compose ?? composeOpen,
+      compose:
+        next?.compose === undefined
+          ? composeMode
+          : next.compose === false
+            ? null
+            : next.compose,
     };
   }
 
@@ -156,15 +172,15 @@ export function TasksPageClient({
     });
   }
 
-  function openCompose() {
-    setComposeOpen(true);
-    router.replace(tasksListHref(locale, hrefOpts({ compose: true })), {
+  function openCompose(mode: TasksComposeMode) {
+    setComposeMode(mode);
+    router.replace(tasksListHref(locale, hrefOpts({ compose: mode })), {
       scroll: false,
     });
   }
 
   function closeCompose() {
-    setComposeOpen(false);
+    setComposeMode(null);
     router.replace(tasksListHref(locale, hrefOpts({ compose: false })), {
       scroll: false,
     });
@@ -295,27 +311,44 @@ export function TasksPageClient({
           />
         </div>
         <div className={viewToggleStyles.newTaskWrap}>
-          <Button className={buttonCompact} onClick={openCompose}>
+          <Button
+            className={buttonCompact}
+            onClick={() => openCompose("manual")}
+          >
             {labels.newTask}
           </Button>
+          {aiEnabled ? (
+            <Button
+              variant="secondary"
+              className={buttonCompact}
+              onClick={() => openCompose("ai")}
+            >
+              {labels.newTaskAi}
+            </Button>
+          ) : null}
         </div>
       </div>
 
-      <TaskComposeDrawer
-        open={composeOpen}
-        onClose={closeCompose}
-        locale={locale}
-        isOperator={isOperator}
-        aiEnabled={aiEnabled}
-        selfId={self.id}
-        defaultProjectId={project}
-        assigneeOptions={assigneeOptions}
-        openProjects={openProjects}
-        labels={labels.compose}
-        onCreated={() => {
-          router.refresh();
-        }}
-      />
+      {composeMode ? (
+        <TaskComposeDrawer
+          open
+          mode={composeMode}
+          onClose={closeCompose}
+          locale={locale}
+          isOperator={isOperator}
+          aiEnabled={aiEnabled}
+          aiRemaining={aiRemaining}
+          aiLimit={aiLimit}
+          selfId={self.id}
+          defaultProjectId={project}
+          assigneeOptions={assigneeOptions}
+          openProjects={openProjects}
+          labels={labels.compose}
+          onCreated={() => {
+            router.refresh();
+          }}
+        />
+      ) : null}
 
       {emptyMyWork ? (
         <p className="tasks-no-select text-sm text-[var(--text-muted)]">{labels.emptyMyWork}</p>

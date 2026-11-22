@@ -9,6 +9,7 @@ import {
   parseTasksScope,
   parseTasksView,
 } from "@/lib/tasks-url";
+import { getAiSuggestQuota } from "@/lib/ai-suggest-quota-store";
 import { openaiConfigured } from "@/lib/ingest";
 import { getServices } from "@/services";
 import { TasksPageClient } from "@/components/tasks/tasks-page-client";
@@ -61,6 +62,10 @@ export default async function TasksPage({
     projectRaw,
     openProjects.map((row) => row.id),
   );
+  const aiOn = openaiConfigured();
+  const aiQuota = aiOn
+    ? await getAiSuggestQuota(session.user.id)
+    : null;
 
   return (
     <>
@@ -89,7 +94,9 @@ export default async function TasksPage({
         initialView={initialView}
         initialProject={initialProject}
         initialCompose={parseTasksCompose(composeRaw)}
-        aiEnabled={openaiConfigured()}
+        aiEnabled={aiOn}
+        aiRemaining={aiQuota?.remaining ?? 0}
+        aiLimit={aiQuota?.limit ?? 5}
         openProjects={openProjects}
         self={{
           id: session.user.id,
@@ -107,6 +114,7 @@ export default async function TasksPage({
           scopeAria: t("tasks.scopeAria"),
           viewAria: t("tasks.viewAria"),
           newTask: t("common.newTask"),
+          newTaskAi: t("tasks.composeAiOpen"),
           assignee: t("tasks.assignee"),
           dueDate: t("tasks.dueDate"),
           updated: t("tasks.updated"),
@@ -151,6 +159,7 @@ export default async function TasksPage({
           categoryNone: t("tasks.categoryNone"),
           compose: {
             drawerTitle: t("tasks.composeTitle"),
+            aiDrawerTitle: t("tasks.composeAiTitle"),
             close: t("common.close"),
             save: t("common.save"),
             accept: t("tasks.composeAccept"),
@@ -162,8 +171,11 @@ export default async function TasksPage({
             aiSubmit: t("tasks.composeAiSubmit"),
             aiSuggesting: t("tasks.composeAiSuggesting"),
             closeConfirm: t("tasks.composeCloseConfirm"),
+            aiQuota: t("tasks.composeAiQuota"),
             errorSuggest: t("tasks.composeErrorSuggest"),
             errorApprove: t("tasks.composeErrorApprove"),
+            errorQuota: t("tasks.composeErrorQuota"),
+            errorTooLong: t("tasks.composeErrorTooLong"),
             title: t("tasks.title"),
             titlePlaceholder: t("tasks.titlePlaceholder"),
             assignee: t("tasks.assignee"),

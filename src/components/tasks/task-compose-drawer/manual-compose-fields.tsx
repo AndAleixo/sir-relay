@@ -167,7 +167,12 @@ export function ManualComposeFields({
           />
         ) : null}
 
-        <div className={styles.metaDueWrap}>
+        <div
+          className={cn(
+            styles.metaDueWrap,
+            showCategory && styles.metaDueWide,
+          )}
+        >
           {!values.dueDate ? (
             <span className={styles.metaDueGhost} aria-hidden>
               {labels.dueDate}

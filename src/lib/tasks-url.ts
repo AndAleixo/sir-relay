@@ -4,6 +4,8 @@
  */
 export type TasksScope = "mine" | "team";
 export type TasksView = "board" | "list";
+/** Compose bottom sheet mode. */
+export type TasksComposeMode = "manual" | "ai";
 
 export type TasksListFlash = {
   saved?: boolean;
@@ -16,8 +18,8 @@ export type TasksHrefOpts = {
   view: TasksView;
   /** Open project id, or omit/null = All. */
   project?: string | null;
-  /** Open the compose drawer on `/tasks`. */
-  compose?: boolean;
+  /** Open compose bottom sheet (`manual` | `ai`). */
+  compose?: TasksComposeMode | false | null;
 };
 
 function setProjectParam(
@@ -63,8 +65,13 @@ export function coerceTasksProject(raw: string | undefined): string | undefined 
   return id || undefined;
 }
 
-export function parseTasksCompose(raw: string | undefined): boolean {
-  return raw === "1";
+/** `compose=manual|ai` (legacy `1` → manual). */
+export function parseTasksCompose(
+  raw: string | undefined,
+): TasksComposeMode | null {
+  if (raw === "ai") return "ai";
+  if (raw === "manual" || raw === "1") return "manual";
+  return null;
 }
 
 export function tasksListHref(
@@ -75,7 +82,9 @@ export function tasksListHref(
   params.set("scope", opts.scope);
   params.set("view", opts.view);
   setProjectParam(params, opts.project);
-  if (opts.compose) params.set("compose", "1");
+  if (opts.compose === "ai" || opts.compose === "manual") {
+    params.set("compose", opts.compose);
+  }
   if (opts.saved) params.set("saved", "1");
   if (opts.deleted) params.set("deleted", "1");
   if (opts.error) params.set("error", opts.error);

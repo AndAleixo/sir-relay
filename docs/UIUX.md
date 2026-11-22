@@ -302,12 +302,12 @@ Opens from **New task** / `?compose=1`. Right-hand panel over the board/list; do
 
 | Element | Spec |
 |---------|------|
-| Placement | `fixed`; `top` = `--app-chrome-height` (flush under header bottom edge — same line account/locale menus hang from). Full height to viewport bottom; `max-w-lg`; left border only (no top radius — sits against the header edge) |
-| Motion | Family A: `useFadeOpen` + `popoverStyles` (opacity + `translate-y-2` + `scale-[0.98]`; ~200ms open / ~300ms close). Panel `origin-top` so the scale reads from the header edge |
-| Backdrop | Soft dim; same open/close durations; click closes (confirm if dirty) |
-| AI chat | Growing textarea + icon send; Enter submits, Shift+Enter newline. Suggest → read-only review cards (accept/reject). Manual form hidden while cards are present |
-| Manual | `ManualComposeFields` order: title → 2-col meta Selects → auto-grow description. Placeholders use the field noun (Title / Description). Empty Selects use `compactTrigger` + `compactLabel` (field noun); chosen value replaces it. Category Select only when the project has categories. Due shows field noun until a date is set |
-| Footer | Save (manual only) · Close |
+| Placement | Bottom sheet (`items-end`); `max-w-lg`; hug content up to ~85vh. Two entry CTAs: **New task** (`?compose=manual`) · **Ask AI** (`?compose=ai`, only when AI configured) |
+| Motion | Family A from bottom (`translate-y-4` + scale + opacity; ~200ms / ~300ms) |
+| Backdrop | Soft dim; click closes (confirm if AI cards dirty) |
+| AI | Bottom sheet with growing chat (max **300** chars) + Cursor-style quota ring (remaining/limit). Suggest → accept/reject cards (max **5**). Plans: **free** 5 / **plus** 30 calls per usage month; plus ends at `plan_expires_at` → free (platform may grant >30d) |
+| Manual | Hug-height sheet: title → meta Selects → auto-grow description. Category only when options exist; Due half-width without category |
+| Footer | Save (manual) · Close |
 
 Teammate: assignee always self (no assignee field). Operator: assignee required on create.
 

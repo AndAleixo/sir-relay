@@ -69,6 +69,7 @@ export function toUser(
     needsLegalAccept: needsLegalAccept(user.termsVersion),
     telegramStatus: telegramStatus(user),
     displayName,
+    plan: user.plan,
   };
 }
 

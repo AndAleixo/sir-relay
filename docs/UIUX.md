@@ -286,23 +286,24 @@ Fallback for narrow screens and scanning.
 
 ### 3.4 Compose drawer (New task)
 
-Two CTAs over the board/list (does not leave the page): **New task** → `?compose=manual` (top-right under chrome); **Ask AI** → `?compose=ai` (bottom-right; only when key + model are set). Legacy `?compose=1` opens manual.
+Two CTAs over the board/list (does not leave the page): **New task** → `?compose=manual`; **Ask AI** → `?compose=ai` (only when key + model are set). Legacy `?compose=1` opens manual.
 
 ```
-┌─ shell header ──────────────────────────────┐
-│  Board / list (dimmed)           ┌────────┐ │  ← manual: top-right under chrome
-│                                  │ Manual │ │     (`--app-chrome-height`)
-│                                  └────────┘ │
-│                                  ┌────────┐ │  ← AI: bottom-right
-│                                  │ AI*    │ │
-│                                  └────────┘ │
-└─────────────────────────────────────────────┘
+Desktop (sm+)                          Mobile
+┌─ header ──────────────────┐          ┌─ header ──────────┐
+│  Board          ┌───────┐ │          │     ┌──────────┐  │
+│                 │Manual │ │          │     │  Manual  │  │  ← top-center
+│                 └───────┘ │          │     └──────────┘  │
+│                 ┌───────┐ │          │     ┌──────────┐  │
+│                 │ AI*   │ │          │     │   AI*    │  │  ← bottom-center
+│                 └───────┘ │          │     └──────────┘  │
+└───────────────────────────┘          └───────────────────┘
 * Ask AI only when key + model are configured
 ```
 
 | Element | Spec |
 |---------|------|
-| Placement | **New task** (`?compose=manual`) top-right under chrome · **Ask AI** (`?compose=ai`) bottom-right. Hug content up to ~85vh |
+| Placement | **New task** top (mobile center · sm+ right under chrome) · **Ask AI** bottom (mobile center · sm+ right). Hug content up to ~85vh |
 | Motion | Family A; manual enters from above, AI from below (~200ms / ~300ms) |
 | Backdrop | Soft dim; click closes (confirm if AI cards dirty) |
 | AI | Bottom-right panel with growing chat (max **300** chars) + Cursor-style quota ring (remaining/limit). Suggest → accept/reject cards (max **5**). Plans: **basic** 5 / **plus** 30 calls per usage month; plus ends at `plan_expires_at` → basic. Platform sets/extends (no payment UI) |

@@ -1,13 +1,15 @@
 import { popoverStyles } from "@/components/ui/popover";
 
 /**
- * Compose panels: manual = top-right under chrome; AI = bottom-right.
+ * Compose panels — mobile: manual top-center / AI bottom-center;
+ * sm+: manual top-right under chrome / AI bottom-right.
  * Family A open/close motion.
  */
 export const composeDrawerStyles = {
   rootManual:
-    "fixed inset-0 z-[45] flex items-start justify-end pt-[var(--app-chrome-height,3.5rem)] sm:p-4 sm:pt-[calc(var(--app-chrome-height,3.5rem)+0.5rem)]",
-  rootAi: "fixed inset-0 z-[45] flex items-end justify-end sm:p-4",
+    "fixed inset-0 z-[45] flex items-start justify-center px-3 pt-[var(--app-chrome-height,3.5rem)] sm:justify-end sm:p-4 sm:pt-[calc(var(--app-chrome-height,3.5rem)+0.5rem)]",
+  rootAi:
+    "fixed inset-0 z-[45] flex items-end justify-center px-3 pb-3 sm:justify-end sm:p-4",
   backdrop: "absolute inset-0 bg-[var(--text-primary)]/15 transition-opacity",
   backdropMotionOpen: popoverStyles.panelMotionOpen,
   backdropMotionClose: popoverStyles.panelMotionClose,

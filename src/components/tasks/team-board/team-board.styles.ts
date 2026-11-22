@@ -1,6 +1,13 @@
 export const teamBoardStyles = {
-  scroll:
-    "tasks-no-select flex cursor-grab gap-4 overflow-x-auto overscroll-x-contain pb-4 touch-pan-y [scrollbar-gutter:stable] snap-x snap-mandatory data-[panning=true]:snap-none md:snap-none",
+  /**
+   * Mobile: side padding = (viewport − column) / 2 so first/last snap-center.
+   * Desktop: no snap, no centering pad.
+   */
+  scroll: [
+    "tasks-no-select flex cursor-grab gap-4 overflow-x-auto overscroll-x-contain pb-4 touch-pan-y",
+    "[scrollbar-gutter:stable] snap-x snap-mandatory data-[panning=true]:snap-none",
+    "px-[max(0px,calc((100%-280px)/2))] md:snap-none md:px-0",
+  ].join(" "),
   column:
     "flex w-[min(100%,280px)] shrink-0 snap-center flex-col rounded-card border border-[var(--border)] bg-surface-card md:w-72",
   columnHeader: "border-b border-[var(--border)] p-3",

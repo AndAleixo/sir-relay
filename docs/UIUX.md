@@ -256,6 +256,8 @@ First column: **signed-in member**. Others by **To do count** when Tasks opens (
 
 **Self column:** same naming (fantasy → account → email) — not “Me”. Drop onto another editable To do reassigns (Y / chrome rules as My work).
 
+**Mobile:** horizontal snap-center on member columns; edge padding so the first and last columns can center (not an infinite loop). Desktop: free scroll, no snap.
+
 #### Column header
 
 Member label left · inactive icon right. Telegram link status is on Teammates only. No role chip; no active-task count.

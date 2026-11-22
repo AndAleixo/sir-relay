@@ -443,8 +443,6 @@
     "categoryErrorFailed": "Não foi possível atualizar as categorias."
   },
   "settings": {
-    "title": "Configurações",
-    "pageSubtitle": "Configurações de {group}",
     "general": "Geral",
     "generalHint": "Detalhes do grupo ativo.",
     "yourRole": "Seu papel",
@@ -556,8 +554,6 @@
     "deleteAccountFailed": "Não foi possível excluir a conta. Tente de novo ou fale com o suporte."
   },
   "events": {
-    "title": "Eventos",
-    "subtitle": "Alertas deste grupo.",
     "empty": "Sem alertas ainda. Concluir uma tarefa ou um prazo pode gerar um.",
     "taskDone": "Concluída:",
     "taskDue": "Prazo:",

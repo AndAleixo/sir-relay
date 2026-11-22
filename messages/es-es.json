@@ -443,8 +443,6 @@
     "categoryErrorFailed": "No se pudieron actualizar las categorías."
   },
   "settings": {
-    "title": "Ajustes",
-    "pageSubtitle": "Ajustes de {group}",
     "general": "General",
     "generalHint": "Detalles del grupo activo.",
     "yourRole": "Tu rol",
@@ -556,8 +554,6 @@
     "deleteAccountFailed": "No se pudo eliminar la cuenta. Inténtalo de nuevo o contacta soporte."
   },
   "events": {
-    "title": "Eventos",
-    "subtitle": "Alertas de este grupo.",
     "empty": "Sin alertas aún. Completar una tarea o una fecha de vencimiento puede generar uno.",
     "taskDone": "Completada:",
     "taskDue": "Vence:",

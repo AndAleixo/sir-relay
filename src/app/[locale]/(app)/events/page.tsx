@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getServices } from "@/services";
 import { requireAppSession } from "@/lib/require-session";
-import { PageHeader } from "@/components/layout/app-shell";
 import { OperatorAlertsList } from "@/components/alerts/operator-alerts-list";
 
 export default async function EventsPage({
@@ -22,10 +21,6 @@ export default async function EventsPage({
 
   return (
     <>
-      <PageHeader
-        title={t("events.title")}
-        subtitle={t("events.subtitle")}
-      />
       <OperatorAlertsList
         alerts={alertList}
         locale={locale}

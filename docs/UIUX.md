@@ -143,11 +143,11 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 ```
 ┌────────────┬──────────────────────────────────────────────────┐
 │ logo.svg   │  [Group ▾]              [locale ▾] [avatar] [▾] │
-│ ────────── │  Page title                    [+ New task]*      │
+│ ────────── │                                                   │
 │  Tasks     │                                                   │
-│  Teammates*│                                                   │
-│  Projects  │              Main content                         │
-│  Events*   │                                                   │
+│  Teammates*│              Main content                         │
+│  Projects  │              (no duplicate page title — nav is    │
+│  Events*   │               the selected label)                 │
 │  Settings  │                                                   │
 │            │                                                   │
 │ ────────── │                                                   │
@@ -165,6 +165,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 | Sidebar nav | Tasks · Teammates · Projects · Events · Settings |
 | Sidebar footer | Profile (name + avatar) |
 | Top header | Group switcher · locale · account menu · height = `--app-chrome-height` (3.5rem desktop; mobile chrome includes tab row ≈ 6.75rem) |
+| Page title | Omitted on primary nav tabs (label already in sidebar/tabs). Keep `PageHeader` on nested routes (task detail, teammate detail, activity, profile, …) |
 | Account menu | Name · Profile · Log out · Family A panel under trigger |
 | Locale | Header dropdown (URL prefix); also on login |
 | Primary CTA | **New task** (yellow); teammate = self-assigned only · opens compose drawer (§3.4) |

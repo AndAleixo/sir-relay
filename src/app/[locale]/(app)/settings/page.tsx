@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { updateOwnDisplayNameForm } from "@/app/actions/teammates";
-import { PageHeader } from "@/components/layout/app-shell";
 import { GroupDangerSettings } from "@/components/settings/group-danger-settings";
 import { GroupGeneralSettings } from "@/components/settings/group-general-settings";
 import { GroupNotificationSettings } from "@/components/settings/group-notification-settings";
@@ -44,12 +43,6 @@ export default async function SettingsPage({
 
   return (
     <>
-      <PageHeader
-        title={t("settings.title")}
-        subtitle={
-          activeGroup ? t("settings.pageSubtitle", { group: activeGroup.name }) : undefined
-        }
-      />
       <div className="grid max-w-3xl gap-3 md:max-w-4xl md:grid-cols-2 md:gap-4">
         {session.user.telegramStatus === "pending" ? (
           <Banner variant="warning" className="md:col-span-2">

@@ -443,8 +443,6 @@
     "categoryErrorFailed": "Could not update categories."
   },
   "settings": {
-    "title": "Settings",
-    "pageSubtitle": "Settings for {group}",
     "general": "General",
     "generalHint": "Group details for your current workspace.",
     "yourRole": "Your role",
@@ -556,8 +554,6 @@
     "deleteAccountFailed": "Could not delete the account. Try again or contact support."
   },
   "events": {
-    "title": "Events",
-    "subtitle": "Alerts for this group.",
     "empty": "No alerts yet. Completing a task or a due date can trigger one.",
     "taskDone": "Completed:",
     "taskDue": "Due:",

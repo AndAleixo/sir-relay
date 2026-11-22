@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { PageHeader } from "@/components/layout/app-shell";
 import { orderMembersByTodoCount } from "@/lib/board-member-order";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { requireAppSession } from "@/lib/require-session";
@@ -69,7 +68,6 @@ export default async function TasksPage({
 
   return (
     <>
-      <PageHeader title={t("common.tasks")} />
       {error === "not_found" ? (
         <Banner variant="severity" className="mb-4">
           {t("tasks.errorNotFound")}

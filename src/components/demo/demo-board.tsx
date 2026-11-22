@@ -100,16 +100,16 @@ export function DemoBoard() {
 
   return (
     <>
-      <PageHeader
-        title={creating ? t("common.newTask") : t("common.tasks")}
-        action={
-          creating ? (
+      {creating ? (
+        <PageHeader
+          title={t("common.newTask")}
+          action={
             <Button type="button" variant="secondary" onClick={() => setCreating(false)}>
               {t("common.back")}
             </Button>
-          ) : null
-        }
-      />
+          }
+        />
+      ) : null}
       {creating ? (
         <DemoNewTask
           selfId={self.id}

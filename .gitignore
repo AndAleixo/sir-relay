@@ -33,6 +33,14 @@ yarn-error.log*
 # SQL backups (scripts/db/backup.sh)
 /backups/
 
+# Brand — served copies of brand/*.svg (regenerate: npm run brand:sync)
+/public/favicon.svg
+/public/brand/icon.svg
+/public/brand/logo.svg
+/public/brand/logo-compact.svg
+# Accidental PWA raster dumps (mark is SVG from brand/)
+/public/icons/
+
 # typescript
 *.tsbuildinfo
 

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { UmamiScript } from "@/components/analytics/umami-script";
 import { seoMetadataBase } from "@/lib/seo";
@@ -9,6 +9,12 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const APP_DESCRIPTION =
   "Organize work alone or with any team. Assign tasks, follow what's left — without productivity theater.";
 
+export const viewport: Viewport = {
+  themeColor: "#EAB308",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
   metadataBase: seoMetadataBase(),
   title: {
@@ -17,7 +23,15 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   applicationName: "SRelay",
-  icons: { icon: "/favicon.svg" },
+  appleWebApp: {
+    capable: true,
+    title: "SRelay",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/brand/icon.svg", type: "image/svg+xml" }],
+  },
   openGraph: {
     type: "website",
     siteName: "SRelay",

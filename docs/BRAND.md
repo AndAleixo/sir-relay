@@ -31,7 +31,7 @@
 
 | Token | Hex | Use |
 |-------|-----|-----|
-| `--brand-accent` | `#EAB308` | Primary buttons, links, active nav, favicon, bot avatar, In progress status |
+| `--brand-accent` | `#EAB308` | Primary buttons, links, active nav, In progress status; **R** in the mark |
 | `--brand-accent-hover` | `#CA8A04` | Button / link hover |
 | `--brand-accent-soft` | `#FEF9C3` | Subtle highlight backgrounds |
 | `--text-primary` | `#0A0A0A` | Headings, body |
@@ -90,15 +90,15 @@ Wordmark is **SRelay** (Sir → **S**, product **Relay**). Collapse by dropping 
 
 | Asset | File | Background | Content |
 |-------|------|------------|---------|
-| **Icon** | [`icon.svg`](./icon.svg) | **Yellow** square `#EAB308` | **SR** + progress track |
+| **Icon** | [`icon.svg`](./icon.svg) | **White** square `#FFFFFF` (+ light border) | **SR** + progress track |
 | **Logo compact** | [`logo-compact.svg`](./logo-compact.svg) | **Transparent** | **SR** + progress track |
 | **Logo extended** | [`logo.svg`](./logo.svg) | **Transparent** | **SRelay** + extended track |
 
 **Icon** = app mark (favicon, Telegram avatar, PWA). Two letters so it survives 16–32px.  
-**Logo** = wordmark for UI headers — same *shape* as the icon (text above, track below) but **no yellow fill**.
+**Logo** = wordmark for UI headers — same *shape* as the icon (text above, track below) on transparent.
 
 ```
-Icon (yellow):          Logo compact (transparent):    Logo extended (transparent):
+Icon (white):           Logo compact (transparent):    Logo extended (transparent):
 
 ┌──────────┐            SR                             SRelay
 │   SR     │            ——●——                          ——●——
@@ -133,20 +133,24 @@ Extended:   SRelay            Compact:   SR
 
 | File | Use |
 |------|-----|
-| [`brand/icon.svg`](./icon.svg) | Favicon, bot avatar source, app icon (**SR**) |
-| [`brand/logo-compact.svg`](./logo-compact.svg) | Header collapsed / mobile, transparent **SR** |
-| [`brand/logo.svg`](./logo.svg) | Login, landing, header expanded, transparent **SRelay** |
-| [`brand/bot-avatar.svg`](./bot-avatar.svg) | Telegram 512×512 (yellow **SR** icon) |
-| [`public/favicon.svg`](../public/favicon.svg) | Next.js favicon |
+| [`brand/icon.svg`](./icon.svg) | **Only** **SR** mark (white ground) — favicon, PWA, Telegram avatar source |
+| [`brand/logo-compact.svg`](./logo-compact.svg) | Header collapsed / mobile → synced to `public/brand/` |
+| [`brand/logo.svg`](./logo.svg) | Login, landing, header expanded → synced to `public/brand/` |
+| [`brand/brand.css`](./brand.css) | Design tokens (imported by `globals.css`) |
+| [`public/favicon.svg`](../public/favicon.svg) · [`public/brand/icon.svg`](../public/brand/icon.svg) | Served mark (from `brand:sync`) |
+| [`public/brand/logo.svg`](../public/brand/logo.svg) · [`logo-compact.svg`](../public/brand/logo-compact.svg) | Served logos (do not edit — run `npm run brand:sync`) |
+| [`public/brand/demo.webm`](../public/brand/demo.webm) | Landing demo video only |
+
+There is **no** separate `bot-avatar.svg` — same mark as `icon.svg` (was a scaled duplicate).
 
 ### 3.5 Usage
 
 ```
-Favicon / Telegram / app icon:     icon.svg  (yellow SR)
+Favicon / PWA / Telegram mark:     brand/icon.svg → /brand/icon.svg · /favicon.svg
 
-Header expanded / login / landing: logo.svg  (transparent SRelay)
+Header expanded / login / landing: brand/logo.svg → /brand/logo.svg
 
-Header collapsed / mobile:         logo-compact.svg  (transparent SR)
+Header collapsed / mobile:         brand/logo-compact.svg → /brand/logo-compact.svg
 ```
 
 ### 3.6 Clear space & size
@@ -156,12 +160,14 @@ Header collapsed / mobile:         logo-compact.svg  (transparent SR)
 **Icon minimum:** 24px.  
 **Do not:** add yellow background to logos; do not stretch or rotate.
 
-### 3.7 Export bot avatar (when needed)
+### 3.7 Sync served copies
 
 ```bash
-# Example with Inkscape or rsvg-convert
-rsvg-convert -w 512 -h 512 brand/bot-avatar.svg -o public/bot-avatar.png
+# After editing brand/*.svg logos or icon:
+npm run brand:sync
 ```
+
+Telegram BotFather wants a raster: export `brand/icon.svg` to PNG in Inkscape/Figma (do not ImageMagick-rasterize `<text>` — letters break).
 
 ---
 
@@ -219,7 +225,7 @@ BRAND_LOGO_URL=           # optional CDN override
 |-------|-------|
 | Display name | SRelay |
 | Username | `@SirRelayBot` (finalize at BotFather) |
-| Avatar | `brand/bot-avatar.svg` → 512×512 PNG |
+| Avatar | `brand/icon.svg` → export 512×512 PNG (Inkscape/Figma) |
 | Description | Task relay for your team. Reply to update your work. |
 
 ---
@@ -227,8 +233,13 @@ BRAND_LOGO_URL=           # optional CDN override
 ## 8. Assets
 
 ```
-brand/          icon.svg · logo-compact.svg · logo.svg · bot-avatar.svg · brand.css · palette.svg
-public/         favicon.svg
+brand/                 ← edit here (canonical; committed)
+  icon.svg · logo.svg · logo-compact.svg · brand.css · palette.svg
+
+public/brand/demo.webm ← committed (not generated)
+
+public/brand/{icon,logo,logo-compact}.svg · public/favicon.svg
+                       ← gitignored; created by brand:sync (dev / prebuild)
 ```
 
-Import `brand/brand.css` via `globals.css`. Header open → `logo.svg`; collapsed → `logo-compact.svg`; favicon → `icon.svg`.
+Import `brand/brand.css` via `globals.css`. One mark only (`icon.svg`, white ground). `check:brand` / `check:pwa` fail on drift or leftover `public/icons` / `bot-avatar`.

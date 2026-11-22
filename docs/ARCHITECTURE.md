@@ -46,6 +46,7 @@ src/
 │   ├── platform-users.ts # Platform set/extend user plan (no payment UI)
 │   └── connect.ts        # Create / delete ClientApiKey
 ├── app/api/v1/client/    # Bearer board + task mutate (IDE extension + MCP)
+├── app/manifest.ts       # P3-14 installable PWA (no SW / push yet)
 └── app/[locale]/
     ├── groups/auto/      # Route handler: persist sole-group auto-select
     ├── connect/          # API keys hub + IDE deep-link

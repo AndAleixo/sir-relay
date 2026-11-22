@@ -540,7 +540,7 @@ Runbook: [DEPLOY-DIGITALOCEAN.md](./DEPLOY-DIGITALOCEAN.md) (firewall · SSH · 
 | P3-10 | Custom branding overrides |
 | P3-11 | Logo collapse animation ([BRAND.md](./BRAND.md) §3.3) |
 | P3-13 | Native mobile apps (iOS / Android) — same `/api/v1`; web remains primary until shipped |
-| P3-14 | PWA install + optional push notifications |
+| P3-14 | PWA install + optional push — **install shell Done** (`manifest.ts` + `brand/icon.svg`, `themeColor`); push / service worker still open (offline → P3-07). Optional later: hand-exported PNG 192/512 if a store requires rasters |
 | P3-15 | Public organization signup (multi-tenant or self-serve deploy) |
 | P3-16 | Group projects — acronym on tasks; Projects tab + categories |
 

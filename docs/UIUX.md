@@ -187,6 +187,7 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 | Top bar | Compact logo, group switcher, locale, avatar → Profile |
 | Tab nav | Same items as sidebar |
 | Log out | Profile page (+ desktop account menu) |
+| PWA | Installable (`manifest` + icons); standalone display. No offline/push yet |
 
 ---
 

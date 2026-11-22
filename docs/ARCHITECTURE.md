@@ -27,7 +27,10 @@ src/
 │   ├── sync/             # execute-mutation · merge-tasks (LWW + server-snapshot gate)
 │   ├── link-token.ts     # ClientApiKey issue/resolve + bearer session
 │   ├── connect-next.ts   # Safe return path for /connect
+│   ├── ingest/           # P1-TASK-15 — text→task suggest + hint resolve
 │   └── mail/             # P3-17 — sendMail · tokens · templates
+├── components/tasks/
+│   └── task-compose-drawer/  # New task drawer (manual + AI review)
 ├── app/actions/
 │   ├── auth.ts           # Login, signup, logout, password, verify (POST confirm), reset, delete account
 │   ├── contact.ts        # Public contact form → CONTACT_EMAIL
@@ -86,7 +89,7 @@ Fluxo invite inválido: erro no formulário, header intacto (sem redirect/cookie
 | `/[locale]/groups` | Session | private | No active group — panel opens automatically |
 | `/[locale]/groups/auto` | Session | private | Auto-pick sole group (persist cookie) |
 | `/[locale]/change-password` | Session | private | Forced / optional password change |
-| `/[locale]/tasks` (`?compose=1`), `/tasks/new` → redirect, `/tasks/[id]` | Session + group | private | Boards, list, compose drawer, CRUD |
+| `/[locale]/tasks` (`?compose=1`), `/tasks/[id]` | Session + group | private | Boards, list, compose drawer, CRUD |
 | `/[locale]/teammates`, `/teammates/new`, `/teammates/[id]` | Session + group | private | List/detail both roles (writes operator); `/new` operator |
 | `/[locale]/projects` | Session + group | private | Project manager (both) · project writes operator · categories both |
 | `/[locale]/events`, `/events/activity`, `/settings` | Session + group | private | Alerts (both) · group activity + alert prefs (operator) |
@@ -128,7 +131,7 @@ Demo seed (**local only** — never on public VPS): `src/services/mock/data.ts` 
 
 ## Task forms
 
-`src/components/tasks/task-form/` — `TaskFormFields`, `TaskFormActions`, `EditTaskForm`. Primary create: compose drawer on `/tasks` (manual form or AI suggest → review cards → `createTask`). Field order: title → assignee → difficulty → project (+ category) → due → description. Edit adds status + delete. AI ingest: `src/lib/ingest/` (members/projects/categories only).
+`src/components/tasks/task-form/` — `TaskFormFields`, `TaskFormActions`, `EditTaskForm` (labeled stack on detail). Primary create: compose drawer on `/tasks` — `ManualComposeFields` (title + grow description + 2-col meta) or AI suggest → review cards → `createTask`. Drawer chrome/motion: [UIUX §3.4](./UIUX.md#34-compose-drawer-new-task). Edit field order: title → assignee → status → difficulty → project (+ category) → due → description + delete. AI ingest: `src/lib/ingest/` (members/projects/categories only).
 
 ## Mock → API
 

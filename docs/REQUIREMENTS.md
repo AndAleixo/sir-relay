@@ -225,7 +225,7 @@ Operator-only management **within the active group** (except fantasy name, which
 
 | ID | Requirement | Acceptance criteria |
 |----|-------------|---------------------|
-| P1-TASK-01 | Create | **Operator:** title + assignee (any active group member, including self and other operators). **Teammate:** title + self only (assignee forced to signed-in user). Optional description, due_date, difficulty (`easy`/`medium`/`hard`) |
+| P1-TASK-01 | Create | Primary UI: compose drawer on `/tasks` (`?compose=1`). **Operator:** title + assignee (any active group member, including self and other operators). **Teammate:** title + self only (assignee forced to signed-in user). Optional description, due_date, difficulty (`easy`/`medium`/`hard`), project, category. Manual layout: [UIUX §3.4](./UIUX.md#34-compose-drawer-new-task) |
 | P1-TASK-02 | Notify on create | Send Telegram if assignee is **linked** **and** their queue is empty (§2) |
 | P1-TASK-03 | Re-notify | Operator only; resend Telegram; update `telegram_message_id` (replies bind to latest message) |
 | P1-TASK-04 | List / Kanban | Both roles: **My work** (own) · **Team** (group). Teammate Team = view others, edit own only |
@@ -239,6 +239,7 @@ Operator-only management **within the active group** (except fantasy name, which
 | P1-TASK-12 | Auto-dispatch | On `done` (Telegram keyword or web): notify next task per P1-TASK-11; if none, send queue-empty message (P1-TG-08). Same for teammate **and** operator assignees. |
 | P1-TASK-13 | Operator self-tasks | Operator may assign tasks to themselves (or other operators); visible on web board in the **self column** (member label, not “Me”) and other member columns; **Telegram relay** when linked (same queue rules as teammates) |
 | P1-TASK-14 | Clone | Who can **create** a task for that assignee may clone an editable task. Copy title, description, due, difficulty, assignee, status, project, category; insert **immediately below** source in that status queue (`sort_order`). Does not copy Telegram message ids. UI: board **⋯** menu — [UIUX.md §4](./UIUX.md#4-task-card) |
+| P1-TASK-15 | AI suggest (optional) | When `OPENAI_API_KEY` **and** `OPENAI_MODEL` are set: compose drawer shows text→draft suggest. Review cards are read-only accept/reject (no edit menu). Resolve hints to members / projects / categories only (`lib/ingest`). Without both env vars, drawer is manual-only |
 
 ### 5.4 Telegram activity (no web comment UI)
 
@@ -324,6 +325,9 @@ Full hardening → Phase 2.
 | `PLATFORM_ADMIN_PASSWORD` | No* | ≥8 chars; required with username to enable `/platform` |
 | `TELEGRAM_BOT_TOKEN` | Yes | From BotFather |
 | `TELEGRAM_WEBHOOK_SECRET` | Yes | Webhook verification |
+| `OPENAI_API_KEY` | No | With `OPENAI_MODEL` enables P1-TASK-15; else compose is manual-only |
+| `OPENAI_MODEL` | No | Required with key — **no default** (e.g. `gpt-6-luna`) |
+| `OPENAI_BASE_URL` | No | Compatible OpenAI base URL; default `https://api.openai.com/v1` |
 
 \*Required in prod if you use the platform admin console (P2-AUD-04).
 
@@ -397,7 +401,7 @@ telegram_activity   -- optional audit log for Telegram replies (not shown on web
 | `join/[token]`, `change-password` | — | — | Auth flows |
 | `profile`, `profile/delete` | Yes | Yes | Global account · hard-delete confirm (P1-AUTH-15) |
 | `tasks` | My work / Team | My work / Team (edit own) | Board \| List |
-| `tasks` compose drawer (`?compose=1`; `/tasks/new` redirects) | Yes | Yes (self only) | |
+| `tasks` compose drawer (`?compose=1`) | Yes | Yes (self only) | |
 | `tasks/[id]` | Yes | Own editable · others read-only | |
 | `teammates` | Yes | Read | List |
 | `teammates/new` | Yes | — | Invite |
@@ -722,6 +726,7 @@ Base path: `/api/v1` · Error format: `{ "error": "code", "message": "string" }`
 | `services/mock/*` | Done |
 | Prisma + `services/api/*` + `/api/v1/health` | Done |
 | Task queue (`sort_order`) + To do DnD + status drops | Done — P1-TASK-11 · `check:queue` · board sync LWW · `check:sync-merge` |
+| Compose drawer + optional AI suggest | Done — P1-TASK-01/15 · `TaskComposeDrawer` · `lib/ingest` · gate key+model |
 | Group invitations (consent for active emails) | Done — P1-GRP-08/13/14 |
 | Sign-up merge (`invited` email) | Done — P1-AUTH-13/14 · `check:signup-merge` |
 | Delete account (`/profile/delete`) | Done — P1-AUTH-15 · `check:delete-account` |

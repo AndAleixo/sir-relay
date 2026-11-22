@@ -99,20 +99,6 @@ export function taskDetailHref(
   return `/${locale}/tasks/${taskId}?${params.toString()}`;
 }
 
-/** Create entry: board/list with compose drawer (legacy `/tasks/new` bookmarks). */
-export function taskNewHref(
-  locale: string,
-  opts: TasksHrefOpts & { error?: string },
-): string {
-  return tasksListHref(locale, {
-    scope: opts.scope,
-    view: opts.view,
-    project: opts.project,
-    compose: true,
-    error: opts.error,
-  });
-}
-
 /** Read return scope/view/project from form fields (or args); fall back by role. */
 export function tasksListHrefFromReturn(
   locale: string,

@@ -164,10 +164,10 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 | Sidebar logo | `logo.svg` (**SRelay**) / `logo-compact.svg` (**SR**); cross-fade |
 | Sidebar nav | Tasks · Teammates · Projects · Events · Settings |
 | Sidebar footer | Profile (name + avatar) |
-| Top header | Group switcher · locale · account menu |
-| Account menu | Name · Profile · Log out |
+| Top header | Group switcher · locale · account menu · height = `--app-chrome-height` (3.5rem desktop; mobile chrome includes tab row ≈ 6.75rem) |
+| Account menu | Name · Profile · Log out · Family A panel under trigger |
 | Locale | Header dropdown (URL prefix); also on login |
-| Primary CTA | **New task** (yellow); teammate = self-assigned only |
+| Primary CTA | **New task** (yellow); teammate = self-assigned only · opens compose drawer (§3.4) |
 
 ### Mobile (<768px)
 
@@ -191,9 +191,9 @@ Same chrome; **nav depends on role in the active group**. Destinations: [P1-AUTH
 
 ## 3. Task boards — scope + layout
 
-Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · **Project** · New task (opens compose drawer; optional AI suggest when `OPENAI_API_KEY` is set). Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on the **Projects** tab. Project filter sits in the toolbar and applies to **board and list**; list keeps assignee / status / sort filters. Inline edit title, project, and category on the list.
+Both roles: `/[locale]/tasks`. Toolbar: **My work | Team** · **Board | List** · **Project** · New task (opens compose drawer §3.4; optional AI suggest when `OPENAI_API_KEY` + `OPENAI_MODEL` are set — [P1-TASK-15](./REQUIREMENTS.md#53-tasks--relay-queue)). Capabilities: [P1-VIEW-02/03](./REQUIREMENTS.md#55-ui--i18n) · [P1-TASK-01/04](./REQUIREMENTS.md#53-tasks--relay-queue). Manage projects on the **Projects** tab. Project filter sits in the toolbar and applies to **board and list**; list keeps assignee / status / sort filters. Inline edit title, project, and category on the list.
 
-**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail/new and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`. Project filter (P3-16): `?project=<id>` or omit = All — [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16). Same `project` query scopes board and list.
+**URL state:** `?scope=mine|team&view=board|list` (defaults: teammate → mine, operator → team; view → board). Preserve through detail, compose, and save/delete/create. Success flash (`saved`, `deleted`, …) is stripped after paint and shown as `Toast`; `error` stays as `Banner`. Project filter (P3-16): `?project=<id>` or omit = All — [REQUIREMENTS §7.2](./REQUIREMENTS.md#72-group-projects-p3-16). Same `project` query scopes board and list.
 
 | Scope | Default | Board | List |
 |-------|---------|-------|------|
@@ -284,6 +284,33 @@ Columns: **Title**, **Project**, **Category**, assignee, status, due. Same field
 
 Fallback for narrow screens and scanning.
 
+### 3.4 Compose drawer (New task)
+
+Opens from **New task** / `?compose=1`. Right-hand panel over the board/list; does not leave the page.
+
+```
+┌─ shell header ──────────────────────────────┐
+├─────────────────────────────┬───────────────┤  ← panel top = header bottom
+│  Board / list (dimmed)      │  Compose      │     (`--app-chrome-height`)
+│                             │  [AI chat]*   │
+│                             │  manual form  │
+│                             │  or AI cards  │
+│                             │  [Save][Close]│
+└─────────────────────────────┴───────────────┘
+* AI strip only when key + model are configured
+```
+
+| Element | Spec |
+|---------|------|
+| Placement | `fixed`; `top` = `--app-chrome-height` (flush under header bottom edge — same line account/locale menus hang from). Full height to viewport bottom; `max-w-lg`; left border only (no top radius — sits against the header edge) |
+| Motion | Family A: `useFadeOpen` + `popoverStyles` (opacity + `translate-y-2` + `scale-[0.98]`; ~200ms open / ~300ms close). Panel `origin-top` so the scale reads from the header edge |
+| Backdrop | Soft dim; same open/close durations; click closes (confirm if dirty) |
+| AI chat | Growing textarea + icon send; Enter submits, Shift+Enter newline. Suggest → read-only review cards (accept/reject). Manual form hidden while cards are present |
+| Manual | `ManualComposeFields` order: title → 2-col meta Selects → auto-grow description. Placeholders use the field noun (Title / Description). Empty Selects use `compactTrigger` + `compactLabel` (field noun); chosen value replaces it. Category Select only when the project has categories. Due shows field noun until a date is set |
+| Footer | Save (manual only) · Close |
+
+Teammate: assignee always self (no assignee field). Operator: assignee required on create.
+
 ---
 
 ## 4. Task card
@@ -317,17 +344,18 @@ Assignee only in list view (Team board column implies assignee).
 
 ## 5. Task detail
 
-Route: `/[locale]/tasks/[id]`. Same field order as the compose drawer form; plus status and delete. Forms: [ARCHITECTURE.md](./ARCHITECTURE.md#task-forms).
+Route: `/[locale]/tasks/[id]`. Labeled `TaskFormFields` stack: title → assignee* → status → difficulty → project (+ category) → due → description; plus delete. Forms: [ARCHITECTURE.md](./ARCHITECTURE.md#task-forms). Create uses the compact drawer (§3.4).
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Edit task                              [← Back]        │
 │  [Banner]: delivery failed (if applicable)              │
-│  Title · Assignee* · Status · Difficulty · Due · Description         │
+│  Title · Assignee* · Status · Difficulty · Project ·    │
+│  Category · Due · Description                           │
 │  [Save]  [Cancel]                    [Delete task]      │
 └─────────────────────────────────────────────────────────┘
 
-* Operator only on create/edit. Teammate create: always self.
+* Operator only. Teammate: own tasks; assignee fixed to self on create.
 ```
 
 | Element | Operator | Teammate |
@@ -349,7 +377,7 @@ Route: `/[locale]/tasks/[id]`. Same field order as the compose drawer form; plus
 | Contact | `/contact` | Public | Public |
 | Try demo | `/demo`, `/demo/app` | Public | Same shell as the app; edits stay in the tab |
 | No active group | `/groups` | Panel opens | Panel opens |
-| Tasks / new / detail | `/tasks…` | Full | Own edit · Team view others |
+| Tasks / compose / detail | `/tasks` (`?compose=1`) · `/tasks/[id]` | Full | Own edit · Team view others |
 | Teammates | `/teammates…` | Yes | Read list/detail; no add / export / invite / promote |
 | Projects | `/projects` | Yes | Yes (request project; categories: add / archive) |
 | Events / activity | `/events…` | Yes | Alerts read-only; no group activity |
@@ -485,7 +513,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 | `GroupDangerSettings` | Leave / delete |
 | `LocaleSwitcher` / `LocalePicker` / `UserMenu` | Header utilities |
 | `UserAvatar` / `ProfileAvatarEditor` | Photo |
-| `TaskFormFields` / `EditTaskForm` / `TaskComposeDrawer` | Shared fields + board compose drawer |
+| `TaskFormFields` / `EditTaskForm` / `TaskComposeDrawer` / `ManualComposeFields` | Detail labeled stack · compose drawer (§3.4; Family A + compact manual) |
 | `BoardTaskCard` / `TaskCardMenu` / `TaskProjectPicker` | Board cards + ⋯ / acronym segments |
 | `StatusKanban` / `TeamBoard` / `BoardQuickAddTask` | Boards |
 | `TaskList` / `ViewToggle` / `ScopeToggle` | List table (title / project / category edit) + toolbar |
@@ -501,7 +529,7 @@ Localized per user locale (`en-gb` / `es-es` / `pt-br`).
 
 | Family | Pattern | Used by |
 |--------|---------|---------|
-| **A** | `useFadeOpen` + `useDismissable` + `popoverStyles` (~200ms open / ~300ms close) | User · Locale · Group · `Select` · list project/category pickers · `Toast` (3s, no outside-click) |
+| **A** | `useFadeOpen` + `useDismissable` + `popoverStyles` (~200ms open / ~300ms close) | User · Locale · Group · `Select` · list project/category pickers · `TaskComposeDrawer` · `Toast` (3s, no outside-click) |
 | **B** | Segmented control | Scope / View toggles |
 | **C** | Horizontal segment (same fade timings) | Board ⋯ menu · acronym picker |
 

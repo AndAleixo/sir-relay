@@ -16,14 +16,15 @@ import {
   approvePendingCreatesAction,
   suggestTasksFromTextAction,
 } from "@/app/actions/tasks";
-import {
-  TaskFormFields,
-  type TaskFormAssigneeOption,
-  type TaskFormLabels,
+import type {
+  TaskFormAssigneeOption,
+  TaskFormLabels,
 } from "@/components/tasks/task-form";
 import { Banner } from "@/components/ui/banner";
 import { Button, buttonCompact } from "@/components/ui/button";
 import { composeDrawerStyles as styles } from "./compose-drawer.styles";
+import { fitTextareaHeight } from "./fit-textarea";
+import { ManualComposeFields } from "./manual-compose-fields";
 import { SuggestReviewCard } from "./suggest-review-card";
 
 export type ComposeDrawerLabels = TaskFormLabels & {
@@ -113,10 +114,7 @@ export function TaskComposeDrawer({
   }, [open, selfId, defaultProjectId]);
 
   useEffect(() => {
-    const el = chatRef.current;
-    if (!el) return;
-    el.style.height = "0px";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+    fitTextareaHeight(chatRef.current, 160);
   }, [aiText, open, aiEnabled]);
 
   const projectOptions = useMemo(
@@ -458,29 +456,26 @@ export function TaskComposeDrawer({
           ) : null}
 
           {aiItems.length === 0 ? (
-            <section className="space-y-3">
-              <TaskFormFields
-                mode="create"
-                idPrefix="manual"
-                labels={fieldLabels}
-                isOperator={isOperator}
-                assigneeOptions={assigneeOptions}
-                projectOptions={projectOptions}
-                categoryOptions={categoriesFor(manual.projectId)}
-                values={{
-                  title: manual.title,
-                  description: manual.description,
-                  assigneeId: manual.assigneeId,
-                  dueDate: manual.dueDate,
-                  difficulty: manual.difficulty,
-                  projectId: manual.projectId,
-                  categoryId: manual.categoryId,
-                }}
-                onChange={(patch) =>
-                  setManual((prev) => ({ ...prev, ...patch }))
-                }
-              />
-            </section>
+            <ManualComposeFields
+              labels={fieldLabels}
+              isOperator={isOperator}
+              locked={locked}
+              assigneeOptions={assigneeOptions}
+              projectOptions={projectOptions}
+              categoryOptions={categoriesFor(manual.projectId)}
+              values={{
+                title: manual.title,
+                description: manual.description,
+                assigneeId: manual.assigneeId,
+                dueDate: manual.dueDate,
+                difficulty: manual.difficulty,
+                projectId: manual.projectId,
+                categoryId: manual.categoryId,
+              }}
+              onChange={(patch) =>
+                setManual((prev) => ({ ...prev, ...patch }))
+              }
+            />
           ) : null}
         </div>
 

@@ -9,7 +9,6 @@ import {
   parseTasksScope,
   parseTasksView,
   taskDetailHref,
-  taskNewHref,
   tasksListHref,
   tasksListHrefFromReturn,
 } from "../src/lib/tasks-url";
@@ -34,7 +33,12 @@ assert.equal(
   "/pt-br/tasks/t1?scope=team&view=board&renotify=1",
 );
 assert.equal(
-  taskNewHref("es-es", { scope: "mine", view: "list", error: "title" }),
+  tasksListHref("es-es", {
+    scope: "mine",
+    view: "list",
+    compose: true,
+    error: "title",
+  }),
   "/es-es/tasks?scope=mine&view=list&compose=1&error=title",
 );
 assert.equal(

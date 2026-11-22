@@ -153,8 +153,8 @@ Troca sem alterar UI — [ARCHITECTURE.md §Mock → API](./ARCHITECTURE.md#mock
 | `CONTACT_EMAIL` | opt (`contact@sirrelay.com`) | Privacy/Terms + `/contact` destino |
 | `MAIL_API_KEY` | opt (log-only sem chave) | Resend API key — [DEPLOY §4](./DEPLOY-DIGITALOCEAN.md#4-dns) |
 | `MAIL_FROM` | opt (`noreply@sirrelay.com`) | From transacional |
-| `OPENAI_API_KEY` | opt (AI hidden if unset) | Task-from-text suggest on `/tasks` drawer |
-| `OPENAI_MODEL` | opt (AI hidden if unset; e.g. `gpt-6-luna`) | Required with key — no default model |
+| `OPENAI_API_KEY` | opt | With `OPENAI_MODEL` → AI suggest in compose drawer; either unset → manual-only |
+| `OPENAI_MODEL` | opt (e.g. `gpt-6-luna`) | Required with key — **no default** |
 | `OPENAI_BASE_URL` | opt (`https://api.openai.com/v1`) | Compatible OpenAI base URL |
 | `UMAMI_APP_SECRET` | opt (default fraco no compose) | obrigatório (`prod-vps.sh`) |
 

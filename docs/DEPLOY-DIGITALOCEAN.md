@@ -80,6 +80,8 @@ APP_ROOT_DOMAIN=example.com
 CONTACT_EMAIL=contact@example.com
 MAIL_API_KEY=...       # Resend (obrigatório na VPS para envio)
 MAIL_FROM=noreply@example.com
+# OPENAI_API_KEY=...   # optional — with OPENAI_MODEL enables compose AI (P1-TASK-15)
+# OPENAI_MODEL=gpt-6-luna
 UMAMI_APP_SECRET=...   # openssl rand -hex 32 (obrigatório no prod-vps.sh)
 UMAMI_WEBSITE_ID=...   # Add website no Umami (domain = APP_DOMAIN)
 ```

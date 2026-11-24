@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { landingStyles } from "./landing.styles";
 
-const faqKeys = ["what", "groups", "metrics", "data"] as const;
+const faqKeys = ["what", "groups", "ai", "metrics", "data", "install"] as const;
 
 export async function LandingFaq() {
   const t = await getTranslations();

@@ -84,7 +84,7 @@
     "tryDemo": "Experimentar demo",
     "gateTitle": "Experimente o quadro",
     "gateSubtitle": "Seu nome e um quadro inicial. Fica nesta aba.",
-    "notice": "Aqui só está o básico do app, para você conhecer. Uma conta nova não usa o que você fizer aqui.",
+    "notice": "Experimente o quadro, Nova tarefa e Ask AI (os rascunhos da demo ficam neste separador). Uma conta real não importa isto.",
     "start": "Começar demo",
     "nameRequired": "Digite pelo menos 2 caracteres.",
     "nameHint": "Até {max} caracteres.",
@@ -602,7 +602,7 @@
     "footerNav": "Links do rodapé",
     "eyebrow": "Sozinho, em grupo ou em equipe",
     "heroTitle": "Organize seu trabalho. Veja o que falta.",
-    "heroSubtitle": "Atribua tarefas e acompanhe o progresso — sozinho, em grupo ou com uma equipe de qualquer tamanho.",
+    "heroSubtitle": "Atribua tarefas e acompanhe o progresso — sozinho ou em grupo. O Ask AI opcional pode rascunhar tarefas a partir de uma nota curta.",
     "contactLead": "Dúvidas, ideias de implementação ou mais informações? Use",
     "demoAria": "Pré-visualização do quadro SRelay",
     "demoUrl": "app.sirrelay.com/{locale}/tasks",
@@ -613,15 +613,15 @@
     "demoPause": "Pausar",
     "demoPlay": "Reproduzir",
     "featuresTitle": "Clareza no trabalho",
-    "featuresLead": "Tarefas e prazos. Esse é o panorama.",
+    "featuresLead": "Tarefas e prazos — com Ask AI quando ajuda.",
     "feature": {
       "simple": {
         "title": "Quadro ou lista",
         "body": "Veja o que está aberto, em andamento e concluído — sem dashboards no caminho."
       },
-      "calm": {
-        "title": "Convide quando precisar",
-        "body": "Comece sozinho, ou traga pessoas por e-mail. O trabalho compartilhado fica no mesmo grupo."
+      "ai": {
+        "title": "Ask AI quando ajuda",
+        "body": "Rascunhe tarefas a partir de uma nota curta, ou crie você mesmo. Basic e Plus definem o limite mensal — sem pagamento no app."
       },
       "relay": {
         "title": "Sem medir pessoas",
@@ -639,6 +639,10 @@
         "q": "Como funcionam os grupos?",
         "a": "Inicie um grupo só para você, ou convide outros por e-mail. As tarefas ficam dentro de cada grupo, de qualquer tamanho."
       },
+      "ai": {
+        "q": "O que é o Ask AI?",
+        "a": "Rascunhos opcionais a partir de uma nota curta (quando a AI está configurada no deployment). Nova tarefa manual continua disponível. Os planos Basic e Plus definem o limite mensal; o plano aparece no Perfil — sem pagamento no app."
+      },
       "metrics": {
         "q": "Vocês medem métricas de produtividade?",
         "a": "Não. Sem rankings, gráficos de velocidade nem KPIs de vigilância — só tarefas e prazos."
@@ -646,11 +650,15 @@
       "data": {
         "q": "Onde ficam meus dados?",
         "a": "Nos servidores SRelay (PostgreSQL). Páginas autenticadas não são colocadas em cache; a sessão usa um cookie essencial."
+      },
+      "install": {
+        "q": "Posso instalar o SRelay no telemóvel?",
+        "a": "Sim — adicione pelo browser como app web (PWA). Não é preciso a loja nativa."
       }
     },
     "editor": {
       "title": "Sua coluna, no editor.",
-      "subtitle": "Instale a extensão SRelay no VS Code, Cursor, Antigravity e outros editores que usam o mesmo marketplace — ou ligue o MCP e deixe seu agente de AI criar, atualizar e organizar as tarefas do dia. Uma API key em Connect; só o trabalho atribuído a você.",
+      "subtitle": "Instale a extensão SRelay no VS Code, Cursor, Antigravity e outros editores que usam o mesmo marketplace — ou ligue o MCP para o seu agente de AI criar e atualizar as suas tarefas. É separado do Ask AI na web. Uma API key em Connect; só o trabalho atribuído a você.",
       "pointYours": "Peça ao seu agente para capturar trabalho e manter o dia em ordem — as tarefas das outras pessoas ficam na web.",
       "column": "Meu trabalho",
       "groupLabel": "Grupo",

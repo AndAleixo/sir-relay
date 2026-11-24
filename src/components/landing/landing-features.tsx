@@ -3,8 +3,8 @@ import { landingStyles } from "./landing.styles";
 
 export async function LandingFeatures() {
   const t = await getTranslations();
-  // Anti-KPI first — primary differentiator owns the first beat
-  const items = ["relay", "simple", "calm"] as const;
+  // Anti-KPI first — then Ask AI — then board/list
+  const items = ["relay", "ai", "simple"] as const;
 
   return (
     <section className={landingStyles.features}>

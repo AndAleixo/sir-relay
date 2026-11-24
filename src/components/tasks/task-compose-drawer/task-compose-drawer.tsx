@@ -53,6 +53,19 @@ export type ComposeDrawerLabels = TaskFormLabels & {
 
 type PendingItem = PendingCreateDraft & { localId: string };
 
+/** Optional local create/suggest (demo) — skips server actions. */
+export type ComposeDrawerLocalAdapters = {
+  suggest: (
+    text: string,
+  ) => Promise<
+    | { ok: true; drafts: PendingCreateDraft[]; remaining: number; limit: number }
+    | { ok: false; error: "quota" | "too_long" | "suggest"; remaining?: number; limit?: number }
+  >;
+  create: (
+    drafts: PendingCreateDraft[],
+  ) => Promise<{ ok: true; tasks: Task[] } | { ok: false }>;
+};
+
 type TaskComposeDrawerProps = {
   open: boolean;
   mode: TasksComposeMode;
@@ -68,6 +81,7 @@ type TaskComposeDrawerProps = {
   openProjects: ManagedProject[];
   labels: ComposeDrawerLabels;
   onCreated: (tasks: Task[]) => void;
+  local?: ComposeDrawerLocalAdapters;
 };
 
 function newLocalId(): string {
@@ -104,6 +118,7 @@ export function TaskComposeDrawer({
   openProjects,
   labels,
   onCreated,
+  local,
 }: TaskComposeDrawerProps) {
   const isAi = mode === "ai";
   const [manual, setManual] = useState<PendingCreateDraft>(() =>
@@ -121,6 +136,8 @@ export function TaskComposeDrawer({
   const chatRef = useRef<HTMLTextAreaElement>(null);
   const aiBlocked = remaining <= 0;
 
+  // Reset drafts only on open/mode/defaults — not when quota props change
+  // after a successful suggest (demo bumps aiUsed → would wipe aiItems).
   useEffect(() => {
     if (!open) return;
     setManual(emptyDraft(selfId, defaultProjectId));
@@ -128,9 +145,13 @@ export function TaskComposeDrawer({
     setAiText("");
     setError(null);
     setBusy(null);
+  }, [open, mode, selfId, defaultProjectId]);
+
+  useEffect(() => {
+    if (!open) return;
     setRemaining(aiRemaining);
     setLimit(aiLimit);
-  }, [open, mode, selfId, defaultProjectId, aiRemaining, aiLimit]);
+  }, [open, aiRemaining, aiLimit]);
 
   useEffect(() => {
     if (!isAi) return;
@@ -205,7 +226,9 @@ export function TaskComposeDrawer({
     setBusy("suggest");
     startTransition(async () => {
       try {
-        const result = await suggestTasksFromTextAction(locale, text);
+        const result = local
+          ? await local.suggest(text)
+          : await suggestTasksFromTextAction(locale, text);
         if (!result.ok) {
           if (typeof result.remaining === "number") {
             setRemaining(result.remaining);
@@ -249,7 +272,9 @@ export function TaskComposeDrawer({
     setBusy("approve");
     startTransition(async () => {
       try {
-        const result = await approvePendingCreatesAction(locale, drafts);
+        const result = local
+          ? await local.create(drafts)
+          : await approvePendingCreatesAction(locale, drafts);
         if (!result.ok) {
           setError(labels.errorApprove);
           return;
@@ -280,7 +305,9 @@ export function TaskComposeDrawer({
           return;
         }
         setError(null);
-        const result = await approvePendingCreatesAction(locale, [draft]);
+        const result = local
+          ? await local.create([draft])
+          : await approvePendingCreatesAction(locale, [draft]);
         if (!result.ok) {
           setError(labels.errorApprove);
           return;

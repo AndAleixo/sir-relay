@@ -70,9 +70,9 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 │  │  Product demo (demo.webm · CSS board fallback)       │   │
 │  └──────────────────────────────────────────────────────┘   │
 ├──────────────────────────────────────────────────────────────┤
-│  3 feature cards — board or list · invite · no measuring people │
+│  3 feature cards — no measuring · Ask AI · board or list       │
 ├──────────────────────────────────────────────────────────────┤
-│  Editor section — copy + mini IDE chrome (sidebar = My work) │
+│  Editor section — IDE + MCP (separate from in-app Ask AI)    │
 ├──────────────────────────────────────────────────────────────┤
 │  Contact note · FAQ                                           │
 ├──────────────────────────────────────────────────────────────┤
@@ -83,13 +83,13 @@ Public page at `/[locale]` for logged-out visitors. Implemented in `src/componen
 | Element | Spec |
 |---------|------|
 | Header | Sticky. Desktop: logo, locale centered, Log in + Sign up. Mobile: compact mark, locale, then Log in + Sign up on one line |
-| Hero | Eyebrow, headline, subtitle. One CTA: **Try demo** → `/demo` |
+| Hero | Eyebrow, headline, subtitle (incl. optional Ask AI). One CTA: **Try demo** → `/demo` |
 | Demo | `/brand/demo.webm` (autoplay, muted, loop); CSS board fallback |
-| Features | Three cards — board or list · invite when you need to · no measuring people |
-| Editor | Centered copy + two decorative previews: **IDE extension** (sidebar) and **MCP chat** (`list_tasks` / `set_task_status`) — same demo tasks |
-| FAQ | `#faq` — groups, anti-KPI, Telegram, data/cache |
+| Features | Three cards — no measuring people · Ask AI when it helps · board or list |
+| Editor | Centered copy + two decorative previews: **IDE extension** (sidebar) and **MCP chat** — distinct from in-app Ask AI |
+| FAQ | `#faq` — what · groups · Ask AI / Basic·Plus · anti-KPI · data · PWA install |
 | Footer | Shared `SiteFooter` on auth/legal pages |
-| App store badges | None in Phase 1 |
+| App store badges | None — PWA install from browser |
 
 **Voice:** Product-first; anti-metric positioning once in FAQ (not hero + features).
 

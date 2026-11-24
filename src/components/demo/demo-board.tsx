@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import type { ManagedProject } from "@/domain/types";
+import type { Task } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
 import { useDemoActions, useDemoWorkspace } from "@/components/demo/demo-provider";
 import { useSync } from "@/components/sync";
-import { PageHeader } from "@/components/layout/app-shell";
+import {
+  TaskComposeDrawer,
+  type ComposeDrawerLabels,
+  type ComposeDrawerLocalAdapters,
+} from "@/components/tasks/task-compose-drawer";
 import { StatusKanban } from "@/components/tasks/status-kanban";
 import { TaskListWithFilters } from "@/components/tasks/task-list/task-list-with-filters";
-import { TaskFormFields } from "@/components/tasks/task-form";
 import { TeamBoard } from "@/components/tasks/team-board";
 import {
   ProjectSelect,
@@ -18,28 +21,96 @@ import {
 } from "@/components/tasks/view-toggle";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { Button, buttonCompact } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
-import { groupMemberLabel } from "@/lib/group-member-label";
+import { DEMO_AI_MONTHLY_LIMIT, demoSuggestDrafts } from "@/lib/demo-ai-suggest";
 import { demoMemberAsUser } from "@/lib/demo-workspace";
-import { parseTaskDifficulty } from "@/lib/task-difficulty";
-import type { TasksScope, TasksView } from "@/lib/tasks-url";
+import type { PendingCreateDraft } from "@/lib/ingest";
+import type { TasksComposeMode, TasksScope, TasksView } from "@/lib/tasks-url";
 
 export function DemoBoard() {
   const locale = useLocale();
   const t = useTranslations();
   const workspace = useDemoWorkspace();
   const { tasks } = useSync();
+  const { createTask } = useDemoActions();
   const [scope, setScope] = useState<TasksScope>("team");
   const [view, setView] = useState<TasksView>("board");
   const [project, setProject] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
+  const [composeMode, setComposeMode] = useState<TasksComposeMode | null>(null);
+  const [aiUsed, setAiUsed] = useState(0);
 
-  if (!workspace) return null;
+  const self = workspace
+    ? (workspace.members.find((member) => member.id === workspace.selfId) ??
+      workspace.members[0])
+    : null;
 
-  const self =
-    workspace.members.find((member) => member.id === workspace.selfId) ??
-    workspace.members[0];
-  if (!self) return null;
+  const localAdapters: ComposeDrawerLocalAdapters = useMemo(
+    () => ({
+      suggest: async (text: string) => {
+        if (!self) return { ok: false, error: "suggest" };
+        if (aiUsed >= DEMO_AI_MONTHLY_LIMIT) {
+          return {
+            ok: false,
+            error: "quota",
+            remaining: 0,
+            limit: DEMO_AI_MONTHLY_LIMIT,
+          };
+        }
+        const result = demoSuggestDrafts(text, self.id, project);
+        if (!result.ok) return result;
+        const nextUsed = aiUsed + 1;
+        setAiUsed(nextUsed);
+        return {
+          ok: true,
+          drafts: result.drafts,
+          remaining: Math.max(0, DEMO_AI_MONTHLY_LIMIT - nextUsed),
+          limit: DEMO_AI_MONTHLY_LIMIT,
+        };
+      },
+      create: async (drafts: PendingCreateDraft[]) => {
+        if (!self) return { ok: false };
+        const created: Task[] = [];
+        for (const draft of drafts) {
+          const ok = createTask({
+            title: draft.title,
+            assigneeId: draft.assigneeId || self.id,
+            projectId: draft.projectId,
+            description: draft.description,
+            dueDate: draft.dueDate,
+            difficulty: draft.difficulty ?? undefined,
+          });
+          if (!ok) return { ok: false };
+          created.push({
+            id: `demo-${Date.now().toString(36)}-${created.length}`,
+            title: draft.title.trim(),
+            description: draft.description,
+            assigneeId: draft.assigneeId || self.id,
+            assigneeName: self.name,
+            status: "todo",
+            difficulty: draft.difficulty,
+            dueDate: draft.dueDate,
+            telegramNotifyFailed: false,
+            projectId: draft.projectId,
+            projectAcronym: null,
+            categoryId: draft.categoryId,
+            categoryName: null,
+            sortOrder: created.length,
+            updatedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+          });
+        }
+        return { ok: true, tasks: created };
+      },
+    }),
+    [aiUsed, createTask, project, self],
+  );
+
+  const openCompose = useCallback((mode: TasksComposeMode) => {
+    setComposeMode(mode);
+  }, []);
+
+  if (!workspace || !self) return null;
+
+  const aiRemaining = Math.max(0, DEMO_AI_MONTHLY_LIMIT - aiUsed);
 
   const members: OrganizationUser[] = workspace.members
     .filter((member) => member.id !== self.id)
@@ -91,6 +162,53 @@ export function DemoBoard() {
     projectScrollRight: t("tasks.projectScrollRight"),
   };
 
+  const composeLabels: ComposeDrawerLabels = {
+    title: t("tasks.title"),
+    titlePlaceholder: t("tasks.titlePlaceholder"),
+    assignee: t("tasks.assignee"),
+    assigneeHint: t("tasks.assigneeHint"),
+    dueDate: t("tasks.dueDate"),
+    description: t("tasks.description"),
+    descriptionPlaceholder: t("tasks.descriptionPlaceholder"),
+    status: t("tasks.status"),
+    overdue: t("tasks.overdue"),
+    difficulty: t("tasks.difficulty"),
+    difficultyNone: t("tasks.difficultyNone"),
+    difficultyEasy: t("tasks.difficultyEasy"),
+    difficultyMedium: t("tasks.difficultyMedium"),
+    difficultyHard: t("tasks.difficultyHard"),
+    project: t("tasks.project"),
+    projectNone: t("tasks.projectNone"),
+    category: t("tasks.category"),
+    categoryNone: t("tasks.categoryNone"),
+    drawerTitle: t("tasks.composeTitle"),
+    aiDrawerTitle: t("tasks.composeAiTitle"),
+    close: t("common.close"),
+    save: t("common.save"),
+    accept: t("tasks.composeAccept"),
+    reject: t("tasks.composeReject"),
+    acceptAll: t("tasks.composeAcceptAll"),
+    rejectAll: t("tasks.composeRejectAll"),
+    aiReviewTitle: t("tasks.composeAiReviewTitle"),
+    aiPlaceholder: t("tasks.composeAiPlaceholder"),
+    aiSubmit: t("tasks.composeAiSubmit"),
+    aiSuggesting: t("tasks.composeAiSuggesting"),
+    aiQuota: t("tasks.composeAiQuota"),
+    closeConfirm: t("tasks.composeCloseConfirm"),
+    errorSuggest: t("tasks.composeErrorSuggest"),
+    errorApprove: t("tasks.composeErrorApprove"),
+    errorQuota: t("tasks.composeErrorQuota"),
+    errorTooLong: t("tasks.composeErrorTooLong"),
+  };
+
+  const assigneeOptions = workspace.members.map((member) => ({
+    id: member.id,
+    label:
+      member.id === self.id
+        ? t("tasks.assignToMe", { name: self.name })
+        : member.name,
+  }));
+
   const selfTasks = tasks.filter((task) => task.assigneeId === self.id);
   const scopedTasks = scope === "mine" ? selfTasks : tasks;
   const visibleTasks = project
@@ -100,234 +218,148 @@ export function DemoBoard() {
 
   return (
     <>
-      {creating ? (
-        <PageHeader
-          title={t("common.newTask")}
-          action={
-            <Button type="button" variant="secondary" onClick={() => setCreating(false)}>
-              {t("common.back")}
-            </Button>
-          }
-        />
-      ) : null}
-      {creating ? (
-        <DemoNewTask
-          selfId={self.id}
-          selfName={self.name}
-          members={workspace.members}
-          projects={openProjects}
-          defaultProjectId={project}
-          onDone={() => setCreating(false)}
-        />
-      ) : (
-        <div className="space-y-4">
-          <div className={viewToggleStyles.toolbar}>
-            <div className={viewToggleStyles.toolbarStart}>
-              <div className={viewToggleStyles.toggleCluster}>
-                <ScopeToggle
-                  value={scope}
-                  onChange={setScope}
-                  mineLabel={t("tasks.myWork")}
-                  teamLabel={t("tasks.team")}
-                  ariaLabel={t("tasks.scopeAria")}
-                />
-                <ViewToggle
-                  value={view}
-                  onChange={setView}
-                  boardLabel={t("common.board")}
-                  listLabel={t("common.list")}
-                  ariaLabel={t("tasks.viewAria")}
-                />
-              </div>
-              <ProjectSelect
-                projects={openProjects}
-                value={project}
-                onChange={setProject}
-                allLabel={t("tasks.filterAll")}
-                projectLabel={t("tasks.project")}
-                addProjectHref={`/${locale}/demo/app/projects`}
-                addProjectLabel={t("tasks.addProject")}
+      <div className="space-y-4">
+        <div className={viewToggleStyles.toolbar}>
+          <div className={viewToggleStyles.toolbarStart}>
+            <div className={viewToggleStyles.toggleCluster}>
+              <ScopeToggle
+                value={scope}
+                onChange={setScope}
+                mineLabel={t("tasks.myWork")}
+                teamLabel={t("tasks.team")}
+                ariaLabel={t("tasks.scopeAria")}
+              />
+              <ViewToggle
+                value={view}
+                onChange={setView}
+                boardLabel={t("common.board")}
+                listLabel={t("common.list")}
+                ariaLabel={t("tasks.viewAria")}
               />
             </div>
-            <div className={viewToggleStyles.newTaskWrap}>
-              <Button
-                type="button"
-                className={buttonCompact}
-                onClick={() => setCreating(true)}
-              >
-                {t("common.newTask")}
-              </Button>
-            </div>
+            <ProjectSelect
+              projects={openProjects}
+              value={project}
+              onChange={setProject}
+              allLabel={t("tasks.filterAll")}
+              projectLabel={t("tasks.project")}
+              addProjectHref={`/${locale}/demo/app/projects`}
+              addProjectLabel={t("tasks.addProject")}
+            />
           </div>
-          {emptyMyWork ? (
-            <p className="tasks-no-select text-sm text-[var(--text-muted)]">{t("tasks.emptyMyWork")}</p>
-          ) : view === "board" ? (
-            scope === "mine" ? (
-              <StatusKanban
-                tasks={visibleTasks}
-                locale={locale}
-                scope="mine"
-                view="board"
-                self={{ id: self.id, name: self.name }}
-                getTaskHref={() => null}
-                openProjects={boardProjects}
-                labels={labels}
-              />
-            ) : (
-              <TeamBoard
-                self={{ id: self.id, name: self.name }}
-                members={members}
-                tasks={visibleTasks}
-                locale={locale}
-                scope="team"
-                view="board"
-                editMode="all"
-                getTaskHref={() => null}
-                linkMembers={false}
-                openProjects={boardProjects}
-                labels={labels}
-              />
-            )
-          ) : (
-            <TaskListWithFilters
+          <div className={viewToggleStyles.newTaskWrap}>
+            <Button
+              type="button"
+              className={buttonCompact}
+              onClick={() => openCompose("manual")}
+            >
+              {t("common.newTask")}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className={buttonCompact}
+              onClick={() => openCompose("ai")}
+            >
+              {t("tasks.composeAiOpen")}
+            </Button>
+          </div>
+        </div>
+        {emptyMyWork ? (
+          <p className="tasks-no-select text-sm text-[var(--text-muted)]">
+            {t("tasks.emptyMyWork")}
+          </p>
+        ) : view === "board" ? (
+          scope === "mine" ? (
+            <StatusKanban
               tasks={visibleTasks}
               locale={locale}
-              scope={scope}
-              view="list"
-              project={project}
-              openProjects={openProjects}
-              currentUserId={self.id}
-              canEditAll
-              assigneeOptions={[
-                { id: self.id, label: self.name },
-                ...members.map((member) => ({
-                  id: member.id,
-                  label: groupMemberLabel(member),
-                })),
-              ]}
-              labels={{
-                title: t("tasks.title"),
-                assignee: t("tasks.assignee"),
-                dueDate: t("tasks.dueDate"),
-                addDueDate: t("tasks.addDueDate"),
-                filterAssignee: t("tasks.filterAssignee"),
-                filterStatus: t("tasks.filterStatus"),
-                filterSort: t("tasks.filterSort"),
-                filterAll: t("tasks.filterAll"),
-                sortDue: t("tasks.sortDue"),
-                sortUpdated: t("tasks.sortUpdated"),
-                statusColumn: t("tasks.status"),
-                status: {
-                  todo: t("status.todo"),
-                  doing: t("status.doing"),
-                  done: t("status.done"),
-                },
-                project: t("tasks.project"),
-                category: t("tasks.category"),
-                projectNone: t("tasks.projectNone"),
-                categoryNone: t("tasks.categoryNone"),
-              }}
+              scope="mine"
+              view="board"
+              self={{ id: self.id, name: self.name }}
+              getTaskHref={() => null}
+              openProjects={boardProjects}
+              labels={labels}
             />
-          )}
-        </div>
-      )}
-    </>
-  );
-}
-
-function DemoNewTask({
-  selfId,
-  selfName,
-  members,
-  projects,
-  defaultProjectId,
-  onDone,
-}: {
-  selfId: string;
-  selfName: string;
-  members: { id: string; name: string }[];
-  projects: ManagedProject[];
-  defaultProjectId: string | null;
-  onDone: () => void;
-}) {
-  const t = useTranslations();
-  const { createTask } = useDemoActions();
-  const [error, setError] = useState(false);
-
-  const assigneeOptions = members.map((member) => ({
-    id: member.id,
-    label:
-      member.id === selfId
-        ? t("tasks.assignToMe", { name: selfName })
-        : member.name,
-  }));
-
-  return (
-    <Card className="max-w-xl">
-      <CardBody>
-        <form
-          className="space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const data = new FormData(event.currentTarget);
-            const title = String(data.get("title") ?? "");
-            const assigneeId = String(data.get("assigneeId") ?? selfId);
-            const projectId = String(data.get("projectId") ?? "").trim() || null;
-            const dueDate = String(data.get("dueDate") ?? "").trim() || null;
-            const ok = createTask({
-              title,
-              assigneeId,
-              projectId,
-              description: String(data.get("description") ?? ""),
-              dueDate,
-              difficulty: parseTaskDifficulty(data.get("difficulty")),
-            });
-            if (!ok) {
-              setError(true);
-              return;
-            }
-            onDone();
-          }}
-        >
-          {error ? (
-            <p className="text-sm text-[var(--severity)]">{t("tasks.errorTitle")}</p>
-          ) : null}
-          <TaskFormFields
-            mode="create"
-            isOperator
+          ) : (
+            <TeamBoard
+              self={{ id: self.id, name: self.name }}
+              members={members}
+              tasks={visibleTasks}
+              locale={locale}
+              scope="team"
+              view="board"
+              editMode="all"
+              getTaskHref={() => null}
+              linkMembers={false}
+              openProjects={boardProjects}
+              labels={labels}
+            />
+          )
+        ) : (
+          <TaskListWithFilters
+            tasks={visibleTasks}
+            locale={locale}
+            scope={scope}
+            view="list"
+            project={project}
+            openProjects={openProjects}
+            currentUserId={self.id}
+            canEditAll
+            assigneeOptions={[
+              { id: self.id, label: self.name },
+              ...members.map((member) => ({
+                id: member.id,
+                label: member.name,
+              })),
+            ]}
             labels={{
               title: t("tasks.title"),
-              titlePlaceholder: t("tasks.titlePlaceholder"),
               assignee: t("tasks.assignee"),
-              assigneeHint: t("tasks.assigneeHint"),
               dueDate: t("tasks.dueDate"),
-              description: t("tasks.description"),
-              descriptionPlaceholder: t("tasks.descriptionPlaceholder"),
-              status: t("tasks.status"),
-              overdue: t("tasks.overdue"),
-              difficulty: t("tasks.difficulty"),
-              difficultyNone: t("tasks.difficultyNone"),
-              difficultyEasy: t("tasks.difficultyEasy"),
-              difficultyMedium: t("tasks.difficultyMedium"),
-              difficultyHard: t("tasks.difficultyHard"),
+              addDueDate: t("tasks.addDueDate"),
+              filterAssignee: t("tasks.filterAssignee"),
+              filterStatus: t("tasks.filterStatus"),
+              filterSort: t("tasks.filterSort"),
+              filterAll: t("tasks.filterAll"),
+              sortDue: t("tasks.sortDue"),
+              sortUpdated: t("tasks.sortUpdated"),
+              statusColumn: t("tasks.status"),
+              status: {
+                todo: t("status.todo"),
+                doing: t("status.doing"),
+                done: t("status.done"),
+              },
               project: t("tasks.project"),
+              category: t("tasks.category"),
               projectNone: t("tasks.projectNone"),
+              categoryNone: t("tasks.categoryNone"),
             }}
-            assigneeOptions={assigneeOptions}
-            projectOptions={projects.map((row) => ({
-              id: row.id,
-              label: `${row.acronym} · ${row.name}`,
-            }))}
-            defaultValues={defaultProjectId ? { projectId: defaultProjectId } : undefined}
           />
-          <div className="flex flex-wrap items-center gap-2 pt-2">
-            <Button type="submit">{t("common.save")}</Button>
-            <Button type="button" variant="secondary" onClick={onDone}>
-              {t("common.cancel")}
-            </Button>
-          </div>
-        </form>
-      </CardBody>
-    </Card>
+        )}
+      </div>
+
+      {composeMode ? (
+        <TaskComposeDrawer
+          open
+          mode={composeMode}
+          onClose={() => setComposeMode(null)}
+          locale={locale}
+          isOperator
+          aiEnabled
+          aiRemaining={aiRemaining}
+          aiLimit={DEMO_AI_MONTHLY_LIMIT}
+          selfId={self.id}
+          defaultProjectId={project}
+          assigneeOptions={assigneeOptions}
+          openProjects={openProjects}
+          labels={composeLabels}
+          local={localAdapters}
+          onCreated={() => {
+            setComposeMode(null);
+          }}
+        />
+      ) : null}
+    </>
   );
 }

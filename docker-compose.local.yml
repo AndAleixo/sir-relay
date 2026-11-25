@@ -1,4 +1,4 @@
-# Prod-local override — HTTP on :80 (no TLS redirect). VPS uses root Caddyfile + APP_DOMAIN host.
+# Prod-local — fixed Sir ports (sibling: slearn uses 8081 / 5434 / 3002).
 services:
   postgres:
     ports:
@@ -7,5 +7,7 @@ services:
     ports:
       - "3001:3000"
   caddy:
+    ports: !override
+      - "8080:80"
     volumes:
       - ./Caddyfile.local:/etc/caddy/Caddyfile:ro

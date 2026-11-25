@@ -32,12 +32,12 @@ echo "→ docker compose up --build"
 "${COMPOSE_LOCAL[@]}" up -d --force-recreate caddy
 "${COMPOSE_LOCAL[@]}" ps
 
-echo "→ open http://localhost"
+echo "→ open http://localhost:8080"
 echo "→ umami dashboard: http://localhost:3001  (admin / umami — change password)"
 if [[ -n "${UMAMI_WEBSITE_ID:-}" ]]; then
   echo "→ umami tracker: on"
 else
   echo "→ umami tracker: off — Add website (domain=${APP_DOMAIN:-localhost}), set UMAMI_WEBSITE_ID then: ${COMPOSE_LOCAL[*]} up -d app"
 fi
-echo "→ health: curl -s http://localhost/api/v1/health"
+echo "→ health: curl -s http://localhost:8080/api/v1/health"
 echo "→ logs: npm run prod-local-logs"

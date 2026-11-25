@@ -179,4 +179,4 @@ npm install && npm run dev-mock && npm run check:routes
 # full stack: npm run prod-local   # API + Postgres · SirRelay1
 ```
 
-`http://localhost:3000` (mock) · `http://localhost` (prod-local) — **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `SirRelay1` (seed local) · activation: `mock-invite-carla` as carla@example.com
+`http://localhost:3000` (mock) · `http://localhost:8080` (prod-local) — **mock:** `sam@example.com` (any password) · **api:** `sam@example.com` / `SirRelay1` (seed local) · activation: `mock-invite-carla` as carla@example.com

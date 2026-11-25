@@ -35,7 +35,7 @@ Fluxo de trabalho: **mock** para desenvolver depressa · **prod-local** para tes
 | **App** | `npm run dev-mock` | Container `app` | Container `app` |
 | **Base de dados** | Nenhuma (memória) | Postgres container | Postgres container |
 | **Docker** | Não | Compose completo | Compose completo |
-| **Proxy / TLS** | — | Caddy `:80` | Caddy + Let's Encrypt |
+| **Proxy / TLS** | — | Caddy `:8080` | Caddy + Let's Encrypt |
 | **`NEXT_PUBLIC_SERVICE_MODE`** | `mock` | `api` | `api` |
 | **Telegram** | — | Staging (opcional) | Produção |
 | **Umami** | — | Serviço + tracker se `UMAMI_WEBSITE_ID` | + `analytics.<apex>` |
@@ -89,21 +89,29 @@ npm run prod-local-down
 | `postgres` | PostgreSQL 16 · volume `postgres_data` (DBs `sirrelay` + `umami`) |
 | `umami` | Analytics · dashboard `:3001` · tracker via Caddy `/script.js` |
 | `app` | Next.js standalone (`Dockerfile`) |
-| `caddy` | Reverse proxy :80 → app; `/script.js` + `/api/send` → umami |
+| `caddy` | Reverse proxy :8080 → app; `/script.js` + `/api/send` → umami |
+
+**Portas Sir (prod-local)** — os dois stacks ao mesmo tempo:
+
+| | **sir-relay** | **sir-learn** |
+| --- | ---: | ---: |
+| App (HTTP) | **8080** | **8081** |
+| Postgres (host) | 5433 | 5434 |
+| Umami | 3001 | 3002 |
 
 **URLs locais:**
 
 | Config | URL |
 |--------|-----|
-| `APP_DOMAIN=localhost` | `http://localhost` |
-| `/etc/hosts`: `127.0.0.1 app.local` | `http://app.local` |
+| `APP_DOMAIN=localhost` | `http://localhost:8080` |
+| `/etc/hosts`: `127.0.0.1 app.local` | `http://app.local:8080` |
 
 Login demo (após seed **local**): `sam@example.com` / **`SirRelay1`**. Seed só em mock / prod-local — **nunca** na VPS pública.
 
 **Checklist antes de ir ao VPS:**
 
 - [ ] `NEXT_PUBLIC_SERVICE_MODE=api`
-- [ ] `curl http://localhost/api/v1/health` → 200
+- [ ] `curl http://localhost:8080/api/v1/health` → 200
 - [ ] Signup → grupo → tasks
 - [ ] Umami (opcional): dashboard + `UMAMI_WEBSITE_ID`
 - [ ] Build Docker sem erros
@@ -146,7 +154,8 @@ Troca sem alterar UI — [ARCHITECTURE.md §Mock → API](./ARCHITECTURE.md#mock
 
 | Variável | Prod local | Prod VPS |
 |----------|------------|----------|
-| `APP_URL` | `http://localhost` | `https://app.sirrelay.com` |
+| `APP_URL` | `http://localhost:8080` | `https://app.sirrelay.com` |
+| `CADDY_HTTP_PORT` / `CADDY_HTTPS_PORT` | — (local override `:8080`) | default `80`/`443`; no mesmo Droplet que o slearn só um stack pode usar 80+443 |
 | `APP_DOMAIN` | `localhost` | `app.sirrelay.com` |
 | `APP_ROOT_DOMAIN` | — | `sirrelay.com` |
 | `CADDY_EMAIL` | opcional | email real (Let's Encrypt) |

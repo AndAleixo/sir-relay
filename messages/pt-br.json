@@ -1023,7 +1023,7 @@
       },
       "ai": {
         "q": "O que é Pedir à IA?",
-        "a": "Descreva o que precisa numa nota curta e a IA rascunha tarefas concretas que pode aceitar, editar ou descartar. Nova tarefa manual continua disponível."
+        "a": "Descreva o que você precisa numa nota curta e a IA rascunha tarefas concretas que você pode aceitar, editar ou descartar. Nova tarefa manual continua disponível."
       },
       "metrics": {
         "q": "Vocês medem métricas de produtividade?",
@@ -1040,7 +1040,7 @@
     },
     "editor": {
       "title": "Sua coluna, no editor.",
-      "subtitle": "Instale a extensão SRelay no VS Code, Cursor, Antigravity e outros editores que usam o mesmo marketplace — ou ligue o MCP para seu agente de IA criar e atualizar suas tarefas. É separado do Pedir à IA na web. Uma chave de API em Connect; só o trabalho atribuído a você.",
+      "subtitle": "Instale a extensão SRelay no VS Code, Cursor, Antigravity e outros editores que usam o mesmo marketplace — ou conecte o MCP para seu agente de IA criar e atualizar suas tarefas. É separado do Pedir à IA na web. Uma chave de API em Connect; só o trabalho atribuído a você.",
       "pointYours": "Peça ao seu agente para capturar trabalho e manter o dia em ordem — as tarefas das outras pessoas ficam na web.",
       "column": "Meu trabalho",
       "groupLabel": "Grupo",
@@ -1056,7 +1056,7 @@
       "mcpDownloads": "{count} downloads do MCP (último ano)",
       "mcpPreviewLabel": "SRelay MCP no chat",
       "mcpWindowTitle": "SRelay · MCP",
-      "mcpUserCreate": "Adiciona uma tarefa: preparar o checklist de abertura de amanhã, prazo amanhã, média.",
+      "mcpUserCreate": "Adicione uma tarefa: preparar o checklist de abertura de amanhã, prazo amanhã, média.",
       "mcpNewTitle": "Preparar checklist de abertura",
       "mcpNewDue": "amanhã",
       "mcpAssistantCreated": "Adicionei «Preparar checklist de abertura» ao seu quadro.",

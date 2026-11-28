@@ -14,6 +14,9 @@ import { landingStyles } from "@/components/landing/landing.styles";
 import { safeConnectNext } from "@/lib/connect-next";
 import { publicPageMetadata } from "@/lib/seo";
 
+/** Session-dependent (landing vs app entry) — never statically cache. */
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {

@@ -14,6 +14,9 @@ import { safeConnectNext } from "@/lib/connect-next";
 import { publicPageMetadata } from "@/lib/seo";
 import { getServices } from "@/services";
 
+/** Session-dependent redirect when already logged in — never CDN-cache. */
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {

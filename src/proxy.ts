@@ -26,6 +26,9 @@ import {
 import { applySecurityHeaders } from "./lib/security-headers";
 import { logJson } from "./lib/safe-log";
 
+/** Keep in sync with `SESSION_COOKIE_NAME` in session-cookie.ts (avoid importing jose into edge). */
+const SESSION_COOKIE_NAME = "sirrelay_session";
+
 const intlMiddleware = createMiddleware({
   locales: [...locales],
   defaultLocale,
@@ -52,11 +55,45 @@ function isPublicPage(pathname: string): boolean {
   );
 }
 
+/** Landing / login / signup depend on session — never CDN-cache redirects. */
+function isSessionVaryingPublic(pathname: string): boolean {
+  const stripped = stripLocale(pathname);
+  if (stripped === "/") return true;
+  return /^\/(login|signup)(\/|$)/.test(stripped);
+}
+
 function isAppPage(pathname: string): boolean {
   const stripped = stripLocale(pathname);
   return /^\/(tasks|teammates|projects|events|profile|settings|groups|change-password|accept-terms|platform|connect)(\/|$)/.test(
     stripped,
   );
+}
+
+/** Product app routes (not /platform) — unauthenticated visitors go to login. */
+function isProductAppPage(pathname: string): boolean {
+  const stripped = stripLocale(pathname);
+  return /^\/(tasks|teammates|projects|events|profile|settings|groups|change-password|accept-terms|connect)(\/|$)/.test(
+    stripped,
+  );
+}
+
+function localeFromPath(pathname: string): string {
+  const first = pathname.split("/")[1]?.toLowerCase() ?? "";
+  return (locales as readonly string[]).includes(first) ? first : defaultLocale;
+}
+
+/** 307 + no-store so browsers/CDNs never sticky-cache auth redirects onto locale homes. */
+function unauthenticatedAppRedirect(request: NextRequest): NextResponse | null {
+  if (!isProductAppPage(request.nextUrl.pathname)) return null;
+  if (request.cookies.get(SESSION_COOKIE_NAME)?.value) return null;
+
+  const locale = localeFromPath(request.nextUrl.pathname);
+  const url = request.nextUrl.clone();
+  url.pathname = `/${locale}/login`;
+  url.search = "";
+  const res = NextResponse.redirect(url, 307);
+  res.headers.set("Cache-Control", PRIVATE_CACHE);
+  return res;
 }
 
 function assertCsrfOrigin(request: NextRequest): NextResponse | null {
@@ -177,13 +214,19 @@ export default function proxy(request: NextRequest) {
       return attachRequestId(rateBlocked, requestId);
     }
 
+    const authRedirect = unauthenticatedAppRedirect(req);
+    if (authRedirect) {
+      applySecurityHeaders(req, authRedirect);
+      return attachRequestId(authRedirect, requestId);
+    }
+
     const { pathname } = req.nextUrl;
     const response = intlMiddleware(req);
 
-    if (isPublicPage(pathname)) {
-      response.headers.set("Cache-Control", PUBLIC_CACHE);
-    } else if (isAppPage(pathname)) {
+    if (isSessionVaryingPublic(pathname) || isAppPage(pathname)) {
       response.headers.set("Cache-Control", PRIVATE_CACHE);
+    } else if (isPublicPage(pathname)) {
+      response.headers.set("Cache-Control", PUBLIC_CACHE);
     }
 
     applySecurityHeaders(req, response);

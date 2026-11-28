@@ -1,4 +1,5 @@
-# Prod-local — CADDY_HTTP_PORT from .env (8080). Sibling slearn: 8081 / 5434 / 3002.
+# Prod-local only — Caddy on CADDY_HTTP_PORT (8080). Sibling slearn: 8081 / 5434 / 3002.
+# VPS: never merge this file; TLS is sir-edge.
 services:
   postgres:
     ports:
@@ -7,7 +8,25 @@ services:
     ports:
       - "3001:3000"
   caddy:
-    ports: !override
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
       - "${CADDY_HTTP_PORT}:80"
     volumes:
       - ./Caddyfile.local:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+      - umami
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - internal
+
+volumes:
+  caddy_data:
+  caddy_config:

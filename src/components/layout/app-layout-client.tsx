@@ -24,22 +24,22 @@ export function AppLayoutClient({
   children,
 }: AppLayoutClientProps) {
   return (
-    // Remount sync state when the active group changes so tasks/queue
-    // never leak across groups after a switch.
-    <SyncProvider key={activeGroupId ?? "no-group"}>
-      <Suspense fallback={null}>
-        <ConsumeFlash />
-      </Suspense>
-      <SyncBar />
-      <AppShell
-        locale={locale}
-        user={user}
-        groups={groups}
-        invitations={invitations}
-        activeGroupId={activeGroupId}
-      >
+    // AppShell stays mounted across group switches (sidebar collapse must not remount).
+    // SyncProvider remounts so tasks/queue never leak across groups.
+    <AppShell
+      locale={locale}
+      user={user}
+      groups={groups}
+      invitations={invitations}
+      activeGroupId={activeGroupId}
+    >
+      <SyncProvider key={activeGroupId ?? "no-group"}>
+        <Suspense fallback={null}>
+          <ConsumeFlash />
+        </Suspense>
+        <SyncBar />
         {children}
-      </AppShell>
-    </SyncProvider>
+      </SyncProvider>
+    </AppShell>
   );
 }

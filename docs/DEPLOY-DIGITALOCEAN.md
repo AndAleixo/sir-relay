@@ -179,7 +179,7 @@ PLATFORM_ADMIN_USERNAME=ops
 PLATFORM_ADMIN_PASSWORD=change-me-min-8-chars   # login em /{locale}/platform/login
 ```
 
-Com edge: TLS/ACME ficam no `~/sir-edge/.env` (`CADDY_EMAIL`). Solo Droplet: omit `SHARED_WITH_EDGE` e define `CADDY_EMAIL` aqui.
+TLS/ACME ficam no `~/sir-edge/.env` (`CADDY_EMAIL`). `prod-vps.sh` exige `SHARED_WITH_EDGE=1`.
 
 **Não** uses passwords de seed/demo (`SirRelay1`, etc.) em produção. Não corras `prisma db seed` na VPS pública.
 
@@ -212,7 +212,7 @@ curl -s "${APP_URL}/api/v1/health"
 | Tarefa | Comando |
 |--------|---------|
 | Actualizar app | `git pull && bash scripts/env/prod-vps.sh` (como `deploy`) |
-| Logs | `docker compose logs -f app caddy` · rotação `10m`×5 · correlacionar com `x-request-id` / `requestId` |
+| Logs | `docker compose -f docker-compose.yml -f docker-compose.edge.yml logs -f app` · edge: `cd ~/sir-edge && docker compose logs -f caddy` |
 | Backup DB | `bash scripts/db/backup.sh` |
 | Backup + offsite | `bash scripts/db/backup-offsite.sh` — §9.1 |
 | Restore DB | `bash scripts/db/restore.sh backups/sirrelay-….sql.gz` (ou `umami-….sql.gz`) |
@@ -284,12 +284,14 @@ Retenção local 7 dias (`BACKUP_RETAIN_DAYS`); offsite inclui `sirrelay-*.sql.g
 
 | Ficheiro | Função |
 |----------|--------|
-| `docker-compose.yml` | app + postgres + umami + caddy (`internal`; só 80/443 públicos) |
+| `docker-compose.yml` | app + postgres + umami (`internal`) |
+| `docker-compose.edge.yml` | aliases `sirrelay-*` na rede `sir_edge` (sem Caddy) |
+| `docker-compose.local.yml` | prod-local ports + Caddy |
 | `scripts/env/_common.sh` | `ensure_umami_database` — cria DB `umami` se faltar (prod-local / VPS) |
 | `Dockerfile` | app non-root (`USER nextjs`) |
-| `Caddyfile` | HTTPS + redirect apex/www |
+| `Caddyfile.local` | prod-local HTTP proxy |
 | `scripts/bootstrap-droplet.sh` | user deploy + Docker + rclone |
-| `scripts/env/prod-vps.sh` | git pull + migrate + compose up |
+| `scripts/env/prod-vps.sh` | git pull + migrate + edge compose up |
 | `scripts/db/backup.sh` | `pg_dump` local |
 | `scripts/db/backup-offsite.sh` | backup + rclone |
 | `scripts/db/restore.sh` | restore a partir de `.sql.gz` |

@@ -27,11 +27,13 @@ fi
 echo "→ prod-vps · git pull"
 git pull
 
-# Behind sir-edge on a shared Droplet: SHARED_WITH_EDGE=1 in .env
-if [[ "${SHARED_WITH_EDGE:-}" == "1" ]]; then
-  COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.edge.yml)
-  echo "→ mode: sir-edge (sirrelay-app / sirrelay-umami on sir_edge)"
+if [[ "${SHARED_WITH_EDGE:-}" != "1" ]]; then
+  echo "error: set SHARED_WITH_EDGE=1 in .env (Caddy is sir-edge only)" >&2
+  exit 1
 fi
+
+COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.edge.yml)
+echo "→ mode: sir-edge (sirrelay-app / sirrelay-umami on sir_edge)"
 
 echo "→ postgres + migrate"
 wait_postgres_compose
@@ -54,7 +56,7 @@ fi
 if [[ -n "${UMAMI_WEBSITE_ID:-}" ]]; then
   echo "→ umami tracker: on"
 else
-  echo "→ umami tracker: off — on analytics.${APP_ROOT_DOMAIN:-<APP_ROOT_DOMAIN>} Add website (domain=${APP_DOMAIN:-<APP_DOMAIN>}), set UMAMI_WEBSITE_ID in .env, then: docker compose up -d app"
+  echo "→ umami tracker: off — on analytics.${APP_ROOT_DOMAIN:-<APP_ROOT_DOMAIN>} Add website (domain=${APP_DOMAIN:-<APP_DOMAIN>}), set UMAMI_WEBSITE_ID in .env, then: ${COMPOSE[*]} up -d app"
 fi
 
-echo "→ done · logs: docker compose logs -f app caddy"
+echo "→ done · logs: ${COMPOSE[*]} logs -f app"

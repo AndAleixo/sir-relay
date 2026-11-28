@@ -155,11 +155,10 @@ Troca sem alterar UI — [ARCHITECTURE.md §Mock → API](./ARCHITECTURE.md#mock
 | Variável | Prod local | Prod VPS |
 |----------|------------|----------|
 | `APP_URL` | `http://localhost:8080` | `https://app.sirrelay.com` |
-| `SHARED_WITH_EDGE` | — | `1` no Droplet partilhado (Caddy no **sir-edge**) |
-| `CADDY_HTTP_PORT` / `CADDY_HTTPS_PORT` | local override `:8080` | só solo Droplet (sem edge); com edge → omitir |
+| `SHARED_WITH_EDGE` | — | `1` obrigatório na VPS (Caddy no **sir-edge**) |
+| `CADDY_HTTP_PORT` | local `:8080` | omitir na VPS |
 | `APP_DOMAIN` | `localhost` | `app.sirrelay.com` |
 | `APP_ROOT_DOMAIN` | — | `sirrelay.com` |
-| `CADDY_EMAIL` | opcional (prod-local) | só solo Droplet; com edge → `~/sir-edge/.env` |
 | `CONTACT_EMAIL` | opt (`contact@sirrelay.com`) | Privacy/Terms + `/contact` destino |
 | `MAIL_API_KEY` | opt (log-only sem chave) | Resend API key — [DEPLOY §4](./DEPLOY-DIGITALOCEAN.md#4-dns) |
 | `MAIL_FROM` | opt (`noreply@sirrelay.com`) | From transacional |
@@ -181,9 +180,10 @@ DATABASE_URL: postgresql://sirrelay:${POSTGRES_PASSWORD}@postgres:5432/sirrelay
 | Ficheiro | Ambiente(s) |
 |----------|-------------|
 | `docker-compose.yml` | Prod local · VPS |
-| `docker-compose.local.yml` | Prod local (ports + Caddyfile.local) |
+| `docker-compose.edge.yml` | VPS (aliases na `sir_edge`; sem Caddy) |
+| `docker-compose.local.yml` | Prod local (ports + Caddy) |
 | `Dockerfile` | Prod local · VPS |
-| `Caddyfile` / `Caddyfile.local` | VPS / prod local |
+| `Caddyfile.local` | Prod local |
 | `.env.example` | Template (commitado) |
 | `.env` | Local + prod (gitignored) |
 | `scripts/env/dev-mock.sh` · `prod-local.sh` · `prod-vps.sh` | Um script por ambiente |

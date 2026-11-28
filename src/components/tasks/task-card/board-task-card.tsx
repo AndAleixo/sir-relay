@@ -154,43 +154,37 @@ export function BoardTaskCard({
           ? taskCardStyles.dragHandleSpacerHard
           : undefined;
 
+  // One control: start (queue head) XOR done (doing) XOR completed mark — icon only, top-right.
   const statusControl = showCompletedMark ? (
     <span
-      className={taskCardStyles.completedMark}
+      className={cn(taskCardStyles.statusCorner, taskCardStyles.completedMark)}
       title={labels.completedMark}
       aria-label={labels.completedMark}
     >
       <MarkDoneIcon />
     </span>
-  ) : !readOnly ? (
-    <span className="inline-flex shrink-0 items-center gap-0.5">
-      {isQueueHead && onStartDoing ? (
-        <button
-          type="button"
-          className={taskCardStyles.startDoing}
-          aria-label={labels.startDoing}
-          title={labels.startDoing}
-          disabled={saving}
-          onClick={() => onStartDoing()}
-        >
-          <StartDoingIcon />
-          <span aria-hidden>{labels.startDoingShort}</span>
-        </button>
-      ) : null}
-      {onMarkDone ? (
-        <button
-          type="button"
-          className={taskCardStyles.markDone}
-          aria-label={labels.markDone}
-          title={labels.markDone}
-          disabled={saving}
-          onClick={() => onMarkDone()}
-        >
-          <MarkDoneIcon />
-          <span aria-hidden>{labels.markDoneShort}</span>
-        </button>
-      ) : null}
-    </span>
+  ) : !readOnly && isQueueHead && onStartDoing ? (
+    <button
+      type="button"
+      className={cn(taskCardStyles.statusCorner, taskCardStyles.startDoing)}
+      aria-label={labels.startDoing}
+      title={labels.startDoing}
+      disabled={saving}
+      onClick={() => onStartDoing()}
+    >
+      <StartDoingIcon />
+    </button>
+  ) : !readOnly && onMarkDone ? (
+    <button
+      type="button"
+      className={cn(taskCardStyles.statusCorner, taskCardStyles.markDone)}
+      aria-label={labels.markDone}
+      title={labels.markDone}
+      disabled={saving}
+      onClick={() => onMarkDone()}
+    >
+      <MarkDoneIcon />
+    </button>
   ) : null;
 
   const pickerProps = {

@@ -302,9 +302,6 @@ export function GroupSwitcher({
           <>
             <GroupIcon className="h-4 w-4 shrink-0 text-[var(--text-muted)]" />
             <span className={shellStyles.groupSwitcherText}>
-              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
-                {t("shell.groupLabel")}
-              </span>
               <span className={shellStyles.groupSwitcherName}>{triggerLabel}</span>
               {active ? (
                 <span className={shellStyles.groupSwitcherRole}>

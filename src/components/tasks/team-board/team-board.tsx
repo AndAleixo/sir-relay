@@ -383,9 +383,6 @@ function TaskColumn({
                       ? () => onAssignToColumn(assigneeId, "doing", task.id)
                       : undefined
                   }
-                  onMarkDone={() =>
-                    onAssignToColumn(assigneeId, "done", task.id)
-                  }
                   onClone={onClone}
                   onDelete={onDelete}
                 />

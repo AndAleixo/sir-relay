@@ -31,8 +31,7 @@ export const taskCardStyles = {
   titleReadonly: `line-clamp-2 min-w-0 flex-1 text-left ${titleType}`,
   dueReadonly: "text-left text-[10px] text-[var(--text-muted)]",
   boardBody: "relative min-w-0 flex-1 overflow-visible",
-  titleRow:
-    "relative z-[1] mb-0.5 flex min-w-0 items-start gap-1 pr-6 sm:pr-7",
+  titleRow: "relative z-[1] mb-0.5 flex min-w-0 items-start gap-1",
   acronymRoot: "relative z-10 inline align-baseline",
   projectPickerShell: `relative z-10 min-w-0 flex-1 ${titleType}`,
   projectPickerHug: `relative z-10 ${titleType}`,
@@ -52,11 +51,13 @@ export const taskCardStyles = {
     "truncate text-left text-[10px] leading-tight text-[var(--text-muted)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 rounded-[4px]",
   footer: "relative flex min-w-0 items-center justify-between gap-1 overflow-visible",
   overdue: "font-medium text-[var(--severity)]",
+  /** Empurra o controlo de status para o canto superior direito da titleRow. */
+  statusCorner: "ml-auto shrink-0",
   startDoing:
-    "inline-flex shrink-0 items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-medium leading-none text-[#F5C518] hover:bg-brand-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0",
-  /** In progress → Done (neutral; colour reserved for completed mark). */
+    "shrink-0 rounded p-0.5 text-[#F5C518] hover:bg-brand-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3 [&_svg]:w-3",
+  /** In progress → Done (cinza; verde só no completed mark). */
   markDone:
-    "inline-flex shrink-0 items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-semibold leading-none text-emerald-700 hover:bg-emerald-500/10 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:shrink-0",
+    "shrink-0 rounded p-0.5 text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3 [&_svg]:w-3",
   /** Done column — same glyph, not interactive. */
   completedMark:
     "shrink-0 p-0.5 text-emerald-600 [&_svg]:h-3 [&_svg]:w-3",

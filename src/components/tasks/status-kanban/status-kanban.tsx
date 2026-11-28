@@ -209,7 +209,7 @@ export function StatusKanban({
           isQueueHead ? () => void assignStatus(task.id, "doing") : undefined
         }
         onMarkDone={
-          status === "todo" || status === "doing"
+          status === "doing"
             ? () => void assignStatus(task.id, "done")
             : undefined
         }

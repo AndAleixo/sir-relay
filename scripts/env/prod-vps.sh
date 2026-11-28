@@ -1,24 +1,21 @@
 #!/usr/bin/env bash
-# Prod VPS (estrada) — run ON the server as deploy, inside the repo
+# Prod VPS — always behind sir-edge (TLS in ~/sir-edge). Reads .env from disk.
 set -euo pipefail
 source "$(dirname "$0")/_common.sh"
 require_docker
 require_env
 
-# shellcheck disable=SC1091
-set -a
-source .env
-set +a
-
-if [[ -z "${POSTGRES_PASSWORD:-}" ]]; then
-  echo "error: set POSTGRES_PASSWORD in .env" >&2
-  exit 1
-fi
-
-if [[ -z "${UMAMI_APP_SECRET:-}" || "${UMAMI_APP_SECRET}" == "dev-umami-secret-change-me" ]]; then
+POSTGRES_PASSWORD="$(envfile_require POSTGRES_PASSWORD)"
+UMAMI_APP_SECRET="$(envfile_get UMAMI_APP_SECRET)"
+if [[ -z "$UMAMI_APP_SECRET" || "$UMAMI_APP_SECRET" == "dev-umami-secret-change-me" ]]; then
   echo "error: set UMAMI_APP_SECRET in .env (openssl rand -hex 32)" >&2
   exit 1
 fi
+
+APP_URL="$(envfile_get APP_URL)"
+APP_DOMAIN="$(envfile_get APP_DOMAIN)"
+APP_ROOT_DOMAIN="$(envfile_get APP_ROOT_DOMAIN)"
+UMAMI_WEBSITE_ID="$(envfile_get UMAMI_WEBSITE_ID)"
 
 if [[ $(id -u) -eq 0 ]]; then
   echo "warn: running as root — prefer: su - deploy && cd ~/sir-relay && bash scripts/env/prod-vps.sh" >&2
@@ -26,11 +23,6 @@ fi
 
 echo "→ prod-vps · git pull"
 git pull
-
-if [[ "${SHARED_WITH_EDGE:-}" != "1" ]]; then
-  echo "error: set SHARED_WITH_EDGE=1 in .env (Caddy is sir-edge only)" >&2
-  exit 1
-fi
 
 COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.edge.yml)
 echo "→ mode: sir-edge (sirrelay-app / sirrelay-umami on sir_edge)"
@@ -44,7 +36,6 @@ echo "→ docker compose up --build"
 "${COMPOSE[@]}" up -d --build
 "${COMPOSE[@]}" ps
 
-APP_URL="$(grep -E '^APP_URL=' .env | cut -d= -f2- || true)"
 if [[ -n "$APP_URL" ]]; then
   if curl -sf "${APP_URL}/api/v1/health" >/dev/null 2>&1; then
     echo "→ health OK: ${APP_URL}/api/v1/health"
@@ -53,7 +44,7 @@ if [[ -n "$APP_URL" ]]; then
   fi
 fi
 
-if [[ -n "${UMAMI_WEBSITE_ID:-}" ]]; then
+if [[ -n "$UMAMI_WEBSITE_ID" ]]; then
   echo "→ umami tracker: on"
 else
   echo "→ umami tracker: off — on analytics.${APP_ROOT_DOMAIN:-<APP_ROOT_DOMAIN>} Add website (domain=${APP_DOMAIN:-<APP_DOMAIN>}), set UMAMI_WEBSITE_ID in .env, then: ${COMPOSE[*]} up -d app"

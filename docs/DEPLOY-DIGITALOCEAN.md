@@ -6,7 +6,7 @@ Visitantes acedem à landing; utilizadores autenticados entram na app. Stack ali
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [ENVIRONMENTS.md](./ENVIRONMENTS.md) · [README.md](../README.md)
 
-**Mesma VPS que o SLearn:** usa o repo **sir-edge** (Caddy na rede `sir_edge`). Neste repo: `SHARED_WITH_EDGE=1` + `docker-compose.edge.yml`. Guia: `sir-edge/docs/DEPLOY.md`.
+**Mesma VPS que o SLearn:** usa o repo **sir-edge** (Caddy na rede `sir_edge`). `prod-vps.sh` aplica `docker-compose.edge.yml`. Guia: `sir-edge/docs/DEPLOY.md`.
 
 **Ambientes (3):** dev mock · prod local · prod VPS — [ENVIRONMENTS.md](./ENVIRONMENTS.md). Este guia cobre **prod VPS**.
 
@@ -170,7 +170,6 @@ NEXT_PUBLIC_SERVICE_MODE=api
 APP_URL=https://app.example.com
 APP_DOMAIN=app.example.com
 APP_ROOT_DOMAIN=example.com
-SHARED_WITH_EDGE=1
 POSTGRES_PASSWORD=change-me-strong
 SESSION_SECRET=...
 TELEGRAM_BOT_TOKEN=
@@ -179,7 +178,7 @@ PLATFORM_ADMIN_USERNAME=ops
 PLATFORM_ADMIN_PASSWORD=change-me-min-8-chars   # login em /{locale}/platform/login
 ```
 
-TLS/ACME ficam no `~/sir-edge/.env` (`CADDY_EMAIL`). `prod-vps.sh` exige `SHARED_WITH_EDGE=1`.
+TLS/ACME ficam no `~/sir-edge/.env` (`CADDY_EMAIL`).
 
 **Não** uses passwords de seed/demo (`SirRelay1`, etc.) em produção. Não corras `prisma db seed` na VPS pública.
 

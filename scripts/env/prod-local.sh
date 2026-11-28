@@ -1,23 +1,13 @@
 #!/usr/bin/env bash
-# Prod local (test drive) — full docker compose stack
+# Prod local (test drive) — full docker compose stack. Reads .env from disk.
 set -euo pipefail
 source "$(dirname "$0")/_common.sh"
 require_docker
+require_env
 
-if [[ ! -f .env ]]; then
-  echo "error: copy .env.example → .env (secção Prod local)" >&2
-  exit 1
-fi
-
-# shellcheck disable=SC1091
-set -a
-source .env
-set +a
-
-if [[ -z "${POSTGRES_PASSWORD:-}" ]]; then
-  echo "error: set POSTGRES_PASSWORD in .env" >&2
-  exit 1
-fi
+POSTGRES_PASSWORD="$(envfile_require POSTGRES_PASSWORD)"
+APP_DOMAIN="$(envfile_get APP_DOMAIN)"
+UMAMI_WEBSITE_ID="$(envfile_get UMAMI_WEBSITE_ID)"
 
 echo "→ prod-local · postgres + migrate"
 wait_postgres_compose "${COMPOSE_LOCAL[@]}"
@@ -34,7 +24,7 @@ echo "→ docker compose up --build"
 
 echo "→ open http://localhost:8080"
 echo "→ umami dashboard: http://localhost:3001  (admin / umami — change password)"
-if [[ -n "${UMAMI_WEBSITE_ID:-}" ]]; then
+if [[ -n "$UMAMI_WEBSITE_ID" ]]; then
   echo "→ umami tracker: on"
 else
   echo "→ umami tracker: off — Add website (domain=${APP_DOMAIN:-localhost}), set UMAMI_WEBSITE_ID then: ${COMPOSE_LOCAL[*]} up -d app"

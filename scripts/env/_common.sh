@@ -28,6 +28,29 @@ require_env() {
   fi
 }
 
+# Read one key from .env (disk). No export into the shell environment.
+envfile_get() {
+  local key=$1
+  local line
+  line="$(grep -E "^${key}=" .env | tail -n1 || true)"
+  if [[ -z "$line" ]]; then
+    printf '%s' ""
+    return 0
+  fi
+  printf '%s' "${line#"${key}="}"
+}
+
+envfile_require() {
+  local key=$1
+  local value
+  value="$(envfile_get "$key")"
+  if [[ -z "$value" ]]; then
+    echo "error: set ${key} in .env" >&2
+    exit 1
+  fi
+  printf '%s' "$value"
+}
+
 require_docker() {
   if ! command -v docker >/dev/null 2>&1; then
     echo "error: docker not found" >&2

@@ -155,8 +155,7 @@ Troca sem alterar UI — [ARCHITECTURE.md §Mock → API](./ARCHITECTURE.md#mock
 | Variável | Prod local | Prod VPS |
 |----------|------------|----------|
 | `APP_URL` | `http://localhost:8080` | `https://app.sirrelay.com` |
-| `SHARED_WITH_EDGE` | — | `1` obrigatório na VPS (Caddy no **sir-edge**) |
-| `CADDY_HTTP_PORT` | local `:8080` | omitir na VPS |
+| `CADDY_HTTP_PORT` | local `:8080` | omitir na VPS (TLS no **sir-edge**) |
 | `APP_DOMAIN` | `localhost` | `app.sirrelay.com` |
 | `APP_ROOT_DOMAIN` | — | `sirrelay.com` |
 | `CONTACT_EMAIL` | opt (`contact@sirrelay.com`) | Privacy/Terms + `/contact` destino |

@@ -65,6 +65,12 @@ export async function readSessionPayload(): Promise<SessionPayload | null> {
   return verifySessionToken(raw);
 }
 
+/** True when the session cookie is still present (may be expired/invalid). */
+export async function hasSessionCookie(): Promise<boolean> {
+  const jar = await cookies();
+  return Boolean(jar.get(COOKIE_NAME)?.value);
+}
+
 export async function writeSessionPayload(payload: SessionPayload | null): Promise<void> {
   const jar = await cookies();
   if (!payload) {

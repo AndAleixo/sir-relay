@@ -17,9 +17,13 @@ import type {
 import { TASK_DIFFICULTIES } from "@/lib/task-difficulty";
 
 function promptLocale(locale: string): string {
-  if (locale.startsWith("pt")) return "Portuguese";
-  if (locale.startsWith("es")) return "Spanish";
-  return "English";
+  if (locale.startsWith("pt")) {
+    return "Brazilian Portuguese (pt-BR): use Brazilian vocabulary and grammar (equipe, registros, celular, suas tarefas — not European Portuguese)";
+  }
+  if (locale.startsWith("es")) {
+    return "Spanish (Spain, es-ES): use Peninsular Spanish, tú forms — no voseo (mides not medís; clasificamos not rankeamos)";
+  }
+  return "English (UK)";
 }
 
 function buildSystemPrompt(locale: string, ctx: IngestContext): string {

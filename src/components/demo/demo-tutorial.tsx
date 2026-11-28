@@ -44,7 +44,7 @@ function resolveTourTargets(
   step: number,
   composeMode: TasksComposeMode | null,
 ): string[] {
-  if (step < 0 || step > 5) return [];
+  if (step < 0 || step > 6) return [];
   if (step === 0) {
     // Title + Save together once the compose drawer is open.
     return composeMode === "manual"
@@ -54,6 +54,11 @@ function resolveTourTargets(
   if (step === 5) {
     return composeMode === "ai"
       ? ["demo-compose-ai-input"]
+      : [TUTORIAL_STEP_TARGETS[5]!];
+  }
+  if (step === 6) {
+    return composeMode === "ai"
+      ? ["demo-compose-ai-review"]
       : [TUTORIAL_STEP_TARGETS[5]!];
   }
   const target = TUTORIAL_STEP_TARGETS[step];
@@ -112,9 +117,17 @@ export function DemoTutorial({
 
   if (!showSteps && !showFinish) return null;
 
-  const stepKey = String(step + 1) as "1" | "2" | "3" | "4" | "5" | "6";
+  const stepKey = String(step + 1) as
+    | "1"
+    | "2"
+    | "3"
+    | "4"
+    | "5"
+    | "6"
+    | "7";
   const title = showFinish ? t("finishTitle") : t(`steps.${stepKey}.title`);
   const body = showFinish ? t("finishBody") : t(`steps.${stepKey}.body`);
+  const stepTotal = 7;
 
   const cardHeight = showFinish ? 200 : 160;
   const cardPos = rect ? cardPosition(rect, cardHeight) : null;
@@ -160,7 +173,7 @@ export function DemoTutorial({
         <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-brand-accent">
           {showFinish
             ? t("finishBadge")
-            : t("progress", { current: step + 1, total: 6 })}
+            : t("progress", { current: step + 1, total: stepTotal })}
         </p>
         <h2 className="mt-1 text-base font-semibold text-[var(--text-primary)]">
           {title}

@@ -41,7 +41,7 @@
     "email": "E-mail",
     "password": "Senha",
     "noAccount": "Ainda não tem uma conta?",
-    "hasAccount": "Já tem uma conta?",
+    "hasAccount": "Já tem conta?",
     "sessionNotice": "Usamos um cookie de sessão essencial para você entrar.",
     "sessionExpired": "Sua sessão expirou. Entre novamente.",
     "loginError": "E-mail ou senha inválidos.",
@@ -451,7 +451,7 @@
       "progress": "Passo {current} de {total}",
       "finishBadge": "Tour concluído",
       "finishTitle": "Crie sua conta para guardar isto",
-      "finishBody": "A demo fica neste separador até você sair. Cadastre-se para salvar tarefas, colegas e quadros na sua conta.",
+      "finishBody": "A demo fica nesta aba até você sair. Cadastre-se para salvar tarefas, colegas e quadros na sua conta.",
       "signupCta": "Criar conta",
       "continueDemo": "Continuar explorando",
       "steps": {
@@ -465,7 +465,7 @@
         },
         "3": {
           "title": "Começar",
-          "body": "Use Iniciar no cartão ou arraste para Em progresso."
+          "body": "Use Começar no cartão ou arraste para Em progresso."
         },
         "4": {
           "title": "Concluir",
@@ -478,6 +478,10 @@
         "6": {
           "title": "Pedir à IA",
           "body": "Abra Pedir à IA, digite uma frase curta e envie para gerar rascunhos de tarefas."
+        },
+        "7": {
+          "title": "Revisar sugestões",
+          "body": "Aceite, edite ou descarte cada rascunho — só entram no quadro as que você aceitar."
         }
       }
     }
@@ -607,8 +611,8 @@
             "name": "Operação",
             "acronym": "OPE",
             "categories": [
-              "Hoje",
-              "Semana"
+              "Equipamentos",
+              "Turnos"
             ]
           }
         ]
@@ -748,7 +752,7 @@
     "addTask": "Adicionar tarefa",
     "addDueDate": "Adicionar prazo",
     "startDoing": "Começar — mover para Em progresso",
-    "startDoingShort": "Iniciar",
+    "startDoingShort": "Começar",
     "markDone": "Concluir — mover para Concluído",
     "completedMark": "Concluída",
     "difficulty": "Dificuldade",
@@ -921,7 +925,7 @@
     "linkKeyMcpStepNode": "Instale o Node.js 20+ em",
     "linkKeyMcpStepKey": "Crie uma key → MCP → copie a config.",
     "linkKeyMcpStepJson": "Cole na configuração MCP do seu cliente de IA.",
-    "linkKeyMcpStepRestart": "Recarregue o cliente de IA e peça para listar as suas tarefas.",
+    "linkKeyMcpStepRestart": "Recarregue o cliente de IA e peça para listar suas tarefas.",
     "linkKeyMcpNeedSteps": "Setup",
     "openTelegramLink": "Abrir no Telegram",
     "regenerateTelegramLink": "Novo código",
@@ -1030,13 +1034,13 @@
         "a": "Na sua conta SRelay. Páginas autenticadas não são colocadas em cache; a sessão usa um cookie essencial."
       },
       "install": {
-        "q": "Posso instalar o SRelay no telemóvel?",
+        "q": "Posso instalar o SRelay no celular?",
         "a": "Sim — adicione pelo browser como app web (PWA). Não é preciso a loja nativa."
       }
     },
     "editor": {
       "title": "Sua coluna, no editor.",
-      "subtitle": "Instale a extensão SRelay no VS Code, Cursor, Antigravity e outros editores que usam o mesmo marketplace — ou ligue o MCP para o seu agente de IA criar e atualizar as suas tarefas. É separado do Pedir à IA na web. Uma chave de API em Connect; só o trabalho atribuído a você.",
+      "subtitle": "Instale a extensão SRelay no VS Code, Cursor, Antigravity e outros editores que usam o mesmo marketplace — ou ligue o MCP para seu agente de IA criar e atualizar suas tarefas. É separado do Pedir à IA na web. Uma chave de API em Connect; só o trabalho atribuído a você.",
       "pointYours": "Peça ao seu agente para capturar trabalho e manter o dia em ordem — as tarefas das outras pessoas ficam na web.",
       "column": "Meu trabalho",
       "groupLabel": "Grupo",

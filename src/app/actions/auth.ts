@@ -153,7 +153,7 @@ export async function confirmEmailVerificationForm(
 
 export async function logoutAction(locale: string) {
   await getServices().auth.logout();
-  revalidatePath("/", "layout");
+  // Landing in the current UI language — no session=expired (voluntary exit).
   redirect(`/${locale}`);
 }
 

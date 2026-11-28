@@ -7,6 +7,7 @@ export const TUTORIAL_STEP_TARGETS = [
   "demo-board",
   "demo-view-toggle",
   "demo-new-task-ai",
+  "demo-compose-ai-review",
 ] as const;
 
 export type TutorialActionKind =
@@ -15,7 +16,8 @@ export type TutorialActionKind =
   | "start_task"
   | "complete_task"
   | "toggle_view"
-  | "ai_suggest";
+  | "ai_suggest"
+  | "ai_review";
 
 export const TUTORIAL_STEP_ACTIONS: TutorialActionKind[] = [
   "create_task",
@@ -24,16 +26,19 @@ export const TUTORIAL_STEP_ACTIONS: TutorialActionKind[] = [
   "complete_task",
   "toggle_view",
   "ai_suggest",
+  "ai_review",
 ];
 
 export type DemoTutorialState = {
   step: number;
   skipped: boolean;
   finished: boolean;
+  /** Task assigned in step 2 — start must be this id. */
+  focusTaskId: string | null;
 };
 
 export function defaultTutorialState(): DemoTutorialState {
-  return { step: 0, skipped: false, finished: false };
+  return { step: 0, skipped: false, finished: false, focusTaskId: null };
 }
 
 export function readDemoTutorialState(): DemoTutorialState {
@@ -44,11 +49,13 @@ export function readDemoTutorialState(): DemoTutorialState {
     const parsed = JSON.parse(raw) as Partial<DemoTutorialState>;
     return {
       step:
-        typeof parsed.step === "number" && parsed.step >= 0 && parsed.step <= 6
+        typeof parsed.step === "number" && parsed.step >= 0 && parsed.step <= 7
           ? parsed.step
           : 0,
       skipped: Boolean(parsed.skipped),
       finished: Boolean(parsed.finished),
+      focusTaskId:
+        typeof parsed.focusTaskId === "string" ? parsed.focusTaskId : null,
     };
   } catch {
     return defaultTutorialState();

@@ -478,6 +478,10 @@
         "6": {
           "title": "Pedir a la IA",
           "body": "Abre Pedir a la IA, escribe una frase corta y envía para obtener borradores de tareas."
+        },
+        "7": {
+          "title": "Revisar sugerencias",
+          "body": "Acepta, edita o descarta cada borrador — solo entran en el tablero las que aceptes."
         }
       }
     }
@@ -607,8 +611,8 @@
             "name": "Operación",
             "acronym": "OPE",
             "categories": [
-              "Hoy",
-              "Semana"
+              "Equipamiento",
+              "Turnos"
             ]
           }
         ]
@@ -1003,7 +1007,7 @@
       },
       "relay": {
         "title": "Sin medir personas",
-        "body": "No rankeamos personas ni medimos velocidad. Tareas y fechas bastan."
+        "body": "No clasificamos a las personas ni medimos velocidad. Tareas y fechas bastan."
       }
     },
     "footerCopy": "© {year} Sir · SRelay",
@@ -1022,8 +1026,8 @@
         "a": "Describe lo que necesitas en una nota corta y la IA redacta tareas concretas que puedes aceptar, editar o descartar. Nueva tarea manual sigue disponible."
       },
       "metrics": {
-        "q": "¿Medís métricas de productividad?",
-        "a": "No. Sin rankings, gráficos de velocidad ni KPIs de vigilancia — solo tareas y fechas."
+        "q": "¿Mides métricas de productividad?",
+        "a": "No. Sin clasificaciones, gráficos de velocidad ni KPIs de vigilancia — solo tareas y fechas."
       },
       "data": {
         "q": "¿Dónde se guardan mis datos?",

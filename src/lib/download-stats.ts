@@ -22,6 +22,14 @@ export type DownloadStats = {
   mcp: DownloadStat;
 };
 
+/** App slugs → BCP 47 so es-ES gets "1.200+" (not "1200+"). */
+function intlLocale(locale: string): string {
+  if (locale === "es-es") return "es-ES";
+  if (locale === "pt-br") return "pt-BR";
+  if (locale === "en-gb") return "en-GB";
+  return locale;
+}
+
 /** Round down to nearest hundred; hide below MIN_DISPLAY. */
 export function formatDownloadFloor(
   count: number,
@@ -30,7 +38,9 @@ export function formatDownloadFloor(
   if (!Number.isFinite(count) || count < MIN_DISPLAY) return null;
   const floored = Math.floor(count / 100) * 100;
   if (floored < MIN_DISPLAY) return null;
-  const formatted = new Intl.NumberFormat(locale).format(floored);
+  const formatted = new Intl.NumberFormat(intlLocale(locale), {
+    useGrouping: true,
+  }).format(floored);
   return `${formatted}+`;
 }
 

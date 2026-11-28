@@ -122,7 +122,12 @@ export class ApiAuthService implements AuthService {
   async getSession(): Promise<Session | null> {
     const payload = await readSessionPayload();
     if (!payload) return null;
-    return hydrateFromPayload(payload, { autoPickGroup: false });
+    const session = await hydrateFromPayload(payload, { autoPickGroup: false });
+    if (!session) {
+      // Stale cookie (tokenVersion / inactive) — drop it after callers saw hadCookie.
+      await writeSessionPayload(null);
+    }
+    return session;
   }
 
   async login(email: string, password: string): Promise<Session> {

@@ -6,18 +6,24 @@ import {
   readPlatformSession,
   type PlatformSession,
 } from "@/lib/platform-session";
+import { hasSessionCookie } from "@/lib/session-cookie";
 import { getServices } from "@/services";
 
 /** Sync guard for pages that already loaded session (e.g. under `(app)` layout). */
 export function requireRole(session: Session | null, role: Role, locale: string) {
-  if (!session) redirect(loginPath(locale, { session: "expired" }));
+  if (!session) redirect(loginPath(locale));
   if (!session.activeGroupId) redirect(`/${locale}/groups`);
   if (session.user.role !== role) redirect(resolveRoleHomePath(locale, session));
 }
 
 export async function requireSession(locale: string): Promise<Session> {
+  // Cookie check before getSession — hydrate may clear a stale cookie.
+  const hadCookie = await hasSessionCookie();
   const session = await getServices().auth.getSession();
-  if (!session) redirect(loginPath(locale, { session: "expired" }));
+  if (!session) {
+    // Voluntary logout deletes the cookie → plain login. Stale/expired cookie → banner.
+    redirect(hadCookie ? loginPath(locale, { session: "expired" }) : loginPath(locale));
+  }
   return session;
 }
 

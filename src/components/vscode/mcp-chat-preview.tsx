@@ -33,7 +33,8 @@ export async function McpChatPreview() {
               dueDate: <span className={s.mcpArgValue}>{t("landing.editor.mcpNewDue")}</span>
             </li>
             <li>
-              difficulty: <span className={s.mcpArgValue}>medium</span>
+              difficulty:{" "}
+              <span className={s.mcpArgValue}>{t("tasks.difficultyMedium")}</span>
             </li>
             <li>
               project: <span className={s.mcpArgValue}>OPS</span>

@@ -119,6 +119,9 @@ export function DemoBoard() {
           limit: DEMO_AI_LIMIT,
         };
       },
+      onAiReviewed: () => {
+        reportTutorialAction("ai_review");
+      },
       create: async (drafts: PendingCreateDraft[]) => {
         if (!self) return { ok: false };
         const created: Task[] = [];

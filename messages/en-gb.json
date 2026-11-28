@@ -478,6 +478,10 @@
         "6": {
           "title": "Ask AI",
           "body": "Open Ask AI, type a short phrase, and send to get draft tasks."
+        },
+        "7": {
+          "title": "Review drafts",
+          "body": "Accept, edit, or discard each suggestion — only accepted ones join the board."
         }
       }
     }
@@ -607,8 +611,8 @@
             "name": "Daily ops",
             "acronym": "OPS",
             "categories": [
-              "Today",
-              "This week"
+              "Equipment",
+              "Shifts"
             ]
           }
         ]

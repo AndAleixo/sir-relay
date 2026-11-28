@@ -47,7 +47,7 @@ type DemoTutorialApi = {
   showFinish: boolean;
   skipTutorial: () => void;
   finishTutorial: () => void;
-  reportTutorialAction: (kind: TutorialActionKind) => void;
+  reportTutorialAction: (kind: TutorialActionKind, taskId?: string) => void;
 };
 
 type DemoContextValue = {
@@ -114,23 +114,35 @@ export function DemoProvider({
     setReady(true);
   }, [fresh]);
 
-  const applyTutorialKinds = useCallback((kinds: TutorialActionKind[]) => {
-    setTutorialState((prev) => {
-      if (prev.skipped || prev.finished) return prev;
-      let step = prev.step;
-      for (const kind of kinds) {
-        if (step > 5) break;
-        if (TUTORIAL_STEP_ACTIONS[step] === kind) step += 1;
-      }
-      if (step === prev.step) return prev;
-      const next: DemoTutorialState = { ...prev, step };
-      writeDemoTutorialState(next);
-      return next;
-    });
-  }, []);
+  const applyTutorialKinds = useCallback(
+    (kinds: Array<{ kind: TutorialActionKind; taskId?: string }>) => {
+      setTutorialState((prev) => {
+        if (prev.skipped || prev.finished) return prev;
+        let step = prev.step;
+        let focusTaskId = prev.focusTaskId;
+        for (const { kind, taskId } of kinds) {
+          if (step > 6) break;
+          if (TUTORIAL_STEP_ACTIONS[step] !== kind) continue;
+          if (kind === "assign_task" && taskId) {
+            focusTaskId = taskId;
+          }
+          if (kind === "start_task") {
+            if (focusTaskId && taskId && taskId !== focusTaskId) continue;
+          }
+          step += 1;
+        }
+        if (step === prev.step && focusTaskId === prev.focusTaskId) return prev;
+        const next: DemoTutorialState = { ...prev, step, focusTaskId };
+        writeDemoTutorialState(next);
+        return next;
+      });
+    },
+    [],
+  );
 
   const reportTutorialAction = useCallback(
-    (kind: TutorialActionKind) => applyTutorialKinds([kind]),
+    (kind: TutorialActionKind, taskId?: string) =>
+      applyTutorialKinds([{ kind, taskId }]),
     [applyTutorialKinds],
   );
 
@@ -140,6 +152,7 @@ export function DemoProvider({
         ...prev,
         skipped: true,
         finished: true,
+        focusTaskId: null,
       };
       writeDemoTutorialState(next);
       return next;
@@ -209,11 +222,17 @@ export function DemoProvider({
       if (!current) return false;
       const next = demoCreateTask(current, input);
       if (next === current) return false;
+      const created = next.tasks.find(
+        (row) => !current.tasks.some((before) => before.id === row.id),
+      );
       commit(next);
       applyTutorialKinds(
         input.assigneeId !== current.selfId
-          ? ["create_task", "assign_task"]
-          : ["create_task"],
+          ? [
+              { kind: "create_task", taskId: created?.id },
+              { kind: "assign_task", taskId: created?.id },
+            ]
+          : [{ kind: "create_task", taskId: created?.id }],
       );
       return true;
     },
@@ -256,13 +275,13 @@ export function DemoProvider({
         patch.assigneeId &&
         patch.assigneeId !== before.assigneeId
       ) {
-        reportTutorialAction("assign_task");
+        reportTutorialAction("assign_task", taskId);
       }
       if (patch.status === "doing" && before.status !== "doing") {
-        reportTutorialAction("start_task");
+        reportTutorialAction("start_task", taskId);
       }
       if (patch.status === "done" && before.status !== "done") {
-        reportTutorialAction("complete_task");
+        reportTutorialAction("complete_task", taskId);
       }
     },
     [reportTutorialAction, update],
@@ -283,12 +302,18 @@ export function DemoProvider({
       if (!current) return false;
       const before = current.tasks.length;
       update((ws) => demoCreateTask(ws, input));
-      const after = workspaceRef.current?.tasks.length ?? 0;
-      if (after <= before) return false;
+      const afterWs = workspaceRef.current;
+      if (!afterWs || afterWs.tasks.length <= before) return false;
+      const created = afterWs.tasks.find(
+        (row) => !current.tasks.some((t) => t.id === row.id),
+      );
       applyTutorialKinds(
         input.assigneeId !== current.selfId
-          ? ["create_task", "assign_task"]
-          : ["create_task"],
+          ? [
+              { kind: "create_task", taskId: created?.id },
+              { kind: "assign_task", taskId: created?.id },
+            ]
+          : [{ kind: "create_task", taskId: created?.id }],
       );
       return true;
     },
@@ -320,7 +345,7 @@ export function DemoProvider({
         demoPlaceInTodoQueue(ws, taskId, assigneeId, orderedTodoIds),
       );
       if (before && before.assigneeId !== assigneeId) {
-        reportTutorialAction("assign_task");
+        reportTutorialAction("assign_task", taskId);
       }
       return true;
     },
@@ -365,12 +390,12 @@ export function DemoProvider({
         Boolean(workspace) &&
         !tutorialState.skipped &&
         !tutorialState.finished &&
-        tutorialState.step <= 5,
+        tutorialState.step <= 6,
       showFinish:
         Boolean(workspace) &&
         !tutorialState.skipped &&
         !tutorialState.finished &&
-        tutorialState.step === 6,
+        tutorialState.step === 7,
       skipTutorial,
       finishTutorial,
       reportTutorialAction,

@@ -70,6 +70,8 @@ export type ComposeDrawerLocalAdapters = {
   create: (
     drafts: PendingCreateDraft[],
   ) => Promise<{ ok: true; tasks: Task[] } | { ok: false }>;
+  /** Demo tour: user accepted or discarded AI drafts. */
+  onAiReviewed?: () => void;
 };
 
 type TaskComposeDrawerProps = {
@@ -302,6 +304,7 @@ export function TaskComposeDrawer({
         if (clearAi) setAiItems([]);
         else setManual(emptyDraft(selfId, defaultProjectId));
         onCreated(result.tasks);
+        if (clearAi) local?.onAiReviewed?.();
         if (clearAi || drafts.length === 1) onClose();
       } finally {
         setBusy(null);
@@ -338,6 +341,7 @@ export function TaskComposeDrawer({
           return next;
         });
         onCreated(result.tasks);
+        local?.onAiReviewed?.();
       } finally {
         setBusy(null);
       }
@@ -345,7 +349,11 @@ export function TaskComposeDrawer({
   }
 
   function rejectOne(localId: string) {
-    setAiItems((prev) => prev.filter((item) => item.localId !== localId));
+    setAiItems((prev) => {
+      const next = prev.filter((item) => item.localId !== localId);
+      if (next.length === 0) local?.onAiReviewed?.();
+      return next;
+    });
   }
 
   function acceptAllAi() {
@@ -355,6 +363,7 @@ export function TaskComposeDrawer({
 
   function rejectAllAi() {
     setAiItems([]);
+    local?.onAiReviewed?.();
   }
 
   const fieldLabels: TaskFormLabels = {
@@ -509,7 +518,7 @@ export function TaskComposeDrawer({
           {error ? <Banner variant="severity">{error}</Banner> : null}
 
           {isAi && aiItems.length > 0 ? (
-            <section className="space-y-3">
+            <section className="space-y-3" data-tour="demo-compose-ai-review">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
                   {labels.aiReviewTitle}

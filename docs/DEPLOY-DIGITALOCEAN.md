@@ -170,7 +170,7 @@ NEXT_PUBLIC_SERVICE_MODE=api
 APP_URL=https://app.example.com
 APP_DOMAIN=app.example.com
 APP_ROOT_DOMAIN=example.com
-CADDY_EMAIL=admin@example.com
+SHARED_WITH_EDGE=1
 POSTGRES_PASSWORD=change-me-strong
 SESSION_SECRET=...
 TELEGRAM_BOT_TOKEN=
@@ -179,7 +179,7 @@ PLATFORM_ADMIN_USERNAME=ops
 PLATFORM_ADMIN_PASSWORD=change-me-min-8-chars   # login em /{locale}/platform/login
 ```
 
-Caddy obtém certificado Let's Encrypt quando `APP_DOMAIN` (e apex, se configurado) apontam para o Droplet.
+Com edge: TLS/ACME ficam no `~/sir-edge/.env` (`CADDY_EMAIL`). Solo Droplet: omit `SHARED_WITH_EDGE` e define `CADDY_EMAIL` aqui.
 
 **Não** uses passwords de seed/demo (`SirRelay1`, etc.) em produção. Não corras `prisma db seed` na VPS pública.
 

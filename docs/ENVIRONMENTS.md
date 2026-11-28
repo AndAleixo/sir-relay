@@ -155,10 +155,11 @@ Troca sem alterar UI — [ARCHITECTURE.md §Mock → API](./ARCHITECTURE.md#mock
 | Variável | Prod local | Prod VPS |
 |----------|------------|----------|
 | `APP_URL` | `http://localhost:8080` | `https://app.sirrelay.com` |
-| `CADDY_HTTP_PORT` / `CADDY_HTTPS_PORT` | — (local override `:8080`) | default `80`/`443`; no mesmo Droplet que o slearn só um stack pode usar 80+443 |
+| `SHARED_WITH_EDGE` | — | `1` no Droplet partilhado (Caddy no **sir-edge**) |
+| `CADDY_HTTP_PORT` / `CADDY_HTTPS_PORT` | local override `:8080` | só solo Droplet (sem edge); com edge → omitir |
 | `APP_DOMAIN` | `localhost` | `app.sirrelay.com` |
 | `APP_ROOT_DOMAIN` | — | `sirrelay.com` |
-| `CADDY_EMAIL` | opcional | email real (Let's Encrypt) |
+| `CADDY_EMAIL` | opcional (prod-local) | só solo Droplet; com edge → `~/sir-edge/.env` |
 | `CONTACT_EMAIL` | opt (`contact@sirrelay.com`) | Privacy/Terms + `/contact` destino |
 | `MAIL_API_KEY` | opt (log-only sem chave) | Resend API key — [DEPLOY §4](./DEPLOY-DIGITALOCEAN.md#4-dns) |
 | `MAIL_FROM` | opt (`noreply@sirrelay.com`) | From transacional |

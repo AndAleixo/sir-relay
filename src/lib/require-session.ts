@@ -21,11 +21,21 @@ export async function requireSession(locale: string): Promise<Session> {
   return session;
 }
 
-export async function requireAppSession(locale: string): Promise<Session> {
+export type RequireAppSessionOptions = {
+  /** Tasks page may render without an active group instead of redirecting to /groups. */
+  allowNoActiveGroup?: boolean;
+};
+
+export async function requireAppSession(
+  locale: string,
+  options?: RequireAppSessionOptions,
+): Promise<Session> {
   const session = await requireSession(locale);
   if (session.user.mustChangePassword) redirect(`/${locale}/change-password`);
   if (session.user.needsLegalAccept) redirect(`/${locale}/accept-terms`);
-  if (!session.activeGroupId) redirect(`/${locale}/groups`);
+  if (!session.activeGroupId && !options?.allowNoActiveGroup) {
+    redirect(`/${locale}/groups`);
+  }
   return session;
 }
 

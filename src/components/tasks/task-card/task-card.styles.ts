@@ -31,7 +31,8 @@ export const taskCardStyles = {
   titleReadonly: `line-clamp-2 min-w-0 flex-1 text-left ${titleType}`,
   dueReadonly: "text-left text-[10px] text-[var(--text-muted)]",
   boardBody: "relative min-w-0 flex-1 overflow-visible",
-  titleRow: "mb-0.5 flex min-w-0 items-start gap-1",
+  titleRow:
+    "relative z-[1] mb-0.5 flex min-w-0 items-start gap-1 pr-6 sm:pr-7",
   acronymRoot: "relative z-10 inline align-baseline",
   projectPickerShell: `relative z-10 min-w-0 flex-1 ${titleType}`,
   projectPickerHug: `relative z-10 ${titleType}`,
@@ -52,10 +53,10 @@ export const taskCardStyles = {
   footer: "relative flex min-w-0 items-center justify-between gap-1 overflow-visible",
   overdue: "font-medium text-[var(--severity)]",
   startDoing:
-    "shrink-0 rounded p-0.5 text-[#F5C518] hover:bg-brand-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3 [&_svg]:w-3",
+    "inline-flex shrink-0 items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-medium leading-none text-[#F5C518] hover:bg-brand-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0",
   /** In progress → Done (neutral; colour reserved for completed mark). */
   markDone:
-    "shrink-0 rounded p-0.5 text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3 [&_svg]:w-3",
+    "inline-flex shrink-0 items-center gap-0.5 rounded px-1 py-0.5 text-[10px] font-semibold leading-none text-emerald-700 hover:bg-emerald-500/10 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50 [&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:shrink-0",
   /** Done column — same glyph, not interactive. */
   completedMark:
     "shrink-0 p-0.5 text-emerald-600 [&_svg]:h-3 [&_svg]:w-3",
@@ -69,7 +70,7 @@ export const taskCardStyles = {
   menuItem:
     "rounded-[4px] bg-surface-card px-1.5 py-0.5 text-[10px] font-medium leading-tight text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30 disabled:opacity-50",
   overlayFade: "transition-opacity duration-200 ease-out",
-  overlayFaded: "pointer-events-none opacity-10 duration-300 ease-in",
+  overlayFaded: "pointer-events-none opacity-35 duration-300 ease-in",
   footerSlot: "min-w-0 flex-1",
   menuItemSeverity:
     "text-[var(--severity)] hover:bg-[var(--surface-bg)] hover:text-[var(--severity)]",

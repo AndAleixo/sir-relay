@@ -15,7 +15,6 @@ function resolveEntryPath(locale, session) {
   if (session.user.mustChangePassword) return `/${locale}/change-password`;
   if (session.user.needsLegalAccept) return `/${locale}/accept-terms`;
   if (!session.activeGroupId) return `/${locale}/groups`;
-  if (session.user.role === "operator") return `/${locale}/teammates`;
   return `/${locale}/tasks`;
 }
 
@@ -23,7 +22,6 @@ function resolveRoleHomePath(locale, session) {
   if (session.user.mustChangePassword) return `/${locale}/change-password`;
   if (session.user.needsLegalAccept) return `/${locale}/accept-terms`;
   if (!session.activeGroupId) return `/${locale}/groups`;
-  if (session.user.role === "operator") return `/${locale}/teammates`;
   return `/${locale}/tasks`;
 }
 
@@ -59,7 +57,7 @@ assert.equal(
     user: { role: "operator", mustChangePassword: false },
     activeGroupId: "g1",
   }),
-  "/en-gb/teammates",
+  "/en-gb/tasks",
 );
 assert.equal(
   resolveEntryPath(locale, { user: { role: "teammate" }, activeGroupId: "g1" }),
@@ -74,7 +72,7 @@ assert.equal(
     user: { role: "operator", mustChangePassword: false },
     activeGroupId: "g1",
   }),
-  "/en-gb/teammates",
+  "/en-gb/tasks",
 );
 
 // join + change-password forms post newPassword / confirmPassword (not password)

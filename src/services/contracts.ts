@@ -16,6 +16,7 @@ import type {
   ProjectCategory,
   ManagedProject,
 } from "@/domain/types";
+import type { GroupTemplateId } from "@/lib/group-templates";
 import type { OperatorAlertService } from "@/services/alert.types";
 
 export type OrganizationUser =
@@ -79,9 +80,18 @@ export interface AuthService {
   deleteAccount(userId: string, password: string): Promise<void>;
 }
 
+export type CreateGroupOptions = {
+  templateId?: GroupTemplateId;
+  locale?: Locale;
+};
+
 export interface GroupService {
   listForUser(userId: string): Promise<UserGroup[]>;
-  create(userId: string, name: string): Promise<Group>;
+  create(
+    userId: string,
+    name: string,
+    options?: CreateGroupOptions,
+  ): Promise<Group>;
   roleInGroup(userId: string, groupId: string): Promise<Role | null>;
   isMember(userId: string, groupId: string): Promise<boolean>;
   previewInvite(token: string): Promise<GroupInvitePreview | null>;

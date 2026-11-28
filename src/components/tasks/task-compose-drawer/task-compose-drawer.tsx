@@ -48,6 +48,7 @@ export type ComposeDrawerLabels = TaskFormLabels & {
   errorSuggest: string;
   errorApprove: string;
   errorQuota: string;
+  errorRate: string;
   errorTooLong: string;
 };
 
@@ -59,7 +60,12 @@ export type ComposeDrawerLocalAdapters = {
     text: string,
   ) => Promise<
     | { ok: true; drafts: PendingCreateDraft[]; remaining: number; limit: number }
-    | { ok: false; error: "quota" | "too_long" | "suggest"; remaining?: number; limit?: number }
+    | {
+        ok: false;
+        error: "quota" | "rate" | "too_long" | "suggest";
+        remaining?: number;
+        limit?: number;
+      }
   >;
   create: (
     drafts: PendingCreateDraft[],
@@ -237,6 +243,7 @@ export function TaskComposeDrawer({
             setLimit(result.limit);
           }
           if (result.error === "quota") setError(labels.errorQuota);
+          else if (result.error === "rate") setError(labels.errorRate);
           else if (result.error === "too_long") setError(labels.errorTooLong);
           else setError(labels.errorSuggest);
           return;
@@ -433,7 +440,7 @@ export function TaskComposeDrawer({
         <div className={isAi && aiItems.length > 0 ? styles.body : styles.bodyHug}>
           {isAi && aiEnabled ? (
             <div className="space-y-2">
-              <div className={styles.chat}>
+              <div className={styles.chat} data-tour="demo-compose-ai-input">
                 <textarea
                   ref={chatRef}
                   className={styles.chatInput}
@@ -450,6 +457,7 @@ export function TaskComposeDrawer({
                 />
                 <button
                   type="button"
+                  data-tour="demo-compose-ai-submit"
                   className={styles.chatSend}
                   disabled={locked || aiBlocked || !aiText.trim()}
                   aria-label={
@@ -523,9 +531,9 @@ export function TaskComposeDrawer({
                   const difficulty = difficultyLabel(item.difficulty);
                   const meta = [
                     isOperator ? assigneeLabel(item.assigneeId) : null,
+                    item.dueDate,
                     project,
                     category,
-                    item.dueDate,
                     difficulty,
                   ].filter((value): value is string => Boolean(value));
 
@@ -577,6 +585,7 @@ export function TaskComposeDrawer({
           {!isAi ? (
             <Button
               className={buttonCompact}
+              data-tour="demo-compose-save"
               disabled={locked || !manual.title.trim()}
               onClick={createManual}
             >

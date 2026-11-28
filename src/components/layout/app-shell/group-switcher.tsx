@@ -284,6 +284,7 @@ export function GroupSwitcher({
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={t("shell.switchGroup")}
+        title={t("shell.switchGroup")}
         onClick={() => setOpen((value) => !value)}
       >
         {compact ? (

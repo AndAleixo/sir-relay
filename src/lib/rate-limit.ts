@@ -5,6 +5,13 @@
 
 export const LOGIN_RATE = { limit: 10, windowMs: 60_000 } as const;
 export const MUTATION_RATE = { limit: 100, windowMs: 60_000 } as const;
+/** OpenAI suggest — tighter than generic mutations (API cost). */
+export const AI_SUGGEST_IP_RATE = { limit: 10, windowMs: 60 * 60 * 1000 } as const;
+/** Unauthenticated /demo Ask AI — one real call per IP per day. */
+export const DEMO_AI_SUGGEST_IP_RATE = {
+  limit: 1,
+  windowMs: 24 * 60 * 60 * 1000,
+} as const;
 
 export type RateLimitResult =
   | { ok: true; remaining: number }

@@ -23,7 +23,9 @@ function promptLocale(locale: string): string {
 }
 
 function buildSystemPrompt(locale: string, ctx: IngestContext): string {
+  const language = promptLocale(locale);
   const members = ctx.members.map((m) => m.label).join(", ") || "(none)";
+  const hasMembers = ctx.members.length > 0;
   const projects = ctx.projects
     .map((p) => {
       const cats = p.categories.map((c) => c.name).join(", ");
@@ -35,11 +37,17 @@ function buildSystemPrompt(locale: string, ctx: IngestContext): string {
 
   return [
     `You extract task create proposals from free text. Reply with JSON only.`,
-    `User language: ${promptLocale(locale)}.`,
+    `Write every title and description in ${language}.`,
     `Allowed members (assigneeHint must match one of these labels, or omit): ${members}.`,
+    hasMembers
+      ? `When a listed member is a sensible owner, set assigneeHint; omit only if unclear.`
+      : `No members are listed — omit assigneeHint.`,
     `Allowed projects and categories (hints must match names/acronyms below, or omit): ${projects || "(none)"}.`,
     `Do not invent members, projects, or categories that are not listed.`,
+    `When the note describes a plan, routine, or multi-step goal (e.g. weekly stock count, onboarding, launch prep), prefer 3–5 separate flat sibling tasks — each concrete and actionable — not one vague umbrella task.`,
+    `Suggest dueDate (YYYY-MM-DD) when timing is implied or steps have a sensible order (earlier steps sooner).`,
     `dueDate must be YYYY-MM-DD when present. difficulty one of: ${TASK_DIFFICULTIES.join(", ")}.`,
+    `Flat tasks only — no subtasks, no nested structure.`,
     `Return at most ${AI_SUGGEST_TASKS_MAX} tasks.`,
     `Schema: {"tasks":[{"title":"string","description":"string?","assigneeHint":"string?","dueDate":"string?","difficulty":"easy|medium|hard?","projectHint":"string?","categoryHint":"string?"}]}`,
   ].join("\n");

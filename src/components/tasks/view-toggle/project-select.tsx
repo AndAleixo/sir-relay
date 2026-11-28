@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
 import type { ManagedProject } from "@/domain/types";
+import { ButtonLink, buttonCompact } from "@/components/ui/button";
 import { Select } from "@/components/ui/input";
+import { cn } from "@/lib/cn";
 import { viewToggleStyles } from "./view-toggle.styles";
 
 type ProjectSelectProps = {
@@ -39,14 +40,13 @@ export function ProjectSelect({
   if (projects.length === 0) {
     if (!addProjectHref || !addProjectLabel) return null;
     return (
-      <p className={viewToggleStyles.projectAdd}>
-        <Link
-          href={addProjectHref}
-          className="underline-offset-2 hover:text-[var(--text-primary)] hover:underline"
-        >
-          {addProjectLabel}
-        </Link>
-      </p>
+      <ButtonLink
+        href={addProjectHref}
+        variant="secondary"
+        className={cn(viewToggleStyles.projectAdd, buttonCompact)}
+      >
+        {addProjectLabel}
+      </ButtonLink>
     );
   }
 

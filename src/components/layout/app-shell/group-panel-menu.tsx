@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState, useActionState } from "react";
 import { useTranslations } from "next-intl";
-import type { GroupInvitation, UserGroup } from "@/domain/types";
+import type { GroupInvitation, Locale, UserGroup } from "@/domain/types";
 import type { GroupFormState } from "@/app/actions/groups";
 import {
   createGroupForm,
@@ -11,6 +11,11 @@ import {
 } from "@/app/actions/groups";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
+import {
+  GROUP_TEMPLATE_IDS,
+  templateNameSuggestion,
+  type GroupTemplateId,
+} from "@/lib/group-templates";
 import { cn } from "@/lib/cn";
 import { GroupInvitationActions } from "@/components/groups/group-invitation-actions";
 import { popoverStyles } from "@/components/ui/popover";
@@ -41,17 +46,52 @@ function GroupPanelCreateForm({
 }) {
   const t = useTranslations();
   const nameId = useId();
+  const [templateId, setTemplateId] = useState<GroupTemplateId>("personal");
+  const [name, setName] = useState(() =>
+    templateNameSuggestion("personal", locale as Locale),
+  );
   const [state, action] = useActionState(
     createGroupForm.bind(null, locale),
     emptyFormState,
   );
   const errorMessage = formErrorMessage(state?.error, t);
 
+  function pickTemplate(next: GroupTemplateId) {
+    setTemplateId(next);
+    setName(templateNameSuggestion(next, locale as Locale));
+  }
+
   return (
     <form action={action} className={shellStyles.groupPanelForm}>
       {errorMessage ? (
         <p className={shellStyles.groupPanelError}>{errorMessage}</p>
       ) : null}
+      <fieldset className="space-y-2 border-0 p-0">
+        <legend className={shellStyles.groupPanelLabel}>{t("groups.templates.fieldLabel")}</legend>
+        <div className="flex flex-wrap gap-2">
+          {GROUP_TEMPLATE_IDS.map((id) => (
+            <label
+              key={id}
+              className={cn(
+                "cursor-pointer rounded-full border px-3 py-1.5 text-sm touch-manipulation",
+                templateId === id
+                  ? "border-[var(--accent)] bg-[var(--accent-muted)] font-medium"
+                  : "border-[var(--border)]",
+              )}
+            >
+              <input
+                type="radio"
+                name="templateId"
+                value={id}
+                checked={templateId === id}
+                onChange={() => pickTemplate(id)}
+                className="sr-only"
+              />
+              {t(`groups.templates.${id}.label`)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <Label htmlFor={nameId} className={shellStyles.groupPanelLabel}>
         {t("groups.name")}
       </Label>
@@ -61,6 +101,8 @@ function GroupPanelCreateForm({
         required
         minLength={2}
         autoFocus
+        value={name}
+        onChange={(event) => setName(event.target.value)}
         placeholder={t("groups.namePlaceholder")}
       />
       <div className={shellStyles.groupPanelActions}>

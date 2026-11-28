@@ -42,6 +42,8 @@ type TaskListWithFiltersProps = {
     category: string;
     projectNone: string;
     categoryNone: string;
+    menuOpen: string;
+    markDone: string;
   };
 };
 
@@ -174,6 +176,8 @@ export function TaskListWithFilters({
           category: labels.category,
           projectNone: labels.projectNone,
           categoryNone: labels.categoryNone,
+          menuOpen: labels.menuOpen,
+          markDone: labels.markDone,
         }}
       />
     </div>

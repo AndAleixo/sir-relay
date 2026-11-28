@@ -4,6 +4,8 @@
  */
 import assert from "node:assert/strict";
 import {
+  AI_SUGGEST_IP_RATE,
+  DEMO_AI_SUGGEST_IP_RATE,
   LOGIN_RATE,
   clientIpFromHeaders,
   consumeRateLimit,
@@ -56,5 +58,32 @@ assert.equal(
   }),
   "10.0.0.9",
 );
+
+assert.equal(AI_SUGGEST_IP_RATE.limit, 10);
+assert.equal(AI_SUGGEST_IP_RATE.windowMs, 60 * 60 * 1000);
+{
+  const aiStore = new Map<string, number[]>();
+  for (let i = 0; i < AI_SUGGEST_IP_RATE.limit; i++) {
+    const r = consumeRateLimit(
+      aiStore,
+      "ai-suggest:9.9.9.9",
+      AI_SUGGEST_IP_RATE.limit,
+      AI_SUGGEST_IP_RATE.windowMs,
+      now + i,
+    );
+    assert.equal(r.ok, true);
+  }
+  const aiBlocked = consumeRateLimit(
+    aiStore,
+    "ai-suggest:9.9.9.9",
+    AI_SUGGEST_IP_RATE.limit,
+    AI_SUGGEST_IP_RATE.windowMs,
+    now + AI_SUGGEST_IP_RATE.limit,
+  );
+  assert.equal(aiBlocked.ok, false);
+}
+
+assert.equal(DEMO_AI_SUGGEST_IP_RATE.limit, 1);
+assert.equal(DEMO_AI_SUGGEST_IP_RATE.windowMs, 24 * 60 * 60 * 1000);
 
 console.log("check-rate-limit: ok");

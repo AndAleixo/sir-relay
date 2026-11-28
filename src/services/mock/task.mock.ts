@@ -3,6 +3,13 @@ import type { CreateTaskInput, TaskService } from "@/services/contracts";
 import { assertCanCreateTask, assertCanMutateTask } from "@/lib/authz";
 import { insertIdAfter, sortByQueueOrder } from "@/lib/task-queue";
 import { MOCK_TASKS } from "@/services/mock/data";
+
+const SEEDED_TASKS_KEY = "__sirrelay_mock_seeded_tasks__";
+
+function seededMockTasks(): Task[] {
+  const g = globalThis as typeof globalThis & { [k: string]: Task[] | undefined };
+  return g[SEEDED_TASKS_KEY] ?? [];
+}
 import { groupMemberLabel } from "@/lib/group-member-label";
 import {
   getMembershipDisplayName,
@@ -53,6 +60,10 @@ function resolveAssignee(
 export class MockTaskService implements TaskService {
   private tasks = [...MOCK_TASKS];
 
+  private visibleTasks(): Task[] {
+    return [...this.tasks, ...seededMockTasks()];
+  }
+
   removeAssignedTasks(assigneeId: string): void {
     // ponytail: mock tasks have no groupId; production deletion is group-scoped.
     this.tasks = this.tasks.filter((task) => task.assigneeId !== assigneeId);
@@ -63,13 +74,13 @@ export class MockTaskService implements TaskService {
   }
 
   async listTasks(ctx: { session: Session }): Promise<Task[]> {
-    return tasksInGroup(this.tasks, ctx.session).map((task) =>
+    return tasksInGroup(this.visibleTasks(), ctx.session).map((task) =>
       withLiveAssigneeName(task, ctx.session),
     );
   }
 
   async getTask(id: string, ctx: { session: Session }): Promise<Task | null> {
-    const task = this.tasks.find((t) => t.id === id);
+    const task = this.visibleTasks().find((t) => t.id === id);
     if (!task) return null;
     const visible = tasksInGroup([task], ctx.session);
     const found = visible[0];
@@ -397,3 +408,4 @@ export function removeMockTasksAssignedTo(assigneeId: string): void {
 export function countMockTasksAssignedTo(assigneeId: string): number {
   return mockTaskService.countAssignedTasks(assigneeId);
 }
+

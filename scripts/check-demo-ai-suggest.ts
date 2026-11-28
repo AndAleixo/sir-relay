@@ -8,9 +8,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { DEMO_AI_MONTHLY_LIMIT, demoSuggestDrafts } from "../src/lib/demo-ai-suggest";
+import { DEMO_AI_LIMIT, demoSuggestDrafts } from "../src/lib/demo-ai-suggest";
 
-assert.equal(DEMO_AI_MONTHLY_LIMIT, 5);
+assert.equal(DEMO_AI_LIMIT, 1);
 
 const drawerSrc = readFileSync(
   path.join(process.cwd(), "src/components/tasks/task-compose-drawer/task-compose-drawer.tsx"),
@@ -40,5 +40,17 @@ if (!tooLong.ok) assert.equal(tooLong.error, "too_long");
 
 const empty = demoSuggestDrafts("   ", "self", null);
 assert.equal(empty.ok, false);
+
+const plan = demoSuggestDrafts(
+  "Prepare weekly stock count for a small shop",
+  "self",
+  "p1",
+);
+assert.equal(plan.ok, true);
+if (plan.ok) {
+  assert.ok(plan.drafts.length >= 3);
+  assert.ok(plan.drafts.every((row) => row.dueDate));
+  assert.equal(plan.drafts[0]?.assigneeId, "self");
+}
 
 console.log("check-demo-ai-suggest: ok");

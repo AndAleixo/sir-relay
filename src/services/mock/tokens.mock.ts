@@ -5,9 +5,12 @@ type TokenRecord = { userId: string; expiresAt: number };
 
 const MS_72H = 72 * 60 * 60 * 1000;
 
+type EmailVerifyRecord = { userId: string; expiresAt: number };
+
 type MockTokenStore = {
   inviteTokens: Map<string, InviteRecord>;
   telegramLinkTokens: Map<string, TokenRecord>;
+  emailVerifyTokens: Map<string, EmailVerifyRecord>;
   seeded: boolean;
 };
 
@@ -21,6 +24,7 @@ function tokenStore(): MockTokenStore {
     g[key] = {
       inviteTokens: new Map(),
       telegramLinkTokens: new Map(),
+      emailVerifyTokens: new Map(),
       seeded: false,
     };
   }
@@ -59,6 +63,23 @@ export function createInviteToken(userId: string, groupId: string): string {
     expiresAt: Date.now() + MS_72H,
   });
   return token;
+}
+
+export function createEmailVerifyToken(userId: string): string {
+  const token = `mock-ev-${userId}-${randomBytes(6).toString("base64url")}`;
+  tokenStore().emailVerifyTokens.set(token, {
+    userId,
+    expiresAt: Date.now() + MS_72H,
+  });
+  return token;
+}
+
+export function consumeEmailVerifyToken(token: string): EmailVerifyRecord | null {
+  const store = tokenStore();
+  const record = store.emailVerifyTokens.get(token);
+  if (!record || record.expiresAt < Date.now()) return null;
+  store.emailVerifyTokens.delete(token);
+  return record;
 }
 
 export function createTelegramLinkToken(userId: string): string {

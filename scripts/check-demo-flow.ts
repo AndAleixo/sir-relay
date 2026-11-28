@@ -87,4 +87,15 @@ assert.equal(isNavItemActive(`${home}/teammates`, home, home), false);
 assert.equal(isNavItemActive(home, home, home), true);
 assert.equal(isNavItemActive("/en-gb/tasks/abc", "/en-gb/tasks"), true);
 
+for (const locale of ["en-gb", "pt-br", "es-es"]) {
+  const json = JSON.parse(
+    readFileSync(new URL(`../messages/${locale}.json`, import.meta.url), "utf8"),
+  ) as { demo: { tutorial: { steps: Record<string, { title: string; body: string }> } } };
+  for (let step = 1; step <= 6; step += 1) {
+    const row = json.demo.tutorial.steps[String(step)];
+    assert.ok(row?.title);
+    assert.ok(row?.body);
+  }
+}
+
 console.log("check-demo-flow: ok");

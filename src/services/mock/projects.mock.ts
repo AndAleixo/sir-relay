@@ -69,6 +69,36 @@ function openCategories(projectId: string): ProjectCategory[] {
   return store().categories.filter((row) => row.projectId === projectId);
 }
 
+/** Onboarding / template seeding — not tied to session. */
+export function insertProjectSeedForGroup(
+  groupId: string,
+  name: string,
+  acronym: string,
+  categoryNames: string[],
+): { projectId: string; acronym: string; categoryIds: string[] } {
+  const stamp = Date.now();
+  const project: Project = {
+    id: `project-seed-${stamp}-${Math.random().toString(36).slice(2, 6)}`,
+    groupId,
+    name: name.slice(0, 20),
+    acronym: acronym.slice(0, 3).toUpperCase(),
+    archivedAt: null,
+    pendingAt: null,
+  };
+  store().projects.push(project);
+  const categoryIds: string[] = [];
+  for (const categoryName of categoryNames) {
+    const category: ProjectCategory = {
+      id: `category-seed-${stamp}-${categoryIds.length}`,
+      projectId: project.id,
+      name: categoryName.slice(0, 20),
+    };
+    store().categories.push(category);
+    categoryIds.push(category.id);
+  }
+  return { projectId: project.id, acronym: project.acronym, categoryIds };
+}
+
 export function mockOpenCategoryIds(projectId: string | null): string[] {
   if (!projectId) return [];
   return openCategories(projectId).map((row) => row.id);

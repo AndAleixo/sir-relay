@@ -31,6 +31,24 @@ import {
   writeDemoWorkspace,
   type DemoWorkspace,
 } from "@/lib/demo-workspace";
+import {
+  clearDemoTutorialState,
+  defaultTutorialState,
+  readDemoTutorialState,
+  TUTORIAL_STEP_ACTIONS,
+  writeDemoTutorialState,
+  type DemoTutorialState,
+  type TutorialActionKind,
+} from "@/lib/demo-tutorial";
+
+type DemoTutorialApi = {
+  step: number;
+  showSteps: boolean;
+  showFinish: boolean;
+  skipTutorial: () => void;
+  finishTutorial: () => void;
+  reportTutorialAction: (kind: TutorialActionKind) => void;
+};
 
 type DemoContextValue = {
   ready: boolean;
@@ -40,6 +58,7 @@ type DemoContextValue = {
   addMember: (name: string) => boolean;
   createTask: (input: Parameters<typeof demoCreateTask>[1]) => boolean;
   projects: ProjectsLocalApi;
+  tutorial: DemoTutorialApi;
 };
 
 const DemoContext = createContext<DemoContextValue | null>(null);
@@ -63,6 +82,10 @@ export function useDemoActions() {
   return { start, leave, addMember, createTask, projects };
 }
 
+export function useDemoTutorial(): DemoTutorialApi {
+  return useDemoContext().tutorial;
+}
+
 export function DemoProvider({
   children,
   fresh = false,
@@ -73,14 +96,63 @@ export function DemoProvider({
 }) {
   const [workspace, setWorkspace] = useState<DemoWorkspace | null>(null);
   const [ready, setReady] = useState(false);
+  const [tutorialState, setTutorialState] = useState<DemoTutorialState>(
+    defaultTutorialState,
+  );
   const workspaceRef = useRef(workspace);
   workspaceRef.current = workspace;
 
   useEffect(() => {
-    if (fresh) writeDemoWorkspace(null);
-    setWorkspace(fresh ? null : readDemoWorkspace());
+    if (fresh) {
+      writeDemoWorkspace(null);
+      clearDemoTutorialState();
+      setTutorialState(defaultTutorialState());
+    } else {
+      setWorkspace(readDemoWorkspace());
+      setTutorialState(readDemoTutorialState());
+    }
     setReady(true);
   }, [fresh]);
+
+  const applyTutorialKinds = useCallback((kinds: TutorialActionKind[]) => {
+    setTutorialState((prev) => {
+      if (prev.skipped || prev.finished) return prev;
+      let step = prev.step;
+      for (const kind of kinds) {
+        if (step > 5) break;
+        if (TUTORIAL_STEP_ACTIONS[step] === kind) step += 1;
+      }
+      if (step === prev.step) return prev;
+      const next: DemoTutorialState = { ...prev, step };
+      writeDemoTutorialState(next);
+      return next;
+    });
+  }, []);
+
+  const reportTutorialAction = useCallback(
+    (kind: TutorialActionKind) => applyTutorialKinds([kind]),
+    [applyTutorialKinds],
+  );
+
+  const skipTutorial = useCallback(() => {
+    setTutorialState((prev) => {
+      const next: DemoTutorialState = {
+        ...prev,
+        skipped: true,
+        finished: true,
+      };
+      writeDemoTutorialState(next);
+      return next;
+    });
+  }, []);
+
+  const finishTutorial = useCallback(() => {
+    setTutorialState((prev) => {
+      const next: DemoTutorialState = { ...prev, finished: true };
+      writeDemoTutorialState(next);
+      return next;
+    });
+  }, []);
 
   const commit = useCallback((next: DemoWorkspace | null) => {
     workspaceRef.current = next;
@@ -100,6 +172,10 @@ export function DemoProvider({
   const start = useCallback(
     (name: string, preset: DemoPreset) => {
       try {
+        const next = defaultTutorialState();
+        clearDemoTutorialState();
+        writeDemoTutorialState(next);
+        setTutorialState(next);
         commit(createDemoWorkspace(name, preset));
         return true;
       } catch {
@@ -110,6 +186,8 @@ export function DemoProvider({
   );
 
   const leave = useCallback(() => {
+    clearDemoTutorialState();
+    setTutorialState(defaultTutorialState());
     commit(null);
   }, [commit]);
 
@@ -125,14 +203,22 @@ export function DemoProvider({
     [commit],
   );
 
-  const createTask = useCallback((input: Parameters<typeof demoCreateTask>[1]) => {
-    const current = workspaceRef.current;
-    if (!current) return false;
-    const next = demoCreateTask(current, input);
-    if (next === current) return false;
-    commit(next);
-    return true;
-  }, [commit]);
+  const createTask = useCallback(
+    (input: Parameters<typeof demoCreateTask>[1]) => {
+      const current = workspaceRef.current;
+      if (!current) return false;
+      const next = demoCreateTask(current, input);
+      if (next === current) return false;
+      commit(next);
+      applyTutorialKinds(
+        input.assigneeId !== current.selfId
+          ? ["create_task", "assign_task"]
+          : ["create_task"],
+      );
+      return true;
+    },
+    [applyTutorialKinds, commit],
+  );
 
   const projects = useMemo<ProjectsLocalApi>(
     () => ({
@@ -162,9 +248,24 @@ export function DemoProvider({
   const applyTaskUpdate = useCallback(
     async (taskId: string, patch: Partial<Task>, mutationInputs: MutationInput[]) => {
       if (mutationInputs.length === 0) return;
-      update((current) => demoPatchTask(current, taskId, patch));
+      const current = workspaceRef.current;
+      const before = current?.tasks.find((row) => row.id === taskId);
+      update((ws) => demoPatchTask(ws, taskId, patch));
+      if (!before) return;
+      if (
+        patch.assigneeId &&
+        patch.assigneeId !== before.assigneeId
+      ) {
+        reportTutorialAction("assign_task");
+      }
+      if (patch.status === "doing" && before.status !== "doing") {
+        reportTutorialAction("start_task");
+      }
+      if (patch.status === "done" && before.status !== "done") {
+        reportTutorialAction("complete_task");
+      }
     },
-    [update],
+    [reportTutorialAction, update],
   );
 
   const createTaskQuick = useCallback(
@@ -178,11 +279,20 @@ export function DemoProvider({
         projectAcronym?: string | null;
       },
     ) => {
-      const before = workspaceRef.current?.tasks.length ?? 0;
-      update((current) => demoCreateTask(current, input));
-      return (workspaceRef.current?.tasks.length ?? 0) > before;
+      const current = workspaceRef.current;
+      if (!current) return false;
+      const before = current.tasks.length;
+      update((ws) => demoCreateTask(ws, input));
+      const after = workspaceRef.current?.tasks.length ?? 0;
+      if (after <= before) return false;
+      applyTutorialKinds(
+        input.assigneeId !== current.selfId
+          ? ["create_task", "assign_task"]
+          : ["create_task"],
+      );
+      return true;
     },
-    [update],
+    [applyTutorialKinds, update],
   );
 
   const cloneTask = useCallback(
@@ -204,12 +314,17 @@ export function DemoProvider({
 
   const placeInTodoQueue = useCallback(
     async (taskId: string, assigneeId: string, orderedTodoIds: string[]) => {
-      update((current) =>
-        demoPlaceInTodoQueue(current, taskId, assigneeId, orderedTodoIds),
+      const current = workspaceRef.current;
+      const before = current?.tasks.find((row) => row.id === taskId);
+      update((ws) =>
+        demoPlaceInTodoQueue(ws, taskId, assigneeId, orderedTodoIds),
       );
+      if (before && before.assigneeId !== assigneeId) {
+        reportTutorialAction("assign_task");
+      }
       return true;
     },
-    [update],
+    [reportTutorialAction, update],
   );
 
   const noop = useCallback(async () => {}, []);
@@ -243,9 +358,46 @@ export function DemoProvider({
     ],
   );
 
+  const tutorial = useMemo<DemoTutorialApi>(
+    () => ({
+      step: tutorialState.step,
+      showSteps:
+        Boolean(workspace) &&
+        !tutorialState.skipped &&
+        !tutorialState.finished &&
+        tutorialState.step <= 5,
+      showFinish:
+        Boolean(workspace) &&
+        !tutorialState.skipped &&
+        !tutorialState.finished &&
+        tutorialState.step === 6,
+      skipTutorial,
+      finishTutorial,
+      reportTutorialAction,
+    }),
+    [
+      finishTutorial,
+      reportTutorialAction,
+      skipTutorial,
+      tutorialState.finished,
+      tutorialState.skipped,
+      tutorialState.step,
+      workspace,
+    ],
+  );
+
   const demoValue = useMemo<DemoContextValue>(
-    () => ({ ready, workspace, start, leave, addMember, createTask, projects }),
-    [ready, workspace, start, leave, addMember, createTask, projects],
+    () => ({
+      ready,
+      workspace,
+      start,
+      leave,
+      addMember,
+      createTask,
+      projects,
+      tutorial,
+    }),
+    [ready, workspace, start, leave, addMember, createTask, projects, tutorial],
   );
 
   return (

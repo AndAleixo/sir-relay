@@ -36,7 +36,19 @@ export default async function TasksPage({
     compose: composeRaw,
   } = await searchParams;
   const t = await getTranslations();
-  const session = await requireAppSession(locale);
+  const session = await requireAppSession(locale, { allowNoActiveGroup: true });
+
+  if (!session.activeGroupId) {
+    return (
+      <div className="mx-auto max-w-lg rounded-card border border-dashed border-[var(--border)] bg-surface-card p-10 text-center">
+        <h1 className="text-lg font-semibold text-[var(--text-primary)]">
+          {t("tasks.noGroupTitle")}
+        </h1>
+        <p className="mt-2 text-sm text-[var(--text-muted)]">{t("tasks.noGroupBody")}</p>
+      </div>
+    );
+  }
+
   const { tasks, teammates, alerts, projects } = getServices();
 
   const isOperator = session.user.role === "operator";
@@ -118,8 +130,12 @@ export default async function TasksPage({
           updated: t("tasks.updated"),
           overdue: t("tasks.overdue"),
           emptyBoard: t("tasks.emptyBoard"),
+          emptyBoardHint: t("tasks.emptyBoardHint"),
+          emptyBoardInvite: t("tasks.emptyBoardInvite"),
           emptyMyWork: t("tasks.emptyMyWork"),
+          emptyMyWorkHint: t("tasks.emptyMyWorkHint"),
           startDoing: t("tasks.startDoing"),
+          startDoingShort: t("tasks.startDoingShort"),
           markDone: t("tasks.markDone"),
           completedMark: t("tasks.completedMark"),
           invited: t("teammate.invited"),
@@ -173,6 +189,7 @@ export default async function TasksPage({
             errorSuggest: t("tasks.composeErrorSuggest"),
             errorApprove: t("tasks.composeErrorApprove"),
             errorQuota: t("tasks.composeErrorQuota"),
+            errorRate: t("tasks.composeErrorRate"),
             errorTooLong: t("tasks.composeErrorTooLong"),
             title: t("tasks.title"),
             titlePlaceholder: t("tasks.titlePlaceholder"),

@@ -4,7 +4,12 @@ import { useCallback, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Task } from "@/domain/types";
 import type { OrganizationUser } from "@/services/contracts";
-import { useDemoActions, useDemoWorkspace } from "@/components/demo/demo-provider";
+import { DemoTutorial } from "@/components/demo/demo-tutorial";
+import {
+  useDemoActions,
+  useDemoTutorial,
+  useDemoWorkspace,
+} from "@/components/demo/demo-provider";
 import { useSync } from "@/components/sync";
 import {
   TaskComposeDrawer,
@@ -21,7 +26,8 @@ import {
 } from "@/components/tasks/view-toggle";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 import { Button, buttonCompact } from "@/components/ui/button";
-import { DEMO_AI_MONTHLY_LIMIT, demoSuggestDrafts } from "@/lib/demo-ai-suggest";
+import { suggestDemoTasksFromTextAction } from "@/app/actions/demo";
+import { DEMO_AI_LIMIT, demoSuggestDrafts } from "@/lib/demo-ai-suggest";
 import { demoMemberAsUser } from "@/lib/demo-workspace";
 import type { PendingCreateDraft } from "@/lib/ingest";
 import type { TasksComposeMode, TasksScope, TasksView } from "@/lib/tasks-url";
@@ -32,6 +38,7 @@ export function DemoBoard() {
   const workspace = useDemoWorkspace();
   const { tasks } = useSync();
   const { createTask } = useDemoActions();
+  const { reportTutorialAction } = useDemoTutorial();
   const [scope, setScope] = useState<TasksScope>("team");
   const [view, setView] = useState<TasksView>("board");
   const [project, setProject] = useState<string | null>(null);
@@ -46,24 +53,70 @@ export function DemoBoard() {
   const localAdapters: ComposeDrawerLocalAdapters = useMemo(
     () => ({
       suggest: async (text: string) => {
-        if (!self) return { ok: false, error: "suggest" };
-        if (aiUsed >= DEMO_AI_MONTHLY_LIMIT) {
+        if (!self || !workspace) return { ok: false, error: "suggest" };
+        if (aiUsed >= DEMO_AI_LIMIT) {
           return {
             ok: false,
             error: "quota",
             remaining: 0,
-            limit: DEMO_AI_MONTHLY_LIMIT,
+            limit: DEMO_AI_LIMIT,
           };
         }
-        const result = demoSuggestDrafts(text, self.id, project);
-        if (!result.ok) return result;
-        const nextUsed = aiUsed + 1;
-        setAiUsed(nextUsed);
+
+        const context = {
+          defaultAssigneeId: self.id,
+          members: workspace.members.map((member) => ({
+            id: member.id,
+            label: member.name,
+          })),
+          projects: workspace.projects.map((row) => ({
+            id: row.id,
+            name: row.name,
+            acronym: row.acronym,
+            categories: row.categories.map((category) => ({
+              id: category.id,
+              name: category.name,
+            })),
+          })),
+        };
+
+        const live = await suggestDemoTasksFromTextAction(
+          locale,
+          text,
+          context,
+        );
+
+        // OpenAI off (mock/dev) → local drafts; otherwise use the live one-shot.
+        const result =
+          !live.ok && live.error === "disabled"
+            ? demoSuggestDrafts(text, self.id, project)
+            : live;
+
+        if (!result.ok) {
+          const error =
+            result.error === "rate" || result.error === "quota"
+              ? result.error
+              : result.error === "too_long"
+                ? "too_long"
+                : "suggest";
+          if (error === "rate" || error === "quota") {
+            setAiUsed(DEMO_AI_LIMIT);
+          }
+          return {
+            ok: false,
+            error,
+            remaining: 0,
+            limit: DEMO_AI_LIMIT,
+          };
+        }
+
+        reportTutorialAction("ai_suggest");
+        setAiUsed(DEMO_AI_LIMIT);
         return {
           ok: true,
           drafts: result.drafts,
-          remaining: Math.max(0, DEMO_AI_MONTHLY_LIMIT - nextUsed),
-          limit: DEMO_AI_MONTHLY_LIMIT,
+          remaining: 0,
+          limit: DEMO_AI_LIMIT,
         };
       },
       create: async (drafts: PendingCreateDraft[]) => {
@@ -101,16 +154,26 @@ export function DemoBoard() {
         return { ok: true, tasks: created };
       },
     }),
-    [aiUsed, createTask, project, self],
+    [aiUsed, createTask, locale, project, reportTutorialAction, self, workspace],
   );
 
   const openCompose = useCallback((mode: TasksComposeMode) => {
     setComposeMode(mode);
   }, []);
 
+  const setBoardView = useCallback(
+    (next: TasksView) => {
+      setView((prev) => {
+        if (prev !== next) reportTutorialAction("toggle_view");
+        return next;
+      });
+    },
+    [reportTutorialAction],
+  );
+
   if (!workspace || !self) return null;
 
-  const aiRemaining = Math.max(0, DEMO_AI_MONTHLY_LIMIT - aiUsed);
+  const aiRemaining = Math.max(0, DEMO_AI_LIMIT - aiUsed);
 
   const members: OrganizationUser[] = workspace.members
     .filter((member) => member.id !== self.id)
@@ -143,11 +206,16 @@ export function DemoBoard() {
     invited: t("teammate.invited"),
     inactive: t("teammate.inactive"),
     emptyBoard: t("tasks.emptyBoard"),
+    emptyBoardHint: t("tasks.emptyBoardHint"),
+    emptyBoardInvite: t("tasks.emptyBoardInvite"),
+    newTask: t("common.newTask"),
+    newTaskAi: t("tasks.composeAiOpen"),
     dueDate: t("tasks.dueDate"),
     overdue: t("tasks.overdue"),
     dragHandle: t("common.dragHandle"),
     addDueDate: t("tasks.addDueDate"),
     startDoing: t("tasks.startDoing"),
+    startDoingShort: t("tasks.startDoingShort"),
     markDone: t("tasks.markDone"),
     completedMark: t("tasks.completedMark"),
     taskMenu: t("tasks.taskMenu"),
@@ -198,6 +266,7 @@ export function DemoBoard() {
     errorSuggest: t("tasks.composeErrorSuggest"),
     errorApprove: t("tasks.composeErrorApprove"),
     errorQuota: t("tasks.composeErrorQuota"),
+    errorRate: t("tasks.composeErrorRate"),
     errorTooLong: t("tasks.composeErrorTooLong"),
   };
 
@@ -221,7 +290,10 @@ export function DemoBoard() {
       <div className="space-y-4">
         <div className={viewToggleStyles.toolbar}>
           <div className={viewToggleStyles.toolbarStart}>
-            <div className={viewToggleStyles.toggleCluster}>
+            <div
+              className={viewToggleStyles.toggleCluster}
+              data-tour="demo-view-toggle"
+            >
               <ScopeToggle
                 value={scope}
                 onChange={setScope}
@@ -231,7 +303,7 @@ export function DemoBoard() {
               />
               <ViewToggle
                 value={view}
-                onChange={setView}
+                onChange={setBoardView}
                 boardLabel={t("common.board")}
                 listLabel={t("common.list")}
                 ariaLabel={t("tasks.viewAria")}
@@ -251,6 +323,7 @@ export function DemoBoard() {
             <Button
               type="button"
               className={buttonCompact}
+              data-tour="demo-new-task"
               onClick={() => openCompose("manual")}
             >
               {t("common.newTask")}
@@ -259,6 +332,7 @@ export function DemoBoard() {
               type="button"
               variant="secondary"
               className={buttonCompact}
+              data-tour="demo-new-task-ai"
               onClick={() => openCompose("ai")}
             >
               {t("tasks.composeAiOpen")}
@@ -270,7 +344,8 @@ export function DemoBoard() {
             {t("tasks.emptyMyWork")}
           </p>
         ) : view === "board" ? (
-          scope === "mine" ? (
+          <div data-tour="demo-board" className="min-h-0">
+          {scope === "mine" ? (
             <StatusKanban
               tasks={visibleTasks}
               locale={locale}
@@ -295,8 +370,10 @@ export function DemoBoard() {
               openProjects={boardProjects}
               labels={labels}
             />
-          )
+          )}
+          </div>
         ) : (
+          <div data-tour="demo-board">
           <TaskListWithFilters
             tasks={visibleTasks}
             locale={locale}
@@ -334,10 +411,15 @@ export function DemoBoard() {
               category: t("tasks.category"),
               projectNone: t("tasks.projectNone"),
               categoryNone: t("tasks.categoryNone"),
+              menuOpen: t("tasks.menuOpen"),
+              markDone: t("tasks.markDone"),
             }}
           />
+          </div>
         )}
       </div>
+
+      <DemoTutorial composeMode={composeMode} />
 
       {composeMode ? (
         <TaskComposeDrawer
@@ -348,7 +430,7 @@ export function DemoBoard() {
           isOperator
           aiEnabled
           aiRemaining={aiRemaining}
-          aiLimit={DEMO_AI_MONTHLY_LIMIT}
+          aiLimit={DEMO_AI_LIMIT}
           selfId={self.id}
           defaultProjectId={project}
           assigneeOptions={assigneeOptions}

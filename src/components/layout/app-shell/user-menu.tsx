@@ -37,8 +37,10 @@ export function UserMenu({ locale, user, accountHref, demo }: UserMenuProps) {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={t("shell.accountMenu")}
+        title={t("shell.accountMenu")}
         onClick={() => setOpen((value) => !value)}
       >
+        <span className="sr-only">{t("common.account")}</span>
         <UserAvatar userId={user.id} userName={user.name} />
         <ChevronDown className={open ? "rotate-180" : undefined} />
       </button>

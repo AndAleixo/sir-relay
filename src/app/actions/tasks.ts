@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Task, TaskStatus } from "@/domain/types";
 import type { SyncActionOptions, TaskActionResult } from "@/domain/sync";
@@ -17,6 +18,12 @@ import {
   type IngestContext,
   type PendingCreateDraft,
 } from "@/lib/ingest";
+import {
+  AI_SUGGEST_IP_RATE,
+  clientIpFromHeaders,
+  consumeRateLimit,
+  type RateLimitStore,
+} from "@/lib/rate-limit";
 import { requireOperatorSession } from "@/lib/require-session";
 import { groupMemberLabel } from "@/lib/group-member-label";
 import { isGroupTimezone } from "@/lib/group-timezones";
@@ -33,6 +40,9 @@ import {
   getAppliedMutation,
   recordAppliedMutation,
 } from "@/services/mock/sync-state.mock";
+
+/** ponytail: in-process IP store; multi-instance → Redis later. */
+const aiSuggestIpStore: RateLimitStore = new Map();
 
 function maybeRevalidate() {
   if (serviceMode !== "mock") {
@@ -254,7 +264,8 @@ export async function suggestTasksFromTextAction(
         | "upstream"
         | "invalid"
         | "too_long"
-        | "quota";
+        | "quota"
+        | "rate";
       remaining?: number;
       limit?: number;
     }
@@ -262,6 +273,17 @@ export async function suggestTasksFromTextAction(
   if (!openaiConfigured()) return { ok: false, error: "disabled" };
   const built = await buildIngestContext(locale);
   if (!built.ok) return built;
+
+  const ip = clientIpFromHeaders(await headers());
+  const ipLimit = consumeRateLimit(
+    aiSuggestIpStore,
+    `ai-suggest:${ip}`,
+    AI_SUGGEST_IP_RATE.limit,
+    AI_SUGGEST_IP_RATE.windowMs,
+  );
+  if (!ipLimit.ok) {
+    return { ok: false, error: "rate" };
+  }
 
   const consumed = await consumeAiSuggestQuota(built.userId);
   if (!consumed.ok) {

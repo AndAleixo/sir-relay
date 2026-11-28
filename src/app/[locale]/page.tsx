@@ -52,7 +52,7 @@ export default async function LocaleHomePage({
       <main className={landingStyles.main}>
         <LandingHero locale={locale} />
         <LandingFeatures />
-        <LandingEditor />
+        <LandingEditor locale={locale} />
         <LandingContactNote locale={locale} />
         <LandingFaq />
       </main>

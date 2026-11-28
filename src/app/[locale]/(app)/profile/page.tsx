@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/layout/app-shell";
 import { AccountProfile } from "@/components/profile/account-profile";
-import { getAiSuggestQuota } from "@/lib/ai-suggest-quota-store";
 import { telegramBotUrl } from "@/lib/app-url";
 import { requireSession } from "@/lib/require-session";
 import { getServices } from "@/services";
@@ -22,7 +21,6 @@ export default async function ProfilePage({
   const session = await requireSession(locale);
   const { teammates, users } = getServices();
   const { user } = session;
-  const quota = await getAiSuggestQuota(user.id);
   const teammate =
     user.role === "teammate" ? await teammates.getTeammate(user.id, { session }) : null;
 
@@ -53,8 +51,6 @@ export default async function ProfilePage({
       <AccountProfile
         locale={locale}
         user={user}
-        plan={quota?.plan ?? user.plan ?? "basic"}
-        planExpiresAt={quota?.planExpiresAt?.toISOString() ?? null}
         telegramStatus={telegramStatus}
         telegramUrl={telegramUrl}
         showTelegram={showTelegram}

@@ -37,11 +37,13 @@ export const metadata: Metadata = {
     siteName: "SRelay",
     title: "SRelay",
     description: APP_DESCRIPTION,
+    images: [{ url: "/brand/og.png", width: 1200, height: 630, alt: "SRelay" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "SRelay",
     description: APP_DESCRIPTION,
+    images: ["/brand/og.png"],
   },
 };
 

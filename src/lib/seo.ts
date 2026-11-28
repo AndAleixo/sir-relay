@@ -38,6 +38,13 @@ export function publicPageAlternates(
   };
 }
 
+const OG_IMAGE = {
+  url: "/brand/og.png",
+  width: 1200,
+  height: 630,
+  alt: "SRelay",
+} as const;
+
 export function publicPageMetadata(input: {
   locale: string;
   pathAfterLocale?: string;
@@ -58,7 +65,16 @@ export function publicPageMetadata(input: {
     title: resolvedTitle,
     description,
     alternates: publicPageAlternates(locale, pathAfterLocale),
-    openGraph: { title, description },
-    twitter: { title, description },
+    openGraph: {
+      title,
+      description,
+      images: [OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [OG_IMAGE.url],
+    },
   };
 }

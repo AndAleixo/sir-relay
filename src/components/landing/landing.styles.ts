@@ -37,6 +37,10 @@ export const landingStyles = {
   editorPreviewGrow: "flex min-h-0 flex-1 flex-col [&>*]:h-full",
   editorCaption:
     "mb-3 shrink-0 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]",
+  editorStats:
+    "mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-[var(--text-muted)]",
+  editorStatLink:
+    "font-medium text-[var(--text-primary)] underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent",
   features: "border-t border-[var(--border)] bg-surface-card",
   featuresInner: "mx-auto w-full max-w-6xl px-4 py-16 md:px-6 md:py-20",
   featuresTitle: "text-center text-2xl font-semibold md:text-3xl",

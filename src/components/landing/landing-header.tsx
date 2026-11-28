@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { LocaleSegment } from "@/components/layout/locale-segment";
+import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { Button } from "@/components/ui/button";
 import { withConnectNext } from "@/lib/connect-next";
 import { landingStyles } from "./landing.styles";
@@ -35,7 +35,7 @@ export async function LandingHeader({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo.svg" alt="" className={landingStyles.logo} />
         </Link>
-        <LocaleSegment locale={locale} className={landingStyles.headerLocale} />
+        <LocaleSwitcher variant="segment" locale={locale} className={landingStyles.headerLocale} />
         <nav className={landingStyles.nav} aria-label={t("landing.headerNav")}>
           {showAccountLinks ? (
             <>

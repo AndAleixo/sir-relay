@@ -5,6 +5,12 @@ import { pickOwnershipSuccessorId } from "@/lib/group-ownership";
 import { writeAudit } from "@/lib/audit";
 import { hashToken, newToken } from "@/lib/token-hash";
 import { pickDefaultGroupIdAsync } from "@/services/api/membership";
+import { defaultLocale } from "@/i18n/config";
+import type { Locale } from "@/domain/types";
+import {
+  seedGroupTemplateInTransaction,
+  type GroupTemplateId,
+} from "@/lib/group-templates";
 import { toRole, toUserGroup } from "@/services/api/mappers";
 
 const INVITE_TTL_MS = 72 * 60 * 60 * 1000;
@@ -27,9 +33,15 @@ export class ApiGroupService implements GroupService {
     return rows.map((row) => toUserGroup(row.group, toRole(row.role)));
   }
 
-  async create(userId: string, name: string): Promise<Group> {
+  async create(
+    userId: string,
+    name: string,
+    options?: { templateId?: GroupTemplateId; locale?: Locale },
+  ): Promise<Group> {
     const trimmed = name.trim();
     const id = `group-${Date.now().toString(36)}`;
+    const templateId = options?.templateId;
+    const locale = options?.locale ?? defaultLocale;
     const group = await prisma.$transaction(async (tx) => {
       const created = await tx.group.create({
         data: { id, name: trimmed, ownerUserId: userId },
@@ -40,6 +52,14 @@ export class ApiGroupService implements GroupService {
       await tx.groupAlertPrefs.create({
         data: { groupId: id },
       });
+      if (templateId) {
+        await seedGroupTemplateInTransaction(tx, {
+          groupId: id,
+          userId,
+          templateId,
+          locale,
+        });
+      }
       return created;
     });
     return toGroup(group);

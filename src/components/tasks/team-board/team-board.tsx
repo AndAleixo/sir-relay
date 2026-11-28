@@ -21,6 +21,7 @@ import {
   getTaskIdFromDragEvent,
 } from "@/lib/task-drag";
 import type { MutationInput } from "@/domain/sync";
+import { Button, ButtonLink, buttonCompact } from "@/components/ui/button";
 import { useSync } from "@/components/sync";
 import { useHorizontalDragScroll } from "@/hooks/use-horizontal-drag-scroll";
 import {
@@ -78,8 +79,18 @@ interface TeamBoardProps {
     inactive: string;
     showMore: string;
     emptyBoard: string;
+    emptyBoardHint: string;
+    emptyBoardInvite: string;
+    newTask: string;
+    newTaskAi: string;
     addTask: string;
     titlePlaceholder: string;
+  };
+  emptyActions?: {
+    onNewTask?: () => void;
+    onAskAi?: () => void;
+    inviteHref?: string;
+    showAskAi?: boolean;
   };
 }
 
@@ -569,6 +580,7 @@ export function TeamBoard({
   getTaskHref,
   linkMembers = true,
   labels,
+  emptyActions,
 }: TeamBoardProps) {
   const {
     tasks: sessionTasks,
@@ -736,9 +748,38 @@ export function TeamBoard({
 
   if (members.length === 0 && selfTasks.length === 0) {
     return (
-      <p className="tasks-no-select rounded-card border border-dashed border-[var(--border)] bg-surface-card p-8 text-center text-sm text-[var(--text-muted)]">
-        {labels.emptyBoard}
-      </p>
+      <div className="tasks-no-select rounded-card border border-dashed border-[var(--border)] bg-surface-card p-8 text-center">
+        <p className="text-sm font-medium text-[var(--text-primary)]">{labels.emptyBoard}</p>
+        <p className="mt-2 text-sm text-[var(--text-muted)]">{labels.emptyBoardHint}</p>
+        {emptyActions ? (
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            {emptyActions.onNewTask ? (
+              <Button className={buttonCompact} type="button" onClick={emptyActions.onNewTask}>
+                {labels.newTask}
+              </Button>
+            ) : null}
+            {emptyActions.showAskAi && emptyActions.onAskAi ? (
+              <Button
+                variant="secondary"
+                className={buttonCompact}
+                type="button"
+                onClick={emptyActions.onAskAi}
+              >
+                {labels.newTaskAi}
+              </Button>
+            ) : null}
+            {emptyActions.inviteHref ? (
+              <ButtonLink
+                variant="secondary"
+                className={buttonCompact}
+                href={emptyActions.inviteHref}
+              >
+                {labels.emptyBoardInvite}
+              </ButtonLink>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
     );
   }
 

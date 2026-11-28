@@ -62,34 +62,38 @@ export function ManualComposeFields({
 
   return (
     <div className={styles.manual}>
-      <Input
-        id="manual-title"
-        name="title"
-        required
-        maxLength={200}
-        disabled={locked}
-        value={values.title}
-        onChange={(event) => onChange({ title: event.target.value })}
-        placeholder={labels.title}
-        aria-label={labels.title}
-        className={styles.composerTitle}
-      />
+      <div data-tour="demo-compose-title">
+        <Input
+          id="manual-title"
+          name="title"
+          required
+          maxLength={200}
+          disabled={locked}
+          value={values.title}
+          onChange={(event) => onChange({ title: event.target.value })}
+          placeholder={labels.title}
+          aria-label={labels.title}
+          className={styles.composerTitle}
+        />
+      </div>
 
       <div className={styles.metaGrid}>
         {isOperator ? (
-          <Select
-            id="manual-assigneeId"
-            name="assigneeId"
-            required
-            disabled={locked}
-            value={values.assigneeId ?? assigneeOptions[0]?.id ?? ""}
-            onChange={(next) => onChange({ assigneeId: next })}
-            options={assigneeOptions.map((option) => ({
-              value: option.id,
-              label: option.label,
-            }))}
-            aria-label={labels.assignee}
-          />
+          <div data-tour="demo-compose-assignee">
+            <Select
+              id="manual-assigneeId"
+              name="assigneeId"
+              required
+              disabled={locked}
+              value={values.assigneeId ?? assigneeOptions[0]?.id ?? ""}
+              onChange={(next) => onChange({ assigneeId: next })}
+              options={assigneeOptions.map((option) => ({
+                value: option.id,
+                label: option.label,
+              }))}
+              aria-label={labels.assignee}
+            />
+          </div>
         ) : null}
 
         <Select

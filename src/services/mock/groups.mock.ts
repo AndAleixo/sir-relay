@@ -1,7 +1,17 @@
-import type { Group, GroupInvitePreview, GroupMembership, Role, UserGroup } from "@/domain/types";
+import type { Group, GroupInvitePreview, GroupMembership, Locale, Role, UserGroup } from "@/domain/types";
+import { defaultLocale } from "@/i18n/config";
+import {
+  buildMockSeedTasks,
+  buildTemplateSeedPlan,
+  type GroupTemplateId,
+} from "@/lib/group-templates";
+import { groupMemberLabel } from "@/lib/group-member-label";
+import type { CreateGroupOptions } from "@/services/contracts";
 import type { GroupService } from "@/services/contracts";
 import type { GroupMembershipLookup } from "@/lib/session-hydrate";
 import { pickOwnershipSuccessorId } from "@/lib/group-ownership";
+import type { Task } from "@/domain/types";
+import { insertProjectSeedForGroup } from "@/services/mock/projects.mock";
 import { findMockUserById } from "@/services/mock/users.mock";
 import {
   consumeInvite,
@@ -151,7 +161,39 @@ function inviteNeedsPassword(userId: string): boolean {
   return false;
 }
 
-function createGroupForUser(userId: string, name: string): Group {
+function pushSeededMockTasks(rows: Task[]): void {
+  const key = "__sirrelay_mock_seeded_tasks__";
+  const g = globalThis as typeof globalThis & { [k: string]: Task[] | undefined };
+  const bucket = g[key] ?? [];
+  if (!g[key]) g[key] = bucket;
+  bucket.push(...rows);
+}
+
+function seedMockTemplate(
+  groupId: string,
+  userId: string,
+  templateId: GroupTemplateId,
+  locale: Locale,
+): void {
+  const user = findMockUserById(userId);
+  if (!user) return;
+  const plan = buildTemplateSeedPlan(templateId, locale);
+  const projectMeta = plan.projects.map((project) =>
+    insertProjectSeedForGroup(groupId, project.name, project.acronym, project.categories),
+  );
+  const assigneeName = groupMemberLabel({
+    name: user.name,
+    email: user.email,
+    displayName: getMembershipDisplayName(groupId, userId),
+  });
+  pushSeededMockTasks(buildMockSeedTasks(userId, assigneeName, plan, projectMeta));
+}
+
+function createGroupForUser(
+  userId: string,
+  name: string,
+  options?: CreateGroupOptions,
+): Group {
   const { extraGroups, extraMemberships } = mockGroupExtras();
   const group: Group = {
     id: `group-${Date.now().toString(36)}`,
@@ -160,6 +202,14 @@ function createGroupForUser(userId: string, name: string): Group {
   };
   extraGroups.push(group);
   extraMemberships.push({ groupId: group.id, userId, role: "operator" });
+  if (options?.templateId) {
+    seedMockTemplate(
+      group.id,
+      userId,
+      options.templateId,
+      options.locale ?? defaultLocale,
+    );
+  }
   return group;
 }
 
@@ -237,8 +287,8 @@ export class MockGroupService implements GroupService {
     }));
   }
 
-  async create(userId: string, name: string): Promise<Group> {
-    return createGroupForUser(userId, name);
+  async create(userId: string, name: string, options?: CreateGroupOptions): Promise<Group> {
+    return createGroupForUser(userId, name, options);
   }
 
   async roleInGroup(userId: string, groupId: string): Promise<Role | null> {

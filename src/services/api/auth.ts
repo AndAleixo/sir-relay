@@ -20,13 +20,14 @@ import {
   type SessionPayload,
 } from "@/lib/session-cookie";
 import { hashToken } from "@/lib/token-hash";
+import { personalGroupName } from "@/lib/group-templates";
 import { apiGroupService } from "@/services/api/groups";
 import {
   hasMembershipAsync,
   pickDefaultGroupIdAsync,
   roleInGroupAsync,
 } from "@/services/api/membership";
-import { toTeammate, toUser, fromLocale } from "@/services/api/mappers";
+import { toTeammate, toUser, fromLocale, toLocale } from "@/services/api/mappers";
 
 type HydrateOptions = { autoPickGroup?: boolean };
 
@@ -501,7 +502,18 @@ export class ApiAuthService implements AuthService {
       where: { id: consumed.userId },
       data: { emailVerifiedAt: new Date() },
     });
-    const activeGroupId = await pickDefaultGroupIdAsync(row.id);
+    const membershipCount = await prisma.groupMembership.count({
+      where: { userId: row.id },
+    });
+    let activeGroupId = await pickDefaultGroupIdAsync(row.id);
+    if (membershipCount === 0) {
+      const locale = toLocale(row.locale);
+      const group = await apiGroupService.create(row.id, personalGroupName(locale), {
+        templateId: "personal",
+        locale,
+      });
+      activeGroupId = group.id;
+    }
     const session = await persistSession(row.id, activeGroupId, row.tokenVersion, {
       autoPickGroup: true,
     });

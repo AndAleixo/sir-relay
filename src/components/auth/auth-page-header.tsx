@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { authShellStyles } from "@/components/layout/auth-shell.styles";
-import { LocaleSegment } from "@/components/layout/locale-segment";
+import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 
 type AuthPageHeaderProps = {
   locale: string;
@@ -16,7 +16,7 @@ export async function AuthPageHeader({ locale }: AuthPageHeaderProps) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/logo.svg" alt={t("common.appName")} className={authShellStyles.loginLogo} />
       </Link>
-      <LocaleSegment locale={locale} />
+      <LocaleSwitcher variant="segment" locale={locale} />
       <p className="text-center">
         <Link
           href={`/${locale}`}

@@ -460,7 +460,7 @@ Both roles. Teammate done / due alerts; delivery badge; **Show more** after the 
 |---------|----------------------|-----|
 | No groups | “You are not in any group yet.” | Create group |
 | No tasks (My work) | “No tasks assigned to you yet.” | — (toolbar New task) |
-| No members (Team board) | “Add members to start coordinating work.” | — |
+| No members (Team board) | Empty board with New task / Ask AI / Invite CTAs | — |
 | No events / alerts | “No alerts yet…” | — |
 | No group projects | Quiet list-filter link to `/projects` | Projects tab |
 | Empty todo column | Light placeholder | — |

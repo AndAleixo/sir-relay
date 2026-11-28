@@ -62,7 +62,10 @@ interface TasksPageClientProps {
     projectNone: string;
     updated: string;
     emptyBoard: string;
+    emptyBoardHint: string;
+    emptyBoardInvite: string;
     emptyMyWork: string;
+    emptyMyWorkHint: string;
     invited: string;
     inactive: string;
     showMore: string;
@@ -222,6 +225,7 @@ export function TasksPageClient({
     dragHandle: labels.dragHandle,
     addDueDate: labels.addDueDate,
     startDoing: labels.startDoing,
+    startDoingShort: labels.startDoingShort,
     markDone: labels.markDone,
     completedMark: labels.completedMark,
     taskMenu: labels.taskMenu,
@@ -245,6 +249,10 @@ export function TasksPageClient({
     inactive: labels.inactive,
     showMore: labels.showMore,
     emptyBoard: labels.emptyBoard,
+    emptyBoardHint: labels.emptyBoardHint,
+    emptyBoardInvite: labels.emptyBoardInvite,
+    newTask: labels.newTask,
+    newTaskAi: labels.newTaskAi,
     addTask: labels.addTask,
     titlePlaceholder: labels.titlePlaceholder,
   };
@@ -276,6 +284,8 @@ export function TasksPageClient({
     category: labels.category,
     projectNone: labels.projectNone,
     categoryNone: labels.categoryNone,
+    menuOpen: labels.menuOpen,
+    markDone: labels.markDone,
   };
 
   const emptyMyWork = scope === "mine" && scopedTasks.length === 0;
@@ -351,7 +361,25 @@ export function TasksPageClient({
       ) : null}
 
       {emptyMyWork ? (
-        <p className="tasks-no-select text-sm text-[var(--text-muted)]">{labels.emptyMyWork}</p>
+        <div className="tasks-no-select rounded-card border border-dashed border-[var(--border)] bg-surface-card p-6 text-center">
+          <p className="text-sm text-[var(--text-muted)]">{labels.emptyMyWork}</p>
+          <p className="mt-2 text-sm text-[var(--text-muted)]">{labels.emptyMyWorkHint}</p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <Button className={buttonCompact} type="button" onClick={() => openCompose("manual")}>
+              {labels.newTask}
+            </Button>
+            {aiEnabled ? (
+              <Button
+                variant="secondary"
+                className={buttonCompact}
+                type="button"
+                onClick={() => openCompose("ai")}
+              >
+                {labels.newTaskAi}
+              </Button>
+            ) : null}
+          </div>
+        </div>
       ) : view === "board" ? (
         scope === "team" ? (
           <TeamBoard
@@ -364,6 +392,12 @@ export function TasksPageClient({
             editMode={isOperator ? "all" : "self-only"}
             labels={boardLabels}
             openProjects={openProjects}
+            emptyActions={{
+              onNewTask: () => openCompose("manual"),
+              onAskAi: () => openCompose("ai"),
+              showAskAi: aiEnabled,
+              inviteHref: isOperator ? `/${locale}/teammates/new` : undefined,
+            }}
           />
         ) : (
           <StatusKanban

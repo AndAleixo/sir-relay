@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { withLocale, type AppLocale } from "@/i18n/config";
-import { LocalePicker } from "./locale-picker";
+import { LocaleSwitcher as LocaleSwitcherControl } from "@/components/layout/locale-switcher";
 
 interface LocaleSwitcherProps {
   locale: string;
@@ -17,5 +17,12 @@ export function LocaleSwitcher({ locale, compact }: LocaleSwitcherProps) {
     router.push(withLocale(pathname, newLocale));
   }
 
-  return <LocalePicker locale={locale} compact={compact} onSelect={onSelect} />;
+  return (
+    <LocaleSwitcherControl
+      variant="menu"
+      locale={locale}
+      compact={compact}
+      onSelect={onSelect}
+    />
+  );
 }

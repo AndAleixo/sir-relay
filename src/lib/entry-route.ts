@@ -4,7 +4,6 @@ function roleHomePath(locale: string, session: Session): string {
   if (session.user.mustChangePassword) return `/${locale}/change-password`;
   if (session.user.needsLegalAccept) return `/${locale}/accept-terms`;
   if (!session.activeGroupId) return `/${locale}/groups`;
-  if (session.user.role === "operator") return `/${locale}/teammates`;
   return `/${locale}/tasks`;
 }
 

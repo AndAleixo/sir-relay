@@ -73,7 +73,7 @@
     "checkEmailTitle": "Confira seu e-mail",
     "checkEmailSubtitle": "Enviamos um link de confirmação. Abra-o e confirme para ativar a conta.",
     "checkEmailSubtitleLocked": "Enviamos um link de confirmação para {email}. Abra-o e confirme para ativar a conta.",
-    "checkEmailEditor": "Depois de confirmar, entre. Trazemos você de volta para criar uma API key para a IDE.",
+    "checkEmailEditor": "Depois de confirmar, entre. Trazemos você de volta para criar uma chave de API para a IDE.",
     "checkEmailResent": "Se esse e-mail precisar de verificação, enviamos outro link.",
     "verifyTitle": "Verificação de e-mail",
     "verifyConfirmHint": "Clique abaixo para confirmar este e-mail e ativar a conta.",
@@ -84,7 +84,7 @@
     "tryDemo": "Experimentar demo",
     "gateTitle": "Experimente o quadro",
     "gateSubtitle": "Seu nome e um quadro inicial. Fica nesta aba.",
-    "notice": "Experimente o quadro, Nova tarefa e Ask AI (os rascunhos da demo ficam neste separador). Uma conta real não importa isto.",
+    "notice": "Um tour guiado curto no app — nada é salvo numa conta.",
     "start": "Começar demo",
     "nameRequired": "Digite pelo menos 2 caracteres.",
     "nameHint": "Até {max} caracteres.",
@@ -192,7 +192,42 @@
     "bannerCta": "Criar conta",
     "leave": "Sair da demo",
     "groupName": "Grupo demo",
-    "addTeammate": "Adicionar um colega (só o nome)"
+    "addTeammate": "Adicionar um colega (só o nome)",
+    "tutorial": {
+      "skip": "Pular tour",
+      "progress": "Passo {current} de {total}",
+      "finishBadge": "Tour concluído",
+      "finishTitle": "Crie sua conta para guardar isto",
+      "finishBody": "A demo fica neste separador até você sair. Cadastre-se para salvar tarefas, colegas e quadros na sua conta.",
+      "signupCta": "Criar conta",
+      "continueDemo": "Continuar explorando",
+      "steps": {
+        "1": {
+          "title": "Criar uma tarefa",
+          "body": "Toque em Nova tarefa, dê um título e salve."
+        },
+        "2": {
+          "title": "Atribuir",
+          "body": "Arraste a tarefa para a coluna de um colega ou mude o responsável na lista."
+        },
+        "3": {
+          "title": "Começar",
+          "body": "Use Iniciar no cartão ou arraste para Em progresso."
+        },
+        "4": {
+          "title": "Concluir",
+          "body": "Marque como feita ou arraste para Concluído."
+        },
+        "5": {
+          "title": "Quadro ou lista",
+          "body": "Alterne entre quadro e lista para ver o mesmo trabalho de outro jeito."
+        },
+        "6": {
+          "title": "Pedir à IA",
+          "body": "Abra Pedir à IA, digite uma frase curta e envie para gerar rascunhos de tarefas."
+        }
+      }
+    }
   },
   "contact": {
     "title": "Contato",
@@ -241,7 +276,24 @@
     "deleteConfirm": "Excluir \"{group}\" permanentemente? Todas as tarefas, colegas e alertas deste grupo serão removidos.",
     "forbidden": "Você não tem permissão para fazer isso.",
     "notMember": "Você não é membro desse grupo.",
-    "actionFailed": "Algo deu errado. Tente novamente."
+    "actionFailed": "Algo deu errado. Tente novamente.",
+    "templates": {
+      "fieldLabel": "Modelo",
+      "personal": { "label": "Pessoal", "nameSuggestion": "Pessoal" },
+      "shop": { "label": "Loja / varejo", "nameSuggestion": "Minha loja" },
+      "software": { "label": "Software", "nameSuggestion": "Time de produto" },
+      "operations": { "label": "Operações", "nameSuggestion": "Operações" },
+      "sampleTasks": {
+        "completeCheck": "Conclua esta tarefa clicando no check",
+        "askAiWeek": "Peça à IA para montar o plano da semana"
+      },
+      "seedProjects": {
+        "personal": [{ "name": "Geral", "acronym": "GER", "categories": ["Principal"] }],
+        "shop": [{ "name": "Loja", "acronym": "LOJ", "categories": ["Vitrine", "Estoque"] }],
+        "software": [{ "name": "Produto", "acronym": "PRD", "categories": ["Backlog", "Entrega"] }],
+        "operations": [{ "name": "Operação", "acronym": "OPE", "categories": ["Hoje", "Semana"] }]
+      }
+    }
   },
   "join": {
     "title": "Entrar em um grupo",
@@ -327,8 +379,13 @@
     "team": "Equipe",
     "scopeAria": "Escopo das tarefas",
     "viewAria": "Visualização das tarefas",
-    "emptyBoard": "Adicione membros para começar a coordenar o trabalho.",
+    "emptyBoard": "Seu quadro de tarefas está vazio",
+    "emptyBoardHint": "Crie uma tarefa, experimente a IA ou convide colegas quando quiser coordenar.",
+    "emptyBoardInvite": "Convidar colegas",
     "emptyMyWork": "Você ainda não tem tarefas atribuídas.",
+    "emptyMyWorkHint": "Crie uma tarefa ou use a IA para rascunhar os primeiros itens.",
+    "noGroupTitle": "Escolha um grupo para ver tarefas",
+    "noGroupBody": "Abra o menu de grupos acima para criar um espaço ou entrar com um convite.",
     "saved": "Tarefa salva.",
     "deleted": "Tarefa excluída.",
     "errorTitle": "O título é obrigatório.",
@@ -371,6 +428,7 @@
     "addTask": "Adicionar tarefa",
     "addDueDate": "Adicionar prazo",
     "startDoing": "Começar — mover para Em progresso",
+    "startDoingShort": "Iniciar",
     "markDone": "Concluir — mover para Concluído",
     "completedMark": "Concluída",
     "difficulty": "Dificuldade",
@@ -386,22 +444,23 @@
     "category": "Categoria",
     "categoryNone": "Nenhuma",
     "composeTitle": "Nova tarefa",
-    "composeAiTitle": "Pedir à AI",
-    "composeAiOpen": "Pedir à AI",
+    "composeAiTitle": "Pedir à IA",
+    "composeAiOpen": "Pedir à IA",
     "composeAccept": "Criar",
     "composeReject": "Descartar",
     "composeAcceptAll": "Criar todas",
     "composeRejectAll": "Descartar todas",
     "composeAiReviewTitle": "Rever sugestões",
-    "composeAiPlaceholder": "Peça à AI para rascunhar tarefas…",
-    "composeAiSubmit": "Enviar à AI",
+    "composeAiPlaceholder": "Peça à IA para rascunhar tarefas…",
+    "composeAiSubmit": "Enviar à IA",
     "composeAiSuggesting": "A enviar…",
-    "composeAiQuota": "{remaining} de {limit} pedidos AI este mês",
-    "composeCloseConfirm": "Descartar sugestões da AI e fechar?",
+    "composeAiQuota": "{remaining} de {limit} pedidos à IA este mês",
+    "composeCloseConfirm": "Descartar sugestões da IA e fechar?",
     "composeErrorSuggest": "Não foi possível sugerir tarefas. Tente de novo ou crie uma manualmente.",
     "composeErrorApprove": "Não foi possível criar a tarefa. Verifique o título e tente de novo.",
-    "composeErrorQuota": "Limite de pedidos AI deste mês atingido.",
-    "composeErrorTooLong": "O pedido à AI deve ter no máximo 300 caracteres."
+    "composeErrorQuota": "Limite de pedidos à IA deste mês atingido.",
+    "composeErrorRate": "Demasiados pedidos à IA nesta rede. Tente mais tarde.",
+    "composeErrorTooLong": "O pedido à IA deve ter no máximo 300 caracteres."
   },
   "projects": {
     "hint": "Rótulos curtos para tarefas deste grupo. A sigla aparece no quadro e no Telegram. Qualquer pessoa pode adicionar categorias.",
@@ -496,10 +555,6 @@
     "photoInvalid": "Esse arquivo não é uma imagem válida.",
     "photoTooLarge": "Não foi possível comprimir esta imagem para menos de 1 MB. Tente uma foto menor.",
     "accountInfo": "Conta",
-    "plan": "Plano",
-    "planBasic": "Basic",
-    "planPlus": "Plus",
-    "planEnds": "Termina em {date}",
     "accountName": "Nome da conta",
     "accountNameHint": "Seu nome no SRelay. Só você pode alterá-lo.",
     "nameSaved": "Nome atualizado.",
@@ -511,18 +566,20 @@
     "telegramTeammatePendingHint": "Vincule o Telegram aqui para receber tarefas atribuídas uma de cada vez.",
     "telegramOperatorPendingHint": "Vincule o Telegram aqui para receber tarefas atribuídas uma de cada vez, e também alertas quando colegas concluem trabalho ou prazos vencem.",
     "passwordSection": "Senha",
-    "linkKeySection": "API keys",
+    "linkKeySection": "Chaves de API",
     "linkKeyPageLead": "{name} — chaves para a extensão da IDE e o MCP. Só aparecem uma vez ao criar.",
     "linkKeyProfileHint": "As chaves da extensão da IDE e do MCP ficam numa página dedicada.",
-    "linkKeyManageLink": "Abrir API keys",
+    "linkKeyManageLink": "Abrir chaves de API",
     "linkKeyShownOnce": "Mostrada só uma vez.",
     "linkKeyTakeawayLabel": "Usar com",
     "linkKeyTakeawayIde": "IDE",
     "linkKeyTakeawayMcp": "MCP",
-    "linkKeyFieldKey": "API key",
+    "linkKeyExtensionDownload": "Instalar extensão IDE (Open VSX)",
+    "linkKeyMcpPackage": "Pacote MCP no npm",
+    "linkKeyFieldKey": "Chave de API",
     "linkKeyFieldMcp": "Config MCP",
     "linkKeyOpenIde": "Abrir IDE",
-    "linkKeyCreate": "Criar API key",
+    "linkKeyCreate": "Criar chave de API",
     "linkKeyName": "Nome",
     "linkKeyNamePlaceholder": "ex.: Cursor MCP, notebook",
     "linkKeyPermissions": "Grupos",
@@ -533,7 +590,7 @@
     "linkKeyLimit": "Já tem o número máximo de chaves.",
     "linkKeyBadGroups": "Um dos grupos selecionados é inválido.",
     "linkKeyDelete": "Excluir",
-    "linkKeyDeleteConfirm": "Excluir esta API key? Clientes que a usam deixam de funcionar.",
+    "linkKeyDeleteConfirm": "Excluir esta chave de API? Clientes que a usam deixam de funcionar.",
     "linkKeyDeleteFailed": "Não foi possível excluir essa chave.",
     "linkKeyWorking": "Trabalhando…",
     "linkKeyCopy": "Copiar",
@@ -542,8 +599,8 @@
     "linkKeyMcpHelpTitle": "Configurar MCP",
     "linkKeyMcpStepNode": "Instale o Node.js 20+ em",
     "linkKeyMcpStepKey": "Crie uma key → MCP → copie a config.",
-    "linkKeyMcpStepJson": "Cole na configuração MCP do seu cliente de AI.",
-    "linkKeyMcpStepRestart": "Recarregue o cliente de AI e peça para listar as suas tarefas.",
+    "linkKeyMcpStepJson": "Cole na configuração MCP do seu cliente de IA.",
+    "linkKeyMcpStepRestart": "Recarregue o cliente de IA e peça para listar as suas tarefas.",
     "linkKeyMcpNeedSteps": "Setup",
     "openTelegramLink": "Abrir no Telegram",
     "regenerateTelegramLink": "Novo código",
@@ -602,7 +659,7 @@
     "footerNav": "Links do rodapé",
     "eyebrow": "Sozinho, em grupo ou em equipe",
     "heroTitle": "Organize seu trabalho. Veja o que falta.",
-    "heroSubtitle": "Atribua tarefas e acompanhe o progresso — sozinho ou em grupo. O Ask AI opcional pode rascunhar tarefas a partir de uma nota curta.",
+    "heroSubtitle": "Atribua tarefas e acompanhe o progresso — sozinho ou em grupo. A IA pode montar um plano concreto a partir de uma nota curta.",
     "contactLead": "Dúvidas, ideias de implementação ou mais informações? Use",
     "demoAria": "Pré-visualização do quadro SRelay",
     "demoUrl": "app.sirrelay.com/{locale}/tasks",
@@ -613,15 +670,15 @@
     "demoPause": "Pausar",
     "demoPlay": "Reproduzir",
     "featuresTitle": "Clareza no trabalho",
-    "featuresLead": "Tarefas e prazos — com Ask AI quando ajuda.",
+    "featuresLead": "Tarefas e prazos — com a IA quando ajuda.",
     "feature": {
       "simple": {
         "title": "Quadro ou lista",
         "body": "Veja o que está aberto, em andamento e concluído — sem dashboards no caminho."
       },
       "ai": {
-        "title": "Ask AI quando ajuda",
-        "body": "Rascunhe tarefas a partir de uma nota curta, ou crie você mesmo. Basic e Plus definem o limite mensal — sem pagamento no app."
+        "title": "Pedir à IA quando ajuda",
+        "body": "Transforme uma nota curta em tarefas concretas com prazos e atribuição sugeridos — aceite, edite ou descarte cada uma."
       },
       "relay": {
         "title": "Sem medir pessoas",
@@ -640,8 +697,8 @@
         "a": "Inicie um grupo só para você, ou convide outros por e-mail. As tarefas ficam dentro de cada grupo, de qualquer tamanho."
       },
       "ai": {
-        "q": "O que é o Ask AI?",
-        "a": "Rascunhos opcionais a partir de uma nota curta (quando a AI está configurada no deployment). Nova tarefa manual continua disponível. Os planos Basic e Plus definem o limite mensal; o plano aparece no Perfil — sem pagamento no app."
+        "q": "O que é Pedir à IA?",
+        "a": "Descreva o que precisa numa nota curta e a IA rascunha tarefas concretas que pode aceitar, editar ou descartar. Nova tarefa manual continua disponível."
       },
       "metrics": {
         "q": "Vocês medem métricas de produtividade?",
@@ -649,7 +706,7 @@
       },
       "data": {
         "q": "Onde ficam meus dados?",
-        "a": "Nos servidores SRelay (PostgreSQL). Páginas autenticadas não são colocadas em cache; a sessão usa um cookie essencial."
+        "a": "Na sua conta SRelay. Páginas autenticadas não são colocadas em cache; a sessão usa um cookie essencial."
       },
       "install": {
         "q": "Posso instalar o SRelay no telemóvel?",
@@ -658,7 +715,7 @@
     },
     "editor": {
       "title": "Sua coluna, no editor.",
-      "subtitle": "Instale a extensão SRelay no VS Code, Cursor, Antigravity e outros editores que usam o mesmo marketplace — ou ligue o MCP para o seu agente de AI criar e atualizar as suas tarefas. É separado do Ask AI na web. Uma API key em Connect; só o trabalho atribuído a você.",
+      "subtitle": "Instale a extensão SRelay no VS Code, Cursor, Antigravity e outros editores que usam o mesmo marketplace — ou ligue o MCP para o seu agente de IA criar e atualizar as suas tarefas. É separado do Pedir à IA na web. Uma chave de API em Connect; só o trabalho atribuído a você.",
       "pointYours": "Peça ao seu agente para capturar trabalho e manter o dia em ordem — as tarefas das outras pessoas ficam na web.",
       "column": "Meu trabalho",
       "groupLabel": "Grupo",
@@ -668,8 +725,10 @@
       "addTask": "+ Nova tarefa",
       "previewLabel": "Extensão SRelay no IDE",
       "extensionCaption": "Extensão no IDE",
+      "extensionInstalls": "{count} instalações da extensão",
       "extensionWindowTitle": "SRelay · barra lateral",
       "mcpCaption": "MCP no chat",
+      "mcpDownloads": "{count} downloads do MCP (último ano)",
       "mcpPreviewLabel": "SRelay MCP no chat",
       "mcpWindowTitle": "SRelay · MCP",
       "mcpUserCreate": "Adiciona uma tarefa: preparar o checklist de abertura de amanhã, prazo amanhã, média.",

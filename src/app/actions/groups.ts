@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { parseInviteToken } from "@/lib/invite-token";
 import { resolveEntryPath } from "@/lib/entry-route";
 import { requireSession } from "@/lib/require-session";
+import { isGroupTemplateId } from "@/lib/group-templates";
+import type { Locale } from "@/domain/types";
 import { getServices } from "@/services";
 
 export type GroupFormState = { error: string | null };
@@ -60,9 +62,15 @@ export async function createGroupForm(
     return { error: "short" };
   }
 
+  const templateRaw = String(formData.get("templateId") ?? "").trim();
+  const templateId = isGroupTemplateId(templateRaw) ? templateRaw : undefined;
+
   const session = await requireSession(locale);
   const { groups } = getServices();
-  const group = await groups.create(session.user.id, name);
+  const group = await groups.create(session.user.id, name, {
+    templateId,
+    locale: locale as Locale,
+  });
   return activateGroupAndRedirect(locale, session.user.id, group.id);
 }
 

@@ -8,6 +8,7 @@ import { taskDetailHref } from "@/lib/tasks-url";
 import { formatDueDateNumeric, isOverdue } from "@/lib/dates";
 import { nextTaskCategoryId, tagFromOpenProjects } from "@/lib/project";
 import { Input, Textarea } from "@/components/ui/input";
+import { MarkDoneIcon } from "@/components/tasks/task-card/mark-done-icon";
 import { CheckIcon } from "@/components/ui/icons";
 import { popoverStyles } from "@/components/ui/popover";
 import { useSync } from "@/components/sync";
@@ -41,6 +42,8 @@ interface TaskListProps {
     category: string;
     projectNone: string;
     categoryNone: string;
+    menuOpen: string;
+    markDone: string;
   };
 }
 
@@ -259,19 +262,44 @@ function TaskListRow({
     await saveFields({ dueDate }, { dueDate });
   }
 
+  const detailHref = taskDetailHref(locale, task.id, { scope, view, project });
+  const canMarkDone = canEdit && task.status !== "done";
+
   return (
     <div className={cn(taskListStyles.cols, taskListStyles.row)}>
       <div className={taskListStyles.cell}>
-        {canEdit ? (
-          <TitleCell title={task.title} label={labels.title} onSave={saveTitle} />
-        ) : (
-          <Link
-            href={taskDetailHref(locale, task.id, { scope, view, project })}
-            className={taskListStyles.link}
-          >
-            {task.title}
-          </Link>
-        )}
+        <div className={taskListStyles.titleCell}>
+          <div className={taskListStyles.titleMain}>
+            {canEdit ? (
+              <TitleCell title={task.title} label={labels.title} onSave={saveTitle} />
+            ) : (
+              <Link href={detailHref} className={taskListStyles.link}>
+                {task.title}
+              </Link>
+            )}
+          </div>
+          <div className={taskListStyles.rowActions}>
+            <Link
+              href={detailHref}
+              className={taskListStyles.rowOpen}
+              aria-label={labels.menuOpen}
+              title={labels.menuOpen}
+            >
+              {labels.menuOpen}
+            </Link>
+            {canMarkDone ? (
+              <button
+                type="button"
+                className={taskListStyles.rowMarkDone}
+                aria-label={labels.markDone}
+                title={labels.markDone}
+                onClick={() => void saveStatus("done")}
+              >
+                <MarkDoneIcon />
+              </button>
+            ) : null}
+          </div>
+        </div>
       </div>
       <div className={taskListStyles.meta}>
         <div className={taskListStyles.cell}>

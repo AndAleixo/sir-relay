@@ -5,7 +5,7 @@ import { withConnectNext } from "@/lib/connect-next";
 
 type SiteFooterProps = {
   locale: string;
-  variant?: "marketing" | "auth";
+  variant?: "marketing" | "auth" | "app";
   returnTo?: string | null;
 };
 
@@ -38,12 +38,16 @@ export async function SiteFooter({
           <Link href={`/${locale}/terms`} className={landingStyles.footerLink}>
             {t("legal.terms")}
           </Link>
-          <Link href={withConnectNext(`/${locale}/login`, returnTo)} className={landingStyles.footerLink}>
-            {t("auth.login")}
-          </Link>
-          <Link href={withConnectNext(`/${locale}/signup`, returnTo)} className={landingStyles.footerLink}>
-            {t("auth.signup")}
-          </Link>
+          {variant === "app" ? null : (
+            <>
+              <Link href={withConnectNext(`/${locale}/login`, returnTo)} className={landingStyles.footerLink}>
+                {t("auth.login")}
+              </Link>
+              <Link href={withConnectNext(`/${locale}/signup`, returnTo)} className={landingStyles.footerLink}>
+                {t("auth.signup")}
+              </Link>
+            </>
+          )}
         </nav>
       </div>
     </footer>

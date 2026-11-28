@@ -1,3 +1,4 @@
+import { taskCardStyles } from "@/components/tasks/task-card/task-card.styles";
 import { viewToggleStyles } from "@/components/tasks/view-toggle/view-toggle.styles";
 
 export const taskListStyles = {
@@ -11,6 +12,12 @@ export const taskListStyles = {
   cellDue: "min-w-0 whitespace-nowrap tabular-nums md:pt-0.5",
   /** Same token + weight as task card due (`taskCardStyles.overdue`). */
   dueOverdue: "font-medium text-[var(--severity)]",
+  titleCell: "flex min-w-0 items-start gap-1",
+  titleMain: "min-w-0 flex-1",
+  rowActions: "flex shrink-0 items-start gap-0.5 pt-0.5",
+  rowOpen:
+    "rounded-[4px] px-1 py-0.5 text-[10px] font-medium leading-none text-[var(--text-muted)] hover:bg-[var(--surface-bg)] hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",
+  rowMarkDone: taskCardStyles.markDone,
   link: "line-clamp-2 font-medium text-[var(--text-primary)] hover:text-brand-accent-hover",
   cellTrigger:
     "max-w-full rounded-[4px] text-left hover:text-brand-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/30",

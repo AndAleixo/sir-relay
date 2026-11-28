@@ -9,7 +9,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
-    "check": "npm run check:routes && npm run check:teammates && npm run check:signup-merge && npm run check:telegram && npm run check:telegram-keywords && npm run check:telegram-sanitize && npm run check:queue && npm run check:tasks-url && npm run check:ai-quota && npm run check:ingest-hints && npm run check:sec && npm run check:csrf && npm run check:rate && npm run check:safe-log && npm run check:authz && npm run check:board-order && npm run check:board-scroll && npm run check:fade-open && npm run check:ownership && npm run check:audit && npm run check:platform-session && npm run check:export-csv && npm run check:task-card-truncate && npm run check:profile-avatar && npm run check:umami-env && npm run check:legal && npm run check:task-difficulty && npm run check:project && npm run check:email-tokens && npm run check:delete-account && npm run check:demo-flow && npm run check:demo-ai && npm run check:connect-next && npm run check:link-token && npm run check:sync-merge && npm run check:seo && npm run check:pwa && npm run check:brand && npm run check:vsix-project-filter && npm run check:mcp",
+    "check": "npm run check:routes && npm run check:teammates && npm run check:signup-merge && npm run check:telegram && npm run check:telegram-keywords && npm run check:telegram-sanitize && npm run check:queue && npm run check:tasks-url && npm run check:ai-quota && npm run check:ingest-hints && npm run check:sec && npm run check:csrf && npm run check:rate && npm run check:safe-log && npm run check:authz && npm run check:board-order && npm run check:board-scroll && npm run check:fade-open && npm run check:ownership && npm run check:audit && npm run check:platform-session && npm run check:export-csv && npm run check:task-card-truncate && npm run check:profile-avatar && npm run check:umami-env && npm run check:legal && npm run check:task-difficulty && npm run check:project && npm run check:email-tokens && npm run check:delete-account && npm run check:demo-flow && npm run check:demo-ai && npm run check:download-stats && npm run check:connect-next && npm run check:link-token && npm run check:sync-merge && npm run check:seo && npm run check:pwa && npm run check:brand && npm run check:vsix-project-filter && npm run check:mcp",
     "check:pwa": "tsx scripts/check-pwa.ts",
     "check:brand": "tsx scripts/check-brand-public.ts",
     "brand:sync": "tsx scripts/sync-brand-public.ts",
@@ -59,7 +59,8 @@
     "prod-vps": "bash scripts/env/prod-vps.sh",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "check:download-stats": "tsx scripts/check-download-stats.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

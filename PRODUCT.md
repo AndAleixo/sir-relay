@@ -19,7 +19,7 @@ Situation: people coordinating work alone or with others (often ops / floor / aw
 
 ## Product Purpose
 
-**SRelay** (by **Sir**) is a hosted web task tool: one account, work inside a **group**, with role (`operator` / `teammate`) per group. You can use a group solo for your own tasks, or invite others and share the same task truth — any group size. Optional chat delivery exists in the product (today Telegram) but is not the landing story.
+**SRelay** (by **Sir**) is a web task tool: one account, work inside a **group**, with role (`operator` / `teammate`) per group. You can use a group solo for your own tasks, or invite others and share the same task truth — any group size. Optional chat delivery exists in the product (today Telegram) but is not the landing story.
 
 Success: you can keep your own work clear, or invite and follow group work — tasks and due dates only, without dashboards or metric pressure.
 
@@ -35,17 +35,17 @@ SRelay is for **who wants to manage work** — their own tasks, a group, or a te
 
 ## Operating Context
 
-- Marketing landing at `/[locale]` for logged-out visitors (try demo / signup / login) — solo + group, anti-KPI story, optional Ask AI + Basic/Plus limits (no in-app payment), PWA installable.
-- Try demo (`/demo`) opens the app shell with a seed kept in the browser tab (New task + Ask AI compose drawers; Ask AI is local mock drafts). Creating an account does not import it.
-- Signed-in web app: Tasks (board/list · New task / Ask AI when AI env is set), Teammates, Projects, Events, Settings (group), Profile (account + plan).
-- Plans: **basic** / **plus** (AI suggest monthly quotas); platform assigns plan + end date; no checkout UI.
+- Marketing landing at `/[locale]` for logged-out visitors (try demo / signup / login) — solo + group, anti-KPI story, Ask AI as the main differentiator, PWA installable.
+- Try demo (`/demo`) is a guided tutorial in the app shell (scenario seed in the browser tab; Ask AI is local mock drafts). Creating an account does not import it.
+- Signed-in web app: Tasks (board/list · New task / Ask AI when AI env is set), Teammates, Projects, Events, Settings (group), Profile (account).
+- Plans **basic** / **plus** exist only as internal AI-quota controls (platform assigns); not shown to end users.
 - IDE extension (`extensions/vsix`, one `.vsix` for VS Code, Cursor, or Antigravity): the signed-in user’s column in the sidebar (same tasks as the web; project filter).
 - MCP (`extensions/mcp`, `@sirrelay/mcp`): list / full create / per-field set_* / clone / delete the signed-in user’s tasks from an AI client — separate from in-app Ask AI. Same `ClientApiKey` bearer as the editor (`/[locale]/connect` · `/api/v1/client/*`); optional group scope per key; Profile links to connect; extension not required. Cursor install packaging: `extensions/cursor-plugin/` (Marketplace submit after npm publish — see `extensions/mcp/PUBLISH.md`).
 - Teams package (`extensions/teams`): optional custom/sideload ZIP embedding the web board — not a public store listing unless a company Partner Center enrollment exists.
 - Chat bot for linked members (currently Telegram): task delivery, status replies, operator alerts.
 - Invite by email only; activation via `/join/<token>` or signup with the same email.
 - Locales: `en-gb`, `es-es`, `pt-br`.
-- Hosted publicly (DigitalOcean + HTTPS); data in PostgreSQL.
+- Public app at app.sirrelay.com; account data stays in the user’s SRelay account.
 
 ## Capabilities and Constraints
 
@@ -67,7 +67,7 @@ SRelay is for **who wants to manage work** — their own tasks, a group, or a te
 ## Evidence on Hand
 
 - Product demo on landing: board preview / `/brand/demo.webm` with CSS fallback (ops-flavored sample tasks).
-- FAQ copy covering what SRelay is, groups, Ask AI / Basic·Plus, anti-KPI stance, data storage, PWA install.
+- FAQ copy covering what SRelay is, groups, Ask AI, anti-KPI stance, data in your account, PWA install.
 - Specs: `docs/REQUIREMENTS.md`, `docs/UIUX.md`, `docs/BRAND.md`, `docs/ARCHITECTURE.md`.
 - Do **not** fabricate testimonials, customer logos, benchmarks, pricing claims, or press quotes.
 

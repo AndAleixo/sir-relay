@@ -5,6 +5,7 @@ export interface TaskCardLabels {
   dragHandle: string;
   addDueDate: string;
   startDoing: string;
+  startDoingShort: string;
   markDone: string;
   completedMark: string;
   taskMenu: string;

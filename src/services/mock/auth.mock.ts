@@ -19,8 +19,10 @@ import {
   mockGroupService,
   rememberMockLastActiveGroup,
 } from "@/services/mock/groups.mock";
+import { personalGroupName } from "@/lib/group-templates";
 import {
   consumeAllInvitesForUser,
+  consumeEmailVerifyToken,
   consumeInvite,
   resolveInvite,
 } from "@/services/mock/tokens.mock";
@@ -352,8 +354,31 @@ export class MockAuthService implements AuthService {
     /* does not mutate mock users */
   }
 
-  async verifyEmailWithToken(): Promise<Session> {
-    throw new Error("Invalid token");
+  async verifyEmailWithToken(token: string): Promise<Session> {
+    const consumed = consumeEmailVerifyToken(token);
+    if (!consumed) throw new Error("Invalid token");
+    const user = findMockUserById(consumed.userId);
+    if (!user?.active) throw new Error("Invalid token");
+
+    const groups = await mockGroupService.listForUser(user.id);
+    let activeGroupId: string | null =
+      groups.length === 1
+        ? groups[0].id
+        : groups.length > 0
+          ? await mockGroupService.pickResumeGroupId(user.id)
+          : null;
+    if (groups.length === 0) {
+      const group = await mockGroupService.create(
+        user.id,
+        personalGroupName(user.locale),
+        { templateId: "personal", locale: user.locale },
+      );
+      activeGroupId = group.id;
+    }
+
+    const session = buildSession(user, activeGroupId);
+    await writeSession(session);
+    return session;
   }
 
   async resendVerificationEmail(): Promise<void> {

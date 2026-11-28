@@ -84,7 +84,7 @@
     "tryDemo": "Try demo",
     "gateTitle": "Try the board",
     "gateSubtitle": "Your name and a starting board. This stays in this tab.",
-    "notice": "Try the board, New task, and Ask AI (demo drafts stay in this tab). A real account does not import this.",
+    "notice": "A short guided tour in the app — nothing is saved to an account.",
     "start": "Start demo",
     "nameRequired": "Enter at least 2 characters.",
     "nameHint": "Up to {max} characters.",
@@ -192,7 +192,42 @@
     "bannerCta": "Create account",
     "leave": "Leave demo",
     "groupName": "Demo group",
-    "addTeammate": "Add a teammate (name only)"
+    "addTeammate": "Add a teammate (name only)",
+    "tutorial": {
+      "skip": "Skip tour",
+      "progress": "Step {current} of {total}",
+      "finishBadge": "Tour complete",
+      "finishTitle": "Create your account to keep this",
+      "finishBody": "Your demo stays in this tab until you leave. Sign up to save tasks, teammates, and boards to your account.",
+      "signupCta": "Create account",
+      "continueDemo": "Keep exploring",
+      "steps": {
+        "1": {
+          "title": "Create a task",
+          "body": "Tap New task, add a title, and save."
+        },
+        "2": {
+          "title": "Assign it",
+          "body": "Drag the task to a teammate’s column or change the assignee in the list."
+        },
+        "3": {
+          "title": "Start work",
+          "body": "Use Start on the card or drag it into In progress."
+        },
+        "4": {
+          "title": "Complete it",
+          "body": "Mark it done or drag it to Done."
+        },
+        "5": {
+          "title": "Board or list",
+          "body": "Switch between board and list to see the same work differently."
+        },
+        "6": {
+          "title": "Ask AI",
+          "body": "Open Ask AI, type a short phrase, and send to get draft tasks."
+        }
+      }
+    }
   },
   "contact": {
     "title": "Contact",
@@ -241,7 +276,24 @@
     "deleteConfirm": "Delete \"{group}\" permanently? All tasks, teammates, and alerts in this group will be removed.",
     "forbidden": "You don't have permission to do that.",
     "notMember": "You are not a member of that group.",
-    "actionFailed": "Something went wrong. Try again."
+    "actionFailed": "Something went wrong. Try again.",
+    "templates": {
+      "fieldLabel": "Template",
+      "personal": { "label": "Personal", "nameSuggestion": "Personal" },
+      "shop": { "label": "Shop / retail", "nameSuggestion": "My shop" },
+      "software": { "label": "Software", "nameSuggestion": "Dev team" },
+      "operations": { "label": "Operations", "nameSuggestion": "Operations" },
+      "sampleTasks": {
+        "completeCheck": "Complete this task by clicking the check",
+        "askAiWeek": "Ask AI to create your week plan"
+      },
+      "seedProjects": {
+        "personal": [{ "name": "General", "acronym": "GEN", "categories": ["Main"] }],
+        "shop": [{ "name": "Shop floor", "acronym": "SHP", "categories": ["Front", "Stock"] }],
+        "software": [{ "name": "Product", "acronym": "PRD", "categories": ["Backlog", "Ship"] }],
+        "operations": [{ "name": "Daily ops", "acronym": "OPS", "categories": ["Today", "This week"] }]
+      }
+    }
   },
   "join": {
     "title": "Join a group",
@@ -327,8 +379,13 @@
     "team": "Team",
     "scopeAria": "Task scope",
     "viewAria": "Task view",
-    "emptyBoard": "Add members to start coordinating work.",
+    "emptyBoard": "Your task board is empty",
+    "emptyBoardHint": "Add a task, try Ask AI, or invite teammates when you are ready to coordinate.",
+    "emptyBoardInvite": "Invite teammates",
     "emptyMyWork": "No tasks assigned to you yet.",
+    "emptyMyWorkHint": "Create a task or use Ask AI to draft your first items.",
+    "noGroupTitle": "Choose a group to see tasks",
+    "noGroupBody": "Open the group menu above to create a workspace or join with an invite link.",
     "saved": "Task saved.",
     "deleted": "Task deleted.",
     "errorTitle": "Title is required.",
@@ -371,6 +428,7 @@
     "addTask": "Add task",
     "addDueDate": "Add due date",
     "startDoing": "Start — move to In progress",
+    "startDoingShort": "Start",
     "markDone": "Complete — move to Done",
     "completedMark": "Completed",
     "difficulty": "Difficulty",
@@ -401,6 +459,7 @@
     "composeErrorSuggest": "Could not suggest tasks. Try again or create one manually.",
     "composeErrorApprove": "Could not create the task. Check the title and try again.",
     "composeErrorQuota": "AI request limit reached for this month.",
+    "composeErrorRate": "Too many AI requests from this network. Try again later.",
     "composeErrorTooLong": "Keep the AI request under 300 characters."
   },
   "projects": {
@@ -496,10 +555,6 @@
     "photoInvalid": "That file is not a usable image.",
     "photoTooLarge": "Could not compress this image under 1 MB. Try a smaller photo.",
     "accountInfo": "Account",
-    "plan": "Plan",
-    "planBasic": "Basic",
-    "planPlus": "Plus",
-    "planEnds": "Ends {date}",
     "accountName": "Account name",
     "accountNameHint": "Your name across SRelay. Only you can change this.",
     "nameSaved": "Name updated.",
@@ -519,6 +574,8 @@
     "linkKeyTakeawayLabel": "Use with",
     "linkKeyTakeawayIde": "IDE",
     "linkKeyTakeawayMcp": "MCP",
+    "linkKeyExtensionDownload": "Install IDE extension (Open VSX)",
+    "linkKeyMcpPackage": "MCP package on npm",
     "linkKeyFieldKey": "API key",
     "linkKeyFieldMcp": "MCP config",
     "linkKeyOpenIde": "Open IDE",
@@ -602,7 +659,7 @@
     "footerNav": "Footer links",
     "eyebrow": "Solo, a group, or a team",
     "heroTitle": "Organize your work. See what's left.",
-    "heroSubtitle": "Assign tasks and follow progress — alone or with a group. Optional Ask AI can draft tasks from a short note.",
+    "heroSubtitle": "Assign tasks and follow progress — alone or with a group. Ask AI can draft a concrete plan from a short note.",
     "contactLead": "Questions, implementation ideas, or more information? Use",
     "demoAria": "SRelay board preview",
     "demoUrl": "app.sirrelay.com/{locale}/tasks",
@@ -621,7 +678,7 @@
       },
       "ai": {
         "title": "Ask AI when it helps",
-        "body": "Draft tasks from a short note, or create them yourself. Basic and Plus set monthly limits — no in-app payment."
+        "body": "Turn a short note into concrete tasks with suggested due dates and assignees — accept, edit, or discard each one."
       },
       "relay": {
         "title": "No measuring people",
@@ -641,7 +698,7 @@
       },
       "ai": {
         "q": "What is Ask AI?",
-        "a": "Optional drafts from a short note (when AI is configured on the deployment). Manual New task stays available. Plans Basic and Plus set monthly suggest limits; your plan shows on Profile — no in-app payment."
+        "a": "Describe what you need in a short note and Ask AI drafts concrete tasks you can accept, edit, or discard. Manual New task stays available."
       },
       "metrics": {
         "q": "Do you track productivity metrics?",
@@ -649,7 +706,7 @@
       },
       "data": {
         "q": "Where is my data stored?",
-        "a": "On SRelay servers (PostgreSQL). Signed-in pages are never cached by the browser; the session uses one essential cookie."
+        "a": "In your SRelay account. Signed-in pages are never cached by the browser; the session uses one essential cookie."
       },
       "install": {
         "q": "Can I install SRelay on my phone?",
@@ -668,8 +725,10 @@
       "addTask": "+ New task",
       "previewLabel": "SRelay IDE extension",
       "extensionCaption": "IDE extension",
+      "extensionInstalls": "{count} extension installs",
       "extensionWindowTitle": "SRelay · sidebar",
       "mcpCaption": "MCP in chat",
+      "mcpDownloads": "{count} MCP downloads (last year)",
       "mcpPreviewLabel": "SRelay MCP in chat",
       "mcpWindowTitle": "SRelay · MCP",
       "mcpUserCreate": "Add a task: prep tomorrow’s opening checklist, due tomorrow, medium.",

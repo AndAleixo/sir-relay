@@ -165,6 +165,7 @@ export function BoardTaskCard({
         onClick={() => onStartDoing()}
       >
         <StartDoingIcon />
+        <span aria-hidden>{labels.startDoingShort}</span>
       </button>
     ) : !readOnly && onMarkDone ? (
       <button

@@ -1,0 +1,25 @@
+# VPS behind sir-edge: no public Caddy; join sir_edge with stable aliases.
+# Prerequisite: docker network create sir_edge
+# Usage: docker compose -f docker-compose.yml -f docker-compose.edge.yml up -d
+services:
+  caddy:
+    profiles: ["local-caddy"]
+
+  app:
+    networks:
+      internal:
+      sir_edge:
+        aliases:
+          - sirrelay-app
+
+  umami:
+    networks:
+      internal:
+      sir_edge:
+        aliases:
+          - sirrelay-umami
+
+networks:
+  sir_edge:
+    external: true
+    name: sir_edge

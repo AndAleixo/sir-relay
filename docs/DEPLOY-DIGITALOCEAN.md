@@ -6,6 +6,8 @@ Visitantes acedem à landing; utilizadores autenticados entram na app. Stack ali
 
 **Companion docs:** [ARCHITECTURE.md](./ARCHITECTURE.md) · [ENVIRONMENTS.md](./ENVIRONMENTS.md) · [README.md](../README.md)
 
+**Mesma VPS que o SLearn:** usa o repo **sir-edge** (Caddy na rede `sir_edge`). Neste repo: `SHARED_WITH_EDGE=1` + `docker-compose.edge.yml`. Guia: `sir-edge/docs/DEPLOY.md`.
+
 **Ambientes (3):** dev mock · prod local · prod VPS — [ENVIRONMENTS.md](./ENVIRONMENTS.md). Este guia cobre **prod VPS**.
 
 Não documenta o estado live de uma instalação concreta (cron, paths, remotos, registador). Isso fica fora do git.

@@ -27,9 +27,15 @@ fi
 echo "→ prod-vps · git pull"
 git pull
 
+# Behind sir-edge on a shared Droplet: SHARED_WITH_EDGE=1 in .env
+if [[ "${SHARED_WITH_EDGE:-}" == "1" ]]; then
+  COMPOSE=(docker compose -f docker-compose.yml -f docker-compose.edge.yml)
+  echo "→ mode: sir-edge (sirrelay-app / sirrelay-umami on sir_edge)"
+fi
+
 echo "→ postgres + migrate"
 wait_postgres_compose
-ensure_umami_database
+ensure_umami_database "${COMPOSE[@]}"
 prisma_migrate_deploy_docker "$POSTGRES_PASSWORD"
 
 echo "→ docker compose up --build"

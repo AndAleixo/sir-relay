@@ -98,6 +98,7 @@ export default async function TasksPage({
         </Banner>
       ) : null}
       <TasksPageClient
+        key={session.activeGroupId ?? "no-group"}
         locale={locale}
         role={session.user.role}
         initialScope={initialScope}
@@ -137,6 +138,7 @@ export default async function TasksPage({
           startDoing: t("tasks.startDoing"),
           startDoingShort: t("tasks.startDoingShort"),
           markDone: t("tasks.markDone"),
+          markDoneShort: t("tasks.markDoneShort"),
           completedMark: t("tasks.completedMark"),
           invited: t("teammate.invited"),
           inactive: t("teammate.inactive"),

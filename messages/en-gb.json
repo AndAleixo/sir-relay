@@ -24,7 +24,8 @@
   "shell": {
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
-    "accountMenu": "Account menu",
+    "accountMenu": "Account",
+    "groupLabel": "Group",
     "switchGroup": "Switch group",
     "pasteInvite": "Paste"
   },
@@ -92,98 +93,350 @@
     "presets": {
       "personal": {
         "label": "Personal",
-        "teammates": ["Ana", "Luis", "Sofia"],
+        "teammates": [
+          "Ana",
+          "Luis",
+          "Sofia"
+        ],
         "projects": [
-          { "name": "Home", "acronym": "HOM", "categories": ["Errands", "Bills"] },
-          { "name": "Family", "acronym": "FAM", "categories": ["Plans"] }
+          {
+            "name": "Home",
+            "acronym": "HOM",
+            "categories": [
+              "Errands",
+              "Bills"
+            ]
+          },
+          {
+            "name": "Family",
+            "acronym": "FAM",
+            "categories": [
+              "Plans"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Pay the electricity bill", "who": "self", "project": "HOM", "due": true },
-          { "title": "Book the dentist", "who": "Ana", "project": "HOM" },
-          { "title": "Buy school supplies", "who": "Luis", "project": "FAM" },
-          { "title": "Plan Sunday lunch", "who": "Sofia", "project": "FAM" },
-          { "title": "Renew the bus pass", "who": "self", "project": "HOM" },
-          { "title": "Call the landlord", "who": "Ana", "project": "HOM" }
+          {
+            "title": "Pay the electricity bill",
+            "who": "self",
+            "project": "HOM",
+            "due": true
+          },
+          {
+            "title": "Book the dentist",
+            "who": "Ana",
+            "project": "HOM"
+          },
+          {
+            "title": "Buy school supplies",
+            "who": "Luis",
+            "project": "FAM"
+          },
+          {
+            "title": "Plan Sunday lunch",
+            "who": "Sofia",
+            "project": "FAM"
+          },
+          {
+            "title": "Renew the bus pass",
+            "who": "self",
+            "project": "HOM"
+          },
+          {
+            "title": "Call the landlord",
+            "who": "Ana",
+            "project": "HOM"
+          }
         ]
       },
       "finance": {
         "label": "Finance",
-        "teammates": ["Marta", "Pedro", "Elena"],
+        "teammates": [
+          "Marta",
+          "Pedro",
+          "Elena"
+        ],
         "projects": [
-          { "name": "Books", "acronym": "BKS", "categories": ["Invoices", "Tax"] },
-          { "name": "Payroll", "acronym": "PAY", "categories": ["Month"] }
+          {
+            "name": "Books",
+            "acronym": "BKS",
+            "categories": [
+              "Invoices",
+              "Tax"
+            ]
+          },
+          {
+            "name": "Payroll",
+            "acronym": "PAY",
+            "categories": [
+              "Month"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Send the March invoice", "who": "Marta", "project": "BKS", "due": true },
-          { "title": "Reconcile the account", "who": "self", "project": "BKS" },
-          { "title": "File the tax receipt", "who": "Pedro", "project": "BKS" },
-          { "title": "Confirm the salaries", "who": "Elena", "project": "PAY" },
-          { "title": "Chase the late payment", "who": "self", "project": "BKS" },
-          { "title": "Update the budget", "who": "Marta", "project": "PAY" }
+          {
+            "title": "Send the March invoice",
+            "who": "Marta",
+            "project": "BKS",
+            "due": true
+          },
+          {
+            "title": "Reconcile the account",
+            "who": "self",
+            "project": "BKS"
+          },
+          {
+            "title": "File the tax receipt",
+            "who": "Pedro",
+            "project": "BKS"
+          },
+          {
+            "title": "Confirm the salaries",
+            "who": "Elena",
+            "project": "PAY"
+          },
+          {
+            "title": "Chase the late payment",
+            "who": "self",
+            "project": "BKS"
+          },
+          {
+            "title": "Update the budget",
+            "who": "Marta",
+            "project": "PAY"
+          }
         ]
       },
       "software": {
         "label": "Software",
-        "teammates": ["Daniel", "Laura", "Marco"],
+        "teammates": [
+          "Daniel",
+          "Laura",
+          "Marco"
+        ],
         "projects": [
-          { "name": "App", "acronym": "APP", "categories": ["Review", "Bugs"] },
-          { "name": "Release", "acronym": "REL", "categories": ["Ship"] }
+          {
+            "name": "App",
+            "acronym": "APP",
+            "categories": [
+              "Review",
+              "Bugs"
+            ]
+          },
+          {
+            "name": "Release",
+            "acronym": "REL",
+            "categories": [
+              "Ship"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Fix the login bug", "who": "Daniel", "project": "APP", "due": true },
-          { "title": "Review the pull request", "who": "Laura", "project": "APP" },
-          { "title": "Write the release notes", "who": "self", "project": "REL" },
-          { "title": "Update the README", "who": "Marco", "project": "APP" },
-          { "title": "Test the signup form", "who": "self", "project": "APP" },
-          { "title": "Tag the release", "who": "Laura", "project": "REL" }
+          {
+            "title": "Fix the login bug",
+            "who": "Daniel",
+            "project": "APP",
+            "due": true
+          },
+          {
+            "title": "Review the pull request",
+            "who": "Laura",
+            "project": "APP"
+          },
+          {
+            "title": "Write the release notes",
+            "who": "self",
+            "project": "REL"
+          },
+          {
+            "title": "Update the README",
+            "who": "Marco",
+            "project": "APP"
+          },
+          {
+            "title": "Test the signup form",
+            "who": "self",
+            "project": "APP"
+          },
+          {
+            "title": "Tag the release",
+            "who": "Laura",
+            "project": "REL"
+          }
         ]
       },
       "hardware": {
         "label": "Hardware",
-        "teammates": ["Nina", "David", "Rosa"],
+        "teammates": [
+          "Nina",
+          "David",
+          "Rosa"
+        ],
         "projects": [
-          { "name": "Board", "acronym": "BRD", "categories": ["Prototype", "Test"] },
-          { "name": "Lab", "acronym": "LAB", "categories": ["Parts"] }
+          {
+            "name": "Board",
+            "acronym": "BRD",
+            "categories": [
+              "Prototype",
+              "Test"
+            ]
+          },
+          {
+            "name": "Lab",
+            "acronym": "LAB",
+            "categories": [
+              "Parts"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Flash the prototype", "who": "self", "project": "BRD", "due": true },
-          { "title": "Order the sensors", "who": "Nina", "project": "LAB" },
-          { "title": "Measure the voltage", "who": "David", "project": "BRD" },
-          { "title": "Label the cables", "who": "Rosa", "project": "LAB" },
-          { "title": "Log the test run", "who": "self", "project": "BRD" },
-          { "title": "Return the spare parts", "who": "David", "project": "LAB" }
+          {
+            "title": "Flash the prototype",
+            "who": "self",
+            "project": "BRD",
+            "due": true
+          },
+          {
+            "title": "Order the sensors",
+            "who": "Nina",
+            "project": "LAB"
+          },
+          {
+            "title": "Measure the voltage",
+            "who": "David",
+            "project": "BRD"
+          },
+          {
+            "title": "Label the cables",
+            "who": "Rosa",
+            "project": "LAB"
+          },
+          {
+            "title": "Log the test run",
+            "who": "self",
+            "project": "BRD"
+          },
+          {
+            "title": "Return the spare parts",
+            "who": "David",
+            "project": "LAB"
+          }
         ]
       },
       "purchasing": {
         "label": "Purchasing",
-        "teammates": ["Sara", "Ana", "Pedro"],
+        "teammates": [
+          "Sara",
+          "Ana",
+          "Pedro"
+        ],
         "projects": [
-          { "name": "Orders", "acronym": "ORD", "categories": ["Quotes", "Delivery"] },
-          { "name": "Stock", "acronym": "STK", "categories": ["Count"] }
+          {
+            "name": "Orders",
+            "acronym": "ORD",
+            "categories": [
+              "Quotes",
+              "Delivery"
+            ]
+          },
+          {
+            "name": "Stock",
+            "acronym": "STK",
+            "categories": [
+              "Count"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Compare three quotes", "who": "self", "project": "ORD", "due": true },
-          { "title": "Confirm the delivery", "who": "Sara", "project": "ORD" },
-          { "title": "Count the stock", "who": "Ana", "project": "STK" },
-          { "title": "Approve the purchase", "who": "Pedro", "project": "ORD" },
-          { "title": "Call the supplier", "who": "self", "project": "ORD" },
-          { "title": "Update the reorder list", "who": "Ana", "project": "STK" }
+          {
+            "title": "Compare three quotes",
+            "who": "self",
+            "project": "ORD",
+            "due": true
+          },
+          {
+            "title": "Confirm the delivery",
+            "who": "Sara",
+            "project": "ORD"
+          },
+          {
+            "title": "Count the stock",
+            "who": "Ana",
+            "project": "STK"
+          },
+          {
+            "title": "Approve the purchase",
+            "who": "Pedro",
+            "project": "ORD"
+          },
+          {
+            "title": "Call the supplier",
+            "who": "self",
+            "project": "ORD"
+          },
+          {
+            "title": "Update the reorder list",
+            "who": "Ana",
+            "project": "STK"
+          }
         ]
       },
       "sales": {
         "label": "Sales",
-        "teammates": ["Laura", "Marco", "Marta"],
+        "teammates": [
+          "Laura",
+          "Marco",
+          "Marta"
+        ],
         "projects": [
-          { "name": "Pipeline", "acronym": "PIP", "categories": ["Leads", "Quotes"] },
-          { "name": "Accounts", "acronym": "ACC", "categories": ["Follow"] }
+          {
+            "name": "Pipeline",
+            "acronym": "PIP",
+            "categories": [
+              "Leads",
+              "Quotes"
+            ]
+          },
+          {
+            "name": "Accounts",
+            "acronym": "ACC",
+            "categories": [
+              "Follow"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Call the new lead", "who": "Laura", "project": "PIP", "due": true },
-          { "title": "Send the proposal", "who": "self", "project": "PIP" },
-          { "title": "Follow up the quote", "who": "Marco", "project": "PIP" },
-          { "title": "Update the account notes", "who": "Marta", "project": "ACC" },
-          { "title": "Book the demo call", "who": "self", "project": "PIP" },
-          { "title": "Close the open quote", "who": "Laura", "project": "ACC" }
+          {
+            "title": "Call the new lead",
+            "who": "Laura",
+            "project": "PIP",
+            "due": true
+          },
+          {
+            "title": "Send the proposal",
+            "who": "self",
+            "project": "PIP"
+          },
+          {
+            "title": "Follow up the quote",
+            "who": "Marco",
+            "project": "PIP"
+          },
+          {
+            "title": "Update the account notes",
+            "who": "Marta",
+            "project": "ACC"
+          },
+          {
+            "title": "Book the demo call",
+            "who": "self",
+            "project": "PIP"
+          },
+          {
+            "title": "Close the open quote",
+            "who": "Laura",
+            "project": "ACC"
+          }
         ]
       }
     },
@@ -208,7 +461,7 @@
         },
         "2": {
           "title": "Assign it",
-          "body": "Drag the task to a teammate’s column or change the assignee in the list."
+          "body": "Drag the task to a teammate’s To do column, or change the assignee in the list."
         },
         "3": {
           "title": "Start work",
@@ -279,19 +532,86 @@
     "actionFailed": "Something went wrong. Try again.",
     "templates": {
       "fieldLabel": "Template",
-      "personal": { "label": "Personal", "nameSuggestion": "Personal" },
-      "shop": { "label": "Shop / retail", "nameSuggestion": "My shop" },
-      "software": { "label": "Software", "nameSuggestion": "Dev team" },
-      "operations": { "label": "Operations", "nameSuggestion": "Operations" },
+      "personal": {
+        "label": "Personal",
+        "nameSuggestion": "Personal"
+      },
+      "shop": {
+        "label": "Shop / retail",
+        "nameSuggestion": "My shop"
+      },
+      "software": {
+        "label": "Software",
+        "nameSuggestion": "Dev team"
+      },
+      "operations": {
+        "label": "Operations",
+        "nameSuggestion": "Operations"
+      },
       "sampleTasks": {
         "completeCheck": "Complete this task by clicking the check",
-        "askAiWeek": "Ask AI to create your week plan"
+        "askAiWeek": "Ask AI to create your week plan",
+        "payBill": "Pay a bill",
+        "bookAppointment": "Book an appointment",
+        "buyGroceries": "Buy groceries",
+        "planWeekend": "Plan the weekend",
+        "countStockShelfA": "Count stock on shelf A",
+        "logSupplierDeliveries": "Log supplier deliveries",
+        "restockOutOfStock": "Restock out-of-stock items",
+        "reviewNearExpiry": "Review products near expiry",
+        "reviewPendingPr": "Review the pending PR",
+        "fixReportedBug": "Fix the reported bug",
+        "prepareWeekRelease": "Prepare this week’s release",
+        "writeReleaseNotes": "Write release notes",
+        "checkEquipmentStatus": "Check equipment status",
+        "updateShiftProcedure": "Update the shift procedure",
+        "walkTheFloor": "Walk the floor",
+        "confirmOpeningChecklist": "Confirm opening checklist"
       },
       "seedProjects": {
-        "personal": [{ "name": "General", "acronym": "GEN", "categories": ["Main"] }],
-        "shop": [{ "name": "Shop floor", "acronym": "SHP", "categories": ["Front", "Stock"] }],
-        "software": [{ "name": "Product", "acronym": "PRD", "categories": ["Backlog", "Ship"] }],
-        "operations": [{ "name": "Daily ops", "acronym": "OPS", "categories": ["Today", "This week"] }]
+        "personal": [
+          {
+            "name": "General",
+            "acronym": "GEN",
+            "categories": [
+              "Bills",
+              "Health",
+              "Shopping",
+              "Plans",
+              "Getting started"
+            ]
+          }
+        ],
+        "shop": [
+          {
+            "name": "Shop floor",
+            "acronym": "SHP",
+            "categories": [
+              "Front",
+              "Stock"
+            ]
+          }
+        ],
+        "software": [
+          {
+            "name": "Product",
+            "acronym": "PRD",
+            "categories": [
+              "Backlog",
+              "Ship"
+            ]
+          }
+        ],
+        "operations": [
+          {
+            "name": "Daily ops",
+            "acronym": "OPS",
+            "categories": [
+              "Today",
+              "This week"
+            ]
+          }
+        ]
       }
     }
   },
@@ -460,7 +780,8 @@
     "composeErrorApprove": "Could not create the task. Check the title and try again.",
     "composeErrorQuota": "AI request limit reached for this month.",
     "composeErrorRate": "Too many AI requests from this network. Try again later.",
-    "composeErrorTooLong": "Keep the AI request under 300 characters."
+    "composeErrorTooLong": "Keep the AI request under 300 characters.",
+    "markDoneShort": "Done"
   },
   "projects": {
     "hint": "Short labels for tasks in this group. The acronym shows on the board and in Telegram. Anyone can add categories.",

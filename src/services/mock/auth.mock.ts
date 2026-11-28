@@ -354,7 +354,7 @@ export class MockAuthService implements AuthService {
     /* does not mutate mock users */
   }
 
-  async verifyEmailWithToken(token: string): Promise<Session> {
+  async verifyEmailWithToken(token: string, localeOverride?: Locale): Promise<Session> {
     const consumed = consumeEmailVerifyToken(token);
     if (!consumed) throw new Error("Invalid token");
     const user = findMockUserById(consumed.userId);
@@ -368,10 +368,11 @@ export class MockAuthService implements AuthService {
           ? await mockGroupService.pickResumeGroupId(user.id)
           : null;
     if (groups.length === 0) {
+      const seedLocale = localeOverride ?? user.locale;
       const group = await mockGroupService.create(
         user.id,
-        personalGroupName(user.locale),
-        { templateId: "personal", locale: user.locale },
+        personalGroupName(seedLocale),
+        { templateId: "personal", locale: seedLocale },
       );
       activeGroupId = group.id;
     }

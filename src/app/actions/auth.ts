@@ -140,7 +140,10 @@ export async function confirmEmailVerificationForm(
   }
   let session;
   try {
-    session = await getServices().auth.verifyEmailWithToken(token);
+    const verifyLocale = locales.includes(locale as Locale)
+      ? (locale as Locale)
+      : defaultLocale;
+    session = await getServices().auth.verifyEmailWithToken(token, verifyLocale);
   } catch {
     redirect(`/${locale}/verify-email?error=invalid`);
   }

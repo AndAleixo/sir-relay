@@ -24,7 +24,9 @@ export function AppLayoutClient({
   children,
 }: AppLayoutClientProps) {
   return (
-    <SyncProvider>
+    // Remount sync state when the active group changes so tasks/queue
+    // never leak across groups after a switch.
+    <SyncProvider key={activeGroupId ?? "no-group"}>
       <Suspense fallback={null}>
         <ConsumeFlash />
       </Suspense>

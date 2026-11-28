@@ -222,7 +222,10 @@ export function TaskComposeDrawer({
   }
 
   function runSuggest() {
-    const text = aiText.trim();
+    void runSuggestWithText(aiText.trim());
+  }
+
+  function runSuggestWithText(text: string) {
     if (!text || locked || aiBlocked) return;
     if (text.length > AI_SUGGEST_TEXT_MAX) {
       setError(labels.errorTooLong);
@@ -230,7 +233,9 @@ export function TaskComposeDrawer({
     }
     setError(null);
     setBusy("suggest");
-    startTransition(async () => {
+    // Outside startTransition so busy clears as soon as the request finishes
+    // (transition pending must not keep the spinner up after drafts land).
+    void (async () => {
       try {
         const result = local
           ? await local.suggest(text)
@@ -248,6 +253,7 @@ export function TaskComposeDrawer({
           else setError(labels.errorSuggest);
           return;
         }
+        setBusy(null);
         setRemaining(result.remaining);
         setLimit(result.limit);
         setAiItems(
@@ -257,16 +263,23 @@ export function TaskComposeDrawer({
           })),
         );
         setAiText("");
+      } catch {
+        setError(labels.errorSuggest);
       } finally {
         setBusy(null);
       }
-    });
+    })();
   }
 
   function onChatKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key !== "Enter" || event.shiftKey) return;
+    if (event.nativeEvent.isComposing) return;
     event.preventDefault();
-    runSuggest();
+    // Flush controlled value before suggest — first Enter must not race state.
+    const text = (event.currentTarget.value ?? aiText).trim();
+    if (!text || locked || aiBlocked) return;
+    if (text !== aiText) setAiText(text.slice(0, AI_SUGGEST_TEXT_MAX));
+    runSuggestWithText(text);
   }
 
   function createDrafts(drafts: PendingCreateDraft[], clearAi: boolean) {

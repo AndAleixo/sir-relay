@@ -383,6 +383,9 @@ function TaskColumn({
                       ? () => onAssignToColumn(assigneeId, "doing", task.id)
                       : undefined
                   }
+                  onMarkDone={() =>
+                    onAssignToColumn(assigneeId, "done", task.id)
+                  }
                   onClone={onClone}
                   onDelete={onDelete}
                 />
@@ -661,22 +664,30 @@ export function TeamBoard({
     if (!task || !target) return;
 
     const needsReassign = task.assigneeId !== targetAssigneeId;
-    const needsStatus = task.status !== targetStatus;
+    // Reassigning to someone else always lands in their To do — Start is a
+    // separate action (demo tutorial step 2 vs 3, and clearer for operators).
+    const nextStatus: TaskStatus = needsReassign ? "todo" : targetStatus;
+    const needsStatus = task.status !== nextStatus;
     if (!needsReassign && !needsStatus) return;
+
+    if (needsReassign && nextStatus === "todo") {
+      await placeInTodo(targetAssigneeId, taskId, TODO_QUEUE_APPEND);
+      return;
+    }
 
     await applyTaskUpdate(
       taskId,
       {
         assigneeId: target.id,
         assigneeName: target.name,
-        status: targetStatus,
+        status: nextStatus,
       },
       [
         {
           type: "move_task",
           taskId,
           payload: {
-            status: targetStatus,
+            status: nextStatus,
             assigneeId: target.id,
             assigneeName: target.name,
           },

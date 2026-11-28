@@ -209,7 +209,9 @@ export function StatusKanban({
           isQueueHead ? () => void assignStatus(task.id, "doing") : undefined
         }
         onMarkDone={
-          status === "doing" ? () => void assignStatus(task.id, "done") : undefined
+          status === "todo" || status === "doing"
+            ? () => void assignStatus(task.id, "done")
+            : undefined
         }
         onClone={() => void cloneTask(task.id)}
         onDelete={() => void deleteTask(task.id)}

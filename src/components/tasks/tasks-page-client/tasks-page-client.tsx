@@ -227,6 +227,7 @@ export function TasksPageClient({
     startDoing: labels.startDoing,
     startDoingShort: labels.startDoingShort,
     markDone: labels.markDone,
+    markDoneShort: labels.markDoneShort,
     completedMark: labels.completedMark,
     taskMenu: labels.taskMenu,
     menuOpen: labels.menuOpen,

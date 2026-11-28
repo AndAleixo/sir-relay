@@ -134,10 +134,33 @@ function logSecurityBlock(
   });
 }
 
+/** Short aliases → full app locales (avoid falling through to English). */
+const SHORT_LOCALE_REDIRECT: Record<string, string> = {
+  en: "en-gb",
+  es: "es-es",
+  pt: "pt-br",
+};
+
+function shortLocaleRedirect(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl;
+  const first = pathname.split("/")[1]?.toLowerCase() ?? "";
+  const target = SHORT_LOCALE_REDIRECT[first];
+  if (!target) return null;
+  const url = request.nextUrl.clone();
+  url.pathname = `/${target}${pathname.slice(first.length + 1) || ""}`;
+  return NextResponse.redirect(url, 308);
+}
+
 export default function proxy(request: NextRequest) {
   const requestId = resolveRequestId(request.headers.get(REQUEST_ID_HEADER));
 
   return runWithRequestId(requestId, () => {
+    const short = shortLocaleRedirect(request);
+    if (short) {
+      applySecurityHeaders(request, short);
+      return attachRequestId(short, requestId);
+    }
+
     const req = withRequestIdOnRequest(request, requestId);
 
     const csrfBlocked = assertCsrfOrigin(req);
@@ -169,5 +192,5 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/(en-gb|es-es|pt-br)/:path*"],
+  matcher: ["/", "/(en|es|pt|en-gb|es-es|pt-br)/:path*"],
 };

@@ -74,7 +74,7 @@ export interface AuthService {
   acceptLegalTerms(userId: string): Promise<Session>;
   requestPasswordReset(email: string, locale?: Locale): Promise<void>;
   resetPasswordWithToken(token: string, password: string): Promise<void>;
-  verifyEmailWithToken(token: string): Promise<Session>;
+  verifyEmailWithToken(token: string, localeOverride?: Locale): Promise<Session>;
   resendVerificationEmail(email: string, locale?: Locale): Promise<void>;
   /** Hard-delete account after password check; leaves all groups first. */
   deleteAccount(userId: string, password: string): Promise<void>;

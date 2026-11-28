@@ -40,8 +40,10 @@ export function UserMenu({ locale, user, accountHref, demo }: UserMenuProps) {
         title={t("shell.accountMenu")}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="sr-only">{t("common.account")}</span>
         <UserAvatar userId={user.id} userName={user.name} />
+        <span className="hidden text-xs font-medium text-[var(--text-muted)] sm:inline">
+          {t("shell.accountMenu")}
+        </span>
         <ChevronDown className={open ? "rotate-180" : undefined} />
       </button>
 

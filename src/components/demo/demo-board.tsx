@@ -217,6 +217,7 @@ export function DemoBoard() {
     startDoing: t("tasks.startDoing"),
     startDoingShort: t("tasks.startDoingShort"),
     markDone: t("tasks.markDone"),
+    markDoneShort: t("tasks.markDoneShort"),
     completedMark: t("tasks.completedMark"),
     taskMenu: t("tasks.taskMenu"),
     menuOpen: t("tasks.menuOpen"),

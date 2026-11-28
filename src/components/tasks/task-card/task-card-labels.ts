@@ -7,6 +7,7 @@ export interface TaskCardLabels {
   startDoing: string;
   startDoingShort: string;
   markDone: string;
+  markDoneShort: string;
   completedMark: string;
   taskMenu: string;
   menuOpen: string;

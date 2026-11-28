@@ -283,12 +283,13 @@ export function GroupSwitcher({
         )}
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label={t("shell.switchGroup")}
-        title={t("shell.switchGroup")}
+        aria-label={`${t("shell.groupLabel")}: ${triggerLabel}`}
+        title={t("shell.groupLabel")}
         onClick={() => setOpen((value) => !value)}
       >
         {compact ? (
           <>
+            <span className="sr-only">{t("shell.groupLabel")}</span>
             <span className={shellStyles.groupSwitcherNameCompact}>{triggerLabel}</span>
             {invitations.length > 0 ? (
               <span className="rounded-full bg-brand-accent px-1.5 text-xs font-semibold">
@@ -301,6 +302,9 @@ export function GroupSwitcher({
           <>
             <GroupIcon className="h-4 w-4 shrink-0 text-[var(--text-muted)]" />
             <span className={shellStyles.groupSwitcherText}>
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
+                {t("shell.groupLabel")}
+              </span>
               <span className={shellStyles.groupSwitcherName}>{triggerLabel}</span>
               {active ? (
                 <span className={shellStyles.groupSwitcherRole}>

@@ -24,9 +24,10 @@
   "shell": {
     "collapseSidebar": "Recolher barra lateral",
     "expandSidebar": "Expandir barra lateral",
-    "accountMenu": "Menu da conta",
+    "accountMenu": "Conta",
     "switchGroup": "Trocar de grupo",
-    "pasteInvite": "Colar"
+    "pasteInvite": "Colar",
+    "groupLabel": "Grupo"
   },
   "auth": {
     "login": "Entrar",
@@ -92,98 +93,350 @@
     "presets": {
       "personal": {
         "label": "Pessoal",
-        "teammates": ["Ana", "Luis", "Sofia"],
+        "teammates": [
+          "Ana",
+          "Luis",
+          "Sofia"
+        ],
         "projects": [
-          { "name": "Casa", "acronym": "CAS", "categories": ["Recados", "Contas"] },
-          { "name": "Família", "acronym": "FAM", "categories": ["Planos"] }
+          {
+            "name": "Casa",
+            "acronym": "CAS",
+            "categories": [
+              "Recados",
+              "Contas"
+            ]
+          },
+          {
+            "name": "Família",
+            "acronym": "FAM",
+            "categories": [
+              "Planos"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Pagar a conta de luz", "who": "self", "project": "CAS", "due": true },
-          { "title": "Marcar o dentista", "who": "Ana", "project": "CAS" },
-          { "title": "Comprar material escolar", "who": "Luis", "project": "FAM" },
-          { "title": "Combinar o almoço", "who": "Sofia", "project": "FAM" },
-          { "title": "Renovar o cartão de ônibus", "who": "self", "project": "CAS" },
-          { "title": "Ligar para o proprietário", "who": "Ana", "project": "CAS" }
+          {
+            "title": "Pagar a conta de luz",
+            "who": "self",
+            "project": "CAS",
+            "due": true
+          },
+          {
+            "title": "Marcar o dentista",
+            "who": "Ana",
+            "project": "CAS"
+          },
+          {
+            "title": "Comprar material escolar",
+            "who": "Luis",
+            "project": "FAM"
+          },
+          {
+            "title": "Combinar o almoço",
+            "who": "Sofia",
+            "project": "FAM"
+          },
+          {
+            "title": "Renovar o cartão de ônibus",
+            "who": "self",
+            "project": "CAS"
+          },
+          {
+            "title": "Ligar para o proprietário",
+            "who": "Ana",
+            "project": "CAS"
+          }
         ]
       },
       "finance": {
         "label": "Finanças",
-        "teammates": ["Marta", "Pedro", "Elena"],
+        "teammates": [
+          "Marta",
+          "Pedro",
+          "Elena"
+        ],
         "projects": [
-          { "name": "Contas", "acronym": "CTA", "categories": ["Faturas", "Imposto"] },
-          { "name": "Folha", "acronym": "FOL", "categories": ["Mês"] }
+          {
+            "name": "Contas",
+            "acronym": "CTA",
+            "categories": [
+              "Faturas",
+              "Imposto"
+            ]
+          },
+          {
+            "name": "Folha",
+            "acronym": "FOL",
+            "categories": [
+              "Mês"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Enviar a fatura de março", "who": "Marta", "project": "CTA", "due": true },
-          { "title": "Conciliar a conta", "who": "self", "project": "CTA" },
-          { "title": "Guardar o recibo", "who": "Pedro", "project": "CTA" },
-          { "title": "Confirmar os salários", "who": "Elena", "project": "FOL" },
-          { "title": "Cobrar o pagamento", "who": "self", "project": "CTA" },
-          { "title": "Atualizar o orçamento", "who": "Marta", "project": "FOL" }
+          {
+            "title": "Enviar a fatura de março",
+            "who": "Marta",
+            "project": "CTA",
+            "due": true
+          },
+          {
+            "title": "Conciliar a conta",
+            "who": "self",
+            "project": "CTA"
+          },
+          {
+            "title": "Guardar o recibo",
+            "who": "Pedro",
+            "project": "CTA"
+          },
+          {
+            "title": "Confirmar os salários",
+            "who": "Elena",
+            "project": "FOL"
+          },
+          {
+            "title": "Cobrar o pagamento",
+            "who": "self",
+            "project": "CTA"
+          },
+          {
+            "title": "Atualizar o orçamento",
+            "who": "Marta",
+            "project": "FOL"
+          }
         ]
       },
       "software": {
         "label": "Software",
-        "teammates": ["Daniel", "Laura", "Marco"],
+        "teammates": [
+          "Daniel",
+          "Laura",
+          "Marco"
+        ],
         "projects": [
-          { "name": "App", "acronym": "APP", "categories": ["Revisão", "Bugs"] },
-          { "name": "Versão", "acronym": "VER", "categories": ["Entrega"] }
+          {
+            "name": "App",
+            "acronym": "APP",
+            "categories": [
+              "Revisão",
+              "Bugs"
+            ]
+          },
+          {
+            "name": "Versão",
+            "acronym": "VER",
+            "categories": [
+              "Entrega"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Corrigir o login", "who": "Daniel", "project": "APP", "due": true },
-          { "title": "Revisar o pull request", "who": "Laura", "project": "APP" },
-          { "title": "Escrever as notas", "who": "self", "project": "VER" },
-          { "title": "Atualizar o README", "who": "Marco", "project": "APP" },
-          { "title": "Testar o cadastro", "who": "self", "project": "APP" },
-          { "title": "Marcar a versão", "who": "Laura", "project": "VER" }
+          {
+            "title": "Corrigir o login",
+            "who": "Daniel",
+            "project": "APP",
+            "due": true
+          },
+          {
+            "title": "Revisar o pull request",
+            "who": "Laura",
+            "project": "APP"
+          },
+          {
+            "title": "Escrever as notas",
+            "who": "self",
+            "project": "VER"
+          },
+          {
+            "title": "Atualizar o README",
+            "who": "Marco",
+            "project": "APP"
+          },
+          {
+            "title": "Testar o cadastro",
+            "who": "self",
+            "project": "APP"
+          },
+          {
+            "title": "Marcar a versão",
+            "who": "Laura",
+            "project": "VER"
+          }
         ]
       },
       "hardware": {
         "label": "Hardware",
-        "teammates": ["Nina", "David", "Rosa"],
+        "teammates": [
+          "Nina",
+          "David",
+          "Rosa"
+        ],
         "projects": [
-          { "name": "Placa", "acronym": "PLC", "categories": ["Protótipo", "Teste"] },
-          { "name": "Lab", "acronym": "LAB", "categories": ["Peças"] }
+          {
+            "name": "Placa",
+            "acronym": "PLC",
+            "categories": [
+              "Protótipo",
+              "Teste"
+            ]
+          },
+          {
+            "name": "Lab",
+            "acronym": "LAB",
+            "categories": [
+              "Peças"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Gravar o protótipo", "who": "self", "project": "PLC", "due": true },
-          { "title": "Encomendar sensores", "who": "Nina", "project": "LAB" },
-          { "title": "Medir a tensão", "who": "David", "project": "PLC" },
-          { "title": "Etiquetar os cabos", "who": "Rosa", "project": "LAB" },
-          { "title": "Registrar o teste", "who": "self", "project": "PLC" },
-          { "title": "Devolver as peças", "who": "David", "project": "LAB" }
+          {
+            "title": "Gravar o protótipo",
+            "who": "self",
+            "project": "PLC",
+            "due": true
+          },
+          {
+            "title": "Encomendar sensores",
+            "who": "Nina",
+            "project": "LAB"
+          },
+          {
+            "title": "Medir a tensão",
+            "who": "David",
+            "project": "PLC"
+          },
+          {
+            "title": "Etiquetar os cabos",
+            "who": "Rosa",
+            "project": "LAB"
+          },
+          {
+            "title": "Registrar o teste",
+            "who": "self",
+            "project": "PLC"
+          },
+          {
+            "title": "Devolver as peças",
+            "who": "David",
+            "project": "LAB"
+          }
         ]
       },
       "purchasing": {
         "label": "Compras",
-        "teammates": ["Sara", "Ana", "Pedro"],
+        "teammates": [
+          "Sara",
+          "Ana",
+          "Pedro"
+        ],
         "projects": [
-          { "name": "Pedidos", "acronym": "PED", "categories": ["Cotações", "Entrega"] },
-          { "name": "Estoque", "acronym": "EST", "categories": ["Contagem"] }
+          {
+            "name": "Pedidos",
+            "acronym": "PED",
+            "categories": [
+              "Cotações",
+              "Entrega"
+            ]
+          },
+          {
+            "name": "Estoque",
+            "acronym": "EST",
+            "categories": [
+              "Contagem"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Comparar três cotações", "who": "self", "project": "PED", "due": true },
-          { "title": "Confirmar a entrega", "who": "Sara", "project": "PED" },
-          { "title": "Contar o estoque", "who": "Ana", "project": "EST" },
-          { "title": "Aprovar a compra", "who": "Pedro", "project": "PED" },
-          { "title": "Ligar para o fornecedor", "who": "self", "project": "PED" },
-          { "title": "Atualizar a reposição", "who": "Ana", "project": "EST" }
+          {
+            "title": "Comparar três cotações",
+            "who": "self",
+            "project": "PED",
+            "due": true
+          },
+          {
+            "title": "Confirmar a entrega",
+            "who": "Sara",
+            "project": "PED"
+          },
+          {
+            "title": "Contar o estoque",
+            "who": "Ana",
+            "project": "EST"
+          },
+          {
+            "title": "Aprovar a compra",
+            "who": "Pedro",
+            "project": "PED"
+          },
+          {
+            "title": "Ligar para o fornecedor",
+            "who": "self",
+            "project": "PED"
+          },
+          {
+            "title": "Atualizar a reposição",
+            "who": "Ana",
+            "project": "EST"
+          }
         ]
       },
       "sales": {
         "label": "Vendas",
-        "teammates": ["Laura", "Marco", "Marta"],
+        "teammates": [
+          "Laura",
+          "Marco",
+          "Marta"
+        ],
         "projects": [
-          { "name": "Funil", "acronym": "FUN", "categories": ["Leads", "Propostas"] },
-          { "name": "Contas", "acronym": "CTA", "categories": ["Retorno"] }
+          {
+            "name": "Funil",
+            "acronym": "FUN",
+            "categories": [
+              "Leads",
+              "Propostas"
+            ]
+          },
+          {
+            "name": "Contas",
+            "acronym": "CTA",
+            "categories": [
+              "Retorno"
+            ]
+          }
         ],
         "tasks": [
-          { "title": "Ligar para o lead", "who": "Laura", "project": "FUN", "due": true },
-          { "title": "Enviar a proposta", "who": "self", "project": "FUN" },
-          { "title": "Retomar o orçamento", "who": "Marco", "project": "FUN" },
-          { "title": "Atualizar a conta", "who": "Marta", "project": "CTA" },
-          { "title": "Marcar a chamada", "who": "self", "project": "FUN" },
-          { "title": "Fechar a proposta", "who": "Laura", "project": "CTA" }
+          {
+            "title": "Ligar para o lead",
+            "who": "Laura",
+            "project": "FUN",
+            "due": true
+          },
+          {
+            "title": "Enviar a proposta",
+            "who": "self",
+            "project": "FUN"
+          },
+          {
+            "title": "Retomar o orçamento",
+            "who": "Marco",
+            "project": "FUN"
+          },
+          {
+            "title": "Atualizar a conta",
+            "who": "Marta",
+            "project": "CTA"
+          },
+          {
+            "title": "Marcar a chamada",
+            "who": "self",
+            "project": "FUN"
+          },
+          {
+            "title": "Fechar a proposta",
+            "who": "Laura",
+            "project": "CTA"
+          }
         ]
       }
     },
@@ -208,7 +461,7 @@
         },
         "2": {
           "title": "Atribuir",
-          "body": "Arraste a tarefa para a coluna de um colega ou mude o responsável na lista."
+          "body": "Arraste a tarefa para a coluna A fazer de um colega, ou mude o responsável na lista."
         },
         "3": {
           "title": "Começar",
@@ -279,19 +532,86 @@
     "actionFailed": "Algo deu errado. Tente novamente.",
     "templates": {
       "fieldLabel": "Modelo",
-      "personal": { "label": "Pessoal", "nameSuggestion": "Pessoal" },
-      "shop": { "label": "Loja / varejo", "nameSuggestion": "Minha loja" },
-      "software": { "label": "Software", "nameSuggestion": "Time de produto" },
-      "operations": { "label": "Operações", "nameSuggestion": "Operações" },
+      "personal": {
+        "label": "Pessoal",
+        "nameSuggestion": "Pessoal"
+      },
+      "shop": {
+        "label": "Loja / varejo",
+        "nameSuggestion": "Minha loja"
+      },
+      "software": {
+        "label": "Software",
+        "nameSuggestion": "Time de produto"
+      },
+      "operations": {
+        "label": "Operações",
+        "nameSuggestion": "Operações"
+      },
       "sampleTasks": {
         "completeCheck": "Conclua esta tarefa clicando no check",
-        "askAiWeek": "Peça à IA para montar o plano da semana"
+        "askAiWeek": "Peça à IA para montar o plano da semana",
+        "payBill": "Pagar uma conta",
+        "bookAppointment": "Marcar um compromisso",
+        "buyGroceries": "Fazer compras",
+        "planWeekend": "Planejar o fim de semana",
+        "countStockShelfA": "Contar estoque na prateleira A",
+        "logSupplierDeliveries": "Registrar entregas do fornecedor",
+        "restockOutOfStock": "Repor itens em falta",
+        "reviewNearExpiry": "Revisar produtos perto do vencimento",
+        "reviewPendingPr": "Revisar o PR pendente",
+        "fixReportedBug": "Corrigir o bug reportado",
+        "prepareWeekRelease": "Preparar o release desta semana",
+        "writeReleaseNotes": "Escrever as notas da versão",
+        "checkEquipmentStatus": "Verificar estado dos equipamentos",
+        "updateShiftProcedure": "Atualizar o procedimento do turno",
+        "walkTheFloor": "Percorrer o piso",
+        "confirmOpeningChecklist": "Confirmar checklist de abertura"
       },
       "seedProjects": {
-        "personal": [{ "name": "Geral", "acronym": "GER", "categories": ["Principal"] }],
-        "shop": [{ "name": "Loja", "acronym": "LOJ", "categories": ["Vitrine", "Estoque"] }],
-        "software": [{ "name": "Produto", "acronym": "PRD", "categories": ["Backlog", "Entrega"] }],
-        "operations": [{ "name": "Operação", "acronym": "OPE", "categories": ["Hoje", "Semana"] }]
+        "personal": [
+          {
+            "name": "Geral",
+            "acronym": "GER",
+            "categories": [
+              "Contas",
+              "Saúde",
+              "Compras",
+              "Planos",
+              "Primeiros passos"
+            ]
+          }
+        ],
+        "shop": [
+          {
+            "name": "Loja",
+            "acronym": "LOJ",
+            "categories": [
+              "Vitrine",
+              "Estoque"
+            ]
+          }
+        ],
+        "software": [
+          {
+            "name": "Produto",
+            "acronym": "PRD",
+            "categories": [
+              "Backlog",
+              "Entrega"
+            ]
+          }
+        ],
+        "operations": [
+          {
+            "name": "Operação",
+            "acronym": "OPE",
+            "categories": [
+              "Hoje",
+              "Semana"
+            ]
+          }
+        ]
       }
     }
   },
@@ -460,7 +780,8 @@
     "composeErrorApprove": "Não foi possível criar a tarefa. Verifique o título e tente de novo.",
     "composeErrorQuota": "Limite de pedidos à IA deste mês atingido.",
     "composeErrorRate": "Demasiados pedidos à IA nesta rede. Tente mais tarde.",
-    "composeErrorTooLong": "O pedido à IA deve ter no máximo 300 caracteres."
+    "composeErrorTooLong": "O pedido à IA deve ter no máximo 300 caracteres.",
+    "markDoneShort": "Feito"
   },
   "projects": {
     "hint": "Rótulos curtos para tarefas deste grupo. A sigla aparece no quadro e no Telegram. Qualquer pessoa pode adicionar categorias.",

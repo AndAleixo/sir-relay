@@ -495,7 +495,10 @@ export class ApiAuthService implements AuthService {
     });
   }
 
-  async verifyEmailWithToken(token: string): Promise<Session> {
+  async verifyEmailWithToken(
+    token: string,
+    localeOverride?: Locale,
+  ): Promise<Session> {
     const consumed = await consumeEmailToken(token, "email_verify");
     if (!consumed) throw new Error("Invalid token");
     const row = await prisma.user.update({
@@ -507,7 +510,7 @@ export class ApiAuthService implements AuthService {
     });
     let activeGroupId = await pickDefaultGroupIdAsync(row.id);
     if (membershipCount === 0) {
-      const locale = toLocale(row.locale);
+      const locale = localeOverride ?? toLocale(row.locale);
       const group = await apiGroupService.create(row.id, personalGroupName(locale), {
         templateId: "personal",
         locale,

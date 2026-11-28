@@ -15,7 +15,25 @@ export const GROUP_TEMPLATE_IDS = [
 
 export type GroupTemplateId = (typeof GROUP_TEMPLATE_IDS)[number];
 
-type SampleTaskKey = "completeCheck" | "askAiWeek";
+type SampleTaskKey =
+  | "completeCheck"
+  | "askAiWeek"
+  | "payBill"
+  | "bookAppointment"
+  | "buyGroceries"
+  | "planWeekend"
+  | "countStockShelfA"
+  | "logSupplierDeliveries"
+  | "restockOutOfStock"
+  | "reviewNearExpiry"
+  | "reviewPendingPr"
+  | "fixReportedBug"
+  | "prepareWeekRelease"
+  | "writeReleaseNotes"
+  | "checkEquipmentStatus"
+  | "updateShiftProcedure"
+  | "walkTheFloor"
+  | "confirmOpeningChecklist";
 
 type SeedProjectMsg = {
   name: string;
@@ -43,18 +61,34 @@ const TEMPLATE_TASK_LAYOUT: Record<
   Array<{ titleKey: SampleTaskKey; projectIndex: number; categoryIndex?: number }>
 > = {
   personal: [
-    { titleKey: "completeCheck", projectIndex: 0, categoryIndex: 0 },
-    { titleKey: "askAiWeek", projectIndex: 0, categoryIndex: 0 },
+    { titleKey: "payBill", projectIndex: 0, categoryIndex: 0 },
+    { titleKey: "bookAppointment", projectIndex: 0, categoryIndex: 1 },
+    { titleKey: "buyGroceries", projectIndex: 0, categoryIndex: 2 },
+    { titleKey: "planWeekend", projectIndex: 0, categoryIndex: 3 },
+    { titleKey: "completeCheck", projectIndex: 0, categoryIndex: 4 },
+    { titleKey: "askAiWeek", projectIndex: 0, categoryIndex: 4 },
   ],
   shop: [
+    { titleKey: "countStockShelfA", projectIndex: 0, categoryIndex: 1 },
+    { titleKey: "logSupplierDeliveries", projectIndex: 0, categoryIndex: 1 },
+    { titleKey: "restockOutOfStock", projectIndex: 0, categoryIndex: 1 },
+    { titleKey: "reviewNearExpiry", projectIndex: 0, categoryIndex: 1 },
     { titleKey: "completeCheck", projectIndex: 0, categoryIndex: 0 },
     { titleKey: "askAiWeek", projectIndex: 0, categoryIndex: 1 },
   ],
   software: [
+    { titleKey: "reviewPendingPr", projectIndex: 0, categoryIndex: 0 },
+    { titleKey: "fixReportedBug", projectIndex: 0, categoryIndex: 0 },
+    { titleKey: "prepareWeekRelease", projectIndex: 0, categoryIndex: 1 },
+    { titleKey: "writeReleaseNotes", projectIndex: 0, categoryIndex: 1 },
     { titleKey: "completeCheck", projectIndex: 0, categoryIndex: 0 },
     { titleKey: "askAiWeek", projectIndex: 0, categoryIndex: 0 },
   ],
   operations: [
+    { titleKey: "checkEquipmentStatus", projectIndex: 0, categoryIndex: 0 },
+    { titleKey: "updateShiftProcedure", projectIndex: 0, categoryIndex: 1 },
+    { titleKey: "walkTheFloor", projectIndex: 0, categoryIndex: 0 },
+    { titleKey: "confirmOpeningChecklist", projectIndex: 0, categoryIndex: 0 },
     { titleKey: "completeCheck", projectIndex: 0, categoryIndex: 0 },
     { titleKey: "askAiWeek", projectIndex: 0, categoryIndex: 1 },
   ],
@@ -216,7 +250,7 @@ if (process.env.NODE_ENV !== "production") {
   for (const locale of locales) {
     for (const templateId of GROUP_TEMPLATE_IDS) {
       const plan = buildTemplateSeedPlan(templateId, locale);
-      if (plan.projects.length === 0 || plan.tasks.length < 2) {
+      if (plan.projects.length === 0 || plan.tasks.length < 6) {
         console.error(`group-templates seed plan failed for ${templateId}@${locale}`);
       }
       const personal = personalGroupName(locale);
